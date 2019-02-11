@@ -1,3 +1,5 @@
+.vscode
+
 conf/frontend.config.json
 
 backend/venv
