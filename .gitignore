@@ -1,1 +1,7 @@
 conf/frontend.config.json
+
+backend/venv
+backend/__pycache__
+
+
+frontend/dist
