@@ -2,8 +2,11 @@
 # Flask app whose primary purpose is to server the frontend
 
 import sys
-from flask import Flask, render_template
 from os import path
+import configparser
+
+
+from flask import Flask, render_template
 
 #make sure the frontend exists before even starting the app
 frontend_exists = path.isdir("../frontend/dist")
@@ -11,6 +14,16 @@ if not frontend_exists:
     print("Server cannot start.  Frontend does not exist.  ../frontend/dist does not exist.")
     print("Go to frontend directory and run 'npm run build' to build the frontend.")
     sys.exit()
+
+config_exists = path.isfile("../conf/backend.config")
+if not config_exists:
+    print("Server cannot start.  Config file does not exist.  ../conf/backend.config does not exist.")
+    sys.exit()
+
+config_parser = configparser.ConfigParser()
+config_parser.read("../conf/backend.config")
+config = config_parser['DEFAULT']
+
 
 
 app = Flask(__name__, 
@@ -27,4 +40,4 @@ def fallback(fallback):
     return render_template("/index.html")
 
 if __name__ == '__main__':
-    app.run(host='localhost', port=5000, debug=True)
+    app.run(host=config['FlaskHost'], port=int(config['FlaskPort']), debug=config['DebugMode']=='True')

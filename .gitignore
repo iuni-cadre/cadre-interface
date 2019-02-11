@@ -1,6 +1,7 @@
 .vscode
 
 conf/frontend.config.json
+conf/backend.config
 
 backend/venv
 backend/__pycache__
