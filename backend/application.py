@@ -31,13 +31,13 @@ application = app = Flask(__name__,
     static_folder="./frontend/assets"
     )
 
-@app.route("/")
+@application.route("/")
 def index():
     return render_template("/index.html")
 
-@app.route("/<path:fallback>")
+@application.route("/<path:fallback>")
 def fallback(fallback):
     return render_template("/index.html")
 
 if __name__ == '__main__':
-    app.run(host=config['FlaskHost'], port=int(config['FlaskPort']), debug=config['DebugMode']=='True')
+    application.run(host=config['FlaskHost'], port=int(config['FlaskPort']), debug=config['DebugMode']=='True')
