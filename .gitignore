@@ -8,3 +8,6 @@ backend/__pycache__
 
 
 frontend/dist
+
+bundle
+eb_bundle.zip
