@@ -72,7 +72,7 @@ export default {
         },
         sendQuery: function() {
             let database_prom = this.$cadre.axios({
-                url: "/database/year/" + this.year
+                url: "/database/" + this.year
             });
             database_prom.then(
                 result => {
