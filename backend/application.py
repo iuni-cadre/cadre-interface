@@ -33,10 +33,12 @@ application = app = Flask(__name__,
 
 @application.route("/")
 def index():
+    auth_token = request.args.get('token')
     return render_template("/index.html")
 
 @application.route("/<path:fallback>")
 def fallback(fallback):
+    auth_token = request.args.get('token')
     return render_template("/index.html")
 
 if __name__ == '__main__':

@@ -106,7 +106,7 @@ export default {
     },
 
     axiosProxy: function(options) {
-        if (!this.$store || !this.$store.getters || !this.$store.getters.auth_token) {
+        if (!this.$store || !this.$store.getters || !this.$store.getters["user/authToken"]) {
             // throw new Error("No auth token found");
             console.info("No auth token found.");
         }
