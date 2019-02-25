@@ -1,6 +1,5 @@
 <template>
     <div id="app">
-        {{token}}
         <header class="container">
             <h1>CADRE</h1>
         </header>
@@ -19,6 +18,8 @@
     </div>
 </template>
 <script>
+
+import { mapGetters } from 'vuex'
 export default {
     data: function() {
         return {
@@ -26,20 +27,23 @@ export default {
         };
     },
     computed: {
-        token: function() {
-            //if has token and token is valid
-            return this.$store.getters["user/authToken"] && this.$store.getters["user/tokenIsValid"];
+        ...mapGetters("user", ['authToken']),
+        token: function(){ return this.authToken; },
+        login_url: function() {
+            return this.$cadreConfig.login_url;
         }
     },
     mounted: function() {
+        this.$store.commit("user/initializeToken");
         let validate_prom = null;
-        if (this.$route.query.token) {
+        if (this.$route.query.token && this.$route.query.username) {
             let token = this.$route.query.token;
+            let username = this.$route.query.username;
             this.$router.push({
                 path: this.$route.path,
                 query: {}
             });
-            validate_prom = this.$store.dispatch("user/validateToken", token);
+            validate_prom = this.$store.dispatch("user/validateToken", {token:token, username:username});
         } else {
             validate_prom = this.$store.dispatch("user/validateToken");
         }
@@ -47,6 +51,7 @@ export default {
         validate_prom.then(
             result => {
                 // console.info("Token valid.");
+                // console.debug(this.token);
             },
             error => {
                 this.error_message = "Unauthorized";
