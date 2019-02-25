@@ -1,0 +1,13 @@
+.vscode
+
+conf/frontend.config.json
+conf/backend.config
+
+backend/venv
+backend/__pycache__
+
+
+frontend/dist
+
+bundle
+eb_bundle.zip
