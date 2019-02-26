@@ -110,8 +110,13 @@ export default {
             // throw new Error("No auth token found");
             console.info("No auth token found.");
         }
+        if (!this.$store || !this.$store.getters || !this.$store.getters["user/username"]) {
+            // throw new Error("No auth token found");
+            console.info("No auth token found.");
+        }
         options.headers = options.headers || {};
         options.headers["auth-token"] = this.$store.getters['user/authToken'];
+        options.headers["auth-username"] = this.$store.getters['user/username'];
         var cadreGlobals = this;
         if ($config.show_log) {
             // cadreGlobals.$store.commit("addToDebugLog", options);

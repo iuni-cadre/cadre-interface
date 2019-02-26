@@ -86,7 +86,8 @@ export default {
                     },
                     headers: {
                         //if token is passed, use that, otherwise use the one already stored
-                        "auth-token": token
+                        "auth-token": token,
+                        "auth-username": username
                     }
                 });
 
