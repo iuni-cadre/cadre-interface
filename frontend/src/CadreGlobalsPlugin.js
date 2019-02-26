@@ -111,7 +111,7 @@ export default {
             console.info("No auth token found.");
         }
         options.headers = options.headers || {};
-        options.headers["auth-token"] = this.$store.getters.auth_token;
+        options.headers["auth-token"] = this.$store.getters['user/authToken'];
         var cadreGlobals = this;
         if ($config.show_log) {
             // cadreGlobals.$store.commit("addToDebugLog", options);
