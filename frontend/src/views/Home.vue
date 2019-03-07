@@ -55,7 +55,14 @@ export default {
             wos_id: "",
             database_status: {},
             status: {},
-            selected_fields: []
+            selected_fields: [
+                "PubType",
+                "PubYear",
+                "PubMonth",
+                "CoverDate",
+                "City",
+                "AddressCount"
+            ]
         };
     },
     computed: {
