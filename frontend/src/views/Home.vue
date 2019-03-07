@@ -7,6 +7,18 @@
                 <input class="form-control"
                        v-model="year">
             </div>
+            <div class="d-flex flex-wrap">
+                <div class="btn" v-for="field in fields"
+                     :key="`${field}_field`">
+                    <input type="checkbox"
+                           :id="`${field}_field`"
+                           v-model="selected_fields"
+                           :value="field" />
+                    <label :for="`${field}_field`"
+                           v-text="field" ></label>
+                </div>
+            </div>
+
             <!-- <p>OR</p>
         <div class="form-group">
             <label>WoS ID</label>
@@ -39,16 +51,22 @@ export default {
     data: function() {
         return {
             result: {},
-            year: "",
+            year: "1912",
             wos_id: "",
             database_status: {},
-            status: {}
+            status: {},
+            selected_fields: []
         };
+    },
+    computed: {
+        fields: function() {
+            return this.$store.getters["query/validFields"];
+        }
     },
     methods: {
         getStatus: function() {
             let status_prom = this.$cadre.axios({
-                url: "/status"
+                url: "/data/status"
             });
             status_prom.then(
                 result => {
@@ -59,7 +77,7 @@ export default {
                 }
             );
             let database_prom = this.$cadre.axios({
-                url: "/database"
+                url: "/data/wos/status"
             });
             database_prom.then(
                 result => {
@@ -71,15 +89,41 @@ export default {
             );
         },
         sendQuery: function() {
-            let database_prom = this.$cadre.axios({
-                url: "/database/" + this.year
-            });
-            database_prom.then(
+            // let database_prom = this.$cadre.axios({
+            //     url: "/data/wos/publications/" + this.year
+            // });
+            // database_prom.then(
+            //     result => {
+            //         this.result = result.data;
+            //     },
+            //     err => {
+            //         this.result = "Could not get data\n" + err;
+            //     }
+            // );
+            if (isNaN(Number(this.year))) {
+                console.debug("Not a year");
+                this.year = "";
+                return false;
+            }
+
+            let payload = {
+                query: [
+                    {
+                        argument: "year",
+                        value: Math.floor(Number(this.year))
+                    }
+                ],
+                output_fields: ["ID", ...this.selected_fields],
+                dataset: "wos"
+            };
+
+            let query_prom = this.$store.dispatch("query/sendQuery", payload);
+            query_prom.then(
                 result => {
-                    this.result = result.data;
+                    this.result = result;
                 },
-                err => {
-                    this.result = "Could not get data\n" + err;
+                error => {
+                    console.error(error);
                 }
             );
         }

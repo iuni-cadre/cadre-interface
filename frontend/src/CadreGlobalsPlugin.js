@@ -48,7 +48,7 @@ export default {
 
         /* axios proxy so that I don't have to add the auth-token header on every single request.  DRY. */
         function axiosWithAuthToken(options) {
-            return cadreGlobals.axiosProxy(options);
+            return cadreGlobals.axios(options);
         }
 
 
@@ -105,7 +105,7 @@ export default {
         return object;
     },
 
-    axiosProxy: function(options) {
+    axios: function(options) {
         if (!this.$store || !this.$store.getters || !this.$store.getters["user/authToken"]) {
             // throw new Error("No auth token found");
             console.info("No auth token found.");
