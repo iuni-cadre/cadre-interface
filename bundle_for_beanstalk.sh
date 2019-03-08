@@ -29,3 +29,7 @@ zip -r ../eb_bundle.zip -r * .[^.]*
 #remove the temporary bundle directory
 pushd ..
 rm -rf ./bundle
+
+exec eb deploy -v &
+wait
+exec eb status -v 
