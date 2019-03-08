@@ -52,6 +52,7 @@ export default {
             result => {
                 // console.info("Token valid.");
                 // console.debug(this.token);
+                this.$store.dispatch("user/beatHeart");
             },
             error => {
                 this.error_message = "Unauthorized";

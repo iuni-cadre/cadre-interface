@@ -9,7 +9,9 @@ export default {
         pending: false,
         auth_token: null,
         token_is_valid: !!localStorage.getItem("token"),
-        username: ""
+        username: "",
+        heartbeat_timer: 0,
+        heartbeat_interval: 10000
     },
     getters: {
         tokenValid: function(state) {
@@ -58,7 +60,6 @@ export default {
             // console.debug("tokenSet");
         },
         setUsername: function(state, username) {
-
             state.username = username;
             localStorage.removeItem("username");
             localStorage.setItem("username", username);
@@ -72,12 +73,40 @@ export default {
         }
     },
     actions: {
-        validateToken: function(state, payload) {
+        beatHeart: function({ state, dispatch, getters }) {
+            clearTimeout(state.heartbeat_timer);
+            state.heartbeat_timer = setTimeout(() => {
+                console.debug("Beat");
+                let username = getters.username;
+                let token = getters.authToken;
+                let validate_prom = axios({
+                    url: Vue.$cadreConfig.authentication_host + "/authenticate-token",
+                    method: "POST",
+                    data: {
+                        username: username
+                    },
+                    headers: {
+                        "auth-token": token,
+                        "auth-username": username
+                    }
+                });
+
+                validate_prom.then(
+                    response => {
+                        dispatch("beatHeart");
+                    },
+                    error => {
+                        console.warn(error);
+                    }
+                );
+            }, state.heartbeat_interval);
+        },
+        validateToken: function(context, payload) {
             //We must validate the token every time. If the token is not valid, it just gets removed.
-            let username = (payload && payload.username) || state.getters.username;
-            let token = (payload && payload.token) || state.getters.authToken;
+            let username = (payload && payload.username) || context.getters.username;
+            let token = (payload && payload.token) || context.getters.authToken;
             return new Promise(function(resolve, reject) {
-                // console.debug(state)
+                // console.debug(context)
                 let validate_prom = axios({
                     url: Vue.$cadreConfig.authentication_host + "/authenticate-token", //?username=" + (username || state.getters.username),
                     method: "POST",
@@ -94,14 +123,14 @@ export default {
                 validate_prom.then(
                     result => {
                         //if passed, set the token
-                        state.commit("setToken", token);
-                        state.commit("setUsername", username);
+                        context.commit("setToken", token);
+                        context.commit("setUsername", username);
                         console.info("Token is valid");
                         resolve(result);
                     },
                     error => {
                         //if failed, unset the token
-                        state.commit("logout");
+                        context.commit("logout");
                         console.error("Token not valid");
                         reject(error);
                     }
