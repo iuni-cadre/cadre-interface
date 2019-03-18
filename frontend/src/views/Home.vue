@@ -2,20 +2,51 @@
     <div>
         <h1>Cadre Test Form</h1>
         <form @submit.stop.prevent="sendQuery()">
-            <div class="form-group">
-                <label>Year</label>
-                <input class="form-control"
-                       v-model="year">
+            <template v-for="(clause, index) in queries">
+                <div class=" d-flex justify-content-between align-items-end"
+                     :key="`clause_${index}`">
+                    <div class="form-group">
+
+                        <label>Field</label>
+                        <select class="form-control"
+                                v-model="queries[index].field">
+                            <option v-for="field in field_options"
+                                    :key="`${field.value}_${index}`"
+                                    :value="field.value"
+                                    v-text="field.label"></option>
+                        </select>
+                    </div>
+                    <div class="form-group col">
+
+                        <label>Value</label>
+                        <input class="form-control"
+                               type="text"
+                               v-model="queries[index].value" />
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-danger"
+                                @click.stop.prevent="removeQueryClause(index)">X</button>
+                    </div>
+                </div>
+            </template>
+
+            <div>
+                <button class="btn btn-primary"
+                        @click.stop.prevent="addQueryClause()">Add Search Clause</button>
             </div>
+            <pre>{{queries}}</pre>
+
             <div class="d-flex flex-wrap">
-                <div class="btn" v-for="field in fields"
+                <div class="btn"
+                     v-for="field in fields"
                      :key="`${field}_field`">
+
                     <input type="checkbox"
                            :id="`${field}_field`"
                            v-model="selected_fields"
                            :value="field" />
                     <label :for="`${field}_field`"
-                           v-text="field" ></label>
+                           v-text="field"></label>
                 </div>
             </div>
 
@@ -47,6 +78,15 @@
     </div>
 </template>
 <script>
+let field_options = [
+    { value: "year", label: "Year" },
+    { value: "author", label: "Author" },
+    { value: "wos_id", label: "WoS ID" },
+    { value: "journal", label: "Journal Title" },
+    { value: "abstract", label: "Abstract" }
+];
+let join_types = [];
+
 export default {
     data: function() {
         return {
@@ -62,15 +102,38 @@ export default {
                 "CoverDate",
                 "City",
                 "AddressCount"
+            ],
+            queries: [
+                {
+                    field: "",
+                    value: "",
+                    join: ""
+                }
             ]
         };
     },
     computed: {
         fields: function() {
             return this.$store.getters["query/validFields"];
+        },
+        field_options: function() {
+            return field_options;
+        },
+        join_types: function() {
+            return join_types;
         }
     },
     methods: {
+        addQueryClause: function(clause) {
+            this.queries.push({
+                field: "",
+                value: "",
+                join: ""
+            });
+        },
+        removeQueryClause: function(index) {
+            this.queries.splice(index, 1);
+        },
         getStatus: function() {
             let status_prom = this.$cadre.axios({
                 url: "/data/status"
@@ -107,19 +170,32 @@ export default {
             //         this.result = "Could not get data\n" + err;
             //     }
             // );
-            if (isNaN(Number(this.year))) {
-                console.debug("Not a year");
-                this.year = "";
+            // if (isNaN(Number(this.year))) {
+            //     console.debug("Not a year");
+            //     this.year = "";
+            //     return false;
+            // }
+
+
+            let query = [];
+            for (let clause of this.queries) {
+                if (clause.field && clause.value) {
+                    query.push({
+                        argument: clause.field,
+                        value: clause.value
+                    });
+                }
+            }
+
+            if(query.length === 0)
+            {
+                console.error("Empty Query", this.queries);
                 return false;
             }
 
+
             let payload = {
-                query: [
-                    {
-                        argument: "year",
-                        value: Math.floor(Number(this.year))
-                    }
-                ],
+                query: query,
                 output_fields: ["ID", ...this.selected_fields],
                 dataset: "wos"
             };

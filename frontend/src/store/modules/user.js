@@ -120,21 +120,33 @@ export default {
                     }
                 });
 
-                validate_prom.then(
-                    result => {
-                        //if passed, set the token
-                        context.commit("setToken", token);
-                        context.commit("setUsername", username);
-                        console.info("Token is valid");
-                        resolve(result);
-                    },
-                    error => {
-                        //if failed, unset the token
-                        context.commit("logout");
-                        console.error("Token not valid");
-                        reject(error);
-                    }
-                );
+                if(Vue.$cadreConfig.force_validation === false)
+                {
+                    context.commit("setToken", 'fake');
+                    context.commit("setUsername", 'fake');
+                    console.info("Token is valid");
+                    resolve({msg: "Fake Validation"});
+                }
+                else
+                {
+
+
+                    validate_prom.then(
+                        result => {
+                            //if passed, set the token
+                            context.commit("setToken", token);
+                            context.commit("setUsername", username);
+                            console.info("Token is valid");
+                            resolve(result);
+                        },
+                        error => {
+                            //if failed, unset the token
+                            context.commit("logout");
+                            console.error("Token not valid");
+                            reject(error);
+                        }
+                    );
+                }
             });
         }
     }
