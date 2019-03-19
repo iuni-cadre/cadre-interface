@@ -10,7 +10,7 @@ backend/__pycache__
 frontend/dist
 
 bundle
-eb_bundle.zip
+eb_bundle*.zip
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
