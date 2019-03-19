@@ -30,6 +30,6 @@ zip -r ../eb_bundle.zip -r * .[^.]*
 pushd ..
 rm -rf ./bundle
 
-exec eb deploy -v &
-wait
-exec eb status -v 
+# exec eb deploy -v &
+# wait
+# exec eb status -v 

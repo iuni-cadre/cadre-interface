@@ -1,7 +1,9 @@
 <template>
     <div>
-        <h1>Cadre Test Form</h1>
+        <h1>Query Builder</h1>
         <form @submit.stop.prevent="sendQuery()">
+
+            <h2 class="mt-5">Filters</h2>
             <template v-for="(clause, index) in queries">
                 <div :key="`clause_${index}`">
                     <div v-if="index > 0">
@@ -55,26 +57,27 @@
                 <button class="btn btn-primary"
                         @click.stop.prevent="addQueryClause()">Add Search Clause</button>
             </div>
-            <!-- <pre>{{queries}}</pre> -->
 
-            <div class="row my-5">
-                <div class="col">
-                    Output Fields
-                </div>
-            </div>
+            <h2 class="mt-5">Output Columns</h2>
             <div class="row">
 
-                <div class="col-3 d-flex align-items-center"
+                <div class="col-3 d-flex align-items-center p-1"
                      v-for="field in fields"
                      :key="`${field}_field`">
+                    <label class="btn"
+                           :class="{
+                            'btn-outline-primary': selected_fields.indexOf(field) == -1,
+                            'btn-primary': selected_fields.indexOf(field) >= 0,
+                        }">
+                        <input type="checkbox"
+                               class="mr-2"
+                               :id="`${field}_field`"
+                               v-model="selected_fields"
+                               :value="field" />
 
-                    <input type="checkbox"
-                           :id="`${field}_field`"
-                           v-model="selected_fields"
-                           :value="field" />
-
-                    <label :for="`${field}_field`"
-                           v-text="field"></label>
+                        <span :for="`${field}_field`"
+                              v-text="field"></span>
+                    </label>
                 </div>
             </div>
 
@@ -84,17 +87,17 @@
             <input class="form-control"
                    v-model="wos_id">
         </div> -->
-            <div class="form-group">
-                <button class="btn btn-primary"
+            <div class="form-group mt-5">
+                <button class="btn btn-primary btn-lg"
                         type="submit">Submit Query</button>
-            </div>
-            <div>
-                <label>Output</label>
-                <pre class="pre"
-                     v-text="result"></pre>
             </div>
         </form>
 
+        <div>
+            <label>Output</label>
+            <pre class="pre"
+                 v-text="result"></pre>
+        </div>
         <div>
             <label>Database Status</label>
             <pre v-text="database_status"></pre>
