@@ -3,29 +3,50 @@
         <h1>Cadre Test Form</h1>
         <form @submit.stop.prevent="sendQuery()">
             <template v-for="(clause, index) in queries">
-                <div class=" d-flex justify-content-between align-items-end"
-                     :key="`clause_${index}`">
-                    <div class="form-group">
+                <div :key="`clause_${index}`">
+                    <div v-if="index > 0">
+                        <div class="form-group">
 
-                        <label>Field</label>
-                        <select class="form-control"
-                                v-model="queries[index].field">
-                            <option v-for="field in field_options"
-                                    :key="`${field.value}_${index}`"
-                                    :value="field.value"
-                                    v-text="field.label"></option>
-                        </select>
+                            <!-- <label>Operator</label> -->
+                            <select class="form-control"
+                                    style="width: auto"
+                                    v-model="queries[index].operator">
+                                <option disabled
+                                        selected
+                                        :value="''">Choose an operator</option>
+                                <option v-for="operator in operator_types"
+                                        :key="`${operator}_${index}`"
+                                        :value="operator"
+                                        v-text="operator"></option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="form-group col">
+                    <div class=" d-flex justify-content-between align-items-end">
+                        <div class="form-group">
 
-                        <label>Value</label>
-                        <input class="form-control"
-                               type="text"
-                               v-model="queries[index].value" />
-                    </div>
-                    <div class="form-group">
-                        <button class="btn btn-danger"
-                                @click.stop.prevent="removeQueryClause(index)">X</button>
+                            <label>Field</label>
+                            <select class="form-control"
+                                    v-model="queries[index].field">
+                                <option disabled
+                                        selected
+                                        :value="''">Choose a search field</option>
+                                <option v-for="field in field_options"
+                                        :key="`${field.value}_${index}`"
+                                        :value="field.value"
+                                        v-text="field.label"></option>
+                            </select>
+                        </div>
+                        <div class="form-group col">
+
+                            <label>Value</label>
+                            <input class="form-control"
+                                   type="text"
+                                   v-model="queries[index].value" />
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-danger"
+                                    @click.stop.prevent="removeQueryClause(index)">X</button>
+                        </div>
                     </div>
                 </div>
             </template>
@@ -34,10 +55,16 @@
                 <button class="btn btn-primary"
                         @click.stop.prevent="addQueryClause()">Add Search Clause</button>
             </div>
-            <pre>{{queries}}</pre>
+            <!-- <pre>{{queries}}</pre> -->
 
-            <div class="d-flex flex-wrap">
-                <div class="btn"
+            <div class="row my-5">
+                <div class="col">
+                    Output Fields
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-3 d-flex align-items-center"
                      v-for="field in fields"
                      :key="`${field}_field`">
 
@@ -45,6 +72,7 @@
                            :id="`${field}_field`"
                            v-model="selected_fields"
                            :value="field" />
+
                     <label :for="`${field}_field`"
                            v-text="field"></label>
                 </div>
@@ -85,7 +113,11 @@ let field_options = [
     { value: "journal", label: "Journal Title" },
     { value: "abstract", label: "Abstract" }
 ];
-let join_types = [];
+let operator_types = [
+    "OR",
+    "AND"
+    // "NOT"
+];
 
 export default {
     data: function() {
@@ -119,8 +151,8 @@ export default {
         field_options: function() {
             return field_options;
         },
-        join_types: function() {
-            return join_types;
+        operator_types: function() {
+            return operator_types;
         }
     },
     methods: {
@@ -128,7 +160,7 @@ export default {
             this.queries.push({
                 field: "",
                 value: "",
-                join: ""
+                operator: ""
             });
         },
         removeQueryClause: function(index) {
@@ -176,23 +208,21 @@ export default {
             //     return false;
             // }
 
-
             let query = [];
             for (let clause of this.queries) {
                 if (clause.field && clause.value) {
                     query.push({
                         argument: clause.field,
-                        value: clause.value
+                        value: clause.value,
+                        operator: clause.operator
                     });
                 }
             }
 
-            if(query.length === 0)
-            {
+            if (query.length === 0) {
                 console.error("Empty Query", this.queries);
                 return false;
             }
-
 
             let payload = {
                 query: query,

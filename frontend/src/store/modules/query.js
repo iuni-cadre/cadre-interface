@@ -66,7 +66,7 @@ export default {
         ]
     },
     getters: {
-        validFields: function(state){
+        validFields: function(state) {
             return state.valid_fields;
         }
     },
@@ -74,28 +74,39 @@ export default {
     actions: {
         sendQuery: function(state, payload) {
             let main_prom = new Promise(function(resolve, reject) {
-
                 let query = payload.query;
-                let args_array = [];
-                for (let arg of query) {
-                    args_array.push(`${arg.argument}:${arg.value}`);
-                }
-                let arg_string = args_array.join(",");
                 let dataset = payload.dataset;
-
+                // let args_array = [];
                 let fields = payload.output_fields;
                 let field_string = fields.join(", ");
+                let query_array = [];
+
+                let i = 0;
+                for (let clause of query) {
+                    // args_array.push(`${arg.argument}:${arg.value}`);
+                    if (i > 0) {
+                        clause.operator = clause.operator || "AND";
+                    }
+
+                    let clause_string = `
+query QueryPart${i}
+{
+    ${dataset}(${clause.argument}:"${clause.value}", operator: "${clause.operator || ''}")
+    {
+        ${field_string}
+    }
+}
+`;
+                    query_array.push(clause_string);
+                    i++;
+                }
+                // let arg_string = args_array.join(",");
 
                 //TODO: validate options before even constructing the request
 
-                let request = `
-                    {
-                        ${dataset}(${arg_string})
-                        {
-                            ${field_string}
-                        }
-                    }
-                `;
+                let request = query_array.join("\n");
+
+                console.debug(request);
 
                 let query_prom = Vue.$cadre.axios({
                     url: Vue.$cadreConfig.api_host + `/data/${dataset}-graphql/publication`,
@@ -117,6 +128,5 @@ export default {
             });
             return main_prom;
         }
-
     }
 };
