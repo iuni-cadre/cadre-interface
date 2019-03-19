@@ -23,8 +23,9 @@ cp ./backend/requirements.txt ./bundle/requirements.txt
 cp ./backend/application.py ./bundle/application.py
 pushd bundle
 
-rm -rf ../eb_bundle.zip
-zip -r ../eb_bundle.zip -r * .[^.]*
+rm -rf ../eb_bundle*.zip
+today=`date '+%Y-%m-%d--%H-%M-%S'`
+zip -r ../eb_bundle-rac-interface-$today.zip -r * .[^.]*
 
 #remove the temporary bundle directory
 pushd ..
