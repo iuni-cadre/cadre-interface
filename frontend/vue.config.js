@@ -1,8 +1,7 @@
 var ensoConfig = require ('../conf/frontend.config.json');
 module.exports = {
     lintOnSave: false,
-    baseUrl: "",
-    publicPath: "",
+    publicPath: "/query-builder/",
     outputDir: undefined,
     assetsDir: 'assets',
     runtimeCompiler: undefined,
