@@ -4,80 +4,101 @@
         <form @submit.stop.prevent="sendQuery()">
 
             <h2 class="mt-5">Filters</h2>
-            <template v-for="(clause, index) in queries">
-                <div :key="`clause_${index}`">
-                    <div v-if="index > 0">
-                        <div class="form-group">
+            <div class="card container py-3 mb-3">
+                <template v-for="(clause, index) in queries">
+                    <div :key="`clause_${index}`">
+                        <div v-if="index > 0">
+                            <div class="form-group">
 
-                            <!-- <label>Operator</label> -->
-                            <select class="form-control"
-                                    style="width: auto"
-                                    v-model="queries[index].operator">
-                                <option disabled
-                                        selected
-                                        :value="''">Choose an operator</option>
-                                <option v-for="operator in operator_types"
-                                        :key="`${operator}_${index}`"
-                                        :value="operator"
-                                        v-text="operator"></option>
-                            </select>
+                                <!-- <label>Operator</label> -->
+                                <select class="form-control"
+                                        style="width: auto"
+                                        v-model="queries[index].operator">
+                                    <option disabled
+                                            selected
+                                            :value="''">Choose an operand</option>
+                                    <option v-for="operator in operator_types"
+                                            :key="`${operator}_${index}`"
+                                            :value="operator"
+                                            v-text="operator"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class=" d-flex justify-content-between align-items-end">
+                            <div class="form-group">
+
+                                <label>Field</label>
+                                <select class="form-control"
+                                        v-model="queries[index].field">
+                                    <option disabled
+                                            selected
+                                            :value="''">Choose a search field</option>
+                                    <option v-for="field in field_options"
+                                            :key="`${field.value}_${index}`"
+                                            :value="field.value"
+                                            v-text="field.label"></option>
+                                </select>
+                            </div>
+                            <div class="form-group col">
+
+                                <label>Value</label>
+                                <input class="form-control"
+                                       type="text"
+                                       v-model="queries[index].value" />
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-danger"
+                                        @click.stop.prevent="removeQueryClause(index)">X</button>
+                            </div>
                         </div>
                     </div>
-                    <div class=" d-flex justify-content-between align-items-end">
-                        <div class="form-group">
-
-                            <label>Field</label>
-                            <select class="form-control"
-                                    v-model="queries[index].field">
-                                <option disabled
-                                        selected
-                                        :value="''">Choose a search field</option>
-                                <option v-for="field in field_options"
-                                        :key="`${field.value}_${index}`"
-                                        :value="field.value"
-                                        v-text="field.label"></option>
-                            </select>
-                        </div>
-                        <div class="form-group col">
-
-                            <label>Value</label>
-                            <input class="form-control"
-                                   type="text"
-                                   v-model="queries[index].value" />
-                        </div>
-                        <div class="form-group">
-                            <button class="btn btn-danger"
-                                    @click.stop.prevent="removeQueryClause(index)">X</button>
-                        </div>
-                    </div>
+                </template>
+                <div>
+                    <button class="btn btn-primary"
+                            @click.stop.prevent="addQueryClause()">Add Filter</button>
                 </div>
-            </template>
-
-            <div>
-                <button class="btn btn-primary"
-                        @click.stop.prevent="addQueryClause()">Add Search Clause</button>
             </div>
 
-            <h2 class="mt-5">Output Columns</h2>
-            <div class="row">
 
-                <div class="col-3 d-flex align-items-center p-1"
-                     v-for="field in fields"
-                     :key="`${field}_field`">
-                    <label class="btn"
-                           :class="{
+            <h2 class="mt-5">Output Fields</h2>
+            <div>
+                <label class="btn btn-sm mr-5"
+                       :class="{
+                            'btn-outline-primary': fields_view != 'selected',
+                            'btn-primary': fields_view == 'selected'
+                        }"><input type="radio"
+                           v-model="fields_view"
+                           value="selected" />Show Selected Only</label>
+                <label class="btn btn-sm"
+                       :class="{
+                            'btn-outline-primary': fields_view != 'all',
+                            'btn-primary': fields_view == 'all'
+                        }"><input type="radio"
+                           v-model="fields_view"
+                           value="all" />Show All Available Fields</label>
+            </div>
+            <div class="card container">
+                <div class="row ">
+                    <template v-for="field in fields">
+                        <div class="col-3 d-flex align-items-center p-1"
+                             :key="`${field}_field`"
+                             v-if="fields_view=='all' || selected_fields.indexOf(field) >= 0">
+                            <label class="btn"
+                                   :class="{
                             'btn-outline-primary': selected_fields.indexOf(field) == -1,
                             'btn-primary': selected_fields.indexOf(field) >= 0,
                         }">
-                        <input type="checkbox"
-                               class="mr-2"
-                               :id="`${field}_field`"
-                               v-model="selected_fields"
-                               :value="field" />
+                                <input type="checkbox"
+                                       class="mr-2"
+                                       :id="`${field}_field`"
+                                       v-model="selected_fields"
+                                       :value="field" />
 
-                        <span :for="`${field}_field`"
-                              v-text="field"></span>
-                    </label>
+                                <span :for="`${field}_field`"
+                                      v-text="field"></span>
+                            </label>
+                        </div>
+                    </template>
                 </div>
             </div>
 
@@ -98,10 +119,10 @@
             <pre class="pre"
                  v-text="result"></pre>
         </div>
-        <div>
+        <!-- <div>
             <label>Database Status</label>
             <pre v-text="database_status"></pre>
-        </div>
+        </div> -->
         <div>
             <label>API Status</label>
             <pre v-text="status"></pre>
@@ -144,7 +165,8 @@ export default {
                     value: "",
                     join: ""
                 }
-            ]
+            ],
+            fields_view: "selected"
         };
     },
     computed: {
@@ -163,7 +185,7 @@ export default {
             this.queries.push({
                 field: "",
                 value: "",
-                operator: ""
+                operator: "AND"
             });
         },
         removeQueryClause: function(index) {
