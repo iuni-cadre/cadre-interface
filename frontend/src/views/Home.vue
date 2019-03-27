@@ -131,11 +131,11 @@
 </template>
 <script>
 let field_options = [
-    { value: "year", label: "Year" },
-    { value: "author", label: "Author" },
     { value: "wos_id", label: "WoS ID" },
-    { value: "journal", label: "Journal Title" },
-    { value: "abstract", label: "Abstract" }
+    { value: "year", label: "Year" },
+    { value: "authors_full_name", label: "Author" },
+    { value: "journal_name", label: "Journal Name" },
+    { value: "abstract_paragraph", label: "Abstract" }
 ];
 let operator_types = [
     "OR",
@@ -152,12 +152,10 @@ export default {
             database_status: {},
             status: {},
             selected_fields: [
-                "PubType",
-                "PubYear",
-                "PubMonth",
-                "CoverDate",
-                "City",
-                "AddressCount"
+                "wos_id",
+                "year",
+                "authors_full_name",
+                "journal_name",
             ],
             queries: [
                 {

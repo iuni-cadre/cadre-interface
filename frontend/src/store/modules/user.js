@@ -11,7 +11,7 @@ export default {
         token_is_valid: !!localStorage.getItem("token"),
         username: "",
         heartbeat_timer: 0,
-        heartbeat_interval: 10000
+        heartbeat_interval: 20000
     },
     getters: {
         tokenValid: function(state) {
@@ -76,7 +76,7 @@ export default {
         beatHeart: function({ state, dispatch, getters }) {
             clearTimeout(state.heartbeat_timer);
             state.heartbeat_timer = setTimeout(() => {
-                console.debug("Beat");
+                // console.debug("Beat");
                 let username = getters.username;
                 let token = getters.authToken;
                 let validate_prom = axios({
