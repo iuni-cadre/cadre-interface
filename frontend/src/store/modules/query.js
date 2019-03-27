@@ -6,33 +6,60 @@ export default {
     namespaced: true,
     state: {
         valid_fields: [
-            "wos_id",
+            "wosId",
             "year",
             "number",
             "issue",
             "pages",
-            "authors_full_name",
-            "authors_id_orcid",
-            "authors_id_dais",
-            "authors_id_research",
-            "authors_prefix",
-            "authors_first_name",
-            "authors_middle_name",
-            "authors_last_name",
-            "authors_suffix",
-            "authors_initials",
-            "authors_display_name",
-            "authors_wos_name",
-            "authors_id_lang",
-            "authors_email",
+            "authorsFullName",
+            "authorsIdOrcid",
+            "authorsIdDais",
+            "authorsIdResearch",
+            "authorsPrefix",
+            "authorsFirstName",
+            "authorsMiddleName",
+            "authorsLastName",
+            "authorsSuffix",
+            "authorsInitials",
+            "authorsDisplayName",
+            "authorsWosName",
+            "authorsIdLang",
+            "authorsEmail",
             "references",
             "issn",
             "doi",
             "title",
-            "journal_name",
-            "journal_abbrev",
-            "journal_iso",
-            "abstract_paragraph",
+            "journalName",
+            "journalAbbrev",
+            "journalIso",
+            "abstractParagraph",
+            // "wos_id",
+            // "year",
+            // "number",
+            // "issue",
+            // "pages",
+            // "authors_full_name",
+            // "authors_id_orcid",
+            // "authors_id_dais",
+            // "authors_id_research",
+            // "authors_prefix",
+            // "authors_first_name",
+            // "authors_middle_name",
+            // "authors_last_name",
+            // "authors_suffix",
+            // "authors_initials",
+            // "authors_display_name",
+            // "authors_wos_name",
+            // "authors_id_lang",
+            // "authors_email",
+            // "references",
+            // "issn",
+            // "doi",
+            // "title",
+            // "journal_name",
+            // "journal_abbrev",
+            // "journal_iso",
+            // "abstract_paragraph",
         ]
     },
     getters: {
@@ -90,12 +117,9 @@ export default {
 
                 // let request = query_array.join("\n");
 
-                let request = `query QueryA
-{
-    ${dataset}(q: '${query_string}')
-    {
-        ${field_string}
-    }
+                let request = `query {
+    ${dataset}(q: "${query_string.replace(/"/g, '\\"')}")
+    { ${field_string} }
 }`;
 
                 console.debug(request);

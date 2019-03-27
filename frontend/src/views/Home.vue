@@ -55,7 +55,7 @@
                 </template>
                 <div>
                     <button class="btn btn-primary"
-                            @click.stop.prevent="addQueryClause()">Add Filter</button>
+                            @click.stop.prevent="addQueryClause()">Add Another Filter</button>
                 </div>
             </div>
 
@@ -131,11 +131,11 @@
 </template>
 <script>
 let field_options = [
-    { value: "wos_id", label: "WoS ID" },
+    { value: "wosId", label: "WoS ID" },
     { value: "year", label: "Year" },
-    { value: "authors_full_name", label: "Author" },
-    { value: "journal_name", label: "Journal Name" },
-    { value: "abstract_paragraph", label: "Abstract" }
+    { value: "authorsFullName", label: "Author" },
+    { value: "journalName", label: "Journal Name" },
+    { value: "abstractParagraph", label: "Abstract" }
 ];
 let operator_types = [
     "OR",
@@ -152,10 +152,10 @@ export default {
             database_status: {},
             status: {},
             selected_fields: [
-                "wos_id",
+                "wosId",
                 "year",
-                "authors_full_name",
-                "journal_name",
+                "authorsFullName",
+                "journalName",
             ],
             queries: [
                 {
@@ -249,11 +249,12 @@ export default {
 
             let payload = {
                 query: query,
-                output_fields: ["ID", ...this.selected_fields],
+                output_fields: [...this.selected_fields],
                 dataset: "wos"
             };
 
             let query_prom = this.$store.dispatch("query/sendQuery", payload);
+            this.result = "Sending Query...";
             query_prom.then(
                 result => {
                     this.result = result;

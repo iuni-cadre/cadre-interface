@@ -11,7 +11,7 @@ export default {
         token_is_valid: !!localStorage.getItem("token"),
         username: "",
         heartbeat_timer: 0,
-        heartbeat_interval: 20000
+        heartbeat_interval: 30000
     },
     getters: {
         tokenValid: function(state) {
