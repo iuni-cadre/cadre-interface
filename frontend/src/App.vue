@@ -48,14 +48,16 @@ export default {
     mounted: function() {
         this.$store.commit("user/initializeToken");
         let validate_prom = null;
-        if (this.$route.query.token && this.$route.query.username) {
-            let token = this.$route.query.token;
+        if (this.$route.query.cadre_token && this.$route.query.username) {
+            let token = this.$route.query.cadre_token;
             let username = this.$route.query.username;
+            let jupyter_token = this.$route.query.jupyter_token;
             this.$router.push({
                 path: this.$route.path,
                 query: {}
             });
-            validate_prom = this.$store.dispatch("user/validateToken", {token:token, username:username});
+            // console.debug(token, jupyter_token);
+            validate_prom = this.$store.dispatch("user/validateToken", {token:token, username:username, j_token:jupyter_token});
         } else {
             validate_prom = this.$store.dispatch("user/validateToken");
         }

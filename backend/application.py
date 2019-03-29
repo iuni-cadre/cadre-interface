@@ -4,9 +4,10 @@
 import sys
 from os import path
 import configparser
+import requests
 
 
-from flask import Flask, render_template
+from flask import Flask, render_template, json, jsonify
 
 #make sure the frontend exists before even starting the app
 frontend_exists = path.isfile("./frontend/index.html")
@@ -30,6 +31,25 @@ application = app = Flask(__name__,
     template_folder="./frontend",
     static_folder="./frontend/assets"
     )
+
+
+@application.route("/api/new-notebook/<username>")
+def api_new_notebook_username(username):
+
+    headers = {"Authorization": "token ce30f11aef194c8786861591ad7e3c3e"}
+    payload = {}
+    r = requests.post("http://a2613f0f5519511e991df02800e92ef4-414776592.us-east-2.elb.amazonaws.com/hub/api/users/" + username + "/server", data=payload, headers=headers)
+    return jsonify({"json": r.json(), "status_code": r.status_code, "text": r.text})
+
+
+
+@application.route("/api")
+@application.route("/api/")
+@application.route("/api/<path:fallback>")
+def api_index(fallback=""):
+    return jsonify({"error": "Unknown endpoint."})
+
+
 
 @application.route("/")
 def index():

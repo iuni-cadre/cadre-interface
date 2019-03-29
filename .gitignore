@@ -3,6 +3,7 @@
 conf/frontend.config.json
 conf/backend.config
 
+venv
 backend/venv
 backend/__pycache__
 
@@ -11,3 +12,7 @@ frontend/dist
 
 bundle
 eb_bundle*.zip
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

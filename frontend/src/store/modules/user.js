@@ -8,6 +8,7 @@ export default {
         isLoggedIn: !!localStorage.getItem("token"),
         pending: false,
         auth_token: null,
+        j_token: null,
         token_is_valid: !!localStorage.getItem("token"),
         username: ""
     },
@@ -24,6 +25,9 @@ export default {
 
         authToken: function(state) {
             return state.auth_token;
+        },
+        jToken: function(state) {
+            return state.j_token;
         },
         username: function(state) {
             return state.username;
@@ -57,6 +61,13 @@ export default {
             localStorage.setItem("token", token);
             // console.debug("tokenSet");
         },
+
+        setJToken: function(state, j_token) {
+            state.j_token = j_token;
+            localStorage.removeItem("j_token");
+            localStorage.setItem("j_token", j_token);
+            // console.debug("tokenSet");
+        },
         setUsername: function(state, username) {
 
             state.username = username;
@@ -76,6 +87,7 @@ export default {
             //We must validate the token every time. If the token is not valid, it just gets removed.
             let username = (payload && payload.username) || state.getters.username;
             let token = (payload && payload.token) || state.getters.authToken;
+            let j_token = (payload && payload.j_token) || state.getters.jToken;
             return new Promise(function(resolve, reject) {
                 // console.debug(state)
                 let validate_prom = axios({
@@ -94,6 +106,7 @@ export default {
                     result => {
                         //if passed, set the token
                         state.commit("setToken", token);
+                        state.commit("setJToken", j_token);
                         state.commit("setUsername", username);
                         console.info("Token is valid");
                         resolve(result);
