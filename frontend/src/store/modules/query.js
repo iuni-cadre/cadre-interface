@@ -7,32 +7,34 @@ export default {
     state: {
         valid_fields: [
             "wosId",
+            "title",
             "year",
             "number",
             "issue",
             "pages",
+            "idPubmed",
+            "doi",
             "authorsFullName",
             "authorsIdOrcid",
             "authorsIdDais",
             "authorsIdResearch",
+            "authorsIdLang",
             "authorsPrefix",
             "authorsFirstName",
             "authorsMiddleName",
             "authorsLastName",
             "authorsSuffix",
             "authorsInitials",
-            "authorsDisplayName",
+            "authorsDisplayNames",
             "authorsWosName",
-            "authorsIdLang",
-            "authorsEmail",
+            "authorsEmails",
             "references",
-            "issn",
-            "doi",
-            "title",
-            "journalName",
-            "journalAbbrev",
-            "journalIso",
-            "abstractParagraph",
+            "journalsName",
+            "journalsNameAbbrev",
+            "journalsNameIso",
+            "journalsType",
+            "journalsIssn",
+            "abstractText",
             // "wos_id",
             // "year",
             // "number",
@@ -71,6 +73,7 @@ export default {
     actions: {
         sendQuery: function(state, payload) {
             let main_prom = new Promise(function(resolve, reject) {
+                let async = payload.async || false;
                 let query = payload.query;
                 let dataset = payload.dataset;
                 // let args_array = [];
@@ -90,32 +93,7 @@ export default {
                 }
 
                 query_string = JSON.stringify(query_array);
-                // $query;
 
-                // for (let clause of query) {
-                //                     // args_array.push(`${arg.argument}:${arg.value}`);
-                //                     if (i > 0) {
-                //                         clause.operator = clause.operator || "AND";
-                //                     }
-
-                //                     let clause_string = `
-                // query QueryPart${i}
-                // {
-                //     ${dataset}(${clause.argument}:"${clause.value}", operator: "${clause.operator || ''}")
-                //     {
-                //         ${field_string}
-                //     }
-                // }
-                // `;
-                //                     query_array.push(clause_string);
-                //                     i++;
-                //                 }
-
-                // let arg_string = args_array.join(",");
-
-                //TODO: validate options before even constructing the request
-
-                // let request = query_array.join("\n");
 
                 let request = `query {
     ${dataset}(q: "${query_string.replace(/"/g, '\\"')}")
@@ -125,7 +103,7 @@ export default {
                 console.debug(request);
 
                 let query_prom = Vue.$cadre.axios({
-                    url: Vue.$cadreConfig.api_host + `/data/${dataset}-graphql/publication`,
+                    url: Vue.$cadreConfig.api_host + `/data/${dataset}-graphql/publication${async?'-async':''}`,
                     method: "POST",
                     data: {
                         query: request

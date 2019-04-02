@@ -7,23 +7,7 @@
             <div class="card container py-3 mb-3">
                 <template v-for="(clause, index) in queries">
                     <div :key="`clause_${index}`">
-                        <div v-if="index > 0">
-                            <div class="form-group">
 
-                                <!-- <label>Operator</label> -->
-                                <select class="form-control"
-                                        style="width: auto"
-                                        v-model="queries[index].operator">
-                                    <option disabled
-                                            selected
-                                            :value="''">Choose an operand</option>
-                                    <option v-for="operator in operator_types"
-                                            :key="`${operator}_${index}`"
-                                            :value="operator"
-                                            v-text="operator"></option>
-                                </select>
-                            </div>
-                        </div>
                         <div class=" d-flex justify-content-between align-items-end">
                             <div class="form-group">
 
@@ -49,6 +33,24 @@
                             <div class="form-group">
                                 <button class="btn btn-danger"
                                         @click.stop.prevent="removeQueryClause(index)">X</button>
+                            </div>
+                        </div>
+
+                        <div v-if="index != queries.length - 1">
+                            <div class="form-group">
+
+                                <!-- <label>Operator</label> -->
+                                <select class="form-control"
+                                        style="width: auto"
+                                        v-model="queries[index].operator">
+                                    <option disabled
+                                            selected
+                                            :value="''">Choose an operand</option>
+                                    <option v-for="operator in operator_types"
+                                            :key="`${operator}_${index}`"
+                                            :value="operator"
+                                            v-text="operator"></option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -110,6 +112,11 @@
         </div> -->
             <div class="form-group mt-5">
                 <button class="btn btn-primary btn-lg"
+                        type="submit">Preview Query</button>
+            </div>
+
+            <div class="form-group mt-5">
+                <button @click.stop.prevent="sendQuery(true)" class="btn btn-primary btn-lg"
                         type="submit">Submit Query</button>
             </div>
         </form>
@@ -134,8 +141,8 @@ let field_options = [
     { value: "wosId", label: "WoS ID" },
     { value: "year", label: "Year" },
     { value: "authorsFullName", label: "Author" },
-    { value: "journalName", label: "Journal Name" },
-    { value: "abstractParagraph", label: "Abstract" }
+    { value: "journalsName", label: "Journal Name" },
+    { value: "abstractText", label: "Abstract" }
 ];
 let operator_types = [
     "OR",
@@ -155,7 +162,7 @@ export default {
                 "wosId",
                 "year",
                 "authorsFullName",
-                "journalName",
+                "journalsName",
             ],
             queries: [
                 {
@@ -183,7 +190,7 @@ export default {
             this.queries.push({
                 field: "",
                 value: "",
-                operator: "AND"
+                operator: ""
             });
         },
         removeQueryClause: function(index) {
@@ -213,24 +220,8 @@ export default {
                 }
             );
         },
-        sendQuery: function() {
-            // let database_prom = this.$cadre.axios({
-            //     url: "/data/wos/publications/" + this.year
-            // });
-            // database_prom.then(
-            //     result => {
-            //         this.result = result.data;
-            //     },
-            //     err => {
-            //         this.result = "Could not get data\n" + err;
-            //     }
-            // );
-            // if (isNaN(Number(this.year))) {
-            //     console.debug("Not a year");
-            //     this.year = "";
-            //     return false;
-            // }
-
+        sendQuery: function(async) {
+            async = async || false;
             let query = [];
             for (let clause of this.queries) {
                 if (clause.field && clause.value) {
@@ -248,6 +239,7 @@ export default {
             }
 
             let payload = {
+                async: async,
                 query: query,
                 output_fields: [...this.selected_fields],
                 dataset: "wos"
