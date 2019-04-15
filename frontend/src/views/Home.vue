@@ -165,6 +165,8 @@
                         type="submit">Submit Query</button>
             </div>
         </form>
+        <pre v-text="query_results"></pre>
+
 
         <template v-if="error_message">
             <div class="modal show"
@@ -200,6 +202,46 @@
                  @click="error_message = ''"></div>
         </template>
 
+
+        <template v-if="query_modal_open">
+            <div class="modal show"
+                 style="display: block;"
+                 tabindex="-1"
+                 role="dialog">
+                <div class="modal-dialog "
+                     role="document">
+                    <div class="modal-content">
+                        <div class="alert alert-success mb-0">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Query Is Running</h5>
+                                <button type="button"
+                                        class="close"
+                                        @click="query_modal_open = false;"
+                                        aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div>
+                                    Job ID: <b v-text="query_results.job_id"></b>
+                                </div>
+                                <div>
+                                    S3 Bucket: <a :href="query_results.s3_location" v-text="query_results.s3_location"></a>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button"
+                                        class="btn btn-secondary"
+                                        @click="query_modal_open = false;">OK</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-backdrop fade show"
+                 @click="query_modal_open = false;"></div>
+        </template>
+
         <!-- <div>
             <label>API Status</label>
             <pre v-text="status"></pre>
@@ -212,7 +254,7 @@ let field_options = [
     { value: "year", label: "Year" },
     { value: "authorsFullName", label: "Author" },
     { value: "journalsName", label: "Journal Name" },
-    { value: "abstractText", label: "Abstract" }
+    { value: "title", label: "Title" }
 ];
 let operator_types = [
     "AND",
@@ -243,7 +285,13 @@ export default {
             ],
             preview_result: null,
             fields_view: "selected",
-            error_message: ""
+            error_message: "",
+            query_results: {
+                job_id: "",
+                message_id: "",
+                s3_location: ""
+            },
+            query_modal_open: false
         };
     },
     computed: {
@@ -257,10 +305,15 @@ export default {
             return operator_types;
         },
         preview_data: function() {
-            return (
+            let tmp = (
                 (this.result && this.result.data && this.result.data.wos) ||
                 null
             );
+            if(tmp)
+            {
+                tmp.splice(9);
+            }
+            return tmp;
         }
     },
     methods: {
@@ -335,10 +388,24 @@ export default {
             this.result = "Sending Query...";
             query_prom.then(
                 result => {
-                    this.result = result;
+                    if(!async)
+                    {
+                        this.result = result;
+                    }
+                    else
+                    {
+                        if(result.data[0])
+                        {
+                            this.query_results.job_id = result.data[0].job_id;
+                            this.query_results.message_id = result.data[0].message_id;
+                            this.query_results.s3_location = result.data[0].s3_location;
+                            this.query_modal_open = true;
+                        }
+                    }
                 },
                 error => {
                     console.error(error);
+                    this.error_message = error;
                 }
             );
         }
