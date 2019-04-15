@@ -32,6 +32,7 @@
                             </div>
                             <div class="form-group">
                                 <button class="btn btn-danger"
+                                        type="button"
                                         @click.stop.prevent="removeQueryClause(index)">X</button>
                             </div>
                         </div>
@@ -57,6 +58,7 @@
                 </template>
                 <div>
                     <button class="btn btn-outline-primary"
+                            type="button"
                             @click.stop.prevent="addQueryClause()">+ Add Additional Filter</button>
                 </div>
             </div>
@@ -78,7 +80,7 @@
                            v-model="fields_view"
                            value="all" />Show All Available Fields</label>
                 <label @click.stop.prevent="deselectAll"
-                        class="btn btn-primary btn-sm d-flex align-items-center ml-auto">Deselect All</label>
+                       class="btn btn-primary btn-sm d-flex align-items-center ml-auto">Deselect All</label>
             </div>
             <div class="card container">
                 <div class="row ">
@@ -139,6 +141,11 @@
                                 :key="`preview_row_${index}_${field_name}`"></td>
                         </tr>
                     </template>
+                    <tr v-if="preview_data.length == 0">
+                        <td :colspan="selected_fields.length">
+                            No results were found.  Please modify your query and try again.
+                        </td>
+                    </tr>
                 </table>
                 <div v-else>
                     There are currently no preview results.
@@ -168,28 +175,29 @@
                      role="document">
                     <div class="modal-content">
                         <div class="alert alert-danger mb-0">
-                        <div class="modal-header">
-                            <h5 class="modal-title">There was a problem with your query</h5>
-                            <button type="button"
-                                    class="close"
-                                    @click="error_message = ''"
-                                    aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <p v-text="error_message"></p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button"
-                                    class="btn btn-secondary"
-                                    @click="error_message = ''">OK</button>
-                        </div>
+                            <div class="modal-header">
+                                <h5 class="modal-title">There was a problem with your query</h5>
+                                <button type="button"
+                                        class="close"
+                                        @click="error_message = ''"
+                                        aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p v-text="error_message"></p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button"
+                                        class="btn btn-secondary"
+                                        @click="error_message = ''">OK</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-backdrop fade show" @click="error_message = ''"></div>
+            <div class="modal-backdrop fade show"
+                 @click="error_message = ''"></div>
         </template>
 
         <!-- <div>
@@ -261,7 +269,9 @@ export default {
         },
         addQueryClause: function(clause) {
             let len = this.queries.length;
-            this.queries[len - 1].operator = operator_types[0];
+            if (len) {
+                this.queries[len - 1].operator = operator_types[0];
+            }
             this.queries.push({
                 field: "",
                 value: "",
