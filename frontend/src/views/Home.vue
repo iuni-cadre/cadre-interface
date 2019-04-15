@@ -385,7 +385,7 @@ export default {
             };
 
             let query_prom = this.$store.dispatch("query/sendQuery", payload);
-            this.result = "Sending Query...";
+            // this.result = "Sending Query...";
             query_prom.then(
                 result => {
                     if(!async)
@@ -394,11 +394,11 @@ export default {
                     }
                     else
                     {
-                        if(result.data[0])
+                        if(result[0] && result[1] === 200)
                         {
-                            this.query_results.job_id = result.data[0].job_id;
-                            this.query_results.message_id = result.data[0].message_id;
-                            this.query_results.s3_location = result.data[0].s3_location;
+                            this.query_results.job_id = result[0].job_id;
+                            this.query_results.message_id = result[0].message_id;
+                            this.query_results.s3_location = result[0].s3_location;
                             this.query_modal_open = true;
                         }
                     }
