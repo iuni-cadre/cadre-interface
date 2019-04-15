@@ -95,19 +95,24 @@ export default {
                 query_string = JSON.stringify(query_array);
 
 
-                let request = `query {
+                let request = {query: `query {
     ${dataset}(q: "${query_string.replace(/"/g, '\\"')}")
     { ${field_string} }
-}`;
+}`};
 
                 console.debug(request);
 
+                let url_piece = `/data/${dataset}-graphql/publication`;
+                if(async)
+                {
+                    url_piece = `/data/${dataset}/publications-async`;
+                    request = {q: query_array};
+                }
+
                 let query_prom = Vue.$cadre.axios({
-                    url: Vue.$cadreConfig.api_host + `/data/${dataset}-graphql/publication${async?'-async':''}`,
+                    url: Vue.$cadreConfig.api_host + url_piece,
                     method: "POST",
-                    data: {
-                        query: request
-                    }
+                    data: request
                 });
 
                 query_prom.then(

@@ -56,28 +56,29 @@
                     </div>
                 </template>
                 <div>
-                    <button class="btn btn-primary"
-                            @click.stop.prevent="addQueryClause()">Add Another Filter</button>
+                    <button class="btn btn-outline-primary"
+                            @click.stop.prevent="addQueryClause()">+ Add Additional Filter</button>
                 </div>
             </div>
 
-
             <h2 class="mt-5">Output Fields</h2>
-            <div>
-                <label class="btn btn-sm mr-5"
+            <div class="d-flex">
+                <label class="btn btn-sm mr-3 d-flex align-items-center"
                        :class="{
                             'btn-outline-primary': fields_view != 'selected',
                             'btn-primary': fields_view == 'selected'
                         }"><input type="radio"
                            v-model="fields_view"
                            value="selected" />Show Selected Only</label>
-                <label class="btn btn-sm"
+                <label class="btn btn-sm d-flex align-items-center"
                        :class="{
                             'btn-outline-primary': fields_view != 'all',
                             'btn-primary': fields_view == 'all'
                         }"><input type="radio"
                            v-model="fields_view"
                            value="all" />Show All Available Fields</label>
+                <label @click.stop.prevent="deselectAll"
+                        class="btn btn-primary btn-sm d-flex align-items-center ml-auto">Deselect All</label>
             </div>
             <div class="card container">
                 <div class="row ">
@@ -101,6 +102,9 @@
                             </label>
                         </div>
                     </template>
+                    <template v-if="selected_fields.length == 0">
+                        <div class="m-3">No output fields are selected.</div>
+                    </template>
                 </div>
             </div>
 
@@ -111,58 +115,116 @@
                    v-model="wos_id">
         </div> -->
             <div class="form-group mt-5">
-                <button class="btn btn-primary btn-lg"
-                        type="submit">Preview Query</button>
+                <button v-if="selected_fields.length == 0"
+                        class="btn btn-primary btn-lg disabled"
+                        disabled>Preview Query</button>
+                <button v-else
+                        class="btn btn-primary btn-lg"
+                        type="submit">Get Preview</button>
+            </div>
+
+            <div>
+                <h2 class="mt-5">Preview Results</h2>
+                <table v-if="preview_data"
+                       class="table">
+                    <tr>
+                        <th v-for="field_name in selected_fields"
+                            v-text="field_name"
+                            :key="`preview_header_${field_name}`"></th>
+                    </tr>
+                    <template v-for="(row, index) in preview_data">
+                        <tr :key="`preview_row_${index}`">
+                            <td v-for="field_name in selected_fields"
+                                v-text="row[field_name]"
+                                :key="`preview_row_${index}_${field_name}`"></td>
+                        </tr>
+                    </template>
+                </table>
+                <div v-else>
+                    There are currently no preview results.
+                </div>
+                <!-- <pre class="pre"
+                     v-text="result"></pre> -->
             </div>
 
             <div class="form-group mt-5">
-                <button @click.stop.prevent="sendQuery(true)" class="btn btn-primary btn-lg"
+                <button v-if="selected_fields.length == 0 || !preview_data"
+                        class="btn btn-primary btn-lg disabled"
+                        disabled
+                        @click.stop.prevent>Submit Query</button>
+                <button v-else
+                        @click.stop.prevent="sendQuery(true)"
+                        class="btn btn-primary btn-lg"
                         type="submit">Submit Query</button>
             </div>
         </form>
 
-        <div>
-            <label>Output</label>
-            <pre class="pre"
-                 v-text="result"></pre>
-        </div>
+        <template v-if="error_message">
+            <div class="modal show"
+                 style="display: block;"
+                 tabindex="-1"
+                 role="dialog">
+                <div class="modal-dialog "
+                     role="document">
+                    <div class="modal-content">
+                        <div class="alert alert-danger mb-0">
+                        <div class="modal-header">
+                            <h5 class="modal-title">There was a problem with your query</h5>
+                            <button type="button"
+                                    class="close"
+                                    @click="error_message = ''"
+                                    aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p v-text="error_message"></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button"
+                                    class="btn btn-secondary"
+                                    @click="error_message = ''">OK</button>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-backdrop fade show" @click="error_message = ''"></div>
+        </template>
+
         <!-- <div>
-            <label>Database Status</label>
-            <pre v-text="database_status"></pre>
-        </div> -->
-        <div>
             <label>API Status</label>
             <pre v-text="status"></pre>
-        </div>
+        </div> -->
     </div>
 </template>
 <script>
 let field_options = [
-    { value: "wosId", label: "WoS ID" },
+    // { value: "wosId", label: "WoS ID" },
     { value: "year", label: "Year" },
     { value: "authorsFullName", label: "Author" },
     { value: "journalsName", label: "Journal Name" },
     { value: "abstractText", label: "Abstract" }
 ];
 let operator_types = [
-    "OR",
-    "AND"
+    "AND",
+    "OR"
     // "NOT"
 ];
 
 export default {
     data: function() {
         return {
-            result: {},
-            year: "1912",
-            wos_id: "",
+            result: null,
+            // year: "1912",
+            // wos_id: "",
             database_status: {},
             status: {},
             selected_fields: [
                 "wosId",
                 "year",
                 "authorsFullName",
-                "journalsName",
+                "journalsName"
             ],
             queries: [
                 {
@@ -171,7 +233,9 @@ export default {
                     join: ""
                 }
             ],
-            fields_view: "selected"
+            preview_result: null,
+            fields_view: "selected",
+            error_message: ""
         };
     },
     computed: {
@@ -183,10 +247,21 @@ export default {
         },
         operator_types: function() {
             return operator_types;
+        },
+        preview_data: function() {
+            return (
+                (this.result && this.result.data && this.result.data.wos) ||
+                null
+            );
         }
     },
     methods: {
+        deselectAll: function() {
+            this.selected_fields.splice(0, this.selected_fields.length);
+        },
         addQueryClause: function(clause) {
+            let len = this.queries.length;
+            this.queries[len - 1].operator = operator_types[0];
             this.queries.push({
                 field: "",
                 value: "",
@@ -234,6 +309,7 @@ export default {
             }
 
             if (query.length === 0) {
+                this.error_message = "You must provide at least one filter.";
                 console.error("Empty Query", this.queries);
                 return false;
             }
