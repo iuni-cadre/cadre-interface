@@ -271,10 +271,10 @@ export default {
             database_status: {},
             status: {},
             selected_fields: [
-                "wosId",
+                "wos_id",
                 "year",
-                "authorsFullName",
-                "journalsName"
+                "authors_first_name",
+                "journal_name"
             ],
             queries: [
                 {
