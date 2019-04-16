@@ -5,13 +5,13 @@
         <hr />
 
         <div>
-            <button @click="goToQueryInterface()" class="btn btn-primary">Go To Query Interface</button>
+            <button @click="goToQueryInterface()" class="btn btn-primary">Query Interface</button>
             &nbsp;&nbsp;
-            <button @click="goToNotebook()" class="btn btn-primary">Go To Jupyter Notebook</button>
+            <button @click="goToNotebook()" class="btn btn-primary">Jupyter Notebook</button>
         </div>
-        <div>
+        <!-- <div>
             {{jupyter_full_url}}
-        </div>
+        </div> -->
     </div>
 </template>
 <script>
@@ -37,9 +37,6 @@ export default {
         "username": function(){
             return this.$store.getters["user/username"];
         },
-        "jupyter_full_url": function(){
-            return `${this.jupyter_url}/user/${this.username}/tree/?token=${this.jupyter_token}`;
-        }
 
     },
     methods: {
@@ -47,7 +44,8 @@ export default {
             location.href = `${this.query_interface_url}?username=${this.username}&token=${this.token}`;
         },
         goToNotebook: function(){
-            location.href = this.jupyter_full_url;
+            // location.href = this.jupyter_full_url;
+            this.$router.push({name: "jupyter-hub"});
         }
     },
     mounted: function() {
