@@ -6,35 +6,63 @@ export default {
     namespaced: true,
     state: {
         valid_fields: [
-            "wosId",
-            "title",
+            "wos_id",
             "year",
             "number",
             "issue",
             "pages",
-            "idPubmed",
-            "doi",
-            "authorsFullName",
-            "authorsIdOrcid",
-            "authorsIdDais",
-            "authorsIdResearch",
-            "authorsIdLang",
-            "authorsPrefix",
-            "authorsFirstName",
-            "authorsMiddleName",
-            "authorsLastName",
-            "authorsSuffix",
-            "authorsInitials",
-            "authorsDisplayNames",
-            "authorsWosName",
-            "authorsEmails",
+            "authors_full_name",
+            "authors_id_orcid",
+            "authors_id_dais",
+            "authors_id_research",
+            "authors_prefix",
+            "authors_first_name",
+            "authors_middle_name =  ",
+            "authors_last_name",
+            "authors_suffix",
+            "authors_initials",
+            "authors_display_names",
+            "authors_wos_name",
+            "authors_id_lang",
+            "authors_emails",
             "references",
-            "journalsName",
-            "journalsNameAbbrev",
-            "journalsNameIso",
-            "journalsType",
-            "journalsIssn",
-            "abstractText",
+            "issn",
+            "doi",
+            "title",
+            "journal_name",
+            "journal_abbrev",
+            "journal_iso",
+            "abstract_paragraphs"
+
+            // "wosId",
+            // "title",
+            // "year",
+            // "number",
+            // "issue",
+            // "pages",
+            // "idPubmed",
+            // "doi",
+            // "authorsFullName",
+            // "authorsIdOrcid",
+            // "authorsIdDais",
+            // "authorsIdResearch",
+            // "authorsIdLang",
+            // "authorsPrefix",
+            // "authorsFirstName",
+            // "authorsMiddleName",
+            // "authorsLastName",
+            // "authorsSuffix",
+            // "authorsInitials",
+            // "authorsDisplayNames",
+            // "authorsWosName",
+            // "authorsEmails",
+            // "references",
+            // "journalsName",
+            // "journalsNameAbbrev",
+            // "journalsNameIso",
+            // "journalsType",
+            // "journalsIssn",
+            // "abstractText",
             // "wos_id",
             // "year",
             // "number",
@@ -94,19 +122,19 @@ export default {
 
                 query_string = JSON.stringify(query_array);
 
-
-                let request = {query: `query {
+                let request = {
+                    query: `query {
     ${dataset}(q: "${query_string.replace(/"/g, '\\"')}")
     { ${field_string} }
-}`};
+}`
+                };
 
                 console.debug(request);
 
                 let url_piece = `/data/${dataset}-graphql/publication`;
-                if(async)
-                {
+                if (async) {
                     url_piece = `/data/${dataset}/publications-async`;
-                    request = {q: query_array};
+                    request = { q: query_array };
                 }
 
                 let query_prom = Vue.$cadre.axios({
