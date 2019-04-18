@@ -1,6 +1,7 @@
 <template>
     <div id="app">
         <header class="container">
+            <a class="float-right" :href="login_url">Login</a>
             <h1>CADRE</h1>
         </header>
         <router-view v-if="token"

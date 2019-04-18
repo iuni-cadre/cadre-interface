@@ -1,6 +1,9 @@
 <template>
     <div>
         <h1>Query Builder</h1>
+        <nav>
+            <router-link :to="{name: 'jobs'}">Check Job Status</router-link>
+        </nav>
         <form @submit.stop.prevent="sendQuery()">
 
             <h2 class="mt-5">Filters</h2>
@@ -168,7 +171,7 @@
                         type="submit">Submit Query</button>
             </div>
         </form>
-        <pre v-text="query_results"></pre>
+        <!-- <pre v-text="query_results"></pre> -->
 
 
         <template v-if="error_message">
@@ -231,6 +234,7 @@
                                 <div>
                                     S3 Bucket: <a :href="query_results.s3_location" v-text="query_results.s3_location"></a>
                                 </div>
+                                <button @click.prevent.stop="$router.push({name: 'jobs'})" class="btn btn-primary">Check Job Statuses</button>
                             </div>
                             <div class="modal-footer">
                                 <button type="button"
@@ -408,7 +412,7 @@ export default {
                 },
                 error => {
                     console.error(error);
-                    this.error_message = error;
+                    this.error_message = error.toString();
                 }
             );
         }

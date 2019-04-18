@@ -9,6 +9,7 @@ import requests
 
 
 from flask import Flask, render_template, request, json, jsonify
+from flask_cors import CORS
 
 #make sure the frontend exists before even starting the app
 frontend_exists = path.isfile("./frontend/index.html")
@@ -34,6 +35,8 @@ application = app = Flask(__name__,
     template_folder="./frontend",
     static_folder="./frontend/assets"
     )
+
+CORS(application)
 
 @application.route("/")
 def index():
