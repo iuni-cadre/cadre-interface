@@ -155,12 +155,15 @@
             </div>
 
             <div class="form-group mt-5">
-                <button v-if="selected_fields.length == 0 || !preview_data"
+                <!-- <button v-if="selected_fields.length == 0 || !preview_data"
                         class="btn btn-primary btn-lg disabled"
                         disabled
                         @click.stop.prevent>Submit Query</button>
                 <button v-else
                         @click.stop.prevent="sendQuery(true)"
+                        class="btn btn-primary btn-lg"
+                        type="submit">Submit Query</button> -->
+                <button @click.stop.prevent="sendQuery(true)"
                         class="btn btn-primary btn-lg"
                         type="submit">Submit Query</button>
             </div>
@@ -271,10 +274,10 @@ export default {
             database_status: {},
             status: {},
             selected_fields: [
-                "wos_id",
+                "wosId",
                 "year",
-                "authors_first_name",
-                "journal_name"
+                "authorsFirstName",
+                "journalName"
             ],
             queries: [
                 {
