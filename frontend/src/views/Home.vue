@@ -5,9 +5,13 @@
         <hr />
 
         <div>
-            <button @click="goToQueryInterface()" class="btn btn-primary">Query Interface</button>
+            <!-- <button @click="goToQueryInterface()" class="btn btn-primary">Query Interface</button>
             &nbsp;&nbsp;
-            <button @click="goToNotebook()" class="btn btn-primary">Jupyter Notebook</button>
+            <button @click="goToNotebook()" class="btn btn-primary">Jupyter Notebook</button> -->
+            <a target="_blank" :href="`${this.query_interface_url}?username=${this.username}&token=${this.token}`" class="btn btn-primary">Query Interface</a>
+            &nbsp;&nbsp;
+            <!-- <a :href="" class="btn btn-primary">Jupyter Notebook</a> -->
+            <router-link :to="{name: 'jupyter-hub'}" target="_blank" class="btn btn-primary">Jupyter Notebook</router-link>
         </div>
         <!-- <div>
             {{jupyter_full_url}}
