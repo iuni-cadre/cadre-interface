@@ -5,6 +5,10 @@
             <router-link :to="{name: 'home'}">Back To Query Builder</router-link>
         </nav>
 
+        <div class="mt-5">
+            <a class="btn btn-primary" target="_blank" :href="$cadreConfig.localhost + 'dashboard/jupyter'">Go To Jupyter Notebook</a>
+        </div>
+
         <table class="table mt-5">
             <tr>
                 <th>Job ID</th>

@@ -140,7 +140,7 @@
                     <template v-for="(row, index) in preview_data">
                         <tr :key="`preview_row_${index}`">
                             <td v-for="field_name in selected_fields"
-                                v-text="row[field_name]"
+                                v-text="row[field_name].split('|').join(', ')"
                                 :key="`preview_row_${index}_${field_name}`"></td>
                         </tr>
                     </template>
@@ -280,7 +280,7 @@ export default {
             selected_fields: [
                 "wosId",
                 "year",
-                "authorsFirstName",
+                "authorsFullName",
                 "journalName"
             ],
             queries: [
