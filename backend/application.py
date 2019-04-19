@@ -73,7 +73,7 @@ def api_user_jobs():
     conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
     cur = conn.cursor()
     try:
-        cur.execute("SELECT j_id, sns_message_id, s3_location, job_status, created_on FROM user_job WHERE user_id=%s ORDER BY created_on;", [user_id])
+        cur.execute("SELECT j_id, sns_message_id, s3_location, job_status, created_on, last_updated FROM user_job WHERE user_id=%s ORDER BY created_on;", [user_id])
         results = cur.fetchall()
 
         conn.close()

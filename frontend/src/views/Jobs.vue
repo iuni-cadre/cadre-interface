@@ -9,15 +9,17 @@
             <tr>
                 <th>Job ID</th>
                 <th>Status</th>
-                <th>S3 Bucket</th>
+                <th>Last Updated</th>
+                <!-- <th>S3 Bucket</th> -->
             </tr>
             <tr v-for="job in jobs"
                 :key="job[0]">
 
                 <td v-text="job[0]">Job Id</td>
                 <td v-text="job[3]">Status</td>
-                <td><a :href="job[2]"
-                       v-text="job[2]"></a></td>
+                <td v-text="job[5]">Status</td>
+                <!-- <td><a :href="job[2]"
+                       v-text="job[2]"></a></td> -->
             </tr>
             <tr v-if="jobs.length === 0">
                 <td colspan="3">No jobs could be found</td>

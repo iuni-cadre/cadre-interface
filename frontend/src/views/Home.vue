@@ -231,9 +231,9 @@
                                 <div>
                                     Job ID: <b v-text="query_results.job_id"></b>
                                 </div>
-                                <div>
+                                <!-- <div>
                                     S3 Bucket: <a :href="query_results.s3_location" v-text="query_results.s3_location"></a>
-                                </div>
+                                </div> -->
                                 <button @click.prevent.stop="$router.push({name: 'jobs'})" class="btn btn-primary">Check Job Statuses</button>
                             </div>
                             <div class="modal-footer">
