@@ -146,7 +146,7 @@
                     </template>
                     <tr v-if="preview_data.length == 0">
                         <td :colspan="selected_fields.length">
-                            No results were found.  Please modify your query and try again.
+                            No results were found. Please modify your query and try again.
                         </td>
                     </tr>
                 </table>
@@ -172,7 +172,6 @@
             </div>
         </form>
         <!-- <pre v-text="query_results"></pre> -->
-
 
         <template v-if="error_message">
             <div class="modal show"
@@ -208,8 +207,7 @@
                  @click="error_message = ''"></div>
         </template>
 
-
-        <template v-if="query_modal_open">
+        <template v-if="query_modal_open && !is_loading">
             <div class="modal show"
                  style="display: block;"
                  tabindex="-1"
@@ -234,7 +232,8 @@
                                 <!-- <div>
                                     S3 Bucket: <a :href="query_results.s3_location" v-text="query_results.s3_location"></a>
                                 </div> -->
-                                <button @click.prevent.stop="$router.push({name: 'jobs'})" class="btn btn-primary">Check Job Statuses</button>
+                                <button @click.prevent.stop="$router.push({name: 'jobs'})"
+                                        class="btn btn-primary">Check Job Statuses</button>
                             </div>
                             <div class="modal-footer">
                                 <button type="button"
@@ -302,6 +301,9 @@ export default {
         };
     },
     computed: {
+        is_loading: function(){
+            return this.isLoading;
+        },
         fields: function() {
             return this.$store.getters["query/validFields"];
         },
@@ -312,12 +314,10 @@ export default {
             return operator_types;
         },
         preview_data: function() {
-            let tmp = (
+            let tmp =
                 (this.result && this.result.data && this.result.data.wos) ||
-                null
-            );
-            if(tmp)
-            {
+                null;
+            if (tmp) {
                 tmp.splice(9);
             }
             return tmp;
@@ -391,31 +391,56 @@ export default {
                 dataset: "wos"
             };
 
+            if (!async) {
+                this.$emit("startLoading", {
+                    message: "Fetching Preview...",
+                    key: "query"
+                });
+            } else {
+                this.$emit("startLoading", {
+                    message: "Sending Query...",
+                    key: "query"
+                });
+            }
+
             let query_prom = this.$store.dispatch("query/sendQuery", payload);
             // this.result = "Sending Query...";
             query_prom.then(
                 result => {
-                    if(!async)
-                    {
+                    if (!async) {
                         this.result = result;
-                    }
-                    else
-                    {
-                        if(result[0] && result[1] === 200)
-                        {
+                    } else {
+                        if (result[0] && result[1] === 200) {
                             this.query_results.job_id = result[0].job_id;
-                            this.query_results.message_id = result[0].message_id;
-                            this.query_results.s3_location = result[0].s3_location;
+                            this.query_results.message_id =
+                                result[0].message_id;
+                            this.query_results.s3_location =
+                                result[0].s3_location;
                             this.query_modal_open = true;
                         }
                     }
+                    this.$emit("stopLoading", { key: "query" });
                 },
                 error => {
+                    this.$emit("stopLoading", { key: "query" });
                     console.error(error);
-                    this.error_message = error.toString();
+                    if (error.code === 1000) {
+                        if (async) {
+                            this.error_message =
+                                "Your query timed out.  Please try again in a moment.";
+                        } else {
+                            this.error_message =
+                                "Your preview query timed out.  Please try again in a moment.";
+                        }
+                    } else {
+                        this.error_message = error.toString();
+                    }
                 }
             );
         }
+    },
+    props: {
+        isLoading: Number
     },
     mounted: function() {
         this.getStatus();

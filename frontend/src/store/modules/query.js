@@ -5,6 +5,7 @@ import Vue from "vue";
 export default {
     namespaced: true,
     state: {
+        query_max_time: 30000,
         valid_fields: [
             "wosId",
             "year",
@@ -99,7 +100,7 @@ export default {
     },
     mutations: {},
     actions: {
-        sendQuery: function(state, payload) {
+        sendQuery: function({state}, payload) {
             let main_prom = new Promise(function(resolve, reject) {
                 let async = payload.async || false;
                 let query = payload.query;
@@ -129,13 +130,21 @@ export default {
 }`
                 };
 
-                console.debug(request);
+                // console.debug(request);
 
                 let url_piece = `/data/${dataset}-graphql/publication`;
                 if (async) {
                     url_piece = `/data/${dataset}/publications-async`;
                     request = { q: query_array };
                 }
+
+                let canceled_timeout = setTimeout(
+                    ()=>{
+                        reject({code: 1000, message: "Query timed out"});
+                    }, state.query_max_time
+                );
+
+
 
                 let query_prom = Vue.$cadre.axios({
                     url: Vue.$cadreConfig.api_host + url_piece,
@@ -145,11 +154,19 @@ export default {
 
                 query_prom.then(
                     response => {
-                        resolve(response.data);
+                        if(canceled_timeout > 0)
+                        {
+                            clearTimeout(canceled_timeout);
+                            resolve(response.data);
+                        }
                     },
                     error => {
-                        console.error(error);
-                        reject(error);
+                        if(canceled_timeout > 0)
+                        {
+                            clearTimeout(canceled_timeout);
+                            console.error(error);
+                            reject(error);
+                        }
                     }
                 );
             });
