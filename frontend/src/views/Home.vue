@@ -407,8 +407,22 @@ export default {
             // this.result = "Sending Query...";
             query_prom.then(
                 result => {
+                    this.$emit("stopLoading", { key: "query" });
                     if (!async) {
-                        this.result = result;
+                        if(result.errors)
+                        {
+                            console.error("GraphQL Error: ", result.errors);
+                            this.error_message = "";
+                            for(let error of result.errors)
+                            {
+                                this.error_message += error.message + " ";
+                            }
+                            this.result = null;
+                        }
+                        else
+                        {
+                            this.result = result;
+                        }
                     } else {
                         if (result[0] && result[1] === 200) {
                             this.query_results.job_id = result[0].job_id;
@@ -419,11 +433,10 @@ export default {
                             this.query_modal_open = true;
                         }
                     }
-                    this.$emit("stopLoading", { key: "query" });
                 },
                 error => {
                     this.$emit("stopLoading", { key: "query" });
-                    console.error(error);
+                    // console.error(error);
                     if (error.code === 1000) {
                         if (async) {
                             this.error_message =
@@ -432,7 +445,20 @@ export default {
                             this.error_message =
                                 "Your preview query timed out.  Please try again in a moment.";
                         }
-                    } else {
+                    }
+                    else if (error.response)
+                    {
+                        // console.debug(error.response);
+                        if(error.response.status == 401)
+                        {
+                            this.error_message = "You do not have access to this dataset.";
+                        }
+                        else
+                        {
+                            this.error_message = error.response.data.error.toString();
+                        }
+                    }
+                    else {
                         this.error_message = error.toString();
                     }
                 }

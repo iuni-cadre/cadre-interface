@@ -97,6 +97,8 @@ export default {
                     },
                     error => {
                         console.warn(error);
+
+                        context.commit("logout");
                     }
                 );
             }, state.heartbeat_interval);
