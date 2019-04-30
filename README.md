@@ -1,6 +1,17 @@
 # Cadre Query Interface
 
+## Stack
+
+- Backend: Python 3.6.4 and Flask
+- Frontend: Vue.js 2.5.21 (Vue CLI 3.3.0) using Node 10.12.0 and 6.4.1
+
+Dependencies can be found in `/backend/requirements.txt` and `/frontend/package.json`.
+
 ## Setup and Deployment
+
+### Hosting
+
+The main hosting option used is [AWS Elastic Beanstalk](https://docs.aws.amazon.com/elastic-beanstalk/index.html).  This can be compiled and hosted elsewhere if desired.
 
 ### Edit Config Files
 
