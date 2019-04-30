@@ -7,6 +7,12 @@
 
 Dependencies can be found in `/backend/requirements.txt` and `/frontend/package.json`.
 
+### Tips
+
+Install Node using NVM:  https://github.com/nvm-sh/nvm/blob/master/README.md
+
+Use Python Virtual Environments:  https://docs.python.org/3/library/venv.html
+
 ## Setup and Deployment
 
 ### Hosting
@@ -89,3 +95,13 @@ If configured properly, the `deploy_to_beanstalk` script will also deploy the bu
 `conf` contains two configuration files that define settings for the frontend and the backend
 
 `frontend` contains the Vue.js application source.  Using the command `npm run build` at the command line will build the application and put it in the `dist` folder.  Many of the files are boilerplate created by the Vue CLI.
+
+## Relation to the rest of CADRE
+
+The query builder relies on the Data API and the Federated Login system.  It connects to the login system via a generated cadre token. 
+
+It also connects to the Meta Database to fetch job data and status.  It uses the psycopg2 library from within the backend.
+
+The interface can send preview queries directly to the database through the data api, or it can submit full queries through the async message queue.
+
+The jobs status page includes a link to the RAC jupyter notebook page which allows users to create a notebook server if not running or go directly to their notebook server.
