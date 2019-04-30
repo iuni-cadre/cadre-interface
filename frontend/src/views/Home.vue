@@ -113,12 +113,7 @@
                 </div>
             </div>
 
-            <!-- <p>OR</p>
-        <div class="form-group">
-            <label>WoS ID</label>
-            <input class="form-control"
-                   v-model="wos_id">
-        </div> -->
+
             <div class="form-group mt-5">
                 <button v-if="selected_fields.length == 0"
                         class="btn btn-primary btn-lg disabled"
@@ -171,7 +166,6 @@
                         type="submit">Submit Query</button>
             </div>
         </form>
-        <!-- <pre v-text="query_results"></pre> -->
 
         <template v-if="error_message">
             <div class="modal show"
@@ -229,9 +223,6 @@
                                 <div>
                                     Job ID: <b v-text="query_results.job_id"></b>
                                 </div>
-                                <!-- <div>
-                                    S3 Bucket: <a :href="query_results.s3_location" v-text="query_results.s3_location"></a>
-                                </div> -->
                                 <button @click.prevent.stop="$router.push({name: 'jobs'})"
                                         class="btn btn-primary">Check Job Statuses</button>
                             </div>
@@ -248,10 +239,6 @@
                  @click="query_modal_open = false;"></div>
         </template>
 
-        <!-- <div>
-            <label>API Status</label>
-            <pre v-text="status"></pre>
-        </div> -->
     </div>
 </template>
 <script>
@@ -272,8 +259,6 @@ export default {
     data: function() {
         return {
             result: null,
-            // year: "1912",
-            // wos_id: "",
             database_status: {},
             status: {},
             selected_fields: [
@@ -329,9 +314,12 @@ export default {
         },
         addQueryClause: function(clause) {
             let len = this.queries.length;
+
+            //when adding a new clause, set the operator of the previous clause
             if (len) {
                 this.queries[len - 1].operator = operator_types[0];
             }
+
             this.queries.push({
                 field: "",
                 value: "",
@@ -342,32 +330,37 @@ export default {
             this.queries.splice(index, 1);
         },
         getStatus: function() {
-            let status_prom = this.$cadre.axios({
-                url: "/data/status"
-            });
-            status_prom.then(
-                result => {
-                    this.status = result.data;
-                },
-                err => {
-                    this.status = "Could not get status\n" + err;
-                }
-            );
-            let database_prom = this.$cadre.axios({
-                url: "/data/wos/status"
-            });
-            database_prom.then(
-                result => {
-                    this.database_status = result.data;
-                },
-                err => {
-                    this.database_status = "Could not get status\n" + err;
-                }
-            );
+            // //gets the status of the data api
+            // let status_prom = this.$cadre.axios({
+            //     url: "/data/status"
+            // });
+            // status_prom.then(
+            //     result => {
+            //         this.status = result.data;
+            //     },
+            //     err => {
+            //         this.status = "Could not get status\n" + err;
+            //     }
+            // );
+
+            // //gets the status of the wos database
+            // let database_prom = this.$cadre.axios({
+            //     url: "/data/wos/status"
+            // });
+            // database_prom.then(
+            //     result => {
+            //         this.database_status = result.data;
+            //     },
+            //     err => {
+            //         this.database_status = "Could not get status\n" + err;
+            //     }
+            // );
         },
         sendQuery: function(async) {
             async = async || false;
             let query = [];
+
+            //remove empty clauses from query by creating a new array
             for (let clause of this.queries) {
                 if (clause.field && clause.value) {
                     query.push({
@@ -384,6 +377,10 @@ export default {
                 return false;
             }
 
+            //remove the operator from the last clause so that it doesn't confuse the data api
+            let last_clause = query[query.length - 1];
+            last_clause.operator = "";
+
             let payload = {
                 async: async,
                 query: query,
@@ -391,6 +388,7 @@ export default {
                 dataset: "wos"
             };
 
+            this.result = null;
             if (!async) {
                 this.$emit("startLoading", {
                     message: "Fetching Preview...",
@@ -404,7 +402,7 @@ export default {
             }
 
             let query_prom = this.$store.dispatch("query/sendQuery", payload);
-            // this.result = "Sending Query...";
+
             query_prom.then(
                 result => {
                     this.$emit("stopLoading", { key: "query" });
