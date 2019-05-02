@@ -1,5 +1,8 @@
 <template>
     <div id="app">
+        <div class="d-flex justify-content-center">
+            <img src="@/assets/under_construction.gif" />
+        </div>
         <header class="container">
             <a class="float-right"
                :href="login_url">Login</a>
@@ -9,8 +12,7 @@
                      class="container"
                      @startLoading="startLoading"
                      @stopLoading="stopLoading"
-                    :isLoading="is_loading"
-                     />
+                     :isLoading="is_loading" />
         <template v-else-if="error_message">
             <div class="container">
                 <div class="alert alert-danger">Error: <span v-text="error_message"></span></div>
@@ -90,7 +92,9 @@ export default {
                         clearTimeout(this.loading_queue[key].timer);
                         this.$delete(this.loading_queue, key);
                     } else {
-                        console.warn(`Loading queue key "${key}" was not found.`);
+                        console.warn(
+                            `Loading queue key "${key}" was not found.`
+                        );
                     }
                 }, this.min_loading_time - this.loading_queue[key].timer);
             }
