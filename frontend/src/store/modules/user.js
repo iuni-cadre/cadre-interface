@@ -10,7 +10,9 @@ export default {
         auth_token: null,
         j_token: null,
         token_is_valid: !!localStorage.getItem("token"),
-        username: ""
+        username: "",
+        heartbeat_timer: 0,
+        heartbeat_interval: 30000
     },
     getters: {
         tokenValid: function(state) {
@@ -69,7 +71,6 @@ export default {
             // console.debug("tokenSet");
         },
         setUsername: function(state, username) {
-
             state.username = username;
             localStorage.removeItem("username");
             localStorage.setItem("username", username);
@@ -83,13 +84,43 @@ export default {
         }
     },
     actions: {
-        validateToken: function(state, payload) {
+        beatHeart: function({ state, dispatch, getters }) {
+            clearTimeout(state.heartbeat_timer);
+            state.heartbeat_timer = setTimeout(() => {
+                // console.debug("Beat");
+                let username = getters.username;
+                let token = getters.authToken;
+                let validate_prom = axios({
+                    url: Vue.$cadreConfig.authentication_host + "/authenticate-token",
+                    method: "POST",
+                    data: {
+                        username: username
+                    },
+                    headers: {
+                        "auth-token": token,
+                        "auth-username": username
+                    }
+                });
+
+                validate_prom.then(
+                    response => {
+                        dispatch("beatHeart");
+                    },
+                    error => {
+                        console.warn(error);
+
+                        context.commit("logout");
+                    }
+                );
+            }, state.heartbeat_interval);
+        },
+        validateToken: function(context, payload) {
             //We must validate the token every time. If the token is not valid, it just gets removed.
-            let username = (payload && payload.username) || state.getters.username;
-            let token = (payload && payload.token) || state.getters.authToken;
-            let j_token = (payload && payload.j_token) || state.getters.jToken;
+            let username = (payload && payload.username) || context.getters.username;
+            let token = (payload && payload.token) || context.getters.authToken;
+            let j_token = (payload && payload.j_token) || context.getters.jToken;
             return new Promise(function(resolve, reject) {
-                // console.debug(state)
+                // console.debug(context)
                 let validate_prom = axios({
                     url: Vue.$cadreConfig.authentication_host + "/authenticate-token", //?username=" + (username || state.getters.username),
                     method: "POST",
@@ -98,26 +129,34 @@ export default {
                     },
                     headers: {
                         //if token is passed, use that, otherwise use the one already stored
-                        "auth-token": token
+                        "auth-token": token,
+                        "auth-username": username
                     }
                 });
 
-                validate_prom.then(
-                    result => {
-                        //if passed, set the token
-                        state.commit("setToken", token);
-                        state.commit("setJToken", j_token);
-                        state.commit("setUsername", username);
-                        console.info("Token is valid");
-                        resolve(result);
-                    },
-                    error => {
-                        //if failed, unset the token
-                        state.commit("logout");
-                        console.error("Token not valid");
-                        reject(error);
-                    }
-                );
+                if (Vue.$cadreConfig.force_validation === false) {
+                    context.commit("setToken", "fake");
+                    context.commit("setUsername", "fake");
+                    console.info("Token is valid");
+                    resolve({ msg: "Fake Validation" });
+                } else {
+                    validate_prom.then(
+                        result => {
+                            //if passed, set the token
+                            context.commit("setToken", token);
+                            context.commit("setJToken", j_token);
+                            context.commit("setUsername", username);
+                            console.info("Token is valid");
+                            resolve(result);
+                        },
+                        error => {
+                            //if failed, unset the token
+                            context.commit("logout");
+                            console.error("Token not valid");
+                            reject(error);
+                        }
+                    );
+                }
             });
         }
     }

@@ -4,5 +4,6 @@
     "login_url": "http://example.com",
     "query_interface_url": "/query-builder",
     "jupyter_url": "http://example.com",
-    "public_path": "/"
+    "public_path": "/",
+    "force_validation": true
 }
