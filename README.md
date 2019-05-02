@@ -63,7 +63,7 @@ In production, the query builder is deployed using AWS's Elastic Beanstalk hosti
 ### Bundle for AWS Elastic Beanstalk
 
 
-After you've got everything running properly through flask, you can bundle the app for deployment on AWS elastic beanstalk by running one of the below commands:
+After you've got everything running properly through flask, you need to duplicate the two config files and prepend `deploy.` to the filename of the duplicates.  You should have `deploy.backend.config` and `deploy.frontend.config.json`.  These two files will be the config files that the bundle will use.  They can be altered to contain the production configuration settings.  you can bundle the app for deployment on AWS elastic beanstalk by running one of the below commands:
 
 ```
 ./bundle_for_beanstalk.sh
@@ -79,7 +79,6 @@ Both of these shell scripts will compile the frontend using `npm run build` and 
 
 If configured properly, the `deploy_to_beanstalk` script will also deploy the bundle directly to EBS.  The EBS CLI must be installed and configured in order to use this.
 
-**Note:**  This requires a `/conf/backend.config` file, which is not included in the git repo by default.  All the settings in backend.config will be used for the elastic beanstalk installation.
 
 
 ## File Structure

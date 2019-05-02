@@ -1,7 +1,10 @@
 .vscode
 
 conf/frontend.config.json
+conf/frontend.config.json.tmp
 conf/backend.config
+conf/deploy.frontend.config.json
+conf/deploy.backend.config
 
 venv
 backend/venv
