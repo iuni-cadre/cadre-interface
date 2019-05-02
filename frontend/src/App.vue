@@ -1,5 +1,8 @@
 <template>
     <div id="app">
+        <div class="d-flex justify-content-center">
+            <img src="@/assets/under_construction.gif" />
+        </div>
         <header class="container">
             <h1>CADRE</h1>
             <div v-if="!token">
