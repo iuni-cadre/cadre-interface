@@ -5,5 +5,6 @@
     "query_interface_url": "/query-builder",
     "jupyter_url": "http://example.com",
     "public_path": "/",
-    "force_validation": true
+    "force_validation": true,
+    "localhost": "http://example.com/"
 }
