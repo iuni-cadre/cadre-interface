@@ -1,8 +1,9 @@
 var ensoConfig = require ('../conf/frontend.config.json');
+
 module.exports = {
     lintOnSave: false,
     // baseUrl: "/dashboard/",
-    publicPath: "/dashboard/",
+    publicPath: ensoConfig.public_path,
     outputDir: undefined,
     assetsDir: 'assets',
     runtimeCompiler: undefined,
