@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <div class="d-flex justify-content-center">
+        <div v-if="is_under_construction" class="d-flex justify-content-center">
             <img src="@/assets/under_construction.gif" />
         </div>
         <header class="container">
@@ -64,6 +64,9 @@ export default {
         },
         is_loading: function() {
             return Object.keys(this.loading_queue).length;
+        },
+        "is_under_construction": function(){
+            return this.$cadreConfig.under_construction;
         }
     },
     methods: {

@@ -19,7 +19,7 @@ Vue.component('fa', FontAwesomeIcon);
 import CadreGlobalFunctions from "./CadreGlobalsPlugin.js";
 
 let axiosInstance = axios.create({
-    baseURL: Config.api_host
+    baseURL: process.env.BASE_URL
 });
 
 Vue.use(VueAxios, axiosInstance);

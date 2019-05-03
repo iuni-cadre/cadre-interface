@@ -2,7 +2,7 @@
     <div>
         <h1>Query Builder</h1>
         <nav>
-            <router-link :to="{name: 'jobs'}">Check Job Status</router-link>
+            <router-link :to="{name: 'query-builder-jobs'}">Check Job Status</router-link>
         </nav>
         <form @submit.stop.prevent="sendQuery()">
 

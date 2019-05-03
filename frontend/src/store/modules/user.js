@@ -84,22 +84,18 @@ export default {
         }
     },
     actions: {
-        beatHeart: function({ state, dispatch, getters }) {
+        beatHeart: function({ state, dispatch, getters, commit }) {
             clearTimeout(state.heartbeat_timer);
             state.heartbeat_timer = setTimeout(() => {
                 // console.debug("Beat");
                 let username = getters.username;
                 let token = getters.authToken;
-                let validate_prom = axios({
-                    url: Vue.$cadreConfig.authentication_host + "/authenticate-token",
+                let validate_prom = Globals.authAxios({
+                    url: "/authenticate-token",
                     method: "POST",
                     data: {
                         username: username
                     },
-                    headers: {
-                        "auth-token": token,
-                        "auth-username": username
-                    }
                 });
 
                 validate_prom.then(
@@ -109,7 +105,10 @@ export default {
                     error => {
                         console.warn(error);
 
-                        context.commit("logout");
+                        if(Vue.$cadreConfig.force_validation !== false)
+                        {
+                            commit("logout");
+                        }
                     }
                 );
             }, state.heartbeat_interval);
@@ -121,16 +120,11 @@ export default {
             let j_token = (payload && payload.j_token) || context.getters.jToken;
             return new Promise(function(resolve, reject) {
                 // console.debug(context)
-                let validate_prom = axios({
-                    url: Vue.$cadreConfig.authentication_host + "/authenticate-token", //?username=" + (username || state.getters.username),
+                let validate_prom = Globals.authAxios({
+                    url: "/authenticate-token", //?username=" + (username || state.getters.username),
                     method: "POST",
                     data: {
                         username: username
-                    },
-                    headers: {
-                        //if token is passed, use that, otherwise use the one already stored
-                        "auth-token": token,
-                        "auth-username": username
                     }
                 });
 

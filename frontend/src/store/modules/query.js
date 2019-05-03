@@ -147,7 +147,7 @@ export default {
 
 
                 let query_prom = Vue.$cadre.axios({
-                    url: Vue.$cadreConfig.api_host + url_piece,
+                    url: Vue.$cadreConfig.data_api_url + url_piece,
                     method: "POST",
                     data: request
                 });

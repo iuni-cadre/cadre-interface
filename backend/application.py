@@ -40,7 +40,7 @@ application = app = Flask(__name__,
 CORS(application)
 
 @application.route("/rac-api/new-notebook/<username>")
-def api_new_notebook_username(username):
+def rac_api_new_notebook_username(username):
 
     headers = {"Authorization": "token " + jupyter_config["AuthToken"]}
     payload = {}
@@ -49,7 +49,7 @@ def api_new_notebook_username(username):
 
 
 @application.route("/rac-api/notebook-status/<username>")
-def api_notebook_status_username(username):
+def rac_api_notebook_status_username(username):
 
     headers = {"Authorization": "token "  + jupyter_config["AuthToken"]}
     payload = {}
@@ -57,7 +57,7 @@ def api_notebook_status_username(username):
     return jsonify({"json": r.json(), "status_code": r.status_code, "text": r.text})
 
 @application.route("/rac-api/get-new-notebook-token/<username>")
-def api_get_new_notebook_token(username):
+def rac_api_get_new_notebook_token(username):
     conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
     cur = conn.cursor()
     cur.execute("SELECT j_pwd, j_token FROM jupyter_user WHERE j_username=%s", [username])
@@ -98,14 +98,9 @@ def api_get_new_notebook_token(username):
 #     return jsonify({"json": r.json(), "status_code": r.status_code, "text": r.text})
 
 
-@application.route("/api")
-@application.route("/api/")
-@application.route("/api/<path:fallback>")
-def api_index(fallback=""):
-    return jsonify({"error": "Unknown endpoint."})
 
-@application.route("/api/user-jobs")
-def api_user_jobs():
+@application.route("/qi-api/user-jobs")
+def qi_api_user_jobs():
     request_json = request.get_json()
     
     auth_token = request.headers.get('auth-token')
@@ -146,6 +141,16 @@ def api_user_jobs():
         cur.close()
         return jsonify({"Error", "Problem querying database"}), 500
     
+
+
+@application.route("/rac-api")
+@application.route("/rac-api/")
+@application.route("/rac-api/<path:fallback>")
+@application.route("/qi-api")
+@application.route("/qi-api/")
+@application.route("/qi-api/<path:fallback>")
+def api_index(fallback=""):
+    return jsonify({"error": "Unknown endpoint."})
 
 
 @application.route("/")

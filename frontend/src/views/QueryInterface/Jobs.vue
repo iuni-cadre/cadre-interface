@@ -2,11 +2,11 @@
     <div>
         <h1>Query Status</h1>
         <nav>
-            <router-link :to="{name: 'home'}">Back To Query Builder</router-link>
+            <router-link :to="{name: 'query-builder'}">Back To Query Builder</router-link>
         </nav>
 
         <div class="mt-5">
-            <a class="btn btn-primary" target="_blank" :href="$cadreConfig.localhost + 'dashboard/jupyter'">Go To Jupyter Notebook</a>
+            <router-link class="btn btn-primary" target="_blank" :to="{name: 'jupyter-hub'}">Go To Jupyter Notebook</router-link>
         </div>
 
         <table class="table mt-5">
@@ -42,19 +42,11 @@ export default {
     },
     methods: {
         getJobs: function() {
-            let prom = axios({
-                url:
-                    this.$cadreConfig.localhost +
-                    process.env.BASE_URL +
-                    "api/user-jobs",
-                headers: {
-                    "auth-token": this.$store.getters["user/authToken"],
-                    "auth-username": this.$store.getters["user/username"]
-                }
+            let prom = this.$cadre.qbAxios({
+                url: "/user-jobs"
             });
             prom.then(
                 response => {
-                    // console.debug(response.data);
                     this.jobs = response.data;
                 },
                 error => {

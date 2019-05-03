@@ -68,7 +68,10 @@ export default {
         }
 
         let cadre_global_functions = {
-            axios: axiosWithAuthToken,
+            axios: (options)=>{return this.axiosProxy(options)},
+            racAxios: (options)=>{return this.racAxios(options)},
+            qbAxios: (options)=>{return this.qbAxios(options)},
+            authAxios: (options)=>{return this.authAxios(options)},
             cloneObject: function(o) {
                 return cadreGlobals.cloneObject(o);
             },
@@ -106,6 +109,18 @@ export default {
     },
 
     axios: function(options) {
+        return this.axiosProxy(options);
+    },
+    qbAxios: function(options) {
+        options.url = $config.query_builder_api_prefix + options.url;
+        return this.axiosProxy(options);
+    },
+    racAxios: function(options) {
+        options.url = $config.rac_api_prefix + options.url;
+        return this.axiosProxy(options);
+    },
+    authAxios: function(options) {
+        options.url = $config.authentication_host + options.url;
         return this.axiosProxy(options);
     },
     axiosProxy: function(options) {
