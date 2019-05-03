@@ -1,10 +1,10 @@
 #!/bin/bash
-pushd deployment
+pushd scripts
 exec ./compile.sh &
 wait
 pushd ..
 
-pushd deployment
+pushd scripts
 exec ./package.sh &
 wait
 pushd ..

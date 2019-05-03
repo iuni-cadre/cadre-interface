@@ -125,6 +125,10 @@ export default {
                     method: "POST",
                     data: {
                         username: username
+                    },
+                    headers: {
+                        "auth-token": token,
+                        "auth-username": username
                     }
                 });
 
