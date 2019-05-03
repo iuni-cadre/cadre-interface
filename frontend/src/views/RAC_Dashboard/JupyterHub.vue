@@ -76,7 +76,7 @@ export default {
     },
     methods: {
         getNewToken: function() {
-            let prom = this.$cadre.axios({
+            let prom = this.$cadre.racAxios({
                 url: this.jupyter_api_token_url
             });
             prom.then(
@@ -106,7 +106,7 @@ export default {
         getUserStatus: function() {
             this.error_message = "";
             this.status = null;
-            let prom = this.$cadre.axios({
+            let prom = this.$cadre.racAxios({
                 url: this.jupyter_api_status_url
             });
             prom.then(
@@ -141,7 +141,7 @@ export default {
             );
         },
         tryToCreateJupyterHub: function() {
-            let jupyter_prom = this.$cadre.axios({
+            let jupyter_prom = this.$cadre.racAxios({
                 url: this.jupyter_api_new_url
             });
             jupyter_prom.then(
