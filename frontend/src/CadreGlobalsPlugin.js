@@ -124,17 +124,28 @@ export default {
         return this.axiosProxy(options);
     },
     axiosProxy: function(options) {
-        if (!this.$store || !this.$store.getters || !this.$store.getters["user/authToken"]) {
-            // throw new Error("No auth token found");
-            console.info("No auth token found.");
-        }
-        if (!this.$store || !this.$store.getters || !this.$store.getters["user/username"]) {
-            // throw new Error("No auth token found");
-            console.info("No auth token found.");
-        }
         options.headers = options.headers || {};
-        options.headers["auth-token"] = options.headers["auth-token"] || this.$store.getters['user/authToken'];
-        options.headers["auth-username"] = options.headers["auth-username"] || this.$store.getters['user/username'];
+
+        if(!options.headers["auth-token"])
+        {
+            if (!this.$store || !this.$store.getters || !this.$store.getters["user/authToken"]) {
+                // throw new Error("No auth token found");
+                console.info("No auth token found.");
+            }
+            options.headers["auth-token"] = options.headers["auth-token"] || this.$store.getters['user/authToken'];
+        }
+
+        if(!options.headers["auth-username"])
+        {
+            if (!this.$store || !this.$store.getters || !this.$store.getters["user/username"]) {
+                // throw new Error("No auth token found");
+                console.info("No auth token found.");
+            }
+            options.headers["auth-username"] = options.headers["auth-username"] || this.$store.getters['user/username'];
+        }
+
+
+
         var cadreGlobals = this;
         if ($config.show_log) {
             // cadreGlobals.$store.commit("addToDebugLog", options);

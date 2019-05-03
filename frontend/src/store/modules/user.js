@@ -120,6 +120,8 @@ export default {
             let j_token = (payload && payload.j_token) || context.getters.jToken;
             return new Promise(function(resolve, reject) {
                 // console.debug(context)
+
+                // console.debug(username, token);
                 let validate_prom = Globals.authAxios({
                     url: "/authenticate-token", //?username=" + (username || state.getters.username),
                     method: "POST",

@@ -2,7 +2,11 @@ import Vue from "vue";
 import Router from "vue-router";
 
 
-let HomeDashboard = () => import( /* webpackChunkName: "rac" */ "./views/RAC_Dashboard/Home.vue");
+import HomeDashboard from "./views/RAC_Dashboard/Home.vue";
+
+// import JupyterHub from  "./views/RAC_Dashboard/JupyterHub.vue";
+// import QI_Home from  "./views/QueryInterface/Home.vue";
+// import QI_Jobs from  "./views/QueryInterface/Jobs.vue";
 let JupyterHub = () => import( /* webpackChunkName: "rac" */ "./views/RAC_Dashboard/JupyterHub.vue");
 let QI_Home = () => import( /* webpackChunkName: "query_builder" */ "./views/QueryInterface/Home.vue");
 let QI_Jobs = () => import( /* webpackChunkName: "query_builder" */ "./views/QueryInterface/Jobs.vue");

@@ -1,6 +1,7 @@
 <template>
     <div id="app">
-        <div v-if="is_under_construction" class="d-flex justify-content-center">
+        <div v-if="is_under_construction"
+             class="d-flex justify-content-center construction">
             <img src="@/assets/under_construction.gif" />
         </div>
         <header class="container">
@@ -65,7 +66,7 @@ export default {
         is_loading: function() {
             return Object.keys(this.loading_queue).length;
         },
-        "is_under_construction": function(){
+        is_under_construction: function() {
             return this.$cadreConfig.under_construction;
         }
     },
@@ -104,47 +105,56 @@ export default {
                     }
                 }, this.min_loading_time - this.loading_queue[key].timer);
             }
+        },
+        validate: function() {
+            // setTimeout(() => {
+            //     this.removeFromLoadingQueue("initialize");
+            // }, 2);
+
+            this.$store.commit("user/initializeToken");
+            let validate_prom = null;
+            // console.debug(this.$route.query);
+            // console.debug(this.$route);
+            if (this.$route.query.cadre_token && this.$route.query.username) {
+                let token = this.$route.query.cadre_token;
+                let username = this.$route.query.username;
+                let jupyter_token = this.$route.query.jupyter_token;
+                this.$router.push({
+                    path: this.$route.path,
+                    query: {}
+                });
+                // console.debug(token, jupyter_token);
+                validate_prom = this.$store.dispatch("user/validateToken", {
+                    token: token,
+                    username: username,
+                    j_token: jupyter_token
+                });
+            } else {
+                validate_prom = this.$store.dispatch("user/validateToken");
+            }
+
+            validate_prom.then(
+                result => {
+                    // console.info("Token valid.");
+                    // console.debug(this.token);
+                    this.removeFromLoadingQueue("initialize");
+                    this.$store.dispatch("user/beatHeart");
+                },
+                error => {
+                    this.removeFromLoadingQueue("initialize");
+                    this.error_message = "Unauthorized";
+                    console.error("Could not validate token.", error);
+                }
+            );
         }
     },
     mounted: function() {
         this.addToLoadingQueue("initialize");
-        // setTimeout(() => {
-        //     this.removeFromLoadingQueue("initialize");
-        // }, 2);
-
-        this.$store.commit("user/initializeToken");
-        let validate_prom = null;
-        if (this.$route.query.cadre_token && this.$route.query.username) {
-            let token = this.$route.query.cadre_token;
-            let username = this.$route.query.username;
-            let jupyter_token = this.$route.query.jupyter_token;
-            this.$router.push({
-                path: this.$route.path,
-                query: {}
-            });
-            // console.debug(token, jupyter_token);
-            validate_prom = this.$store.dispatch("user/validateToken", {
-                token: token,
-                username: username,
-                j_token: jupyter_token
-            });
-        } else {
-            validate_prom = this.$store.dispatch("user/validateToken");
-        }
-
-        validate_prom.then(
-            result => {
-                // console.info("Token valid.");
-                // console.debug(this.token);
-                this.removeFromLoadingQueue("initialize");
-                this.$store.dispatch("user/beatHeart");
-            },
-            error => {
-                this.removeFromLoadingQueue("initialize");
-                this.error_message = "Unauthorized";
-                console.error("Could not validate token.", error);
-            }
-        );
+        this.validate();
+    },
+    watch: {
+        // "$route.query": function(){
+        // }
     }
 };
 </script>
@@ -184,4 +194,8 @@ export default {
     }
 }
 
+.construction img
+{
+    max-width: 100%;
+}
 </style>

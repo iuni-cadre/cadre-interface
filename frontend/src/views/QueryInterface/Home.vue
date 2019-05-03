@@ -223,7 +223,7 @@
                                 <div>
                                     Job ID: <b v-text="query_results.job_id"></b>
                                 </div>
-                                <button @click.prevent.stop="$router.push({name: 'jobs'})"
+                                <button @click.prevent.stop="$router.push({name: 'query-builder-jobs'})"
                                         class="btn btn-primary">Check Job Statuses</button>
                             </div>
                             <div class="modal-footer">
