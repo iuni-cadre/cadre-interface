@@ -104,3 +104,8 @@ It also connects to the Meta Database to fetch job data and status.  It uses the
 The interface can send preview queries directly to the database through the data api, or it can submit full queries through the async message queue.
 
 The jobs status page includes a link to the RAC jupyter notebook page which allows users to create a notebook server if not running or go directly to their notebook server.
+
+
+## Adding Datasets to Query Builder
+
+Metadata about the datasets available to the query builder can be found in the folder `/frontend/src/datasets/`.  Datasets must be registered and configured here for the query builder to work properly.
