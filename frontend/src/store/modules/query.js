@@ -31,10 +31,10 @@ export default {
         setSelectedDataset: function(state, dataset_id) {
             state.dataset = dataset_id;
             //remove the operator from the last clause so that it doesn't confuse the data api
-            state.dataset[state.dataset.length - 1].operator = "";
         },
         setQuery: function(state, query_clauses){
             Vue.set(state, "query", query_clauses);
+            state.query[state.query.length - 1].operator = "";
         },
         emptyQuery: function(state) {
             Vue.set(state, "query", []);

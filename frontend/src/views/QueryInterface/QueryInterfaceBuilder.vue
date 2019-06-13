@@ -1,6 +1,7 @@
 <template>
     <div>
         <query-builder-header />
+        <h2 class="mt-5">Query the <u>{{dataset_name}}</u> dataset</h2>
         <form @submit.stop.prevent="sendQuery()">
 
             <h2 class="mt-5">Filters</h2>
@@ -240,6 +241,7 @@
 </template>
 <script>
 import QueryBuilderHeader from "./QueryInterfaceHeader";
+import Datasets from "../../datasets";
 
 let operator_types = [
     "AND",
@@ -280,6 +282,13 @@ export default {
         };
     },
     computed: {
+        dataset_name: function(){
+            try {
+                return Datasets[this.$store.getters["query/selectedDataset"]].name;
+            }catch(err){
+                return "";
+            }
+        },
         is_loading: function() {
             return this.isLoading;
         },
