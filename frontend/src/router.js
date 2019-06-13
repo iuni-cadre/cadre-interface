@@ -8,8 +8,9 @@ import HomeDashboard from "./views/RAC_Dashboard/Home.vue";
 // import QI_Home from  "./views/QueryInterface/Home.vue";
 // import QI_Jobs from  "./views/QueryInterface/Jobs.vue";
 let JupyterHub = () => import( /* webpackChunkName: "rac" */ "./views/RAC_Dashboard/JupyterHub.vue");
-let QI_Home = () => import( /* webpackChunkName: "query_builder" */ "./views/QueryInterface/Home.vue");
-let QI_Jobs = () => import( /* webpackChunkName: "query_builder" */ "./views/QueryInterface/Jobs.vue");
+let QI_Home = () => import( /* webpackChunkName: "query_builder" */ "./views/QueryInterface/QueryInterfaceDataSets.vue");
+let QI_Builder = () => import( /* webpackChunkName: "query_builder" */ "./views/QueryInterface/QueryInterfaceBuilder.vue");
+let QI_Jobs = () => import( /* webpackChunkName: "query_builder" */ "./views/QueryInterface/QueryInterfaceJobs.vue");
 
 Vue.use(Router);
 
@@ -33,9 +34,14 @@ export default new Router({
             component: JupyterHub
         },
         {
-            path: "/query-builder",
+            path: "/query-builder/choose-data-set",
             name: "query-builder",
             component: QI_Home
+        },
+        {
+            path: "/query-builder/build-query",
+            name: "query-builder-builder",
+            component: QI_Builder
         },
         {
             path: "/query-builder/jobs",

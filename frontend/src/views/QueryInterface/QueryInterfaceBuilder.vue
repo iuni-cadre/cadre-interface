@@ -1,9 +1,6 @@
 <template>
     <div>
-        <h1>Query Builder</h1>
-        <nav>
-            <router-link :to="{name: 'query-builder-jobs'}">Check Job Status</router-link>
-        </nav>
+        <query-builder-header />
         <form @submit.stop.prevent="sendQuery()">
 
             <h2 class="mt-5">Filters</h2>
@@ -242,6 +239,10 @@
     </div>
 </template>
 <script>
+
+import QueryBuilderHeader from "./QueryInterfaceHeader";
+
+
 let field_options = [
     // { value: "wosId", label: "WoS ID" },
     { value: "year", label: "Year" },
@@ -465,6 +466,9 @@ export default {
     },
     props: {
         isLoading: Number
+    },
+    components: {
+        QueryBuilderHeader
     },
     mounted: function() {
         this.getStatus();
