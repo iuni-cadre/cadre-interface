@@ -8,7 +8,8 @@
                 <template v-for="(clause, index) in queries">
                     <div :key="`clause_${index}`">
 
-                        <div class=" d-flex justify-content-between align-items-end">
+                        <div class="alert d-flex justify-content-between align-items-end"
+                        :class="{'alert-danger': query_errors[index]}">
                             <div class="form-group">
 
                                 <label>Field</label>
@@ -109,7 +110,6 @@
                     </template>
                 </div>
             </div>
-
 
             <div class="form-group mt-5">
                 <button v-if="selected_fields.length == 0"
@@ -239,17 +239,8 @@
     </div>
 </template>
 <script>
-
 import QueryBuilderHeader from "./QueryInterfaceHeader";
 
-
-let field_options = [
-    // { value: "wosId", label: "WoS ID" },
-    { value: "year", label: "Year" },
-    { value: "authorsFullName", label: "Author" },
-    { value: "journalsName", label: "Journal Name" },
-    { value: "title", label: "Title" }
-];
 let operator_types = [
     "AND",
     "OR"
@@ -268,11 +259,12 @@ export default {
                 "authorsFullName",
                 "journalName"
             ],
+
             queries: [
                 {
                     field: "",
                     value: "",
-                    join: ""
+                    operator: ""
                 }
             ],
             preview_result: null,
@@ -283,19 +275,30 @@ export default {
                 message_id: "",
                 s3_location: ""
             },
-            query_modal_open: false
+            query_modal_open: false,
+            query_errors: {}
         };
     },
     computed: {
-        is_loading: function(){
+        is_loading: function() {
             return this.isLoading;
         },
         fields: function() {
-            return this.$store.getters["query/validFields"];
+            // return this.$store.getters["query/validFields"];
+            return this.$store.getters["query/outputFields"];
         },
         field_options: function() {
-            return field_options;
+            // return field_options;
+            let field_array = [];
+            let fields = this.$store.getters["query/inputFields"];
+            for (let field in fields) {
+                field_array.push({ value: field, label: fields[field] });
+            }
+            return field_array;
         },
+        // queries: function() {
+        //     return this.$store.getters["query/queryClauses"];
+        // },
         operator_types: function() {
             return operator_types;
         },
@@ -310,6 +313,23 @@ export default {
         }
     },
     methods: {
+        getStoreQuery: function() {
+            if (this.$store.getters["query/query"].length > 0) {
+                this.$set(this, "queries", this.$store.getters["query/query"]);
+            } else {
+                this.$set(this, "queries", [
+                    {
+                        field: "",
+                        value: "",
+                        operator: ""
+                    }
+                ]);
+            }
+        },
+        setStoreQuery: function() {
+            this.$store.commit("query/setQuery", this.queries);
+        },
+
         deselectAll: function() {
             this.selected_fields.splice(0, this.selected_fields.length);
         },
@@ -326,70 +346,46 @@ export default {
                 value: "",
                 operator: ""
             });
+
+            this.setStoreQuery();
         },
         removeQueryClause: function(index) {
             this.queries.splice(index, 1);
-        },
-        getStatus: function() {
-            // //gets the status of the data api
-            // let status_prom = this.$cadre.axios({
-            //     url: "/data/status"
-            // });
-            // status_prom.then(
-            //     result => {
-            //         this.status = result.data;
-            //     },
-            //     err => {
-            //         this.status = "Could not get status\n" + err;
-            //     }
-            // );
-
-            // //gets the status of the wos database
-            // let database_prom = this.$cadre.axios({
-            //     url: "/data/wos/status"
-            // });
-            // database_prom.then(
-            //     result => {
-            //         this.database_status = result.data;
-            //     },
-            //     err => {
-            //         this.database_status = "Could not get status\n" + err;
-            //     }
-            // );
+            this.setStoreQuery();
         },
         sendQuery: function(async) {
+
+            //async is false for preve, true for full query
             async = async || false;
             let query = [];
 
-            //remove empty clauses from query by creating a new array
-            for (let clause of this.queries) {
-                if (clause.field && clause.value) {
-                    query.push({
-                        argument: clause.field,
-                        value: clause.value,
-                        operator: clause.operator
-                    });
+            //clear any errors
+            this.$set(this, "query_errors", {});
+
+            //detect any new errors
+            for (let index in this.queries) {
+
+                if (!this.queries[index].field || !this.queries[index].value) {
+                    this.query_errors[index] = "Filter is empty";
                 }
             }
 
-            if (query.length === 0) {
+            //error message and exit if errors
+            if(Object.keys(this.query_errors).length > 0)
+            {
+                this.error_message = "One or more of your filters is invalid.";
+                return false;
+            }
+            if (this.queries.length === 0) {
                 this.error_message = "You must provide at least one filter.";
                 console.error("Empty Query", this.queries);
                 return false;
             }
 
-            //remove the operator from the last clause so that it doesn't confuse the data api
-            let last_clause = query[query.length - 1];
-            last_clause.operator = "";
+            //save the query
+            this.setStoreQuery();
 
-            let payload = {
-                async: async,
-                query: query,
-                output_fields: [...this.selected_fields],
-                dataset: "wos"
-            };
-
-            this.result = null;
+            //start loading
             if (!async) {
                 this.$emit("startLoading", {
                     message: "Fetching Preview...",
@@ -402,24 +398,28 @@ export default {
                 });
             }
 
+
+            //create payload
+            let payload = {
+                async: async,
+                output_fields: [...this.selected_fields]
+            };
+            //launch query
+            this.result = null;
             let query_prom = this.$store.dispatch("query/sendQuery", payload);
 
             query_prom.then(
                 result => {
                     this.$emit("stopLoading", { key: "query" });
                     if (!async) {
-                        if(result.errors)
-                        {
+                        if (result.errors) {
                             console.error("GraphQL Error: ", result.errors);
                             this.error_message = "";
-                            for(let error of result.errors)
-                            {
+                            for (let error of result.errors) {
                                 this.error_message += error.message + " ";
                             }
                             this.result = null;
-                        }
-                        else
-                        {
+                        } else {
                             this.result = result;
                         }
                     } else {
@@ -444,20 +444,15 @@ export default {
                             this.error_message =
                                 "Your preview query timed out.  Please try again in a moment.";
                         }
-                    }
-                    else if (error.response)
-                    {
+                    } else if (error.response) {
                         // console.debug(error.response);
-                        if(error.response.status == 401)
-                        {
-                            this.error_message = "You do not have access to this dataset.";
-                        }
-                        else
-                        {
+                        if (error.response.status == 401) {
+                            this.error_message =
+                                "You do not have access to this dataset.";
+                        } else {
                             this.error_message = error.response.data.error.toString();
                         }
-                    }
-                    else {
+                    } else {
                         this.error_message = error.toString();
                     }
                 }
@@ -471,7 +466,7 @@ export default {
         QueryBuilderHeader
     },
     mounted: function() {
-        this.getStatus();
+        this.getStoreQuery();
     }
 };
 </script>
