@@ -1,9 +1,6 @@
 <template>
     <div>
-        <h1>Query Status</h1>
-        <nav>
-            <router-link :to="{name: 'query-builder'}">Back To Query Builder</router-link>
-        </nav>
+        <query-builder-header />
 
         <div class="mt-5">
             <router-link class="btn btn-primary" target="_blank" :to="{name: 'jupyter-hub'}">Go To Jupyter Notebook</router-link>
@@ -33,6 +30,8 @@
 </template>
 
 <script>
+import QueryBuilderHeader from "./QueryInterfaceHeader";
+
 import axios from "axios";
 export default {
     data: function() {
@@ -54,6 +53,9 @@ export default {
                 }
             );
         }
+    },
+    components: {
+        QueryBuilderHeader
     },
     mounted: function() {
         this.getJobs();
