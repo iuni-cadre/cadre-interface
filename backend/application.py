@@ -7,28 +7,32 @@ import configparser
 import requests
 import psycopg2
 
+# import racapi from routefunctions
+from routefunctions import racapi
+
+from library import readconfig
 
 from flask import Flask, render_template, request, json, jsonify
 from flask_cors import CORS
 
 #make sure the frontend exists before even starting the app
-frontend_exists = path.isfile("./frontend/index.html")
-if not frontend_exists:
-    print("Server cannot start.  Frontend does not exist.  ../frontend/dist does not exist.")
-    print("Go to frontend directory and run 'npm run build' to build the frontend.")
-    sys.exit()
+# frontend_exists = path.isfile("./frontend/index.html")
+# if not frontend_exists:
+#     print("Server cannot start.  Frontend does not exist.  ../frontend/dist does not exist.")
+#     print("Go to frontend directory and run 'npm run build' to build the frontend.")
+#     sys.exit()
 
-config_exists = path.isfile("./conf/backend.config")
-if not config_exists:
-    print("Server cannot start.  Config file does not exist.  ../conf/backend.config does not exist.")
-    sys.exit()
+# config_exists = path.isfile("./conf/backend.config")
+# if not config_exists:
+#     print("Server cannot start.  Config file does not exist.  ../conf/backend.config does not exist.")
+#     sys.exit()
 
-config_parser = configparser.ConfigParser()
-config_parser.read("./conf/backend.config")
-config = config_parser['DEFAULT']
-jupyter_config = config_parser['JUPYTERAPI']
-meta_db_config = config_parser['CADRE_META_DATABASE_INFO']
-auth_config = config_parser['AUTH']
+# config_parser = configparser.ConfigParser()
+# config_parser.read("./conf/backend.config")
+config = readconfig.config
+jupyter_config = readconfig.jupyter
+meta_db_config = readconfig.meta_db
+auth_config = readconfig.auth
 
 
 
@@ -40,53 +44,55 @@ application = app = Flask(__name__,
 CORS(application)
 
 @application.route("/rac-api/new-notebook/<username>")
+# racapi.new_notebook()
 def rac_api_new_notebook_username(username):
-
-    headers = {"Authorization": "token " + jupyter_config["AuthToken"]}
-    payload = {}
-    r = requests.post(jupyter_config["APIURL"] + "/users/" + username + "/server", data=payload, headers=headers)
-    return jsonify({"status_code": r.status_code, "text": r.text})
+    return racapi.new_notebook(username)
+#     headers = {"Authorization": "token " + jupyter_config["AuthToken"]}
+#     payload = {}
+#     r = requests.post(jupyter_config["APIURL"] + "/users/" + username + "/server", data=payload, headers=headers)
+#     return jsonify({"status_code": r.status_code, "text": r.text})
 
 
 @application.route("/rac-api/notebook-status/<username>")
 def rac_api_notebook_status_username(username):
-
-    headers = {"Authorization": "token "  + jupyter_config["AuthToken"]}
-    payload = {}
-    r = requests.get(jupyter_config["APIURL"] + "/users/" + username + "", data=payload, headers=headers)
-    return jsonify({"json": r.json(), "status_code": r.status_code, "text": r.text})
+    return racapi.notebook_status(username)
+    # headers = {"Authorization": "token "  + jupyter_config["AuthToken"]}
+    # payload = {}
+    # r = requests.get(jupyter_config["APIURL"] + "/users/" + username + "", data=payload, headers=headers)
+    # return jsonify({"json": r.json(), "status_code": r.status_code, "text": r.text})
 
 @application.route("/rac-api/get-new-notebook-token/<username>")
 def rac_api_get_new_notebook_token(username):
-    conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
-    cur = conn.cursor()
-    cur.execute("SELECT j_pwd, j_token FROM jupyter_user WHERE j_username=%s", [username])
-    row = cur.fetchone()
-    pwd = row[0]
+    return racapi.get_new_notebook_token(username)
+    # conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
+    # cur = conn.cursor()
+    # cur.execute("SELECT j_pwd, j_token FROM jupyter_user WHERE j_username=%s", [username])
+    # row = cur.fetchone()
+    # pwd = row[0]
 
-    token_args = {
-        "username": username,
-        "password": pwd
-    }
+    # token_args = {
+    #     "username": username,
+    #     "password": pwd
+    # }
 
-    headers = {
-        "Content-Type": "application/json"
-    }
-    jupyterhub_token_ep = jupyter_config["APIURL"] + '/authorizations/token'
-    response = requests.post(jupyterhub_token_ep, json=token_args, headers=headers)
-    # response = requests.get(util.config_reader.get_jupyterhub_api())
-    status_code = response.status_code
+    # headers = {
+    #     "Content-Type": "application/json"
+    # }
+    # jupyterhub_token_ep = jupyter_config["APIURL"] + '/authorizations/token'
+    # response = requests.post(jupyterhub_token_ep, json=token_args, headers=headers)
+    # # response = requests.get(util.config_reader.get_jupyterhub_api())
+    # status_code = response.status_code
     
-    access_token_json = response.json()
-    token = access_token_json['token']
+    # access_token_json = response.json()
+    # token = access_token_json['token']
 
-    cur.execute("UPDATE jupyter_user SET j_token = %s WHERE j_username= %s", [token, username])
-    conn.commit()
+    # cur.execute("UPDATE jupyter_user SET j_token = %s WHERE j_username= %s", [token, username])
+    # conn.commit()
 
-    cur.close()
-    conn.close()
+    # cur.close()
+    # conn.close()
 
-    return token
+    # return token
 
     
 # @application.route("/api/stop-notebook/<username>")
