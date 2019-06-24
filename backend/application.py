@@ -10,7 +10,7 @@ import configparser
 import requests
 import psycopg2
 
-from routefunctions import rac_api, qi_api
+from routefunctions import rac_api, qi_api, auth_api
 
 from library import readconfig
 
@@ -68,6 +68,18 @@ def rac_api_get_new_notebook_token(username):
 def qi_api_user_jobs():
     return qi_api.user_jobs()
     
+
+   ###    ##     ## ######## ##     ##       ###    ########  #### 
+  ## ##   ##     ##    ##    ##     ##      ## ##   ##     ##  ##  
+ ##   ##  ##     ##    ##    ##     ##     ##   ##  ##     ##  ##  
+##     ## ##     ##    ##    #########    ##     ## ########   ##  
+######### ##     ##    ##    ##     ##    ######### ##         ##  
+##     ## ##     ##    ##    ##     ##    ##     ## ##         ##  
+##     ##  #######     ##    ##     ##    ##     ## ##        #### 
+
+@application.route('/auth-api/login', methods=['POST'])
+def auth_login():
+    return auth_api.login_user()
 
 
 ########    ###    ##       ##       ########     ###     ######  ##    ##  ######     
