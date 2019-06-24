@@ -1,7 +1,4 @@
 
-import sys
-from os import path
-import configparser
 import requests
 import psycopg2
 from flask import Flask, render_template, request, json, jsonify
@@ -39,6 +36,8 @@ def get_new_notebook_token(username):
         conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
         cur = conn.cursor()
     except:
+        conn.close()
+        cur.close()
         return jsonify({"error": "Database Error"}), 500
 
     cur.execute("SELECT j_pwd, j_token FROM jupyter_user WHERE j_username=%s", [username])
