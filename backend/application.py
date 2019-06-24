@@ -3,6 +3,9 @@
 
 import sys
 from os import path
+
+sys.path.insert(0, '/opt/python/current/app')
+
 import configparser
 import requests
 import psycopg2
