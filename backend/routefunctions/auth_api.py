@@ -1,7 +1,7 @@
 
 import requests
 import psycopg2
-from flask import Flask, render_template, request, json, jsonify
+from flask import Flask, render_template, request, json, jsonify, make_response
 
 from library import readconfig
 
@@ -11,7 +11,20 @@ meta_db_config = readconfig.meta_db
 auth_config = readconfig.auth
 
 
-
+def send_proxy_request(url = "", payload = {}, headers = {}):
+    try:
+        r = requests.post(
+            auth_config["APIURL"] + url, 
+            data=payload, 
+            headers=headers
+        )
+        try:
+            return (r.json(), r.status_code, dict(r.headers))
+        except ValueError as err:
+            return (r.text, r.status_code, dict(r.headers))
+    except Exception as arg:
+        print(arg)
+        return jsonify({"error_message": "Proxy Error", "exception": str(arg), "original_status_code": r.status_code, "original_text": r.text}), 502
 
 # @blueprint.route('/api/login', methods=['POST'])
 def login_user():
@@ -21,162 +34,86 @@ def login_user():
         'username': request.json.get('username'),
         'password': request.json.get('password')
         }
+    return send_proxy_request("/login", payload, headers)
 
-    try:
-        r = requests.post(
-            auth_config["APIURL"] + "/login", 
-            data=payload, 
-            headers=headers
-        )
-    # return jsonify({"status_code": r.status_code, "text": r.text}), r.status_code
-        return jsonify(r.json()), r.status_code
+def logout_user():
+    payload = {
+        'username': ""
+    }
+    
+    try: 
+        payload["username"] = request.json.get("username")
     except:
-        return jsonify({"error": "Proxy Error"}), 500
+        print("Couldn't get username")
+        
+    headers = {
+        "auth-token": request.headers.get("auth-token")
+    }
+    return send_proxy_request("/logout", payload, headers)
 
 
-    # logger.info('Login user to the system !')
-    # try:
-    #     username = escape(request.json.get('username'))
-    #     password = escape(request.json.get('password'))
-    #     if username is None or password is None:
-    #         abort(400)  # missing arguments
-    #     if User.query.filter_by(username=username).first() is not None:
-    #         user = User.query.filter_by(username=username).first()
-    #         if user.verify_password(password):
-    #             token = user.generate_auth_token(600)
-    #             user.token = token.decode('ascii')
-    #             user.modified_on = datetime.now()
-    #             db.session.commit()
-    #             roles = UserRole.get_roles(user.user_id)
-    #             logger.info('User %s logged in successfully !', username)
-    #             return jsonify({'token': token.decode('ascii'), 'roles': roles, 'duration': 600, 'id': user.user_id})
-    #         logger.info('Password incorrect for user : %s', username)
-    #         abort(401)
-    #     logger.info('Invalid user name : %s', username)
-    #     return jsonify({'error': "Username not found"}), 401  # could not find username
-    # except Exception as e:
-    #     traceback.print_tb(e.__traceback__)
-    #     logger.error('Error occurred while login user to system !')
-    #     return jsonify({'error': str(e)}), 500
+
+def authenticate_token():
+    payload = {
+        'username': ""
+    }
+    
+    try: 
+        payload["username"] = request.json.get("username")
+    except:
+        print("Couldn't get username")
+        
+    headers = {
+        "auth-token": request.headers.get("auth-token")
+    }
+    return send_proxy_request("/authenticate-token", payload, headers)
 
 
-# @blueprint.route('/api/logout', methods=['GET'])
-# def logout_user():
-#     logger.info('Logout User !')
-#     try:
-#         username = escape(request.json.get('username'))
-#         token = request.headers.get('auth-token')
-#         if User.query.filter_by(username=username).first() is not None:
-#             user = User.query.filter_by(username=username).first()
-#             saved_token = user.token
-#             if token == saved_token:
-#                 user.token = None
-#                 user.modified_on = datetime.now()
-#                 db.session.commit()
-#                 return jsonify({'username': username}), 200
-#             return jsonify({'Logout': 'Failed'}), 500
-#         return jsonify({'Logout': 'Failed, Invalid username'}), 401
-#     except Exception as e:
-#         logger.error('Error occurred while log out user !')
-#         return jsonify({'error': str(e)}), 500
+
+def renew_token():
+    payload = {
+        'username': ""
+    }
+    
+    try: 
+        payload["username"] = request.json.get("username")
+    except:
+        print("Couldn't get username")
+        
+    headers = {
+        "auth-token": request.headers.get("auth-token")
+    }
+    return send_proxy_request("/renew-token", payload, headers)
 
 
-# @blueprint.route('/api/authenticate-token', methods=['POST'])
-# def authenticate_token():
-#     logger.info('Authenticate token !')
-#     try:
-#         token = request.headers.get('auth-token')
-#         logger.info(token)
-#         username = escape(request.json.get('username'))
-#         logger.info(username)
-#         if User.query.filter_by(username=username).first() is not None:
-#             user = User.query.filter_by(username=username).first()
-#             saved_token = user.token
-#             logger.info(saved_token)
-#             if token != saved_token:
-#                 logger.error('Invalid token provided !')
-#                 return jsonify({'Error': 'Invalid token'}), 401
-#             else:
-#                 user = User.verify_auth_token(token)
-#                 if user is not None:
-#                     roles = UserRole.get_roles(user.user_id)
-#                     logger.info(roles)
-#                     logger.info('User token authenticated successfully !')
-#                     success_message = {
-#                         'user_id': user.user_id,
-#                         'roles': roles
-#                     }
-#                     resp = Response(response=json.dumps(success_message),
-#                                     mimetype="application/json",
-#                                     status=200,
-#                                     headers={"x-cadre-auth-token": user.token,
-#                                              "Access-Control-Expose-Headers": "x-cadre-auth-token"})
-#                     return resp
-#                 logger.info('Invalid user token !')
-#                 error_message = "{'Error': 'Invalid user token'}"
-#                 resp = Response(response=error_message,
-#                                 mimetype="application/json",
-#                                 status=401,
-#                                 headers={"x-cadre-auth-token": user.token,
-#                                          "Access-Control-Expose-Headers": "x-cadre-auth-token"})
-#                 return resp
-#         logger.error('Invalid user name provided !')
-#         return jsonify({'Error': 'Invalid user name'}), 401
-#     except Exception as e:
-#         traceback.print_tb(e.__traceback__)
-#         logger.error('Error occurred while authenticate token !. Error is ' + str(e))
-#         return jsonify({'error': str(e)}), 500
+
+def get_user_info():
+    payload = {}
+        
+    headers = {
+        "auth-token": request.headers.get("auth-token")
+    }
+    return send_proxy_request("/current-user-info", payload, headers)
 
 
-# @blueprint.route('/api/renew-token', methods=['POST'])
-# def renew_token():
-#     logger.info('Renew token !')
-#     try:
-#         token = request.headers.get('auth-token')
-#         username = escape(request.json.get('username'))
-#         if User.query.filter_by(username=username).first() is not None:
-#             user = User.query.filter_by(username=username).first()
-#             existing_token = user.token
-#             if existing_token is not None:
-#                 user = User.verify_auth_token(token)
-#                 if user is not None:
-#                     token = user.token
-#                     logger.info('Authentication token renewed successfully !')
-#                     return jsonify({'token': token.decode('ascii'), 'duration': 600})
-#                 logger.info('Invalid or expired user token !')
-#                 return jsonify({'Error': 'Invalid or expired user token'}), 401
-#         logger.error('Invalid user name provided !')
-#         return jsonify({'Error': 'Invalid user name provided'}), 401
-#     except Exception as e:
-#         traceback.print_tb(e.__traceback__)
-#         logger.error('Error occurred while renewing the token !')
-#         return jsonify({'error': str(e)}), 500
 
-
-# @blueprint.route('/api/current-user-info', methods=['GET'])
-# def get_user_info():
-#     logger.info('Get Current User Info !')
-#     try:
-#         token = request.headers.get('auth-token')
-#         user = User.verify_auth_token(token)
-#         if user is not None:
-#             logger.info('User retrieved successfully !')
-#             roles = UserRole.get_roles(user.user_id)
-#             resp_message = {'username': user.username,
-#                             'email': user.email,
-#                             'roles': roles}
-#             resp = Response(response=json.dumps(resp_message),
-#                             mimetype="application/json",
-#                             status=200,
-#                             headers={"x-cadre-auth-token": user.token,
-#                                      "Access-Control-Expose-Headers": "x-cadre-auth-token"})
-#             return resp
-#         logger.info('Unable to retrieve the user !')
-#         return False
-#     except Exception as e:
-#         traceback.print_tb(e.__traceback__)
-#         logger.error('Error occurred while retrieving user info !')
-#         return jsonify({'error': str(e)}), 500
+def user_create():
+    payload = {}
+    try:
+        payload = {
+            username: (request.json.get('username')),
+            password: (request.json.get('password')),
+            email: (request.json.get('email')),
+            roles: (request.json.get('roles')),
+            login_id: request.json.get('loginid')
+        }
+    except:
+        print("Payload Error")
+        
+    headers = {
+        "auth-token": request.headers.get("auth-token")
+    }
+    return send_proxy_request("/user/create", payload, headers)
 
 
 # @blueprint.route('/api/user/create', methods=['POST'])
@@ -223,6 +160,13 @@ def login_user():
 #         return jsonify({'error': str(e)}), 500
 
 
+def get_all_users():
+    payload = {}
+    headers = {
+        "auth-token": request.headers.get("auth-token")
+    }
+    return send_proxy_request("/user", payload, headers)
+
 # @blueprint.route('/api/user', methods=['GET'])
 # def get_all_users():
 #     logger.info('Get all users !')
@@ -258,6 +202,23 @@ def login_user():
 #         logger.error('Error occurred while getting all the users !')
 #         return jsonify({'error': str(e)}), 500
 
+
+def update_user(username):
+    payload = {}
+    try:
+        payload = {
+            confirm_password: (request.json.get('confirm_password')),
+            password: (request.json.get('password')),
+            email: (request.json.get('email')),
+            roles: (request.json.get('roles'))
+        }
+    except:
+        print("Payload Error")
+        
+    headers = {
+        "auth-token": request.headers.get("auth-token")
+    }
+    return send_proxy_request("/user/" + username, payload, headers)
 
 # @blueprint.route('/api/user/<string:username>/update', methods=['POST'])
 # def update_user(username):

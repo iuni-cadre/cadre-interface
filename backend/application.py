@@ -10,7 +10,7 @@ import configparser
 import requests
 import psycopg2
 
-from routefunctions import rac_api, qi_api, auth_api
+from routefunctions import rac_api, qi_api
 
 from library import readconfig
 
@@ -31,6 +31,39 @@ application = app = Flask(__name__,
     )
 
 CORS(application)
+
+
+
+def send_post_proxy_request(url = "", payload = {}, headers = {}):
+    try:
+        r = requests.post(
+            url, 
+            data=payload, 
+            headers=headers
+        )
+        try:
+            return (r.json(), r.status_code, dict(r.headers))
+        except ValueError as err:
+            return (r.text, r.status_code, dict(r.headers))
+    except Exception as arg:
+        print(arg)
+        return jsonify({"error_message": "Proxy Error", "exception": str(arg), "original_status_code": r.status_code, "original_text": r.text}), 502
+
+def send_get_proxy_request(url = "", payload = {}, headers = {}):
+    try:
+        r = requests.get(
+            url, 
+            data=payload, 
+            headers=headers
+        )
+        try:
+            return (r.json(), r.status_code, dict(r.headers))
+        except ValueError as err:
+            return (r.text, r.status_code, dict(r.headers))
+    except Exception as arg:
+        print(arg)
+        return jsonify({"error_message": "Proxy Error", "exception": str(arg), "original_status_code": r.status_code, "original_text": r.text}), 502
+
 
 
 
@@ -77,9 +110,34 @@ def qi_api_user_jobs():
 ##     ## ##     ##    ##    ##     ##    ##     ## ##         ##  
 ##     ##  #######     ##    ##     ##    ##     ## ##        #### 
 
-@application.route('/auth-api/login', methods=['POST'])
-def auth_login():
-    return auth_api.login_user()
+# @application.route('/auth-api/login', methods=['POST'])
+# def auth_login():
+#     return auth_api.login_user()
+
+# @application.route('/auth-api/logout', methods=['GET'])
+# def auth_logout():
+#     return auth_api.logout_user()
+
+# @application.route('/auth-api/athenticate-token', methods=['POST'])
+# def auth_authenticate_token():
+#     return auth_api.authenticate_token()
+
+# @application.route('/auth-api/renew-token', methods=['POST'])
+# def auth_renew_token():
+#     return auth_api.renew_token()
+
+@application.route('/auth-api/<path:fallback>', methods=["POST"])
+def auth_post_proxy(fallback):
+    print("auth POST proxy: ", fallback)
+    return send_post_proxy_request(auth_config["APIURL"] + "/" + fallback, request.json, request.headers)
+
+
+@application.route('/auth-api/<path:fallback>', methods=["GET"])
+def auth_get_proxy(fallback):
+    print("auth GET proxy: ", fallback)
+    return send_get_proxy_request(auth_config["APIURL"] + "/" + fallback, request.json, request.headers)
+
+
 
 
 ########    ###    ##       ##       ########     ###     ######  ##    ##  ######     
