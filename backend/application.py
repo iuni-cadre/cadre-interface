@@ -22,6 +22,7 @@ config = readconfig.config
 jupyter_config = readconfig.jupyter
 meta_db_config = readconfig.meta_db
 auth_config = readconfig.auth
+data_config = readconfig.data
 
 
 
@@ -38,32 +39,47 @@ def send_post_proxy_request(url = "", payload = {}, headers = {}):
     try:
         r = requests.post(
             url, 
-            data=payload, 
+            data=json.dumps(payload), 
             headers=headers
         )
         try:
-            return (r.json(), r.status_code, dict(r.headers))
+            return json.dumps(r.json()), r.status_code, dict(r.headers)
         except ValueError as err:
-            return (r.text, r.status_code, dict(r.headers))
+            return r.text, r.status_code, dict(r.headers)
+        except Exception as arg:
+            print("*** PROXY ERROR ***")
+            print(arg)
+            print(url, r.status_code, r.text)
+            return jsonify({"error_message": "Proxy Error"}), 502
     except Exception as arg:
+        print("*** PROXY ERROR ***")
         print(arg)
-        return jsonify({"error_message": "Proxy Error", "exception": str(arg), "original_status_code": r.status_code, "original_text": r.text}), 502
+        print(url)
+        return jsonify({"error_message": "Proxy Error"}), 502
+
 
 def send_get_proxy_request(url = "", payload = {}, headers = {}):
     try:
         r = requests.get(
             url, 
-            data=payload, 
+            data=json.dumps(payload), 
             headers=headers
         )
+        
         try:
-            return (r.json(), r.status_code, dict(r.headers))
+            return json.dumps(r.json()), r.status_code, dict(r.headers)
         except ValueError as err:
-            return (r.text, r.status_code, dict(r.headers))
+            return r.text, r.status_code, dict(r.headers)
+        except Exception as arg:
+            print("*** PROXY ERROR ***")
+            print(arg)
+            print(url, r.status_code, r.text)
+            return jsonify({"error_message": "Proxy Error"}), 502
     except Exception as arg:
+        print("*** PROXY ERROR ***")
         print(arg)
-        return jsonify({"error_message": "Proxy Error", "exception": str(arg), "original_status_code": r.status_code, "original_text": r.text}), 502
-
+        print(url)
+        return jsonify({"error_message": "Proxy Error"}), 502
 
 
 
@@ -136,6 +152,27 @@ def auth_post_proxy(fallback):
 def auth_get_proxy(fallback):
     print("auth GET proxy: ", fallback)
     return send_get_proxy_request(auth_config["APIURL"] + "/" + fallback, request.json, request.headers)
+
+
+########     ###    ########    ###          ###    ########  ####    ######## ##    ## ########  ########   #######  #### ##    ## ########  ######  
+##     ##   ## ##      ##      ## ##        ## ##   ##     ##  ##     ##       ###   ## ##     ## ##     ## ##     ##  ##  ###   ##    ##    ##    ## 
+##     ##  ##   ##     ##     ##   ##      ##   ##  ##     ##  ##     ##       ####  ## ##     ## ##     ## ##     ##  ##  ####  ##    ##    ##       
+##     ## ##     ##    ##    ##     ##    ##     ## ########   ##     ######   ## ## ## ##     ## ########  ##     ##  ##  ## ## ##    ##     ######  
+##     ## #########    ##    #########    ######### ##         ##     ##       ##  #### ##     ## ##        ##     ##  ##  ##  ####    ##          ## 
+##     ## ##     ##    ##    ##     ##    ##     ## ##         ##     ##       ##   ### ##     ## ##        ##     ##  ##  ##   ###    ##    ##    ## 
+########  ##     ##    ##    ##     ##    ##     ## ##        ####    ######## ##    ## ########  ##         #######  #### ##    ##    ##     ######  
+
+@application.route('/data-api/<path:fallback>', methods=["POST"])
+def data_post_proxy(fallback):
+    print("data POST proxy: ", fallback)
+    response = send_post_proxy_request(data_config["APIURL"] + "/" + fallback, request.json, request.headers)
+    return response
+
+
+@application.route('/data-api/<path:fallback>', methods=["GET"])
+def data_get_proxy(fallback):
+    print("data GET proxy: ", fallback)
+    return send_get_proxy_request(data_config["APIURL"] + "/" + fallback, request.json, request.headers)
 
 
 
