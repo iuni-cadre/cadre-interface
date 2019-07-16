@@ -8,11 +8,15 @@
             <!-- <button @click="goToQueryInterface()" class="btn btn-primary">Query Interface</button>
             &nbsp;&nbsp;
             <button @click="goToNotebook()" class="btn btn-primary">Jupyter Notebook</button> -->
-            <router-link :to="{name: 'query-builder'}" target="_blank" class="btn btn-primary">Query Interface</router-link>
+            <router-link :to="{name: 'query-builder'}" target="" class="btn btn-primary">Query Interface</router-link>
             <!-- <a target="_blank" :href="`${this.query_interface_url}?username=${this.username}&token=${this.token}`" class="btn btn-primary">Query Interface</a> -->
             &nbsp;&nbsp;
             <!-- <a :href="" class="btn btn-primary">Jupyter Notebook</a> -->
-            <router-link :to="{name: 'jupyter-hub'}" target="_blank" class="btn btn-primary">Jupyter Notebook</router-link>
+            <router-link :to="{name: 'jupyter-hub'}" target="" class="btn btn-primary">Jupyter Notebook</router-link>
+
+            &nbsp;&nbsp;
+
+            <router-link :to="{name: 'rac-marketplace'}" target="" class="btn btn-primary">RAC Marketplace</router-link>
         </div>
         <!-- <div>
             {{jupyter_full_url}}

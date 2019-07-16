@@ -11,6 +11,7 @@ let JupyterHub = () => import( /* webpackChunkName: "rac" */ "./views/RAC_Dashbo
 let QI_Home = () => import( /* webpackChunkName: "query_builder" */ "./views/QueryInterface/QueryInterfaceDataSets.vue");
 let QI_Builder = () => import( /* webpackChunkName: "query_builder" */ "./views/QueryInterface/QueryInterfaceBuilder.vue");
 let QI_Jobs = () => import( /* webpackChunkName: "query_builder" */ "./views/QueryInterface/QueryInterfaceJobs.vue");
+let RAC_Marketplace = () => import( /* webpackChunkName: "rac" */ "./views/Marketplace/MarketplaceHome.vue");
 
 Vue.use(Router);
 
@@ -47,6 +48,11 @@ export default new Router({
             path: "/query-builder/jobs",
             name: "query-builder-jobs",
             component: QI_Jobs
+        },
+        {
+            path: "/rac",
+            name: "rac-marketplace",
+            component: RAC_Marketplace
         }
         // {
         //   path: '/about',
