@@ -105,6 +105,7 @@ export default {
             this.runFinally();
         },
         runFail: function(error) {
+            console.debug(error);
             this.error = {
                 error_message: error.error_message
             }

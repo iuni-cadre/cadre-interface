@@ -24,10 +24,12 @@ export default {
                         job_status: response.data.job_status
                     })
                 }, (error)=>{
-                    let reject_obj = {
-                        error_message: error.response.data.error_message || "Unknown error. Couldn't run package.",
-                        job_status: error.response.data.job_status
-                    };
+                    let reject_obj = {}
+
+                    reject_obj.error_message = error.response.data.error_message || "Unknown error. Couldn't run package.",
+                    // reject_obj.job_status = error.response.data.job_status
+
+                    reject_obj.http_status = error.response.status;
 
                     reject(reject_obj);
                 });
