@@ -1,35 +1,5 @@
 import Vue from "vue";
 
-const TEST_RAC_PACKAGES = [
-    {
-        package_id: "package_1",
-        name: "package 1",
-        author: "author 1",
-        created_date: "2019-07-16 10:51:26",
-        tools: ["tool 1"],
-        input_files: ["/dataset.csv"],
-        output_files: ["/new_dataset.csv"]
-    },
-    {
-        package_id: "package_2",
-        name: "package 2",
-        author: "author 2",
-        created_date: "2019-07-16 10:51:26",
-        tools: ["tool 2"],
-        input_files: ["/dataset.csv"],
-        output_files: ["/new_dataset.csv"]
-    },
-    {
-        package_id: "package_3",
-        name: "package 3",
-        author: "author 3",
-        created_date: "2019-07-16 10:51:26",
-        tools: ["tool 3"],
-        input_files: ["/dataset.csv"],
-        output_files: ["/new_dataset.csv"]
-    }
-];
-
 export default {
     namespaced: true,
     state: {
@@ -116,3 +86,37 @@ export default {
         }
     }
 };
+
+
+
+
+
+const TEST_RAC_PACKAGES = [
+    {
+        package_id: "package_1",
+        name: "package 1",
+        author: "author 1",
+        created_date: "2019-07-16 10:51:26",
+        tools: ["tool 1"],
+        input_files: ["/dataset.csv"],
+        output_files: ["/new_dataset.csv"]
+    },
+    {
+        package_id: "package_2",
+        name: "package 2",
+        author: "author 2",
+        created_date: "2019-07-16 10:51:26",
+        tools: ["tool 2"],
+        input_files: ["/dataset.csv"],
+        output_files: ["/new_dataset.csv"]
+    },
+    {
+        package_id: "package_3",
+        name: "package 3",
+        author: "author 3",
+        created_date: "2019-07-16 10:51:26",
+        tools: ["tool 3"],
+        input_files: ["/dataset.csv"],
+        output_files: ["/new_dataset.csv"]
+    }
+];
