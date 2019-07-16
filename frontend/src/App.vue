@@ -9,8 +9,11 @@
                 <a class="float-right"
                    :href="login_url">Login</a>
             </div>
-            <h1>CADRE</h1>
+            <router-link :to="{name: 'home'}">
+                <h1>CADRE</h1>
+            </router-link>
         </header>
+        <hr />
         <!-- {{$store.getters["user/authToken"]}} -->
         <router-view v-if="token"
                      class="container"
@@ -41,6 +44,12 @@
                      v-text="item.message"></div>
             </div>
         </div>
+
+        <hr />
+        <footer class="container">
+
+            &copy; IUNI
+        </footer>
     </div>
 </template>
 <script>
@@ -195,8 +204,7 @@ export default {
     }
 }
 
-.construction img
-{
+.construction img {
     max-width: 100%;
 }
 </style>

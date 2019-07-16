@@ -47,12 +47,15 @@ export default {
         },
     mounted: function() {
         //start loading
-        this.$emit("startLoading", {key:"get_packages", message: ""});
-        let get_packages_prom = this.$store.dispatch("racpackage/getPackages");
-        get_packages_prom.finally(()=>{
-            //stop loading
-            this.$emit("stopLoading", {key: "get_packages"});
-        });
+        if(this.racpackages.length === 0)
+        {
+            this.$emit("startLoading", {key:"get_packages", message: ""});
+            let get_packages_prom = this.$store.dispatch("racpackage/getPackages");
+            get_packages_prom.finally(()=>{
+                //stop loading
+                this.$emit("stopLoading", {key: "get_packages"});
+            });
+        }
     }
 };
 </script>
