@@ -32,7 +32,7 @@ export default {
             state.dataset = dataset_id;
             //remove the operator from the last clause so that it doesn't confuse the data api
         },
-        setQuery: function(state, query_clauses){
+        setQuery: function(state, query_clauses) {
             Vue.set(state, "query", query_clauses);
             state.query[state.query.length - 1].operator = "";
         },
@@ -49,7 +49,6 @@ export default {
                 let async = payload.async || false;
                 let fields = payload.output_fields;
                 let field_string = fields.join(", ");
-                // let query_array = [];
 
                 let i = 0;
 
@@ -69,7 +68,22 @@ export default {
                 let url_piece = `/data/${dataset}-graphql/publication`;
                 if (async) {
                     url_piece = `/data/${dataset}/publications-async`;
-                    request = { q: query_array };
+                    let query_array = [];
+
+                    for (let clause of query) {
+                        query_array.push({
+                            field: clause.field,
+                            value: clause.value,
+                            operand: clause.operator || ""
+                        });
+                    }
+
+                    request = {
+                        q: query_array,
+                        output_fields: fields,
+                        data_set: dataset,
+                        query_type: null
+                    };
                 }
 
                 let canceled_timeout = setTimeout(() => {

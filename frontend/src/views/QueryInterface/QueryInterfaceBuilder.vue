@@ -462,6 +462,7 @@ export default {
                             this.error_message = error.response.data.error.toString();
                         }
                     } else {
+                        console.debug(error);
                         this.error_message = error.toString();
                     }
                 }
