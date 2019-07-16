@@ -27,7 +27,10 @@ def notebook_status(username):
     try:
         return jsonify({"json": r.json, "status_code": r.status_code, "text": r.text})
     except:
-        return jsonify({"status_code": r.status_code, "text": r.text}), r.status_code
+        return (r.text, r.status_code, dict(r.headers))
+
+        # return jsonify({"status_code": r.status_code, "text": r.text}), r.status_code
+        # return jsonify({"status_code": r.status_code, "text": r.text}), r.status_code
 
 
 

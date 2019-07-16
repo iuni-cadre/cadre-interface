@@ -111,7 +111,7 @@ export default {
             });
             prom.then(
                 response => {
-                    this.status = response.data.json;
+                    this.status = response.data;
                     console.debug(this.status);
                     if (
                         this.status.servers[""] &&
