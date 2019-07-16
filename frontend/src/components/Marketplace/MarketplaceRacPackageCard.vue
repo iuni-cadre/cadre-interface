@@ -83,6 +83,8 @@ export default {
     },
     methods: {
         runPackage: function() {
+            this.$emit("startLoading", { key: "running_package" });
+
             let running_promise = this.$store.dispatch(
                 "racpackage/runPackage",
                 {
@@ -91,7 +93,7 @@ export default {
                 }
             );
 
-            running_promise.then(this.runSuccess, this.runFail);
+            running_promise.then(this.runSuccess, this.runFail).finally(this.runFinally);
         },
 
         runSuccess: function(response) {
@@ -102,17 +104,15 @@ export default {
             console.debug(this.results);
             this.output_filename = "";
             this.show_run_modal = null;
-            this.runFinally();
         },
         runFail: function(error) {
             console.debug(error);
             this.error = {
                 error_message: error.error_message
-            }
-
-            this.runFinally();
+            };
         },
-        runFinally: function(){
+        runFinally: function() {
+            this.$emit("stopLoading", { key: "running_package" });
         }
     },
     components: {

@@ -33,7 +33,7 @@
              class="d-flex align-items-center justify-content-center">
             <div class="loading-content">
                 <div class="icon">
-                    <fa icon="compact-disc"
+                    <fa icon="circle-notch"
                         spin />
                 </div>
                 <div v-for="(item, index) in loading_queue"
@@ -183,6 +183,7 @@ export default {
 #loading-screen {
     background: rgba(255, 255, 255, 0.6);
     // background: rgba(79, 61, 99, 0.99);
+    z-index: 5000;
     position: fixed;
     left: 0;
     right: 0;
