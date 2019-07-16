@@ -1,21 +1,21 @@
 <template>
     <div>
-        <div class="rac_package-card card p-3">
-            <h4 v-text="rac_package.name">Package Name</h4>
+        <div class="racpackage-card card p-3">
+            <h4 v-text="racpackage.name">Package Name</h4>
             <div class="small"
-                 v-text="`By: ${rac_package.author}`"></div>
+                 v-text="`By: ${racpackage.author}`"></div>
             <div class="small"
-                 v-text="`Created On: ${rac_package.created_date}`"></div>
-            <div class="rac_package-body row mt-3">
-                <div class="rac_package-info col">
+                 v-text="`Created On: ${racpackage.created_date}`"></div>
+            <div class="racpackage-body row mt-3">
+                <div class="racpackage-info col">
                     <dl>
                         <dt class="mr-1">Tool: </dt>
                         <dd class="ml-1 "
-                            v-text="rac_package.tools.join(', ')"></dd>
+                            v-text="racpackage.tools.join(', ')"></dd>
 
                         <dt class="mr-1">Input Data: </dt>
                         <dd class="ml-1 "
-                            v-text="rac_package.input_files.join(', ')"></dd>
+                            v-text="racpackage.input_files.join(', ')"></dd>
 
                     </dl>
 
@@ -30,7 +30,7 @@
         <modal v-if="show_run_modal"
                @close="show_run_modal = false">
             <div>
-                <pre v-text="rac_package"></pre>
+                <pre v-text="racpackage"></pre>
                 <div class="form-group">
                     <label>Output Filename</label>
                     <input type="text"
@@ -51,6 +51,13 @@
 
             {{results}}
         </modal>
+        <modal v-if="error"
+               @close="error = undefined"
+               modal-style="danger"
+               modal-type="error">
+
+            {{error}}
+        </modal>
     </div>
 
 </template>
@@ -61,12 +68,13 @@ export default {
     data: function() {
         return {
             results: undefined,
+            error: undefined,
             show_run_modal: false,
             output_filename: ""
         };
     },
     computed: {
-        rac_package: function() {
+        racpackage: function() {
             return this.RacPackage;
         }
     },
@@ -75,24 +83,36 @@ export default {
     },
     methods: {
         runPackage: function() {
-            let running_promise = new Promise((resolve, reject) => {
-                console.debug("running package " + this.rac_package.package_id);
-                console.debug("putting results into " + this.output_filename);
+            let running_promise = this.$store.dispatch(
+                "racpackage/runPackage",
+                {
+                    package_id: this.racpackage.package_id,
+                    output_filename: this.output_filename
+                }
+            );
 
-                resolve({
-                    message: `Succeeded! ${this.rac_package.name} successfully ran.`
-                });
-            });
             running_promise.then(this.runSuccess, this.runFail);
         },
 
         runSuccess: function(response) {
-            this.results = response;
+            this.results = {
+                job_id: response.job_id,
+                success_message: "Package is running."
+            };
             console.debug(this.results);
             this.output_filename = "";
             this.show_run_modal = null;
+            this.runFinally();
         },
-        runFail: function(error) {}
+        runFail: function(error) {
+            this.error = {
+                error_message: error.error_message
+            }
+
+            this.runFinally();
+        },
+        runFinally: function(){
+        }
     },
     components: {
         Modal
