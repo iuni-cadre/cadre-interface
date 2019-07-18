@@ -33,7 +33,6 @@ def notebook_status(username):
         # return jsonify({"status_code": r.status_code, "text": r.text}), r.status_code
 
 
-
 def get_new_notebook_token(username):
     try:
         conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
@@ -71,7 +70,74 @@ def get_new_notebook_token(username):
 
     return token, status_code
 
-    
+
+def run_package():
+    auth_token = request.headers.get('auth-token')
+    username = request.headers.get('auth-username')
+    package_id = request.json.get('package_id')
+    output_filename = request.json.get('output_filename')
+
+    if auth_token is None or username is None:
+        return jsonify({"error": "auth headers are missing"}), 400
+    # connection = cadre_meta_connection_pool.getconn()
+        # cursor = connection.cursor()
+    validata_token_args = {
+        'username': username
+    }
+    headers = {
+        'auth-token': auth_token,
+        'Content-Type': 'application/json'
+    }
+    validate_token_response = requests.post(auth_config["verify-token-endpoint"],
+                                            data=json.dumps(validata_token_args),
+                                            headers=headers,
+                                            verify=False)
+    if validate_token_response.status_code is not 200:
+        print(validate_token_response)
+        return jsonify({"error": "Invalid Token"}), 403
+
+    response_json = validate_token_response.json()
+    user_id = response_json['user_id']
+    # get package information from rac metadatabase
+    # run docker
+
+    return jsonify({"job_id": 1, "job_status": "started"})
+
+
+def get_packages():
+    auth_token = request.headers.get('auth-token')
+    username = request.headers.get('auth-username')
+    limit = request.json.get('limit')
+    page = request.json.get('page')
+    order = request.json.get('order')
+    search = request.json.get('search')
+
+    if auth_token is None or username is None:
+        return jsonify({"error": "auth headers are missing"}), 400
+        # connection = cadre_meta_connection_pool.getconn()
+        # cursor = connection.cursor()
+    validata_token_args = {
+        'username': username
+    }
+    headers = {
+        'auth-token': auth_token,
+        'Content-Type': 'application/json'
+    }
+    validate_token_response = requests.post(auth_config["verify-token-endpoint"],
+                                            data=json.dumps(validata_token_args),
+                                            headers=headers,
+                                            verify=False)
+    if validate_token_response.status_code is not 200:
+        print(validate_token_response)
+        return jsonify({"error": "Invalid Token"}), 403
+
+    response_json = validate_token_response.json()
+    user_id = response_json['user_id']
+    # get package information from rac metadatabase
+
+    return jsonify({"package_id": 1, "name": "aaa", "author":"a", "created_date":"2019-07-16 10:51:26", "tools":["1", "2"], "input_files":["/a", "/b"]})
+
+
 # @application.route("/api/stop-notebook/<username>")
 # def api_stop_notebook_username(username):
 
