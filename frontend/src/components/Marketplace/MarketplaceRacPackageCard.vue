@@ -11,11 +11,11 @@
                     <dl>
                         <dt class="mr-1">Tool: </dt>
                         <dd class="ml-1 "
-                            v-text="racpackage.tools.join(', ')"></dd>
+                            v-text="tool_names"></dd>
 
                         <dt class="mr-1">Input Data: </dt>
                         <dd class="ml-1 "
-                            v-text="racpackage.input_files.join(', ')"></dd>
+                            v-text="input_files"></dd>
 
                     </dl>
 
@@ -30,7 +30,14 @@
         <modal v-if="show_run_modal"
                @close="show_run_modal = false">
             <div>
-                <pre v-text="racpackage"></pre>
+                <!-- <pre v-text="racpackage"></pre> -->
+                <p>Input Files: <span v-text="input_files"></span></p>
+                <div>Tool:</div>
+                <div><span v-text="tool_names"></span></div>
+                <small>by <span v-text="tool_authors"></span></small>
+                <div><span v-text="tool_descriptions"></span></div>
+
+                <br />
                 <div class="form-group">
                     <label>Output Filename</label>
                     <input type="text"
@@ -76,6 +83,30 @@ export default {
     computed: {
         racpackage: function() {
             return this.RacPackage;
+        },
+        tool: function(){
+            let packages = this.$store.getters["racpackage/tools"];
+            // console.debug(packages);
+            return (tool_id) => {
+                if(!packages[tool_id])
+                {
+                    console.warn("Trying to get name of unknown tool " + tool_id);
+                    return {};
+                }
+                return packages[tool_id] || {};
+            };
+        },
+        tool_names: function(){
+            return this.racpackage.tools.map(tool_id=>{return this.tool(tool_id).name}).join(', ');
+        },
+        tool_descriptions: function(){
+            return this.racpackage.tools.map(tool_id=>{return this.tool(tool_id).description}).join(', ');
+        },
+        tool_authors: function(){
+            return this.racpackage.tools.map(tool_id=>{return this.tool(tool_id).author}).join(', ');
+        },
+        input_files: function(){
+            return this.racpackage.input_files.join(', ');
         }
     },
     props: {
