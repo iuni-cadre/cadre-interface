@@ -80,10 +80,9 @@ export default {
                 }
 
                 request = {
-                    search_filters: query_array,
-                    output_fields: fields,
-                    data_set: dataset,
-                    query_type: null
+                    filters: query_array,
+                    output: fields,
+                    dataset: dataset
                 };
 
 

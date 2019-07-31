@@ -275,7 +275,14 @@ export default {
         },
         fields: function() {
             // return this.$store.getters["query/validFields"];
-            return this.$store.getters["query/outputFields"];
+            let fields = this.$store.getters["query/outputFields"];
+            let fields_obj = {};
+
+            for(let field of fields)
+            {
+                fields_obj[field.field] = field;
+            }
+            return fields_obj;
         },
         default_fields: function() {
             return this.$store.getters["query/defaultFields"];
@@ -290,14 +297,31 @@ export default {
             return field_array;
         },
         selected_network_outputs: function() {
-            return this.fields.filter(field => {
+
+            let fields = this.fields;
+            let outputs = [];
+
+            for(let field_name in fields)
+            {
+                let field = fields[field_name];
                 if (
                     field.type == "network" &&
                     this.selected_fields.indexOf(field.field) >= 0
                 ) {
-                    return field;
+                    outputs.push(field);
                 }
-            });
+
+            }
+
+            return outputs;
+            // return this.fields.filter(field => {
+            //     if (
+            //         field.type == "network" &&
+            //         this.selected_fields.indexOf(field.field) >= 0
+            //     ) {
+            //         return field;
+            //     }
+            // });
         },
         // queries: function() {
         //     return this.$store.getters["query/queryClauses"];
@@ -395,14 +419,33 @@ export default {
                 });
             }
 
+            //build up the output fields
+            let output_fields = [];
+            for(let selected_field of this.selected_fields)
+            {
+                let field = this.fields[selected_field];
+                let field_to_add = {
+                    field: field.field,
+                    type: field.type
+                };
+                //if the output is a network type, there should be a degree associated with it.
+                if(field.type == "network")
+                {
+                    field_to_add.degree = this.network_field_degrees[field.field] || 1;
+                }
+                output_fields.push(field_to_add);
+            }
+
             //create payload
             let payload = {
                 async: async,
-                output_fields: [...this.selected_fields]
+                output_fields: output_fields
             };
             //launch query
             this.result = null;
+
             let query_prom = this.$store.dispatch("query/sendQuery", payload);
+            // let query_prom = Promise.reject(); //just for testing
 
             query_prom.then(
                 result => {
@@ -441,12 +484,17 @@ export default {
                                 "Your preview query timed out.  Please try again in a moment.";
                         }
                     } else if (error.response) {
-                        // console.debug(error.response);
+                        // console.debug(error.response.data.error);
                         if (error.response.status == 401) {
                             this.error_message =
                                 "You do not have access to this dataset.";
-                        } else {
+                        } else if (error.response.data.error){
                             this.error_message = error.response.data.error.toString();
+                        }
+                        else
+                        {
+                            // console.error(error)
+                            this.error_message = "Unknown error: " + error.response.status;
                         }
                     } else {
                         console.debug(error);
