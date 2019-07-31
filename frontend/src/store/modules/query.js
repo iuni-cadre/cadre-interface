@@ -55,11 +55,11 @@ export default {
                 if(async)
                 {
 
-                    endpoint = '/api/data/publications-async'; //preview query
+                    endpoint = '/publications-async'; //preview query
                 }
                 else
                 {
-                    endpoint = '/api/data/publications-sync'; //full query
+                    endpoint = '/publications-sync'; //full query
                 }
 
 
@@ -75,7 +75,7 @@ export default {
                     query_array.push({
                         field: clause.field,
                         value: clause.value,
-                        operand: clause.operator || ""
+                        operation: clause.operator || ""
                     });
                 }
 
