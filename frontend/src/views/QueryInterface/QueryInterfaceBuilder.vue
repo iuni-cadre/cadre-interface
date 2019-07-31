@@ -10,7 +10,7 @@
                     <div :key="`clause_${index}`">
 
                         <div class="alert d-flex justify-content-between align-items-end"
-                        :class="{'alert-danger': query_errors[index]}">
+                             :class="{'alert-danger': query_errors[index]}">
                             <div class="form-group">
 
                                 <label>Field</label>
@@ -66,52 +66,30 @@
             </div>
 
             <h2 class="mt-5">Output Fields</h2>
-            <div class="d-flex">
-                <label class="btn btn-sm mr-3 d-flex align-items-center"
-                       :class="{
-                            'btn-outline-primary': fields_view != 'selected',
-                            'btn-primary': fields_view == 'selected'
-                        }"><input type="radio"
-                           v-model="fields_view"
-                           value="selected" />Show Selected Only</label>
-                <label class="btn btn-sm d-flex align-items-center"
-                       :class="{
-                            'btn-outline-primary': fields_view != 'all',
-                            'btn-primary': fields_view == 'all'
-                        }"><input type="radio"
-                           v-model="fields_view"
-                           value="all" />Show All Available Fields</label>
-                <label @click.stop.prevent="deselectAll"
-                       class="btn btn-primary btn-sm d-flex align-items-center ml-auto">Deselect All</label>
-            </div>
-            <div class="card container">
-                <div class="row ">
-                    <template v-for="field in fields">
-                        <div class="col-3 d-flex align-items-center p-1"
-                             :key="`${field}_field`"
-                             v-if="fields_view=='all' || selected_fields.indexOf(field) >= 0">
-                            <label class="btn"
-                                   :class="{
-                            'btn-outline-primary': selected_fields.indexOf(field) == -1,
-                            'btn-primary': selected_fields.indexOf(field) >= 0,
-                        }">
-                                <input type="checkbox"
-                                       class="mr-2"
-                                       :id="`${field}_field`"
-                                       v-model="selected_fields"
-                                       :value="field" />
 
-                                <span :for="`${field}_field`"
-                                      v-text="field"></span>
-                            </label>
-                        </div>
-                    </template>
-                    <template v-if="selected_fields.length == 0">
-                        <div class="m-3">No output fields are selected.</div>
-                    </template>
+            <output-fields v-model="selected_fields"></output-fields>
+
+            <h2 class="mt-5">Network Degrees</h2>
+
+            <div v-if="selected_network_outputs.length > 0">
+                <div v-for="field in selected_network_outputs"
+                     :key="`network_degree_${field.field}`">
+
+                    <div class="form-group">
+                        <label v-text="field.label"></label>
+                        <input class="form-control"
+                               type="number"
+                               step='1'
+                               v-model="network_field_degrees[field.field]"
+                               max="10"
+                               min="1" />
+                    </div>
                 </div>
-            </div>
 
+            </div>
+            <div v-else>
+                <div>There are no network output fields selected.</div>
+            </div>
             <div class="form-group mt-5">
                 <button v-if="selected_fields.length == 0"
                         class="btn btn-primary btn-lg disabled"
@@ -241,6 +219,7 @@
 </template>
 <script>
 import QueryBuilderHeader from "./QueryInterfaceHeader";
+import OutputFields from "@/components/QueryBuilder/QueryBuilderOutputFields";
 import Datasets from "../../datasets";
 
 let operator_types = [
@@ -256,11 +235,12 @@ export default {
             database_status: {},
             status: {},
             selected_fields: [
-                "wosId",
-                "year",
-                "authorsFullName",
-                "journalName"
+                // "wosId",
+                // "year",
+                // "authorsFullName",
+                // "journalName"
             ],
+            network_field_degrees: {},
 
             queries: [
                 {
@@ -282,10 +262,11 @@ export default {
         };
     },
     computed: {
-        dataset_name: function(){
+        dataset_name: function() {
             try {
-                return Datasets[this.$store.getters["query/selectedDataset"]].name;
-            }catch(err){
+                return Datasets[this.$store.getters["query/selectedDataset"]]
+                    .name;
+            } catch (err) {
                 return "";
             }
         },
@@ -294,7 +275,17 @@ export default {
         },
         fields: function() {
             // return this.$store.getters["query/validFields"];
-            return this.$store.getters["query/outputFields"];
+            let fields = this.$store.getters["query/outputFields"];
+            let fields_obj = {};
+
+            for(let field of fields)
+            {
+                fields_obj[field.field] = field;
+            }
+            return fields_obj;
+        },
+        default_fields: function() {
+            return this.$store.getters["query/defaultFields"];
         },
         field_options: function() {
             // return field_options;
@@ -304,6 +295,33 @@ export default {
                 field_array.push({ value: field, label: fields[field] });
             }
             return field_array;
+        },
+        selected_network_outputs: function() {
+
+            let fields = this.fields;
+            let outputs = [];
+
+            for(let field_name in fields)
+            {
+                let field = fields[field_name];
+                if (
+                    field.type == "network" &&
+                    this.selected_fields.indexOf(field.field) >= 0
+                ) {
+                    outputs.push(field);
+                }
+
+            }
+
+            return outputs;
+            // return this.fields.filter(field => {
+            //     if (
+            //         field.type == "network" &&
+            //         this.selected_fields.indexOf(field.field) >= 0
+            //     ) {
+            //         return field;
+            //     }
+            // });
         },
         // queries: function() {
         //     return this.$store.getters["query/queryClauses"];
@@ -339,9 +357,6 @@ export default {
             this.$store.commit("query/setQuery", this.queries);
         },
 
-        deselectAll: function() {
-            this.selected_fields.splice(0, this.selected_fields.length);
-        },
         addQueryClause: function(clause) {
             let len = this.queries.length;
 
@@ -363,7 +378,6 @@ export default {
             this.setStoreQuery();
         },
         sendQuery: function(async) {
-
             //async is false for preve, true for full query
             async = async || false;
             let query = [];
@@ -373,15 +387,13 @@ export default {
 
             //detect any new errors
             for (let index in this.queries) {
-
                 if (!this.queries[index].field || !this.queries[index].value) {
                     this.query_errors[index] = "Filter is empty";
                 }
             }
 
             //error message and exit if errors
-            if(Object.keys(this.query_errors).length > 0)
-            {
+            if (Object.keys(this.query_errors).length > 0) {
                 this.error_message = "One or more of your filters is invalid.";
                 return false;
             }
@@ -407,15 +419,33 @@ export default {
                 });
             }
 
+            //build up the output fields
+            let output_fields = [];
+            for(let selected_field of this.selected_fields)
+            {
+                let field = this.fields[selected_field];
+                let field_to_add = {
+                    field: field.field,
+                    type: field.type
+                };
+                //if the output is a network type, there should be a degree associated with it.
+                if(field.type == "network")
+                {
+                    field_to_add.degree = this.network_field_degrees[field.field] || 1;
+                }
+                output_fields.push(field_to_add);
+            }
 
             //create payload
             let payload = {
                 async: async,
-                output_fields: [...this.selected_fields]
+                output_fields: output_fields
             };
             //launch query
             this.result = null;
+
             let query_prom = this.$store.dispatch("query/sendQuery", payload);
+            // let query_prom = Promise.reject(); //just for testing
 
             query_prom.then(
                 result => {
@@ -454,12 +484,17 @@ export default {
                                 "Your preview query timed out.  Please try again in a moment.";
                         }
                     } else if (error.response) {
-                        // console.debug(error.response);
+                        // console.debug(error.response.data.error);
                         if (error.response.status == 401) {
                             this.error_message =
                                 "You do not have access to this dataset.";
-                        } else {
+                        } else if (error.response.data.error){
                             this.error_message = error.response.data.error.toString();
+                        }
+                        else
+                        {
+                            // console.error(error)
+                            this.error_message = "Unknown error: " + error.response.status;
                         }
                     } else {
                         console.debug(error);
@@ -473,9 +508,30 @@ export default {
         isLoading: Number
     },
     components: {
-        QueryBuilderHeader
+        QueryBuilderHeader,
+        OutputFields
+    },
+    watch: {
+        default_fields: function(o, n) {
+            this.$set(this, "selected_fields", this.default_fields);
+        },
+        selected_fields: function() {
+            for (let field in this.network_field_degrees) {
+                if (this.selected_fields.indexOf(field) < 0) {
+                    this.$delete(this.network_field_degrees, field);
+                }
+            }
+        },
+        selected_network_outputs: function() {
+            for (let field of this.selected_network_outputs) {
+                if (!this.network_field_degrees[field.field]) {
+                    this.$set(this.network_field_degrees, field.field, 1);
+                }
+            }
+        }
     },
     mounted: function() {
+        this.$set(this, "selected_fields", this.default_fields);
         this.getStoreQuery();
     }
 };

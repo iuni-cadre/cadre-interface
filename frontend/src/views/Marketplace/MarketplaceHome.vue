@@ -19,6 +19,11 @@
             </div>
         </div>
 
+        <create-package-modal
+            :show-modal="show_create_modal"
+            @close="show_create_modal = false"
+        ></create-package-modal>
+
 
     </div>
 </template>
@@ -28,10 +33,12 @@
 
 import Modal from "@/components/Common/CommonModal";
 import RacPackageCard from "@/components/Marketplace/MarketplaceRacPackageCard";
+import CreatePackageModal from "@/components/Marketplace/MarketplaceCreateRacPackageModal";
 
 export default {
     data: function() {
         return {
+            show_create_modal: true
         };
     },
     computed: {
@@ -41,7 +48,8 @@ export default {
     },
     components: {
         Modal,
-        RacPackageCard
+        RacPackageCard,
+        CreatePackageModal
     },
     methods: {
         },
@@ -51,7 +59,8 @@ export default {
         {
             this.$emit("startLoading", {key:"get_packages", message: ""});
             let get_packages_prom = this.$store.dispatch("racpackage/getPackages");
-            get_packages_prom.finally(()=>{
+            let get_tools_prom = this.$store.dispatch("racpackage/getTools");
+            Promise.all([get_packages_prom, get_tools_prom]).finally(()=>{
                 //stop loading
                 this.$emit("stopLoading", {key: "get_packages"});
             });
