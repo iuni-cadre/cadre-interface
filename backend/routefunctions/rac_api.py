@@ -1,14 +1,17 @@
+import uuid
 
 import requests
 import psycopg2
 from flask import Flask, render_template, request, json, jsonify
 
 from library import readconfig
+import boto3
 
 config = readconfig.config
 jupyter_config = readconfig.jupyter
 meta_db_config = readconfig.meta_db
 auth_config = readconfig.auth
+aws_config = readconfig.aws
 
 def new_notebook(username):
     headers = {"Authorization": "token " + jupyter_config["AuthToken"]}
@@ -42,7 +45,7 @@ def get_new_notebook_token(username):
         cur.close()
         return jsonify({"error": "Database Error"}), 500
 
-    cur.execute("SELECT j_pwd, j_token FROM jupyter_user WHERE j_username=%s", [username])
+    cur.execute("SELECT j_pwd, jupyter_token FROM jupyter_user WHERE jupyter_username=%s", [username])
     row = cur.fetchone()
     pwd = row[0]
 
@@ -62,7 +65,7 @@ def get_new_notebook_token(username):
     access_token_json = response.json()
     token = access_token_json['token']
 
-    cur.execute("UPDATE jupyter_user SET j_token = %s WHERE j_username= %s", [token, username])
+    cur.execute("UPDATE jupyter_user SET jupyter_token = %s WHERE jupyter_username= %s", [token, username])
     conn.commit()
 
     cur.close()
@@ -74,8 +77,7 @@ def get_new_notebook_token(username):
 def run_package():
     auth_token = request.headers.get('auth-token')
     username = request.headers.get('auth-username')
-    package_id = request.json.get('package_id')
-    output_filename = request.json.get('output_filename')
+    request_json = request.get_json()
 
     if auth_token is None or username is None:
         return jsonify({"error": "auth headers are missing"}), 400
@@ -98,10 +100,43 @@ def run_package():
 
     response_json = validate_token_response.json()
     user_id = response_json['user_id']
-    # get package information from rac metadatabase
-    # run docker
+    # Send message to package queue
+    sqs_client = boto3.client('sqs',
+                              aws_access_key_id=aws_config["aws_access_key_id"],
+                              aws_secret_access_key=aws_config["aws_secret_access_key"],
+                              region_name=aws_config["region_name"])
 
-    return jsonify({"job_id": 1, "job_status": "started"})
+    queue_url = aws_config["package_queue"]
+    request_json['username'] = username
+    job_id = str(uuid.uuid4())
+    request_json['job_id'] = job_id
+    query_in_string = json.dumps(request_json)
+    sqs_response = sqs_client.send_message(
+        QueueUrl=queue_url,
+        MessageBody=query_in_string,
+        MessageGroupId='cadre'
+    )
+    if 'MessageId' in sqs_response:
+        message_id = sqs_response['MessageId']
+        # save job information to meta database
+        try:
+            conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
+                                    password=meta_db_config["database-password"], host=meta_db_config["database-host"],
+                                    port=meta_db_config["database-port"])
+            cur = conn.cursor()
+        except:
+            conn.close()
+            cur.close()
+            return jsonify({"error": "Database Error"}), 500
+        insert_q = "INSERT INTO user_job(job_id, user_id, message_id,job_status, type, created_on) VALUES (%s,%s,%s,%s,%s,clock_timestamp())"
+        data = (job_id, user_id, message_id, 'PACKAGE', 'SUBMITTED')
+        cur.execute(insert_q, data)
+        conn.commit()
+
+        return jsonify({'message_id': message_id,
+                        'job_id': job_id}, 200)
+    else:
+        return jsonify({'error': 'error while publishing to SQS'}, 500)
 
 
 def get_packages():
