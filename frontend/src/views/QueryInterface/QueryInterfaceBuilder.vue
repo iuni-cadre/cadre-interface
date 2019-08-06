@@ -104,14 +104,14 @@
                 <table v-if="preview_data"
                        class="table">
                     <tr>
-                        <th v-for="field_name in selected_fields"
+                        <th v-for="(data, field_name) in preview_data[0]"
                             v-text="field_name"
                             :key="`preview_header_${field_name}`"></th>
                     </tr>
                     <template v-for="(row, index) in preview_data">
                         <tr :key="`preview_row_${index}`">
-                            <td v-for="field_name in selected_fields"
-                                v-text="row[field_name].split('|').join(', ')"
+                            <td v-for="(value, field_name) in row"
+                                v-text="value && value.split('|').join(', ') || ''"
                                 :key="`preview_row_${index}_${field_name}`"></td>
                         </tr>
                     </template>
@@ -330,13 +330,13 @@ export default {
             return operator_types;
         },
         preview_data: function() {
-            let tmp =
-                (this.result && this.result.data && this.result.data.wos) ||
-                null;
-            if (tmp) {
-                tmp.splice(9);
-            }
-            return tmp;
+            // let tmp =
+            //     (this.result && this.result.data && this.result.data.wos) ||
+            //     null;
+            // if (tmp) {
+            //     tmp.splice(9);
+            // }
+            return this.result  || [];
         }
     },
     methods: {
@@ -450,6 +450,7 @@ export default {
             query_prom.then(
                 result => {
                     this.$emit("stopLoading", { key: "query" });
+                    console.debug(result)
                     if (!async) {
                         if (result.errors) {
                             console.error("GraphQL Error: ", result.errors);
