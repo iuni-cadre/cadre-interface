@@ -57,7 +57,7 @@ export default {
                 return true;
 
                 let axios_prom = Vue.$cadre.axios({
-                    url: "/packages/get-tools",
+                    url: "/rac-api/packages/get-tools",
                     data: {
                         // limit: 50,
                         // page: 1,
@@ -85,7 +85,7 @@ export default {
                 return true;
 
                 let axios_prom = Vue.$cadre.axios({
-                    url: "/packages/get-jobs",
+                    url: "/rac-api/packages/get-jobs",
                     data: {
                         // limit: 50,
                         // page: 1,
@@ -113,7 +113,7 @@ export default {
                 return true;
 
                 let axios_prom = Vue.$cadre.axios({
-                    url: "/packages/get-packages",
+                    url: "/rac-api/packages/get-packages",
                     data: {
                         limit: 50,
                         page: 1,
@@ -133,14 +133,14 @@ export default {
                 );
             });
         },
-        runPackage: function({}, { package_id, input_files, output_filename }) {
+        runPackage: function({}, { package_id, input_files, output_filenames }) {
             return new Promise((resolve, reject) => {
                 let axios_prom = Vue.$cadre.axios({
-                    url: "/packages/run-package",
+                    url: "/rac-api/packages/run-package",
                     method: "POST",
                     data: {
                         package_id: package_id,
-                        output_filename: output_filename || ""
+                        output_filename: output_filenames || []
                     }
                 });
 
@@ -167,7 +167,7 @@ export default {
         createPackage: function({}, { package_name, tool_id, input, description }) {
             return new Promise((resolve, reject) => {
                 let axios_prom = Vue.$cadre.axios({
-                    url: "/packages/new-package",
+                    url: "/rac-api/packages/new-package",
                     method: "POST",
                     data: {
                         package_name: package_name,
