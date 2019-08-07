@@ -39,14 +39,27 @@
 
                 <br />
                 <div class="form-group">
-                    <label>Output Filename</label>
-                    <input type="text"
-                           placeholder="output_file.csv"
-                           class="form-control"
-                           v-model="output_filename" />
+                    <label>Output Filenames</label>
+                    <div class="mb-1"
+                         v-for="(filename, index) in output_filenames"
+                         :key="`filename_${index}`">
+                        <div class="d-flex">
+                            <input type="text"
+                                   placeholder="output_file.csv"
+                                   class="form-control"
+                                   v-model="output_filenames[index]" />
+                            <button class="btn btn-danger"
+                                    @click="removeOutputFile(index)">X</button>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end text-right">
+                        <button class="btn btn-outline-primary btn-sm"
+                                @click="addOutputFile"> + Add Additional Filename</button>
+                    </div>
+
                 </div>
                 <div>
-                    <button class="btn btn-primary"
+                    <button class="btn btn-lg btn-primary"
                             @click="runPackage">Run Package</button>
                 </div>
             </div>
@@ -77,42 +90,61 @@ export default {
             results: undefined,
             error: undefined,
             show_run_modal: false,
-            output_filename: ""
+            output_filenames: [""]
         };
     },
     computed: {
         racpackage: function() {
             return this.RacPackage;
         },
-        tool: function(){
+        tool: function() {
             let packages = this.$store.getters["racpackage/tools"];
             // console.debug(packages);
-            return (tool_id) => {
-                if(!packages[tool_id])
-                {
-                    console.warn("Trying to get name of unknown tool " + tool_id);
+            return tool_id => {
+                if (!packages[tool_id]) {
+                    console.warn(
+                        "Trying to get name of unknown tool " + tool_id
+                    );
                     return {};
                 }
                 return packages[tool_id] || {};
             };
         },
-        tool_names: function(){
-            return this.racpackage.tools.map(tool_id=>{return this.tool(tool_id).name}).join(', ');
+        tool_names: function() {
+            return this.racpackage.tools
+                .map(tool_id => {
+                    return this.tool(tool_id).name;
+                })
+                .join(", ");
         },
-        tool_descriptions: function(){
-            return this.racpackage.tools.map(tool_id=>{return this.tool(tool_id).description}).join(', ');
+        tool_descriptions: function() {
+            return this.racpackage.tools
+                .map(tool_id => {
+                    return this.tool(tool_id).description;
+                })
+                .join(", ");
         },
-        tool_authors: function(){
-            return this.racpackage.tools.map(tool_id=>{return this.tool(tool_id).author}).join(', ');
+        tool_authors: function() {
+            return this.racpackage.tools
+                .map(tool_id => {
+                    return this.tool(tool_id).author;
+                })
+                .join(", ");
         },
-        input_files: function(){
-            return this.racpackage.input_files.join(', ');
+        input_files: function() {
+            return this.racpackage.input_files.join(", ");
         }
     },
     props: {
         RacPackage: Object
     },
     methods: {
+        addOutputFile: function() {
+            this.output_filenames.push("");
+        },
+        removeOutputFile: function(index) {
+            this.output_filenames.splice(index, 1);
+        },
         runPackage: function() {
             this.$emit("startLoading", { key: "running_package" });
 
@@ -120,11 +152,13 @@ export default {
                 "racpackage/runPackage",
                 {
                     package_id: this.racpackage.package_id,
-                    output_filename: this.output_filename
+                    output_filenames: this.output_filenames
                 }
             );
 
-            running_promise.then(this.runSuccess, this.runFail).finally(this.runFinally);
+            running_promise
+                .then(this.runSuccess, this.runFail)
+                .finally(this.runFinally);
         },
 
         runSuccess: function(response) {
