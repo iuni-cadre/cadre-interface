@@ -129,7 +129,7 @@ def run_package():
             cur.close()
             return jsonify({"error": "Database Error"}), 500
         insert_q = "INSERT INTO user_job(job_id, user_id, message_id,job_status, type, started_on) VALUES (%s,%s,%s,%s,%s,clock_timestamp())"
-        data = (job_id, user_id, message_id, 'PACKAGE', 'SUBMITTED')
+        data = (job_id, user_id, message_id, 'SUBMITTED', 'PACKAGE')
         cur.execute(insert_q, data)
         conn.commit()
 
