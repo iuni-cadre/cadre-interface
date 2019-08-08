@@ -105,7 +105,7 @@ def rac_api_get_new_notebook_token(username):
     return rac_api.get_new_notebook_token(username)
 
 
-@application.route("/rac-api/packages/run-package")
+@application.route("/rac-api/packages/run-package", methods=["POST"])
 def rac_api_run_package():
     return rac_api.run_package()
 

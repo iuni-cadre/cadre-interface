@@ -45,7 +45,7 @@ def get_new_notebook_token(username):
         cur.close()
         return jsonify({"error": "Database Error"}), 500
 
-    cur.execute("SELECT j_pwd, jupyter_token FROM jupyter_user WHERE jupyter_username=%s", [username])
+    cur.execute("SELECT jupyter_pwd, jupyter_token FROM jupyter_user WHERE jupyter_username=%s", [username])
     row = cur.fetchone()
     pwd = row[0]
 
@@ -128,8 +128,8 @@ def run_package():
             conn.close()
             cur.close()
             return jsonify({"error": "Database Error"}), 500
-        insert_q = "INSERT INTO user_job(job_id, user_id, message_id,job_status, type, created_on) VALUES (%s,%s,%s,%s,%s,clock_timestamp())"
-        data = (job_id, user_id, message_id, 'PACKAGE', 'SUBMITTED')
+        insert_q = "INSERT INTO user_job(job_id, user_id, message_id,job_status, type, started_on) VALUES (%s,%s,%s,%s,%s,clock_timestamp())"
+        data = (job_id, user_id, message_id, 'SUBMITTED', 'PACKAGE')
         cur.execute(insert_q, data)
         conn.commit()
 
