@@ -38,7 +38,7 @@ import CreatePackageModal from "@/components/Marketplace/MarketplaceCreateRacPac
 export default {
     data: function() {
         return {
-            show_create_modal: true
+            show_create_modal: false
         };
     },
     computed: {
