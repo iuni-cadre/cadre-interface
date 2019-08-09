@@ -203,7 +203,7 @@ const TEST_RAC_PACKAGES = [
         name: "package 1",
         author: "author 1",
         created_date: "2019-07-16 10:51:26",
-        tools: ["tool_1"],
+        tools: ["11234221124"],
         input_files: ["/dataset.csv"],
         output_files: ["/new_dataset.csv"]
     },
