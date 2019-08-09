@@ -1,10 +1,6 @@
 <template>
     <div id="app">
-        <div v-if="is_under_construction"
-             class="d-flex justify-content-center construction">
-            <img src="@/assets/under_construction.gif" />
-        </div>
-        <header class="container">
+        <!-- <header class="container">
             <div v-if="!token">
                 <a class="float-right"
                    :href="login_url">Login</a>
@@ -12,14 +8,73 @@
             <router-link :to="{name: 'home'}">
                 <h1>CADRE</h1>
             </router-link>
+        </header> -->
+
+        <header id="main-header">
+            <nav class="container navbar navbar-expand-lg">
+                <router-link class="navbar-brand"
+                             :to="{name: 'home'}"><img src="@/assets/img/logo-and-type.svg"
+                         alt="CADRE" /><span class="d-none">CADRE</span></router-link>
+                <button class="navbar-toggler"
+                        type="button"
+                        data-toggle="collapse"
+                        data-target="#navbarSupportedContent"
+                        aria-controls="navbarSupportedContent"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse"
+                     id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto">
+                        <!-- {% for page in pages.children if page.header.main == true %} -->
+                        <!-- <li class="nav-item">
+                            <a href="{{url(page.url)}}">{{page.title}}</a>
+                        </li> -->
+                        <!-- {% endfor %} -->
+
+                        <li class="nav-item">
+                            <router-link :to="{name: 'query-builder'}"
+                                         target="">Query Interface</router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link :to="{name: 'jupyter-hub'}"
+                                         target="">Jupyter Notebook</router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link :to="{name: 'rac-marketplace'}"
+                                         target="">RAC Marketplace</router-link>
+                        </li>
+
+                    </ul>
+
+                    <div v-if="!token">
+                        <a class="btn get-started-button"
+                           :href="login_url">Login</a>
+                    </div>
+                    <div v-else>
+                        Logged in as <span v-text="username"></span>
+                    </div>
+
+                </div>
+            </nav>
+
         </header>
-        <hr />
+
+        <section v-if="is_under_construction"
+                 class="d-flex justify-content-center construction">
+            <img src="@/assets/under_construction.gif" />
+        </section>
+
+        <!-- <hr /> -->
         <!-- {{$store.getters["user/authToken"]}} -->
         <router-view v-if="token"
-                     class="container"
+                     class=""
                      @startLoading="startLoading"
                      @stopLoading="stopLoading"
                      :isLoading="is_loading" />
+
         <template v-else-if="error_message">
             <div class="container">
                 <div class="alert alert-danger">Error: <span v-text="error_message"></span></div>
@@ -45,10 +100,66 @@
             </div>
         </div>
 
-        <hr />
-        <footer class="container">
+        <footer id="main-footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        <a href="https://cadre.iu.edu"
+                           class="cadre-logo"><img src="@/assets/img/logo-and-type.svg"
+                                 alt="CADRE" /><span class="d-none">CADRE</span></a>
+                        <!-- <div class="d-flex justify-content-between social-icons">
+                            {# <a href=""><i class="fab fa-facebook-square"></i></a> #}
+                            <a href=""><i class="fab fa-twitter"></i></a>
+                            {# <a href=""><i class="fab fa-instagram"></i></a> #}
+                        </div> -->
+                    </div>
+                    <div class="col">
+                        &copy; <a href="https://iuni.iu.edu">Indiana University Network Science Institute</a>
+                    </div>
+                    <div class="col">
+                        <a href="https://iuni.iu.edu"
+                           class="cadre-logo"><img src="@/assets/img/iuni-logo.png"
+                                 alt="CADRE" /><span class="d-none">IUNI</span></a>
+                    </div>
 
-            &copy; IUNI
+                    <!-- {% for page in pages.children if page.header.main == true %}
+            <div class="col">
+                <a href="{{url(page.url)}}"><strong>{{page.title}}</strong></a>
+                <ul class="list-unstyled">
+                    {% for subpage in page.children %}
+                    <li class="list-item">
+                        <a href="{{url(subpage.url)}}">{{subpage.title}}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+
+            {# <div class="col">
+                <strong>About CADRE</strong>
+                {{site.title}}
+                {% for mitem in site.menu %}
+            <li>
+                <a {% if mitem.class %}class="{{ mitem.class }}"{% endif %} href="{{ mitem.url }}">
+                    {% if mitem.icon %}<i class="fa fa-{{ mitem.icon }}"></i>{% endif %}
+                    {{ mitem.text }}
+                </a>
+            </li>
+        {% endfor %} #} -->
+
+                    <!-- {# </div>
+            <div class="col">
+                <strong>Documentation</strong>
+            </div>
+            <div class="col">
+                <strong>Work With Us</strong>
+            </div>
+            <div class="col">
+                <strong>Resources</strong>
+            </div> #} -->
+                </div>
+
+            </div>
         </footer>
     </div>
 </template>
@@ -65,7 +176,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("user", ["authToken"]),
+        ...mapGetters("user", ["authToken", "username"]),
         token: function() {
             return this.authToken;
         },
@@ -170,7 +281,7 @@ export default {
 
 <style lang="scss">
 @import "../node_modules/bootstrap/scss/bootstrap.scss";
-
+@import "@/assets/cadre.scss";
 #app {
     //   font-family: 'Avenir', Helvetica, Arial, sans-serif;
     //   -webkit-font-smoothing: antialiased;
