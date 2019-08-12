@@ -19,6 +19,6 @@ config_parser.read("./conf/backend.config")
 config = config_parser['DEFAULT']
 jupyter = config_parser['JUPYTERAPI']
 meta_db = config_parser['CADRE_META_DATABASE_INFO']
+AWS = config_parser['AWS']
 auth = config_parser['AUTH']
 data = config_parser['DATA']
-aws = config_parser['AWS']
