@@ -199,13 +199,13 @@ export default {
 
 const TEST_RAC_PACKAGES = [
     {
-        package_id: "11234221132",
+        package_id: "234221132",
         name: "package 1",
         author: "author 1",
         created_date: "2019-07-16 10:51:26",
         tools: ["11234221124"],
         input_files: ["/dataset.csv"],
-        output_files: ["/new_dataset.csv"]
+        output_files: ["output1.csv", "output2.csv"]
     },
     // {
     //     package_id: "package_2",
