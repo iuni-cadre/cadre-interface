@@ -149,7 +149,7 @@ export default {
         {
             field: "citations",
             type: "network",
-            label: "citations"
+            label: "Citation Network"
         },
 
     ],
@@ -168,7 +168,7 @@ export default {
         "paper_id",
         "year",
         "author_id",
-        "citations"
+        // "citations"
     ]
 };
 
