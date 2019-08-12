@@ -332,7 +332,7 @@ export default {
             let fields_obj = {};
 
             for (let field of fields) {
-                console.debug(field.type);
+                // console.debug(field.type);
                 if (field.type == "network") {
                     fields_obj[field.field] = field;
                 }
@@ -582,8 +582,16 @@ export default {
         }
     },
     mounted: function() {
-        this.$set(this, "selected_fields", this.default_fields);
-        this.getStoreQuery();
+        if(!this.$store.getters["query/selectedDataset"])
+        {
+            this.$router.push({name: "query-builder"});
+            return false;
+        }
+        else
+        {
+            this.$set(this, "selected_fields", this.default_fields);
+            this.getStoreQuery();
+        }
     }
 };
 </script>

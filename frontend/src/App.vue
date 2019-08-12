@@ -35,7 +35,7 @@
                         <!-- {% endfor %} -->
 
                         <li class="nav-item">
-                            <router-link :to="{name: 'query-builder'}"
+                            <router-link :to="{name: 'query-builder-builder'}"
                                          target="">Query Interface</router-link>
                         </li>
                         <li class="nav-item">
@@ -45,6 +45,10 @@
                         <li class="nav-item">
                             <router-link :to="{name: 'rac-marketplace'}"
                                          target="">RAC Marketplace</router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link :to="{name: 'jobs-list'}"
+                                         target="">Job Status</router-link>
                         </li>
 
                     </ul>

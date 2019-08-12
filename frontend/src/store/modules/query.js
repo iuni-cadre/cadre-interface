@@ -8,20 +8,20 @@ export default {
     namespaced: true,
     state: {
         query_max_time: 30000,
-        dataset: "wos",
+        dataset: "",
         query: []
     },
     getters: {
         outputFields: function(state) {
-            let fields = Datasets[state.dataset] && Datasets[state.dataset].fields.output;
+            let fields = Datasets[state.dataset] && Datasets[state.dataset].fields.output || [];
             return fields;
         },
         inputFields: function(state) {
-            let fields = Datasets[state.dataset] && Datasets[state.dataset].fields.input;
+            let fields = Datasets[state.dataset] && Datasets[state.dataset].fields.input || [];
             return fields;
         },
         defaultFields: function(state) {
-            let fields = Datasets[state.dataset] && Datasets[state.dataset].fields.default;
+            let fields = Datasets[state.dataset] && Datasets[state.dataset].fields.default || [];
             return fields;
         },
         selectedDataset: function(state) {
