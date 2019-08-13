@@ -54,7 +54,7 @@ export default {
             return this.$cadreConfig.jupyter_url;
         },
         jupyter_full_url: function() {
-            return `${this.jupyter_url}/user/${this.username}/tree/?token=${this.jupyter_token}`;
+            return `${this.jupyter_url}/user/${this.username}/lab/?token=${this.jupyter_token}`;
         },
         jupyter_api_new_url: function() {
             return "/new-notebook/" + this.username;
