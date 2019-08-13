@@ -59,6 +59,9 @@
                     </div>
                     <div v-else>
                         Logged in as <span v-text="username"></span>
+                        &nbsp;
+                        <a class="btn get-started-button"
+                           :href="logout_url">Logout</a>
                     </div>
 
                 </div>
@@ -192,6 +195,9 @@ export default {
         },
         login_url: function() {
             return this.$cadreConfig.login_url;
+        },
+        logout_url: function() {
+            return this.$cadreConfig.logout_url;
         },
         is_loading: function() {
             return Object.keys(this.loading_queue).length;

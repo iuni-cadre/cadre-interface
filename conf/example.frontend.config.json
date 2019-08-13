@@ -2,6 +2,7 @@
     "api_host": "http://example.com/api",
     "authentication_host": "http://example.com/login-api",
     "login_url": "http://example.com",
+    "logout": "http://example.com",
     "query_interface_url": "/query-builder",
     "jupyter_url": "http://example.com",
     "public_path": "/",
