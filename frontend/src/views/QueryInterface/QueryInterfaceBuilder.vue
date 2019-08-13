@@ -73,9 +73,6 @@
                         <output-fields v-model="selected_fields"></output-fields>
                     </div>
 
-
-
-
                     <div class="card mb-3">
                         <h4>Network Queries</h4>
                         <!-- <div>Help Text</div> -->
@@ -124,9 +121,6 @@
                         </div>
                     </div>
 
-
-
-
                     <div class="card mb-3">
 
                         <div class="form-group">
@@ -164,7 +158,6 @@
                         <!-- <pre class="pre"
                      v-text="result"></pre> -->
                     </div>
-
 
                     <div class="card mb-3">
                         <div class="form-group">
@@ -313,6 +306,16 @@ export default {
         },
         is_loading: function() {
             return this.isLoading;
+        },
+
+        all_fields: function() {
+            let fields = this.$store.getters["query/outputFields"];
+            let fields_obj = {};
+
+            for (let field of fields) {
+                fields_obj[field.field] = field;
+            }
+            return fields_obj;
         },
         fields: function() {
             // return this.$store.getters["query/validFields"];
@@ -474,7 +477,7 @@ export default {
             //build up the output fields
             let output_fields = [];
             for (let selected_field of this.selected_fields) {
-                let field = this.fields[selected_field];
+                let field = this.all_fields[selected_field];
                 let field_to_add = {
                     field: field.field,
                     type: field.type
@@ -582,13 +585,10 @@ export default {
         }
     },
     mounted: function() {
-        if(!this.$store.getters["query/selectedDataset"])
-        {
-            this.$router.push({name: "query-builder"});
+        if (!this.$store.getters["query/selectedDataset"]) {
+            this.$router.push({ name: "query-builder" });
             return false;
-        }
-        else
-        {
+        } else {
             this.$set(this, "selected_fields", this.default_fields);
             this.getStoreQuery();
         }
