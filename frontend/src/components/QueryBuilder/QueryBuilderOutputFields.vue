@@ -18,8 +18,8 @@
             <label @click.stop.prevent="deselectAll"
                    class="btn btn-outline-primary btn-sm d-flex align-items-center ml-auto">Deselect All</label>
         </div>
-
-        <div class="card container">
+        <hr />
+        <div class="container">
             <div class="row ">
                 <template v-for="field in fields">
                     <div class="col-3 d-flex align-items-center p-1"

@@ -170,13 +170,116 @@ def get_packages():
     user_id = response_json['user_id']
     # get package information from rac metadatabase
 
-    return jsonify({"package_id": 1, "name": "aaa", "author":"a", "created_date":"2019-07-16 10:51:26", "tools":["1", "2"], "input_files":["/a", "/b"]})
 
+    # This is where we are actually connecting to the database and getting the details of the packages
+    conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT package_id, type, description, name, doi, created_on, created_by, tool_id FROM package WHERE username=%s;", [username])
+        if cur.rowcount > 0:
+            package_info = cur.fetchone()
+            package_json = {
+                'package_id': package_info[0],
+                'tool_id': package_info[1],
+                'type': package_info[3],
+                'description': package_info[4],
+                'name': package_info[5],
+                'doi': package_info[6],
+                'created_on': package_info[8],
+                'created_by': package_info[10]
+            }
+            package_response = json.dumps(package_json)
+            return jsonify(json.loads(package_response), 200)
+    except Exception:
+        return jsonify({"Error", "Problem querying the package table in the meta database."}), 500
+    finally:
+        # Closing the database connection.
+        cur.close()
+        conn.close()
+        print("The database connection has been closed successfully.")
 
-# @application.route("/api/stop-notebook/<username>")
-# def api_stop_notebook_username(username):
+    # return jsonify({"package_id": 1, "name": "aaa", "author":"a", "created_date":"2019-07-16 10:51:26", "tools":["1", "2"], "input_files":["/a", "/b"]})
 
-#     headers = {"Authorization": "token "  + jupyter_config["AuthToken"]}
-#     payload = {}
-#     r = requests.delete(jupyter_config["APIURL"] + "/users/" + username + "", data=payload, headers=headers)
-#     return jsonify({"json": r.json(), "status_code": r.status_code, "text": r.text})
+# This is the method that will actually create the packages
+
+# @application.route("/api/packages/create-packages")
+def create_packages():
+    auth_token = request.headers.get('auth-token')
+    username = request.headers.get('auth-username')
+    package_type = request.json.get('type')
+    archive_description = request.json.get('archive-description')
+    package_description = request.json.get('description')
+    package_name = request.json.get('name')
+    created_on = request.json.get('created_on')
+    input_file_list = request.json.get('input-file-list')
+
+    if auth_token is None or username is None:
+        return jsonify({"error": "auth headers are missing"}), 400
+        # connection = cadre_meta_connection_pool.getconn()
+        # cursor = connection.cursor()
+    validata_token_args = {
+        'username': username
+    }
+    headers = {
+        'auth-token': auth_token,
+        'Content-Type': 'application/json'
+    }
+    validate_token_response = requests.post(auth_config["verify-token-endpoint"],
+                                            data=json.dumps(validata_token_args),
+                                            headers=headers,
+                                            verify=False)
+    if validate_token_response.status_code is not 200:
+        print(validate_token_response)
+        return jsonify({"error": "Invalid Token"}), 403
+
+    response_json = validate_token_response.json()
+    user_id = response_json['user_id']
+    # This is where we are actually connecting to the database and inserting the details of the package in the package database
+    conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
+    cur = conn.cursor()
+    try:
+        package_id = str(uuid.uuid4())
+        print(package_id)
+        cur.execute("INSERT INTO package(package_id, type, description, name, created_on, created_by) VALUES (package_id, package_type, package_description, package_name, created_on, %s);", [username])
+        conn.commit()
+        print("Data inserted in the package table successfully.")
+    except Exception:
+        print("Error", "Problem querying database while inserting the data in the package table.")
+
+    # Now we will copy the input file to S3 using the boto3 library
+    s3_job_dir = username
+    s3_client = boto3.resource('s3',
+                               aws_access_key_id=AWS["aws_access_key_id"],
+                               aws_secret_access_key=AWS["aws_secret_access_key"],
+                               region_name=AWS["region_name"])
+    root_bucket_name = AWS["s3_root_dir"]
+    print(root_bucket_name)
+    root_bucket = s3_client.Bucket(root_bucket_name)
+    bucket_job_id = root_bucket_name + '/' + s3_job_dir
+    print("Bucket Job ID: " + bucket_job_id)
+    s3_location = 's3://' + bucket_job_id
+    print(s3_location)
+    for files in input_file_list:
+        s3_client.meta.client.upload_file('%s' % input_file_list[files], root_bucket_name,
+                                          bucket_job_id + '%s' % input_file_list[files])
+
+    # Now we will insert the details of the archived files in the archive table
+    try:
+        archive_id = str(uuid.uuid4())
+        print(archive_id)
+        cur.execute("INSERT INTO archive(archive_id, s3_location, description, name, created_on, created_by) VALUES (s3_location, archive_description, input_file_list, created_on, %s);", [username])
+        conn.commit()
+        return jsonify({'archive_id': archive_id,
+                        's3_location': s3_location,
+                        'description': archive_description,
+                        'name': input_file_list,
+                        'created_on': created_on,
+                        'created_by': username}, 200)
+    except Exception:
+        return jsonify({"Error", "Problem querying database while inserting the data in the archive table."}), 500
+    finally:
+        # Closing the database connection.
+        cur.close()
+        conn.close()
+        print("The database connection has been closed successfully.")
+

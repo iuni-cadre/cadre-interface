@@ -1,38 +1,41 @@
 <template>
     <div>
         <!-- Notebook URL: {{jupyter_full_url}} -->
-        <h2>Jupyter Notebook</h2>
+        <section>
+            <div class="container">
+                <h2>Jupyter Notebook</h2>
 
-        <hr />
-        <div class="alert"
-             :class="{
+                <div class="alert"
+                     :class="{
                  'alert-success':server_running,
                  'alert-info':server_pending || !status,
                  'alert-warning': status && !server_running && !server_pending
                  }">
-            Notebook status: <span v-if="!status && !error_message">Please Wait...</span><b v-else
-               v-text='server_running?"running":server_pending?"pending":"not running"'></b>
-        </div>
+                    Notebook status: <span v-if="!status && !error_message">Please Wait...</span><b v-else
+                       v-text='server_running?"running":server_pending?"pending":"not running"'></b>
+                </div>
 
-        <div class="alert alert-danger"
-             v-if="error_message"
-             v-text="error_message"></div>
-        <div class="d-flex justify-content-between">
-            <button v-if="server_running"
-                    @click="goToNotebook()"
-                    class="btn btn-primary btn-lg">Go To Notebook</button>
+                <div class="alert alert-danger"
+                     v-if="error_message"
+                     v-text="error_message"></div>
+                <div class="d-flex justify-content-between">
+                    <button v-if="server_running"
+                            @click="goToNotebook()"
+                            class="btn btn-primary btn-lg">Go To Notebook</button>
 
-            <button v-if="status && !server_running && !server_pending"
-                    @click="tryToCreateJupyterHub()"
-                    class="btn btn-primary btn-lg">Create Notebook Server</button>
+                    <button v-if="status && !server_running && !server_pending"
+                            @click="tryToCreateJupyterHub()"
+                            class="btn btn-primary btn-lg">Create Notebook Server</button>
 
-        </div>
-        <div class="mt-3">
-            <button @click="getUserStatus()"
-                    class="btn btn-primary btn-lg">Update Status</button>
+                </div>
+                <div class="mt-3">
+                    <button @click="getUserStatus()"
+                            class="btn btn-primary btn-lg">Update Status</button>
 
-        </div>
-        <!-- <pre v-text="status"></pre> -->
+                </div>
+                <!-- <pre v-text="status"></pre> -->
+            </div>
+        </section>
     </div>
 </template>
 
@@ -51,9 +54,7 @@ export default {
             return this.$cadreConfig.jupyter_url;
         },
         jupyter_full_url: function() {
-            return `${this.jupyter_url}/user/${this.username}/tree/?token=${
-                this.jupyter_token
-            }`;
+            return `${this.jupyter_url}/user/${this.username}/tree/?token=${this.jupyter_token}`;
         },
         jupyter_api_new_url: function() {
             return "/new-notebook/" + this.username;

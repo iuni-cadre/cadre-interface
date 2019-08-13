@@ -199,53 +199,53 @@ export default {
 
 const TEST_RAC_PACKAGES = [
     {
-        package_id: "package_1",
+        package_id: "11234221132",
         name: "package 1",
         author: "author 1",
         created_date: "2019-07-16 10:51:26",
-        tools: ["tool_1"],
+        tools: ["11234221124"],
         input_files: ["/dataset.csv"],
         output_files: ["/new_dataset.csv"]
     },
-    {
-        package_id: "package_2",
-        name: "package 2",
-        author: "author 2",
-        created_date: "2019-07-16 10:51:26",
-        tools: ["tool_2"],
-        input_files: ["/dataset.csv"],
-        output_files: ["/new_dataset.csv"]
-    },
-    {
-        package_id: "package_3",
-        name: "package 3",
-        author: "author 3",
-        created_date: "2019-07-16 10:51:26",
-        tools: ["tool_3"],
-        input_files: ["/dataset.csv"],
-        output_files: ["/new_dataset.csv"]
-    }
+    // {
+    //     package_id: "package_2",
+    //     name: "package 2",
+    //     author: "author 2",
+    //     created_date: "2019-07-16 10:51:26",
+    //     tools: ["tool_2"],
+    //     input_files: ["/dataset.csv"],
+    //     output_files: ["/new_dataset.csv"]
+    // },
+    // {
+    //     package_id: "package_3",
+    //     name: "package 3",
+    //     author: "author 3",
+    //     created_date: "2019-07-16 10:51:26",
+    //     tools: ["tool_3"],
+    //     input_files: ["/dataset.csv"],
+    //     output_files: ["/new_dataset.csv"]
+    // }
 ];
 
 const TEST_RAC_TOOLS = [
     {
-        tool_id: "tool_1",
+        tool_id: "11234221124",
         name: "Line Count",
         author: "CADRE Team",
         description: "Counts lines in a file"
     },
-    {
-        tool_id: "tool_2",
-        name: "Word Count",
-        author: "CADRE Team",
-        description: "Counts words in a file"
-    },
-    {
-        tool_id: "tool_3",
-        name: "Graph",
-        author: "CADRE Team",
-        description: "Generates a graph"
-    }
+    // {
+    //     tool_id: "tool_2",
+    //     name: "Word Count",
+    //     author: "CADRE Team",
+    //     description: "Counts words in a file"
+    // },
+    // {
+    //     tool_id: "tool_3",
+    //     name: "Graph",
+    //     author: "CADRE Team",
+    //     description: "Generates a graph"
+    // }
 ];
 
 const TEST_RAC_JOBS = [
