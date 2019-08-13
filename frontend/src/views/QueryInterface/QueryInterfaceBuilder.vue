@@ -69,31 +69,56 @@
 
                     <div class="card mb-3">
                         <h4 class="">Output Fields</h4>
-
+                        <!-- <div>Help Text</div> -->
                         <output-fields v-model="selected_fields"></output-fields>
+                    </div>
 
-                        <h4 class="mt-5">Network Degrees</h4>
+                    <div class="card mb-3">
+                        <h4>Network Queries</h4>
+                        <!-- <div>Help Text</div> -->
+                        <div v-for="(field, field_name) in network_fields"
+                             class="d-flex justify-content-start align-items-center"
+                             :key="`network_field_${field_name}`">
 
-                        <div v-if="selected_network_outputs.length > 0">
-                            <div v-for="field in selected_network_outputs"
-                                 :key="`network_degree_${field.field}`">
+                            <label class="btn mb-0"
+                                   :class="{
+                                    'btn-outline-primary': selected_fields.indexOf(field.field) == -1,
+                                    'btn-primary': selected_fields.indexOf(field.field) >= 0,
+                                    }">
 
-                                <div class="form-group">
-                                    <label v-text="field.label"></label>
-                                    <input class="form-control"
-                                           type="number"
-                                           step='1'
-                                           v-model="network_field_degrees[field.field]"
-                                           max="10"
-                                           min="1" />
-                                </div>
+                                <input type="checkbox"
+                                       class="mr-2"
+                                       :id="`${field.field}_field`"
+                                       v-model="selected_fields"
+                                       :value="field.field" />
+
+                                Include <strong :for="`${field.field}_field`"
+                                        v-text="field.label"></strong>
+                            </label>
+                            <div class="ml-3 d-flex align-items-center network-query-degrees"
+                                 :class="{
+                                        'text-muted disabled': selected_fields.indexOf(field.field) == -1,
+                                        }">
+                                <span>Degrees:</span>
+                                <span v-for="degree in [1, 2]"
+                                      :key="`${field.field}_degree_${degree}`">
+                                    <label class="btn ml-3 mb-0"
+                                           :class="{
+                                                    'disabled': selected_fields.indexOf(field.field) == -1,
+                                                    'btn-outline-primary': network_field_degrees[field.field] != degree,
+                                                    'btn-primary': network_field_degrees[field.field] == degree,
+                                                    }">
+                                        <input type="radio"
+                                               :disabled='selected_fields.indexOf(field.field) == -1'
+                                               class="mr-2"
+                                               :id="`${field.field}_field_degree`"
+                                               v-model="network_field_degrees[field.field]"
+                                               :value="degree" />
+                                        <span v-text="degree"></span>
+                                    </label>
+                                </span>
                             </div>
-
                         </div>
-                        <div v-else>
-                            <div>There are no network output fields selected.</div>
-                        </div>
-
                     </div>
 
                     <div class="card mb-3">
@@ -282,13 +307,38 @@ export default {
         is_loading: function() {
             return this.isLoading;
         },
+
+        all_fields: function() {
+            let fields = this.$store.getters["query/outputFields"];
+            let fields_obj = {};
+
+            for (let field of fields) {
+                fields_obj[field.field] = field;
+            }
+            return fields_obj;
+        },
         fields: function() {
             // return this.$store.getters["query/validFields"];
             let fields = this.$store.getters["query/outputFields"];
             let fields_obj = {};
 
             for (let field of fields) {
-                fields_obj[field.field] = field;
+                console.debug(field.type);
+                if (field.type == "single") {
+                    fields_obj[field.field] = field;
+                }
+            }
+            return fields_obj;
+        },
+        network_fields: function() {
+            let fields = this.$store.getters["query/outputFields"];
+            let fields_obj = {};
+
+            for (let field of fields) {
+                // console.debug(field.type);
+                if (field.type == "network") {
+                    fields_obj[field.field] = field;
+                }
             }
             return fields_obj;
         },
@@ -305,7 +355,7 @@ export default {
             return field_array;
         },
         selected_network_outputs: function() {
-            let fields = this.fields;
+            let fields = this.network_fields;
             let outputs = [];
 
             for (let field_name in fields) {
@@ -427,7 +477,7 @@ export default {
             //build up the output fields
             let output_fields = [];
             for (let selected_field of this.selected_fields) {
-                let field = this.fields[selected_field];
+                let field = this.all_fields[selected_field];
                 let field_to_add = {
                     field: field.field,
                     type: field.type
@@ -535,11 +585,23 @@ export default {
         }
     },
     mounted: function() {
-        this.$set(this, "selected_fields", this.default_fields);
-        this.getStoreQuery();
+        if (!this.$store.getters["query/selectedDataset"]) {
+            this.$router.push({ name: "query-builder" });
+            return false;
+        } else {
+            this.$set(this, "selected_fields", this.default_fields);
+            this.getStoreQuery();
+        }
     }
 };
 </script>
 <style lang="scss">
+.network-query-degrees.disabled {
+    &,
+    label,
+    input {
+        cursor: no-drop;
+    }
+}
 </style>
 

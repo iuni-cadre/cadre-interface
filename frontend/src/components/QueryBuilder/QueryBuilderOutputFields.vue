@@ -64,7 +64,9 @@ export default {
     computed: {
         fields: function() {
             // return this.$store.getters["query/validFields"];
-            return this.$store.getters["query/outputFields"];
+            return this.$store.getters["query/outputFields"].filter((field)=>{
+                return field.type == "single";
+            });
         },
     },
     methods: {

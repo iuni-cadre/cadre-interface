@@ -149,7 +149,7 @@ export default {
         {
             field: "citations",
             type: "network",
-            label: "citations"
+            label: "Citation Network"
         },
 
     ],
@@ -158,17 +158,17 @@ export default {
         // authors_full_name: "Author",
         // journals_name: "Journal Name",
         // title: "Title"
-        conference_display_name: "conference_display_name",
-        journal_display_name: "journal_display_name",
-        mag_doi: "mag_doi",
-        paper_title_tsv: "paper_title_tsv",
-        year: "year",
+        conference_display_name: "Conference Name",
+        journal_display_name: "Journal Name",
+        mag_doi: "DOI",
+        paper_title_tsv: "Publication Title",
+        year: "Year",
     },
     default: [
         "paper_id",
         "year",
         "author_id",
-        "citations"
+        // "citations"
     ]
 };
 

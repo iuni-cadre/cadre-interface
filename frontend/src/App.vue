@@ -35,7 +35,7 @@
                         <!-- {% endfor %} -->
 
                         <li class="nav-item">
-                            <router-link :to="{name: 'query-builder'}"
+                            <router-link :to="{name: 'query-builder-builder'}"
                                          target="">Query Interface</router-link>
                         </li>
                         <li class="nav-item">
@@ -45,6 +45,10 @@
                         <li class="nav-item">
                             <router-link :to="{name: 'rac-marketplace'}"
                                          target="">RAC Marketplace</router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link :to="{name: 'jobs-list'}"
+                                         target="">Job Status</router-link>
                         </li>
 
                     </ul>
@@ -102,24 +106,30 @@
 
         <footer id="main-footer">
             <div class="container">
-                <div class="row">
-                    <div class="col">
+                <div class="logos d-flex justify-content-between align-items-center">
+                    <div class="">
                         <a href="https://cadre.iu.edu"
                            class="cadre-logo"><img src="@/assets/img/logo-and-type.svg"
                                  alt="CADRE" /><span class="d-none">CADRE</span></a>
-                        <!-- <div class="d-flex justify-content-between social-icons">
-                            {# <a href=""><i class="fab fa-facebook-square"></i></a> #}
-                            <a href=""><i class="fab fa-twitter"></i></a>
-                            {# <a href=""><i class="fab fa-instagram"></i></a> #}
-                        </div> -->
+
                     </div>
-                    <div class="col">
+                    <!-- <div class="">
                         &copy; <a href="https://iuni.iu.edu">Indiana University Network Science Institute</a>
+                    </div> -->
+                    <div class="">
+                        <a href="https://www.btaa.org/"
+                           class="btaa-logo"><img src="@/assets/img/btaa-logo.png"
+                                 alt="BTAA" /><span class="d-none">BTAA</span></a>
                     </div>
-                    <div class="col">
+                    <div class="">
+                        <a href="https://libraries.indiana.edu/"
+                           class="libraries-logo"><img src="@/assets/img/iu-libraries-logo.png"
+                                 alt="IU Libraries" /><span class="d-none">IU Libraries</span></a>
+                    </div>
+                    <div class="">
                         <a href="https://iuni.iu.edu"
-                           class="cadre-logo"><img src="@/assets/img/iuni-logo.png"
-                                 alt="CADRE" /><span class="d-none">IUNI</span></a>
+                           class="iuni-logo"><img src="@/assets/img/iuni-logo.png"
+                                 alt="IUNI" /><span class="d-none">IUNI</span></a>
                     </div>
 
                     <!-- {% for page in pages.children if page.header.main == true %}
@@ -317,5 +327,35 @@ export default {
 
 .construction img {
     max-width: 100%;
+}
+
+#main-footer
+{
+    .logos
+    {
+        position: relative;
+        max-height: 80px;
+    }
+    .logos img
+    {
+        max-height: 80px;
+        max-width: 100%;
+        // height: 80px;
+        // width: auto;
+        // margin: 1rem;
+        // max-height: 80px;
+        // max-width: 100%;
+    }
+    .logos .cadre-logo img
+    {
+        // height: 100%;
+        // max-height: 160px;
+        // height: 160px;
+        // width: 200%;
+    }
+    .logos .iuni-logo img
+    {
+        padding: 12px;
+    }
 }
 </style>

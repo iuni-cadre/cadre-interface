@@ -1,6 +1,6 @@
 <template>
     <div>
-        <query-builder-header />
+        <!-- <query-builder-header /> -->
         <section>
             <div class="container">
                 <div class="m-3">
@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import QueryBuilderHeader from "./QueryInterfaceHeader";
+// import QueryBuilderHeader from "./QueryInterfaceHeader";
 
 import axios from "axios";
 export default {
@@ -63,7 +63,7 @@ export default {
         }
     },
     components: {
-        QueryBuilderHeader
+        // QueryBuilderHeader
     },
     mounted: function() {
         this.getJobs();

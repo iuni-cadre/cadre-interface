@@ -12,10 +12,10 @@
                         <li class="list-item">
                             <router-link :to="{name: 'query-builder-builder'}">Query Builder</router-link>
                         </li>
-
+<!--
                         <li class="list-item">
                             <router-link :to="{name: 'query-builder-jobs'}">Jobs Status</router-link>
-                        </li>
+                        </li> -->
                     </ul>
                 </nav>
             </div>
@@ -24,7 +24,13 @@
 </template>
 
 <script>
-export default {};
+export default {
+    computed: {
+        dataset: function(){
+            return this.$store.getters["query/selectedDataset"];
+        }
+    }
+};
 </script>
 
 <style lang="scss" scoped>
