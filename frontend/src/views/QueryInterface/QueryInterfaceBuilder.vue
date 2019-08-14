@@ -142,7 +142,7 @@
                             <template v-for="(row, index) in preview_data">
                                 <tr :key="`preview_row_${index}`">
                                     <td v-for="(value, field_name) in row"
-                                        v-text="value && value.split('|').join(', ') || ''"
+                                        v-text="value !== undefined && value !== null && String(value).split('|').join(', ') || ''"
                                         :key="`preview_row_${index}_${field_name}`"></td>
                                 </tr>
                             </template>
