@@ -15,6 +15,8 @@
                         <tr>
                             <th>Job ID</th>
                             <th>Status</th>
+                            <th>Type</th>
+                            <th>Started</th>
                             <th>Last Updated</th>
                             <!-- <th>S3 Bucket</th> -->
                         </tr>
@@ -23,7 +25,9 @@
 
                             <td v-text="job[0]">Job Id</td>
                             <td v-text="job[3]">Status</td>
-                            <td v-text="job[5]">Status</td>
+                            <td v-text="job[2]">Type</td>
+                            <td v-text="job[4]">Started</td>
+                            <td v-text="job[5]">Updated</td>
                             <!-- <td><a :href="job[2]"
                        v-text="job[2]"></a></td> -->
                         </tr>
