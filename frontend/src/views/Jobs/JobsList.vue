@@ -25,7 +25,7 @@
                                 'table-success': job.status == 'Completed',
                                 'table-info': job.run_time <= (1000 * 60 * 10) && job.status == 'Running',
                                 'table-danger': job.status == 'Failed',
-                                'table-warning': job.run_time > (1000 * 60 * 10),
+                                'table-warning': (job.status == 'Running' || job.status == 'Submitted') && job.run_time > (1000 * 60 * 10),
                                 }"
                             :key="job.job_id">
 
