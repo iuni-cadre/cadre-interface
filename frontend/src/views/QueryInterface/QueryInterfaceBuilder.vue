@@ -142,7 +142,7 @@
                             <template v-for="(row, index) in preview_data">
                                 <tr :key="`preview_row_${index}`">
                                     <td v-for="(value, field_name) in row"
-                                        v-text="value && value.split('|').join(', ') || ''"
+                                        v-text="value !== undefined && value !== null && String(value).split('|').join(', ') || ''"
                                         :key="`preview_row_${index}_${field_name}`"></td>
                                 </tr>
                             </template>
@@ -232,7 +232,7 @@
                                         <div>
                                             Job ID: <b v-text="query_results.job_id"></b>
                                         </div>
-                                        <button @click.prevent.stop="$router.push({name: 'query-builder-jobs'})"
+                                        <button @click.prevent.stop="$router.push({name: 'jobs-list'})"
                                                 class="btn btn-primary">Check Job Statuses</button>
                                     </div>
                                     <div class="modal-footer">

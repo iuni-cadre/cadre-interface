@@ -43,7 +43,7 @@ def user_jobs():
     conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
     cur = conn.cursor()
     try:
-        cur.execute("SELECT job_id, message_id, s3_location, job_status, started_on, modified_on FROM user_job WHERE user_id=%s ORDER BY modified_on, started_on;", [user_id])
+        cur.execute("SELECT job_id, message_id, s3_location, job_status, started_on, modified_on, \"type\", \"description\" FROM user_job WHERE user_id=%s ORDER BY modified_on, started_on;", [user_id])
         results = cur.fetchall()
 
         conn.close()
