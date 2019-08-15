@@ -139,6 +139,8 @@ def run_package():
         return jsonify({'error': 'error while publishing to SQS'}, 500)
 
 
+# This is the method that will get the details of all the packages
+# @application.route("/api/packages/get-packages")
 def get_packages():
     auth_token = request.headers.get('auth-token')
     username = request.headers.get('auth-username')
@@ -170,7 +172,6 @@ def get_packages():
     user_id = response_json['user_id']
     # get package information from rac metadatabase
 
-
     # This is where we are actually connecting to the database and getting the details of the packages
     conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
     cur = conn.cursor()
@@ -200,8 +201,8 @@ def get_packages():
 
     # return jsonify({"package_id": 1, "name": "aaa", "author":"a", "created_date":"2019-07-16 10:51:26", "tools":["1", "2"], "input_files":["/a", "/b"]})
 
-# This is the method that will actually create the packages
 
+# This is the method that will actually create the packages
 # @application.route("/api/packages/create-packages")
 def create_packages():
     auth_token = request.headers.get('auth-token')
@@ -240,7 +241,9 @@ def create_packages():
     try:
         package_id = str(uuid.uuid4())
         print(package_id)
-        cur.execute("INSERT INTO package(package_id, type, description, name, created_on, created_by) VALUES (package_id, package_type, package_description, package_name, created_on, %s);", [username])
+        insert_q = "INSERT INTO package(package_id, type, description, name, created_on, created_by) VALUES (%s, %s, %s, %s, %s, %s)"
+        data = (package_id, package_type, package_description, package_name, created_on, username)
+        cur.execute(insert_q, data)
         conn.commit()
         print("Data inserted in the package table successfully.")
     except Exception:
@@ -249,10 +252,10 @@ def create_packages():
     # Now we will copy the input file to S3 using the boto3 library
     s3_job_dir = username
     s3_client = boto3.resource('s3',
-                               aws_access_key_id=AWS["aws_access_key_id"],
-                               aws_secret_access_key=AWS["aws_secret_access_key"],
-                               region_name=AWS["region_name"])
-    root_bucket_name = AWS["s3_root_dir"]
+                               aws_access_key_id=aws_config["aws_access_key_id"],
+                               aws_secret_access_key=aws_config["aws_secret_access_key"],
+                               region_name=aws_config["region_name"])
+    root_bucket_name = aws_config["s3_root_dir"]
     print(root_bucket_name)
     root_bucket = s3_client.Bucket(root_bucket_name)
     bucket_job_id = root_bucket_name + '/' + s3_job_dir
@@ -267,7 +270,9 @@ def create_packages():
     try:
         archive_id = str(uuid.uuid4())
         print(archive_id)
-        cur.execute("INSERT INTO archive(archive_id, s3_location, description, name, created_on, created_by) VALUES (s3_location, archive_description, input_file_list, created_on, %s);", [username])
+        insert_query = "INSERT INTO archive(archive_id, s3_location, description, name, created_on, created_by) VALUES (%s, %s, %s, %s, %s, %s)"
+        data_query = (archive_id, s3_location, archive_description, input_file_list, created_on, username)
+        cur.execute(insert_query, data_query)
         conn.commit()
         return jsonify({'archive_id': archive_id,
                         's3_location': s3_location,
