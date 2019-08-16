@@ -70,8 +70,11 @@
         </header>
 
         <section v-if="is_under_construction"
-                 class="d-flex justify-content-center construction">
-            <img src="@/assets/under_construction.gif" />
+                 class="d-flex justify-content-center construction alert-warning">
+            <!-- <img src="@/assets/under_construction.gif" /> -->
+
+            <b>Work In Progress:</b>  This application is currently under development.  Design, features, and functionality will likely change prior to release.
+
         </section>
 
         <!-- <hr /> -->
