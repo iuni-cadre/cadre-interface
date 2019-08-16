@@ -29,33 +29,43 @@
         </div>
         <modal v-if="show_run_modal"
                @close="show_run_modal = false">
-            <div>
+            <div class="run-modal-body">
                 <!-- <pre v-text="racpackage"></pre> -->
-                <p>Input Files: <span v-text="input_files"></span></p>
-                <div>Tool:</div>
-                <div><span v-text="tool_names"></span></div>
-                <small>by <span v-text="tool_authors"></span></small>
-                <div><span v-text="tool_descriptions"></span></div>
-
-                <br />
-                <div class="form-group">
-                    <label>Output Filenames</label>
-                    <div class="mb-1"
-                         v-for="(filename, index) in output_filenames"
-                         :key="`filename_${index}`">
-                        <div class="d-flex">
-                            <input type="text"
-                                   placeholder="output_file.csv"
-                                   class="form-control"
-                                   v-model="output_filenames[index]" />
-                            <button class="btn btn-danger"
-                                    @click="removeOutputFile(index)">X</button>
-                        </div>
+                <div class="card mb-3">
+                    <div>
+                        Input Files: <strong v-text="input_files"></strong>
                     </div>
-                    <div class="d-flex justify-content-end text-right">
+                </div>
+                <div class="card mb-3">
+                    <div>Tool: <strong v-text="tool_names"></strong></div>
+                    <small>created by <span v-text="tool_authors"></span></small>
+                    <div><span v-text="tool_descriptions"></span></div>
+
+                </div>
+                <div class="form-group card">
+                    <label>Output Filenames</label>
+                    <ol class="pl-3">
+                        <li class="mb-1"
+                            v-for="(filename, index) in output_filenames"
+                            :key="`filename_${index}`">
+
+                            <div class="input-group">
+
+                                <input type="text"
+                                       placeholder=""
+                                       class="form-control"
+                                       v-model="output_filenames[index]" />
+                                <!-- <div class="input-group-append">
+                                <button class="btn btn-outline-danger not-round"
+                                        @click="removeOutputFile(index)">X</button>
+                            </div> -->
+                            </div>
+                        </li>
+                    </ol>
+                    <!-- <div class="d-flex justify-content-end text-right">
                         <button class="btn btn-outline-primary btn-sm"
                                 @click="addOutputFile"> + Add Additional Filename</button>
-                    </div>
+                    </div> -->
 
                 </div>
                 <div>
@@ -69,14 +79,23 @@
                modal-style="success"
                modal-type="success">
 
-            {{results}}
+            <div>
+                <div>Package has been queued successfully.</div>
+                <div>
+                    Job ID: <b v-text="results.job_id"></b>
+                </div>
+                <button @click.prevent.stop="$router.push({name: 'jobs-list'})"
+                        class="btn btn-primary">Check Job Statuses</button>
+            </div>
         </modal>
         <modal v-if="error"
                @close="error = undefined"
                modal-style="danger"
                modal-type="error">
-
-            {{error}}
+            <div>
+                <p>There was a problem:</p>
+                <p>{{error.error_message}}</p>
+            </div>
         </modal>
     </div>
 
@@ -90,7 +109,7 @@ export default {
             results: undefined,
             error: undefined,
             show_run_modal: false,
-            output_filenames: [""]
+            output_filenames: [] //[""]
         };
     },
     computed: {
@@ -146,6 +165,22 @@ export default {
             this.output_filenames.splice(index, 1);
         },
         runPackage: function() {
+            for (let filename of this.output_filenames) {
+                if (filename.trim() == "") {
+                    this.error = {
+                        error_message: "Output filename is empty."
+                    };
+                    return false;
+                }
+            }
+            if (this.output_filenames.length != this.racpackage.output_files) {
+                this.error = {
+                    error_message:
+                        "Must specify the correct number of filenames."
+                };
+                return false;
+            }
+
             this.$emit("startLoading", { key: "running_package" });
 
             let running_promise = this.$store.dispatch(
@@ -178,7 +213,22 @@ export default {
         },
         runFinally: function() {
             this.$emit("stopLoading", { key: "running_package" });
+        },
+        initializeOutputFilenames: function() {
+            console.debug(this.racpackage);
+            this.$set(this, "output_filenames", []);
+            for (let i = 0; i < this.racpackage.output_files; i++) {
+                this.output_filenames.push("");
+            }
         }
+    },
+    watch: {
+        RacPackage: function() {
+            this.initializeOutputFilenames();
+        }
+    },
+    mounted: function() {
+        this.initializeOutputFilenames();
     },
     components: {
         Modal
@@ -187,4 +237,7 @@ export default {
 </script>
 
 <style>
+.run-modal-body {
+    width: 90vw;
+}
 </style>

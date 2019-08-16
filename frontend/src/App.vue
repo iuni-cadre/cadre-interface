@@ -70,8 +70,11 @@
         </header>
 
         <section v-if="is_under_construction"
-                 class="d-flex justify-content-center construction">
-            <img src="@/assets/under_construction.gif" />
+                 class="d-flex justify-content-center construction alert-warning">
+            <!-- <img src="@/assets/under_construction.gif" /> -->
+
+            <b>Work In Progress:</b>  This application is currently under development.  Design, features, and functionality will likely change prior to release.
+
         </section>
 
         <!-- <hr /> -->
@@ -98,8 +101,9 @@
              class="d-flex align-items-center justify-content-center">
             <div class="loading-content">
                 <div class="icon">
-                    <fa icon="circle-notch"
-                        spin />
+                    <!-- <fa icon="circle-notch"
+                        spin /> -->
+                        <spinner></spinner>
                 </div>
                 <div v-for="(item, index) in loading_queue"
                      :key="`loading_${index}`"
@@ -177,6 +181,9 @@
     </div>
 </template>
 <script>
+
+import Spinner from "@/components/Common/CommonSpinner";
+
 import { mapGetters } from "vuex";
 export default {
     data: function() {
@@ -285,8 +292,13 @@ export default {
         }
     },
     mounted: function() {
+        // this.addToLoadingQueue("test");
         this.addToLoadingQueue("initialize");
         this.validate();
+    },
+    components:
+    {
+        Spinner
     },
     watch: {
         // "$route.query": function(){

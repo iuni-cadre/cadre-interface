@@ -17,6 +17,16 @@ export default {
             label: "author_sequence_number"
         },
         {
+            field: "authors_display_name",
+            type: "single",
+            label: "authors_display_name"
+        },
+        {
+            field: "authors_last_known_affiliation_id",
+            type: "single",
+            label: "authors_last_known_affiliation_id"
+        },
+        {
             field: "journal_id",
             type: "single",
             label: "journal_id"
@@ -142,11 +152,6 @@ export default {
             label: "paper_title_tsv"
         },
         {
-            field: "paper_title_tsv",
-            type: "single",
-            label: "paper_title_tsv"
-        },
-        {
             field: "citations",
             type: "network",
             label: "Citation Network"
@@ -158,16 +163,20 @@ export default {
         // authors_full_name: "Author",
         // journals_name: "Journal Name",
         // title: "Title"
-        conference_display_name: "Conference Name",
-        journal_display_name: "Journal Name",
-        mag_doi: "DOI",
-        paper_title_tsv: "Publication Title",
         year: "Year",
+        doi: "DOI",
+        journal_display_name: "Journal Name",
+        conference_display_name: "Conference Name",
+        authors_display_name: "Author Names",
+        paper_title: "Paper Title",
+        paper_abstract: "Paper Abstract",
     },
     default: [
         "paper_id",
         "year",
-        "author_id",
+        "original_title",
+        "authors_display_name",
+        // "author_id",
         // "citations"
     ]
 };
