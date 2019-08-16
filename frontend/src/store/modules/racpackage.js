@@ -205,7 +205,7 @@ const TEST_RAC_PACKAGES = [
         created_date: "2019-07-16 10:51:26",
         tools: ["11234221124"],
         input_files: ["/dataset.csv"],
-        output_files: ["output1.csv", "output2.csv"]
+        output_files: 2
     },
     // {
     //     package_id: "package_2",

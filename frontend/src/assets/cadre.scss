@@ -75,9 +75,10 @@ header#main-header a.get-started-button {
     color: #7285a3;
 }
 
-.btn {
+.btn:not(.not-round) {
     border-radius: 100px;
 }
+
 h1,
 h2,
 h3 {
