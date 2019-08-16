@@ -79,7 +79,14 @@
                modal-style="success"
                modal-type="success">
 
-            {{results}}
+            <div>
+                <div>Package has been queued successfully.</div>
+                <div>
+                    Job ID: <b v-text="results.job_id"></b>
+                </div>
+                <button @click.prevent.stop="$router.push({name: 'jobs-list'})"
+                        class="btn btn-primary">Check Job Statuses</button>
+            </div>
         </modal>
         <modal v-if="error"
                @close="error = undefined"
