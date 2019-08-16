@@ -96,7 +96,8 @@ export default {
             let prom = this.getNewToken();
             prom.then(
                 response => {
-                    location.href = this.jupyter_full_url;
+                    // location.href = this.jupyter_full_url;
+                    window.open(this.jupyter_full_url, "_blank");
                 },
                 error => {
                     console.warn(error);

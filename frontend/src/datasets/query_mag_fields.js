@@ -17,6 +17,16 @@ export default {
             label: "author_sequence_number"
         },
         {
+            field: "authors_display_name",
+            type: "single",
+            label: "authors_display_name"
+        },
+        {
+            field: "authors_last_known_affiliation_id",
+            type: "single",
+            label: "authors_last_known_affiliation_id"
+        },
+        {
             field: "journal_id",
             type: "single",
             label: "journal_id"
@@ -164,7 +174,9 @@ export default {
     default: [
         "paper_id",
         "year",
-        "author_id",
+        "original_title",
+        "authors_display_name",
+        // "author_id",
         // "citations"
     ]
 };
