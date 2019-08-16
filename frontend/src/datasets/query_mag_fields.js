@@ -142,11 +142,6 @@ export default {
             label: "paper_title_tsv"
         },
         {
-            field: "paper_title_tsv",
-            type: "single",
-            label: "paper_title_tsv"
-        },
-        {
             field: "citations",
             type: "network",
             label: "Citation Network"
@@ -158,11 +153,13 @@ export default {
         // authors_full_name: "Author",
         // journals_name: "Journal Name",
         // title: "Title"
-        conference_display_name: "Conference Name",
-        journal_display_name: "Journal Name",
-        mag_doi: "DOI",
-        paper_title_tsv: "Publication Title",
         year: "Year",
+        doi: "DOI",
+        journal_display_name: "Journal Name",
+        conference_display_name: "Conference Name",
+        authors_display_name: "Author Names",
+        paper_title: "Paper Title",
+        paper_abstract: "Paper Abstract",
     },
     default: [
         "paper_id",
