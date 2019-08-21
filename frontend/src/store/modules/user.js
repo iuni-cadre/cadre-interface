@@ -172,8 +172,8 @@ export default {
                 });
 
                 if (Vue.$cadreConfig.force_validation === false) {
-                    context.commit("setToken", "fake");
-                    context.commit("setUsername", Globals.base64encode("fake"));
+                    context.commit("setToken", "test-token");
+                    context.commit("setUsername", Globals.base64encode("test-user"));
                     console.info("Token is valid");
                     resolve({ msg: "Fake Validation" });
                 } else {
