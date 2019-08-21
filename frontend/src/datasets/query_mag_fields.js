@@ -176,6 +176,7 @@ export default {
         "year",
         "original_title",
         "authors_display_name",
+        "journal_display_name"
         // "author_id",
         // "citations"
     ]
