@@ -58,10 +58,10 @@
                            :href="login_url">Login</a>
                     </div>
                     <div v-else>
-                        Logged in as <span v-text="username"></span>
+                        Logged in as <span v-text="decodedUsername"></span>
                         &nbsp;
                         <a class="btn get-started-button"
-                           @click="logout" >Logout</a>
+                           @click="logout">Logout</a>
                     </div>
 
                 </div>
@@ -73,7 +73,7 @@
                  class="d-flex justify-content-center construction alert-warning">
             <!-- <img src="@/assets/under_construction.gif" /> -->
 
-            <b>Work In Progress:</b>  This application is currently under development.  Design, features, and functionality will likely change prior to release.
+            <b>Work In Progress:</b> This application is currently under development. Design, features, and functionality will likely change prior to release.
 
         </section>
 
@@ -103,7 +103,7 @@
                 <div class="icon">
                     <!-- <fa icon="circle-notch"
                         spin /> -->
-                        <spinner></spinner>
+                    <spinner></spinner>
                 </div>
                 <div v-for="(item, index) in loading_queue"
                      :key="`loading_${index}`"
@@ -181,8 +181,9 @@
     </div>
 </template>
 <script>
-
 import Spinner from "@/components/Common/CommonSpinner";
+
+import CryptoJS from "crypto-js";
 
 import { mapGetters } from "vuex";
 export default {
@@ -196,7 +197,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("user", ["authToken", "username"]),
+        ...mapGetters("user", ["authToken", "decodedUsername"]),
         token: function() {
             return this.authToken;
         },
@@ -291,30 +292,41 @@ export default {
             );
         },
 
-        logout: function(){
+        logout: function() {
             this.startLoading("logout");
 
             let logout_prom = this.$store.dispatch("user/logout");
 
-            logout_prom.then( (response)=>{
-                window.location.href = this.$cadreConfig.logout_url;
-            }, (error) => {
-                this.error_message = "Could not log out.";
-            });
+            logout_prom.then(
+                response => {
+                    window.location.href = this.$cadreConfig.logout_url;
+                },
+                error => {
+                    this.error_message = "Could not log out.";
+                }
+            );
 
-            logout_prom.finally(()=>{
+            logout_prom.finally(() => {
                 this.stopLoading("logout");
-            })
-
+            });
         }
     },
     mounted: function() {
         // this.addToLoadingQueue("test");
         this.addToLoadingQueue("initialize");
         this.validate();
+
+        var rawStr = "hello world!";
+        var wordArray = CryptoJS.enc.Utf8.parse(rawStr);
+        var base64 = CryptoJS.enc.Base64.stringify(wordArray);
+        console.log("encrypted:", base64);
+
+        //decrypt
+        var parsedWordArray = CryptoJS.enc.Base64.parse(base64);
+        var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
+        console.log("parsed:", parsedStr);
     },
-    components:
-    {
+    components: {
         Spinner
     },
     watch: {
@@ -364,15 +376,12 @@ export default {
     max-width: 100%;
 }
 
-#main-footer
-{
-    .logos
-    {
+#main-footer {
+    .logos {
         position: relative;
         max-height: 80px;
     }
-    .logos img
-    {
+    .logos img {
         max-height: 80px;
         max-width: 100%;
         // height: 80px;
@@ -381,15 +390,13 @@ export default {
         // max-height: 80px;
         // max-width: 100%;
     }
-    .logos .cadre-logo img
-    {
+    .logos .cadre-logo img {
         // height: 100%;
         // max-height: 160px;
         // height: 160px;
         // width: 200%;
     }
-    .logos .iuni-logo img
-    {
+    .logos .iuni-logo img {
         padding: 12px;
     }
 }

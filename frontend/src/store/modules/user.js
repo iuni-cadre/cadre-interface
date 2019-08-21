@@ -2,6 +2,8 @@ import Globals from "../../CadreGlobalsPlugin";
 import axios from "axios";
 import Vue from "vue";
 
+import CryptoJS from "crypto-js";
+
 export default {
     namespaced: true,
     state: {
@@ -12,7 +14,7 @@ export default {
         token_is_valid: !!localStorage.getItem("token"),
         username: "",
         heartbeat_timer: 0,
-        heartbeat_interval: 30000
+        heartbeat_interval: 30000,
     },
     getters: {
         tokenValid: function(state) {
@@ -33,6 +35,9 @@ export default {
         },
         username: function(state) {
             return state.username;
+        },
+        decodedUsername: function(state) {
+            return Globals.base64decode(state.username);
         }
     },
     mutations: {
@@ -168,7 +173,7 @@ export default {
 
                 if (Vue.$cadreConfig.force_validation === false) {
                     context.commit("setToken", "fake");
-                    context.commit("setUsername", "fake");
+                    context.commit("setUsername", Globals.base64encode("fake"));
                     console.info("Token is valid");
                     resolve({ msg: "Fake Validation" });
                 } else {
