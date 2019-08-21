@@ -95,7 +95,7 @@ export default {
                     method: "POST",
                     data: {
                         username: username
-                    },
+                    }
                 });
 
                 validate_prom.then(
@@ -105,13 +105,45 @@ export default {
                     error => {
                         console.warn(error);
 
-                        if(Vue.$cadreConfig.force_validation !== false)
-                        {
+                        if (Vue.$cadreConfig.force_validation !== false) {
                             commit("logout");
                         }
                     }
                 );
             }, state.heartbeat_interval);
+        },
+        logout: function({getters, commit}, payload) {
+            let username = getters.username;
+            let token = getters.authToken;
+            return new Promise((resolve, reject) => {
+                let validate_prom = Globals.authAxios({
+                    url: "/logout",
+                    method: "POST",
+                    data: {
+                        username: username
+                    },
+                    headers: {
+                        "auth-token": token,
+                        "auth-username": username
+                    }
+                });
+
+                validate_prom.then(
+                    response => {
+                        // dispatch("beatHeart");
+                        commit("logout");
+                        resolve(response)
+                    },
+                    error => {
+                        // console.warn(error);
+                        // if(Vue.$cadreConfig.force_validation !== false)
+                        // {
+                        //     commit("logout");
+                        // }
+                        reject(error);
+                    }
+                );
+            });
         },
         validateToken: function(context, payload) {
             //We must validate the token every time. If the token is not valid, it just gets removed.

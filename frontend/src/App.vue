@@ -61,7 +61,7 @@
                         Logged in as <span v-text="username"></span>
                         &nbsp;
                         <a class="btn get-started-button"
-                           :href="logout_url">Logout</a>
+                           @click="logout" >Logout</a>
                     </div>
 
                 </div>
@@ -289,6 +289,23 @@ export default {
                     console.error("Could not validate token.", error);
                 }
             );
+        },
+
+        logout: function(){
+            this.startLoading("logout");
+
+            let logout_prom = this.$store.dispatch("user/logout");
+
+            logout_prom.then( (response)=>{
+                window.location.href = this.$cadreConfig.logout_url;
+            }, (error) => {
+                this.error_message = "Could not log out.";
+            });
+
+            logout_prom.finally(()=>{
+                this.stopLoading("logout");
+            })
+
         }
     },
     mounted: function() {
