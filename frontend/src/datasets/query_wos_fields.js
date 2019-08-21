@@ -125,7 +125,7 @@ export default {
         },
         {
             field: 'references',
-            label: "references",
+            label: "Citation Network",
             type: 'network'
         },
         {
@@ -189,6 +189,6 @@ export default {
         "wos_id",
         "year",
         "authors_full_name",
-        "references"
+        // "references"
     ]
 };
