@@ -103,13 +103,14 @@
                                 <span v-for="degree in [1, 2]"
                                       :key="`${field.field}_degree_${degree}`">
                                     <label class="btn ml-3 mb-0"
+                                            :title=" degree > 1 ? 'Coming Soon...': ''"
                                            :class="{
-                                                    'disabled': selected_fields.indexOf(field.field) == -1,
+                                                    'disabled': selected_fields.indexOf(field.field) == -1 || degree > 1,
                                                     'btn-outline-primary': network_field_degrees[field.field] != degree,
                                                     'btn-primary': network_field_degrees[field.field] == degree,
                                                     }">
                                         <input type="radio"
-                                               :disabled='selected_fields.indexOf(field.field) == -1'
+                                               :disabled='selected_fields.indexOf(field.field) == -1 || degree > 1'
                                                class="mr-2"
                                                :id="`${field.field}_field_degree`"
                                                v-model="network_field_degrees[field.field]"
@@ -176,7 +177,7 @@
 
                             <button v-if="allow_overload" @click.stop.prevent="overloadDatabase(true)"
                                     class="btn btn-danger btn-lg float-right"
-                                    type="button">Overload CADRE</button>
+                                    type="button"> &#x1F47F; Overload CADRE &#x1F47F; </button>
                         </div>
                     </div>
                 </form>
@@ -524,7 +525,7 @@ export default {
                 //if the output is a network type, there should be a degree associated with it.
                 if (field.type == "network") {
                     field_to_add.degree =
-                        this.network_field_degrees[field.field] || 1;
+                        (this.network_field_degrees[field.field] > 1? 1: this.network_field_degrees[field.field]) || 1;
                 }
                 output_fields.push(field_to_add);
             }
