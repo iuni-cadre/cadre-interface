@@ -172,6 +172,11 @@
                             <button @click.stop.prevent="sendQuery(true)"
                                     class="btn btn-primary btn-lg"
                                     type="submit">Submit Query</button>
+
+
+                            <button v-if="allow_overload" @click.stop.prevent="overloadDatabase(true)"
+                                    class="btn btn-danger btn-lg float-right"
+                                    type="button">Overload CADRE</button>
                         </div>
                     </div>
                 </form>
@@ -296,6 +301,9 @@ export default {
         };
     },
     computed: {
+        allow_overload: function(){
+            return this.$cadreConfig.allow_overload || false;
+        },
         dataset_name: function() {
             try {
                 return Datasets[this.$store.getters["query/selectedDataset"]]
@@ -395,6 +403,37 @@ export default {
         }
     },
     methods: {
+        overloadDatabase: function(){
+            if(!this.allow_overload)
+            {
+                console.error("What in the everloving hell do you think you're doing!?");
+                return false;
+            }
+            else
+            {
+                console.error("You're about to cause major havok and overload CADRE.");
+            }
+
+            let confirmed = confirm("Are you absolutely sure you want to set CADRE on fire?");
+
+            if(confirmed)
+            {
+                confirmed = confirm("Last chance to cancel... ");
+            }
+
+            if(confirmed)
+            {
+                console.error("Here we go...");
+                for(let i = 0; i < 8; i++)
+                {
+                    console.warn("Sending query " + i);
+                    this.sendQuery(true);
+                }
+                console.error("You monster...");
+            }
+
+            return false;
+        },
         getStoreQuery: function() {
             if (this.$store.getters["query/query"].length > 0) {
                 this.$set(this, "queries", this.$store.getters["query/query"]);
