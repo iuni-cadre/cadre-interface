@@ -525,7 +525,7 @@ export default {
                 //if the output is a network type, there should be a degree associated with it.
                 if (field.type == "network") {
                     field_to_add.degree =
-                        (this.network_field_degrees[field.field] > 1? 1: this.network_field_degrees[field.field]) || 1;
+                        this.network_field_degrees[field.field] || 1;
                 }
                 output_fields.push(field_to_add);
             }
