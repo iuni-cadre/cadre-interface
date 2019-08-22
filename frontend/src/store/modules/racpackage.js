@@ -204,8 +204,8 @@ const TEST_RAC_PACKAGES = [
         author: "CADRE Team",
         created_date: "2019-07-16 10:51:26",
         tools: ["11234221124"],
-        input_files: ["/dataset.csv"],
-        output_files: 2
+        input_files: ["/dataset.csv"]
+        // output_files: 2
     },
 
     {
@@ -214,9 +214,19 @@ const TEST_RAC_PACKAGES = [
         author: "CADRE Team",
         created_date: "2019-08-22 13:37:15",
         tools: ["11234221125"],
-        input_files: ["/dataset.csv", "/dataset_edges.csv"],
-        output_files: 1 // extension .xnet
+        input_files: ["/dataset.csv", "/dataset_edges.csv"]
+        // output_files: 1 // extension .xnet
     },
+
+    {
+        package_id: "234221134",
+        name: "Demo Download Package",
+        author: "CADRE Team",
+        created_date: "2019-08-22 15:04:43",
+        tools: ["11234221126"],
+        input_files: []
+        // output_files: 1 // extension .xnet
+    }
     // {
     //     package_id: "package_2",
     //     name: "package 2",
@@ -242,13 +252,22 @@ const TEST_RAC_TOOLS = [
         tool_id: "11234221124",
         name: "Line Count",
         author: "CADRE Team",
-        description: "Counts lines in a file"
+        description: "Counts lines in a file",
+        output_files: ["file_1.csv", "file_2.csv"]
     },
     {
         tool_id: "11234221125",
         name: "Filipi's Tool",
         author: "CADRE Team",
-        description: "Sends query to xnet package."
+        description: "Sends query to xnet package.",
+        output_files: ["result.xnet"]
+    },
+    {
+        tool_id: "11234221126",
+        name: "Xiaoran's Demo",
+        author: "CADRE Team",
+        description: "Downloads demo files to user workspace.",
+        output_files: ["demo_folder"]
     },
     // {
     //     tool_id: "tool_2",

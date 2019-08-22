@@ -11,7 +11,7 @@
                     <div class="row flex-wrap">
                         <div v-for="(racpackage, index) in racpackages"
                              :key="`racpackage_card_${index}`"
-                             class="col-4">
+                             class="col-4 d-flex">
                             <rac-package-card @startLoading="(data)=>{ $emit('startLoading', data); }"
                                               @stopLoading="(data)=>{ $emit('stopLoading', data); }"
                                               :rac-package="racpackage"></rac-package-card>
