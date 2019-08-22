@@ -200,12 +200,22 @@ export default {
 const TEST_RAC_PACKAGES = [
     {
         package_id: "234221132",
-        name: "package 1",
-        author: "author 1",
+        name: "Test Package 1",
+        author: "CADRE Team",
         created_date: "2019-07-16 10:51:26",
         tools: ["11234221124"],
         input_files: ["/dataset.csv"],
         output_files: 2
+    },
+
+    {
+        package_id: "234221133",
+        name: "Test Package 2",
+        author: "CADRE Team",
+        created_date: "2019-08-22 13:37:15",
+        tools: ["11234221125"],
+        input_files: ["/dataset.csv", "/dataset_edges.csv"],
+        output_files: 1 // extension .xnet
     },
     // {
     //     package_id: "package_2",
@@ -233,6 +243,12 @@ const TEST_RAC_TOOLS = [
         name: "Line Count",
         author: "CADRE Team",
         description: "Counts lines in a file"
+    },
+    {
+        tool_id: "11234221125",
+        name: "Filipi's Tool",
+        author: "CADRE Team",
+        description: "Sends query to xnet package."
     },
     // {
     //     tool_id: "tool_2",
