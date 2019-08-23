@@ -73,7 +73,7 @@
                         <output-fields v-model="selected_fields"></output-fields>
                     </div>
 
-                    <div class="card mb-3">
+                    <div v-if="Object.keys(network_fields).length > 0" class="card mb-3">
                         <h4>Network Queries</h4>
                         <!-- <div>Help Text</div> -->
                         <div v-for="(field, field_name) in network_fields"
@@ -132,29 +132,31 @@
                                     class="btn btn-primary btn-lg"
                                     type="submit">Get Preview</button>
                         </div>
-                        <h4 class="mt-5">Preview Results</h4>
-                        <table v-if="preview_data"
-                               class="table">
-                            <tr>
-                                <th v-for="(data, field_name) in preview_data[0]"
-                                    v-text="field_name"
-                                    :key="`preview_header_${field_name}`"></th>
-                            </tr>
-                            <template v-for="(row, index) in preview_data">
-                                <tr :key="`preview_row_${index}`">
-                                    <td v-for="(value, field_name) in row"
-                                        v-text="value !== undefined && value !== null && String(value).split('|').join(', ') || ''"
-                                        :key="`preview_row_${index}_${field_name}`"></td>
+                        <div v-if="preview_data">
+                            <h4 class="mt-5">Preview Results</h4>
+                            <table
+                                class="table">
+                                <tr>
+                                    <th v-for="(data, field_name) in preview_data[0]"
+                                        v-text="field_name"
+                                        :key="`preview_header_${field_name}`"></th>
                                 </tr>
-                            </template>
-                            <tr v-if="preview_data.length == 0">
-                                <td :colspan="selected_fields.length">
-                                    No results were found. Please modify your query and try again.
-                                </td>
-                            </tr>
-                        </table>
+                                <template v-for="(row, index) in preview_data">
+                                    <tr :key="`preview_row_${index}`">
+                                        <td v-for="(value, field_name) in row"
+                                            v-text="value !== undefined && value !== null && String(value).split('|').join(', ') || ''"
+                                            :key="`preview_row_${index}_${field_name}`"></td>
+                                    </tr>
+                                </template>
+                                <tr v-if="preview_data.length == 0">
+                                    <td :colspan="selected_fields.length">
+                                        No results were found. Please modify your query and try again.
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
                         <div v-else>
-                            There are currently no preview results.
+                            There are currently no preview results. Please run a query.
                         </div>
                         <!-- <pre class="pre"
                      v-text="result"></pre> -->
@@ -170,7 +172,12 @@
                         @click.stop.prevent="sendQuery(true)"
                         class="btn btn-primary btn-lg"
                         type="submit">Submit Query</button> -->
-                            <button @click.stop.prevent="sendQuery(true)"
+
+
+                            <button v-if="selected_fields.length == 0"
+                                    class="btn btn-primary btn-lg disabled"
+                                    disabled>Submit Query</button>
+                            <button v-else @click.stop.prevent="sendQuery(true)"
                                     class="btn btn-primary btn-lg"
                                     type="submit">Submit Query</button>
 
@@ -400,7 +407,7 @@ export default {
             // if (tmp) {
             //     tmp.splice(9);
             // }
-            return this.result || [];
+            return this.result || null;
         }
     },
     methods: {

@@ -128,11 +128,11 @@ export default {
         //     label: "Citation Network",
         //     type: 'network'
         // },
-        {
-            field: 'references',
-            label: "references",
-            type: 'single'
-        },
+        // {
+        //     field: 'references',
+        //     label: "references",
+        //     type: 'single'
+        // },
         {
             field: 'issn',
             label: "issn",

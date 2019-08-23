@@ -50,7 +50,7 @@
             </div>
             <router-link :to="{name: 'rac-marketplace'}"
                          target=""
-                         class="btn btn-primary">Visit Full RAC Marketplace</router-link>
+                         class="btn btn-primary">Visit Full RAC Marketplace</router-link> <span class="ml-3 d-inline-block"><span v-text="racpackages_total_count"></span> Total Packages</span>
             <!-- <div>
             {{jupyter_full_url}}
         </div> -->
@@ -86,6 +86,9 @@ export default {
 
         racpackages: function() {
             return this.$store.getters["racpackage/packages"].slice(0, RAC_PACKAGES_TO_SHOW);
+        },
+        racpackages_total_count: function() {
+            return this.$store.getters["racpackage/packages"].length;
         }
     },
     methods: {

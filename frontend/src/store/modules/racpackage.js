@@ -199,6 +199,15 @@ export default {
 
 const TEST_RAC_PACKAGES = [
     {
+        package_id: "234221136",
+        name: "ISSI Tutorial Package",
+        author: "CADRE Team",
+        created_date: "2019-08-23 15:10:02",
+        tools: ["11234221128"],
+        input_files: ["/demo.zip", "result1.csv", "result2.csv", "result3.csv"]
+        // output_files: 2
+    },
+    {
         package_id: "234221132",
         name: "Line Count Package",
         author: "CADRE Team",
@@ -294,6 +303,13 @@ const TEST_RAC_TOOLS = [
         author: "CADRE Team",
         description: "Sends query to xnet package.",
         output_files: ["result.xnet"]
+    },
+    {
+        tool_id: "11234221128",
+        name: "issi tutorial download",
+        author: "CADRE Team",
+        description: "Get my content and environment ready for the demo",
+        output_files: ["issi_tutorial"]
     },
     // {
     //     tool_id: "11234221126",
