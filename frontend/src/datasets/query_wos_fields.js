@@ -123,10 +123,15 @@ export default {
             label: "authors_email",
             type: 'single'
         },
+        // {
+        //     field: 'references',
+        //     label: "Citation Network",
+        //     type: 'network'
+        // },
         {
             field: 'references',
-            label: "Citation Network",
-            type: 'network'
+            label: "references",
+            type: 'single'
         },
         {
             field: 'issn',
