@@ -1,5 +1,5 @@
 <template>
-    <div class="flex-fill d-flex">
+    <div class="flex-fill d-flex mb-3">
         <div class="racpackage-card card p-3 flex-fill d-flex flex-column justify-content-between">
             <div>
                 <h4 v-text="racpackage.name">Package Name</h4>
@@ -215,7 +215,7 @@ export default {
 
         runSuccess: function(response) {
             this.results = {
-                job_id: response.job_id,
+                job_id: response.job_id || (response[0] && response[0].job_id) || "Unknown",
                 success_message: "Package is running."
             };
             console.debug(this.results);

@@ -134,7 +134,7 @@ def run_package():
         conn.commit()
 
         return jsonify({'message_id': message_id,
-                        'job_id': job_id}, 200)
+                        'job_id': job_id}), 200
     else:
         return jsonify({'error': 'error while publishing to SQS'}, 500)
 
