@@ -316,15 +316,25 @@ export default {
         this.addToLoadingQueue("initialize");
         this.validate();
 
-        var rawStr = "hello world!";
-        var wordArray = CryptoJS.enc.Utf8.parse(rawStr);
-        var base64 = CryptoJS.enc.Base64.stringify(wordArray);
-        console.log("encrypted:", base64);
+        // var rawStr = "hello world!";
+        // var wordArray = CryptoJS.enc.Utf8.parse(rawStr);
+        // var base64 = CryptoJS.enc.Base64.stringify(wordArray);
+        // console.log("encrypted:", base64);
 
-        //decrypt
-        var parsedWordArray = CryptoJS.enc.Base64.parse(base64);
-        var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
-        console.log("parsed:", parsedStr);
+        // //decrypt
+        // // var parsedWordArray = CryptoJS.enc.Base64.parse(base64);
+        // var parsedWordArray = CryptoJS.enc.Base64.parse("YW55IGNhcm5hbCBwbGVhcw==");
+        // var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
+        // console.log("parsed:", parsedStr);
+        // var parsedWordArray = CryptoJS.enc.Base64.parse("YW55IGNhcm5hbCBwbGVhcw=");
+        // var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
+        // console.log("parsed:", parsedStr);
+        // var parsedWordArray = CryptoJS.enc.Base64.parse("YW55IGNhcm5hbCBwbGVhcw");
+        // var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
+        // console.log("parsed:", parsedStr);
+        // var parsedWordArray = CryptoJS.enc.Base64.parse("YW55IGNhcm5hbCBwbGVhcw===");
+        // var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
+        // console.log("parsed:", parsedStr);
     },
     components: {
         Spinner

@@ -117,10 +117,13 @@ export default {
 
         let wordArray = CryptoJS.enc.Utf8.parse(rawStr);
         let base64 = CryptoJS.enc.Base64.stringify(wordArray);
-
+        base64 = base64.replace(/\+/g, "-");
+        base64 = base64.replace(/\//g, "_");
         return base64;
     },
     base64decode: function(base64) {
+        base64 = base64.replace(/-/g, "+");
+        base64 = base64.replace(/_/g, "/");
         let parsedWordArray = CryptoJS.enc.Base64.parse(base64);
         let parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
         return parsedStr;
