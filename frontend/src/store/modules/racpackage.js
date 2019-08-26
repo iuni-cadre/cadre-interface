@@ -213,7 +213,7 @@ const TEST_RAC_PACKAGES = [
         author: "CADRE Team",
         created_date: "2019-07-16 10:51:26",
         tools: ["11234221124"],
-        input_files: ["/dataset1.csv", "/dataset2.csv"]
+        input_files: ["/dataset1.txt", "/dataset2.txt"]
         // output_files: 2
     },
 
@@ -233,7 +233,7 @@ const TEST_RAC_PACKAGES = [
         author: "CADRE Team",
         created_date: "2019-08-22 13:37:15",
         tools: ["11234221126"],
-        input_files: ["/dataset.csv", "/dataset_edges.csv"]
+        input_files: ["results.xnet"]
     },
     {
         package_id: "234221135",
@@ -241,7 +241,7 @@ const TEST_RAC_PACKAGES = [
         author: "CADRE Team",
         created_date: "2019-08-22 13:37:15",
         tools: ["11234221127"],
-        input_files: ["/dataset.csv", "/dataset_edges.csv"]
+        input_files: ["results.xnet"]
     },
 
 
@@ -302,7 +302,7 @@ const TEST_RAC_TOOLS = [
         name: "xnet2_wordcloud",
         author: "CADRE Team",
         description: "Sends query to xnet package.",
-        output_files: ["result.xnet"]
+        output_files: ["word_cloud.pdf"]
     },
     {
         tool_id: "11234221128",
