@@ -132,11 +132,11 @@ export default {
     //     return parsedStr;
     // },
     base32encode: function(string){
-        return Base32.encode(string);
+        return Base32.encode(string).toLowerCase();
     },
-    base32decode: function(base32)
+    base32decode: function(base32str)
     {
-        return Base32.decode(base32);
+        return Base32.decode(base32str.toUpperCase());
     },
     axios: function(options) {
         return this.axiosProxy(options);
