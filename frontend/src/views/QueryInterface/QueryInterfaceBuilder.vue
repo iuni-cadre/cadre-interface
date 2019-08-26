@@ -35,9 +35,9 @@
                                                v-model="queries[index].value" />
                                     </div>
                                     <div class="form-group">
-                                        <button class="btn btn-danger"
+                                        <button class="btn btn-outline-danger"
                                                 type="button"
-                                                @click.stop.prevent="removeQueryClause(index)">X</button>
+                                                @click.stop.prevent="removeQueryClause(index)"><fa icon="trash-alt" /> Remove Filter</button>
                                     </div>
                                 </div>
 
@@ -102,7 +102,7 @@
                                 <span>Degrees:</span>
                                 <span v-for="degree in [1, 2]"
                                       :key="`${field.field}_degree_${degree}`">
-                                    <label class="btn ml-3 mb-0"
+                                    <!-- <label class="btn ml-3 mb-0"
                                             :title=" degree > 1 ? 'Coming Soon...': ''"
                                            :class="{
                                                     'disabled': selected_fields.indexOf(field.field) == -1 || degree > 1,
@@ -111,6 +111,20 @@
                                                     }">
                                         <input type="radio"
                                                :disabled='selected_fields.indexOf(field.field) == -1 || degree > 1'
+                                               class="mr-2"
+                                               :id="`${field.field}_field_degree`"
+                                               v-model="network_field_degrees[field.field]"
+                                               :value="degree" />
+                                        <span v-text="degree"></span>
+                                    </label> -->
+                                    <label class="btn ml-3 mb-0"
+                                           :class="{
+                                                    'disabled': selected_fields.indexOf(field.field) == -1,
+                                                    'btn-outline-primary': network_field_degrees[field.field] != degree,
+                                                    'btn-primary': network_field_degrees[field.field] == degree,
+                                                    }">
+                                        <input type="radio"
+                                               :disabled='selected_fields.indexOf(field.field) == -1'
                                                class="mr-2"
                                                :id="`${field.field}_field_degree`"
                                                v-model="network_field_degrees[field.field]"

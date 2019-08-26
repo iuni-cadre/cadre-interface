@@ -200,11 +200,11 @@ export default {
 const TEST_RAC_PACKAGES = [
     {
         package_id: "234221136",
-        name: "ISSI Tutorial Package",
+        name: "ISSI Data Package",
         author: "CADRE Team",
-        created_date: "2019-08-23 15:10:02",
+        created_date: "2019-08-26 16:32:48",
         tools: ["11234221128"],
-        input_files: ["/demo.zip", "result1.csv", "result2.csv", "result3.csv"]
+        input_files: ["data.tar"]
         // output_files: 2
     },
     {
@@ -285,7 +285,7 @@ const TEST_RAC_TOOLS = [
     },
     {
         tool_id: "11234221125",
-        name: "Filipi's Tool",
+        name: "query2_xnet",
         author: "CADRE Team",
         description: "Sends query to xnet package.",
         output_files: ["result.xnet"]
@@ -306,9 +306,9 @@ const TEST_RAC_TOOLS = [
     },
     {
         tool_id: "11234221128",
-        name: "issi tutorial download",
+        name: "issi_data_package",
         author: "CADRE Team",
-        description: "Get my content and environment ready for the demo",
+        description: "Get my data ready for the demo",
         output_files: ["issi_tutorial"]
     },
     // {
