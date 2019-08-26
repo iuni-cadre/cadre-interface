@@ -2,7 +2,10 @@
 
 // import $axios from "axios";
 import $config from "../../conf/frontend.config.json";
-import CryptoJS from "crypto-js";
+// import CryptoJS from "crypto-js";
+
+import Base32 from "hi-base32";
+
 // import Moment from "moment";
 export default {
     $store: undefined,
@@ -113,20 +116,27 @@ export default {
         }
         return object;
     },
-    base64encode: function(rawStr) {
+    // base64encode: function(rawStr) {
 
-        let wordArray = CryptoJS.enc.Utf8.parse(rawStr);
-        let base64 = CryptoJS.enc.Base64.stringify(wordArray);
-        base64 = base64.replace(/\+/g, "-");
-        base64 = base64.replace(/\//g, "_");
-        return base64;
+    //     let wordArray = CryptoJS.enc.Utf8.parse(rawStr);
+    //     let base64 = CryptoJS.enc.Base64.stringify(wordArray);
+    //     base64 = base64.replace(/\+/g, "-");
+    //     base64 = base64.replace(/\//g, "_");
+    //     return base64;
+    // },
+    // base64decode: function(base64) {
+    //     base64 = base64.replace(/-/g, "+");
+    //     base64 = base64.replace(/_/g, "/");
+    //     let parsedWordArray = CryptoJS.enc.Base64.parse(base64);
+    //     let parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
+    //     return parsedStr;
+    // },
+    base32encode: function(string){
+        return Base32.encode(string);
     },
-    base64decode: function(base64) {
-        base64 = base64.replace(/-/g, "+");
-        base64 = base64.replace(/_/g, "/");
-        let parsedWordArray = CryptoJS.enc.Base64.parse(base64);
-        let parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
-        return parsedStr;
+    base32decode: function(base32)
+    {
+        return Base32.decode(base32);
     },
     axios: function(options) {
         return this.axiosProxy(options);

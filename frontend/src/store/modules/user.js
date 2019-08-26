@@ -37,7 +37,7 @@ export default {
             return state.username;
         },
         decodedUsername: function(state) {
-            return Globals.base64decode(state.username);
+            return Globals.base32decode(state.username);
         }
     },
     mutations: {
@@ -173,7 +173,7 @@ export default {
 
                 if (Vue.$cadreConfig.force_validation === false) {
                     context.commit("setToken", "test-token");
-                    context.commit("setUsername", Globals.base64encode("test-user"));
+                    context.commit("setUsername", Globals.base32encode("test-user"));
                     console.info("Token is valid");
                     resolve({ msg: "Fake Validation" });
                 } else {

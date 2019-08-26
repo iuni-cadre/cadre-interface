@@ -183,7 +183,8 @@
 <script>
 import Spinner from "@/components/Common/CommonSpinner";
 
-import CryptoJS from "crypto-js";
+// import CryptoJS from "crypto-js";
+import Base32 from "hi-base32";
 
 import { mapGetters } from "vuex";
 export default {
@@ -315,6 +316,11 @@ export default {
         // this.addToLoadingQueue("test");
         this.addToLoadingQueue("initialize");
         this.validate();
+
+        // let encoded = Base32.encode('this is a test');
+        // console.debug(encoded);
+
+        // console.debug(Base32.decode('MNYGK3DJNNQW4'));
 
         // var rawStr = "hello world!";
         // var wordArray = CryptoJS.enc.Utf8.parse(rawStr);
