@@ -3,13 +3,13 @@
         <!-- <query-builder-header /> -->
         <section>
             <div class="container">
-                <div class="m-3">
+                <div class="m-3 d-flex justify-content-between">
                     <router-link class="btn btn-primary"
                                  target="_blank"
                                  :to="{name: 'jupyter-hub'}">Go To Jupyter Notebook</router-link>
 
 
-                    <button class="float-right btn btn-primary"
+                    <button class="btn btn-primary"
                                  @click.stop.prevent="getJobs"><fa icon="sync-alt" /> &nbsp;Refresh Status</button>
                 </div>
 

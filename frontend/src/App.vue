@@ -115,7 +115,7 @@
 
         <footer id="main-footer">
             <div class="container">
-                <div class="logos d-flex justify-content-between align-items-center">
+                <div class="logos d-flex flex-wrap justify-content-between align-items-center">
                     <div class="">
                         <a href="https://cadre.iu.edu"
                            class="cadre-logo"><img src="@/assets/img/logo-and-type.svg"
