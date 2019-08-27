@@ -17,15 +17,17 @@
                          alt="CADRE" /><span class="d-none">CADRE</span></router-link>
                 <button class="navbar-toggler"
                         type="button"
+                        @click="toggleMenu"
                         data-toggle="collapse"
                         data-target="#navbarSupportedContent"
                         aria-controls="navbarSupportedContent"
                         aria-expanded="false"
                         aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+                    <span class="navbar-toggler-icon"><fa icon="bars" /></span>
                 </button>
 
                 <div class="collapse navbar-collapse"
+                    :class="{'show': display_menu}"
                      id="navbarSupportedContent">
                     <ul class="navbar-nav mr-auto">
                         <!-- {% for page in pages.children if page.header.main == true %} -->
@@ -35,19 +37,19 @@
                         <!-- {% endfor %} -->
 
                         <li class="nav-item">
-                            <router-link :to="{name: 'query-builder-builder'}"
+                            <router-link class="p-3 p-md-0 d-inline-block" :to="{name: 'query-builder-builder'}"
                                          target="">Query Interface</router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link :to="{name: 'jupyter-hub'}"
+                            <router-link class="p-3 p-md-0 d-inline-block" :to="{name: 'jupyter-hub'}"
                                          target="">Jupyter Notebook</router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link :to="{name: 'rac-marketplace'}"
+                            <router-link class="p-3 p-md-0 d-inline-block" :to="{name: 'rac-marketplace'}"
                                          target="">RAC Marketplace</router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link :to="{name: 'jobs-list'}"
+                            <router-link class="p-3 p-md-0 d-inline-block" :to="{name: 'jobs-list'}"
                                          target="">Job Status</router-link>
                         </li>
 
@@ -55,13 +57,13 @@
 
                     <div v-if="!token">
                         <a class="btn get-started-button"
-                           :href="login_url">Login</a>
+                           :href="login_url"><span class="p-3 p-md-0 d-inline-block">Login</span></a>
                     </div>
                     <div v-else>
                         Logged in as <span v-text="decodedUsername"></span>
                         &nbsp;
                         <a class="btn get-started-button"
-                           @click="logout">Logout</a>
+                           @click="logout"><span class="p-3 p-md-0 d-inline-block">Logout</span></a>
                     </div>
 
                 </div>
@@ -194,7 +196,8 @@ export default {
             loading_queue: {},
             loading_timeout: 0,
             max_loading_time: 30000, //30 seconds
-            min_loading_time: 500
+            min_loading_time: 500,
+            display_menu: false
         };
     },
     computed: {
@@ -216,6 +219,9 @@ export default {
         }
     },
     methods: {
+        toggleMenu: function(){
+            this.display_menu = !this.display_menu;
+        },
         startLoading: function({ key, message }) {
             this.addToLoadingQueue(key, message);
         },

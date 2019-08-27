@@ -309,7 +309,7 @@ const TEST_RAC_TOOLS = [
         name: "issi_data_package",
         author: "CADRE Team",
         description: "Get my data ready for the demo",
-        output_files: ["issi_tutorial"]
+        output_files: ["data"]
     },
     // {
     //     tool_id: "11234221126",
