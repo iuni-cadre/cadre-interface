@@ -229,9 +229,9 @@ const TEST_RAC_PACKAGES = [
 
     {
         package_id: "234221134",
-        name: "Xnet Communities Package",
+        name: "xnet2_communities_wordcloud Package",
         author: "CADRE Team",
-        created_date: "2019-08-22 13:37:15",
+        created_date: "2019-08-27 14:13:28",
         tools: ["11234221126"],
         input_files: ["results.xnet"]
     },
@@ -241,6 +241,16 @@ const TEST_RAC_PACKAGES = [
         author: "CADRE Team",
         created_date: "2019-08-22 13:37:15",
         tools: ["11234221127"],
+        input_files: ["results.xnet"]
+    },
+
+
+    {
+        package_id: "234221137",
+        name: "xnet2_figure_package ",
+        author: "CADRE Team",
+        created_date: "2019-08-22 13:37:15",
+        tools: ["11234221129"],
         input_files: ["results.xnet"]
     },
 
@@ -294,8 +304,8 @@ const TEST_RAC_TOOLS = [
         tool_id: "11234221126",
         name: "xnet2_communities",
         author: "CADRE Team",
-        description: "Sends query to xnet package.",
-        output_files: ["result.xnet"]
+        description: "Generate word cloud for all the different xnet communites.",
+        output_files: ["word_cloud.pdf"]
     },
     {
         tool_id: "11234221127",
@@ -310,6 +320,13 @@ const TEST_RAC_TOOLS = [
         author: "CADRE Team",
         description: "Get my data ready for the demo",
         output_files: ["data"]
+    },
+    {
+        tool_id: "11234221129",
+        name: "xnet2_figure_package ",
+        author: "CADRE Team",
+        description: "convert my xnet file to a figure",
+        output_files: ["figure.pdf"]
     },
     // {
     //     tool_id: "11234221126",

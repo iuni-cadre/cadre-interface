@@ -13,7 +13,7 @@
                                     @click="selectDataset(id)">
                                 <span v-text="dataset.name"></span>
                                 <span class="checkbox">
-                                    <fa :icon="['far', (id === selected_dataset?'check-square':'square')]" />
+                                    <fa :icon="['far', (id === selected_dataset?'dot-circle':'circle')]" />
                                 </span>
                             </button>
 
@@ -65,6 +65,12 @@ export default {
     },
     components: {
         QueryBuilderHeader
+    },
+    mounted: function(){
+        if( !this.selected_dataset )
+        {
+            this.selectDataset("mag");
+        }
     }
 };
 </script>
