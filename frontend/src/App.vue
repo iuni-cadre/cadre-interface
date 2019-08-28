@@ -201,7 +201,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("user", ["authToken", "decodedUsername"]),
+        ...mapGetters("user", ["authToken", "decodedUsername", "roles"]),
         token: function() {
             return this.authToken;
         },

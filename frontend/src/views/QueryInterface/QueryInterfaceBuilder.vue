@@ -353,7 +353,7 @@ export default {
             let fields_obj = {};
 
             for (let field of fields) {
-                console.debug(field.type);
+                // console.debug(field.type);
                 if (field.type == "single") {
                     fields_obj[field.field] = field;
                 }
