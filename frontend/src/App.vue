@@ -75,7 +75,7 @@
                  class="d-flex justify-content-center construction alert-warning">
             <!-- <img src="@/assets/under_construction.gif" /> -->
 
-            <b>Work In Progress: </b> This application is currently under development. Design, features, and functionality will likely change prior to release.
+            <b>Work In Progress:&nbsp;</b> This application is currently under development. Design, features, and functionality will likely change prior to release.
 
         </section>
 
@@ -88,8 +88,8 @@
                      :isLoading="is_loading" />
 
         <template v-if="error_message">
-            <div class="container">
-                <div class="alert alert-danger pt-3">Error: <span v-text="error_message"></span></div>
+            <div class="container pt-3">
+                <div class="alert alert-danger">Error: <span v-text="error_message"></span></div>
             </div>
         </template>
         <template v-if="!token">

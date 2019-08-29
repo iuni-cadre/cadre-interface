@@ -446,7 +446,7 @@ export default {
             if(confirmed)
             {
                 console.error("Here we go...");
-                for(let i = 0; i < 8; i++)
+                for(let i = 0; i < 80; i++)
                 {
                     console.warn("Sending query " + i);
                     this.sendQuery(true);
