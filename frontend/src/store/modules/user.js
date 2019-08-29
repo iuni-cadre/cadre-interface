@@ -8,7 +8,7 @@ const TEST_USER = {
     username: "test-user",
     // roles: ["wos_gold"],
     roles: [],
-    token: "fake_token"
+    token: false //"fake_token"
 };
 
 const HEARTBEAT_INTERVAL = 60000;

@@ -191,7 +191,7 @@ $size: 300px;
         transform: rotate(385deg);
     }
     100% {
-        transform: rotate(-25deg);
+        transform: rotate(25deg);
     }
 }
 

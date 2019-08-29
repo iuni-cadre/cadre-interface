@@ -75,7 +75,7 @@
                  class="d-flex justify-content-center construction alert-warning">
             <!-- <img src="@/assets/under_construction.gif" /> -->
 
-            <b>Work In Progress:</b> This application is currently under development. Design, features, and functionality will likely change prior to release.
+            <b>Work In Progress: </b> This application is currently under development. Design, features, and functionality will likely change prior to release.
 
         </section>
 
@@ -87,15 +87,18 @@
                      @stopLoading="stopLoading"
                      :isLoading="is_loading" />
 
-        <template v-else-if="error_message">
+        <template v-if="error_message">
             <div class="container">
-                <div class="alert alert-danger">Error: <span v-text="error_message"></span></div>
+                <div class="alert alert-danger pt-3">Error: <span v-text="error_message"></span></div>
             </div>
         </template>
-        <template v-else>
-            <div class="container">
-                Loading...
-            </div>
+        <template v-if="!token">
+            <div class="container pt-3">
+                <div class="alert alert-info">
+                    You are not logged in.  You can log in <a class=""
+                           :href="login_url"><span class="">here</span></a>.
+                    </div>
+                </div>
         </template>
 
         <div v-if="is_loading"
