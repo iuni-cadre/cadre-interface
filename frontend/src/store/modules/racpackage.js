@@ -198,6 +198,7 @@ export default {
 };
 
 const TEST_RAC_PACKAGES = [
+
     {
         package_id: "234221136",
         name: "ISSI Data Package",
@@ -206,6 +207,39 @@ const TEST_RAC_PACKAGES = [
         tools: ["11234221128"],
         input_files: ["data.tar"]
         // output_files: 2
+    },
+    {
+        package_id: "234221133",
+        name: "Query 2 Xnet Package",
+        author: "CADRE Team",
+        created_date: "2019-08-22 13:37:15",
+        tools: ["11234221125"],
+        input_files: ["/dataset.csv", "/dataset_edges.csv"]
+        // output_files: 1 // extension .xnet
+    },
+    {
+        package_id: "234221135",
+        name: "Xnet Word Cloud",
+        author: "CADRE Team",
+        created_date: "2019-08-22 13:37:15",
+        tools: ["11234221127"],
+        input_files: ["results.xnet"]
+    },
+    {
+        package_id: "234221137",
+        name: "Xnet2 Figure Package ",
+        author: "CADRE Team",
+        created_date: "2019-08-22 13:37:15",
+        tools: ["11234221129"],
+        input_files: ["results.xnet"]
+    },
+    {
+        package_id: "234221134",
+        name: "Xnet2 Communities Wordcloud Package",
+        author: "CADRE Team",
+        created_date: "2019-08-27 14:13:28",
+        tools: ["11234221126"],
+        input_files: ["results.xnet"]
     },
     {
         package_id: "234221132",
@@ -217,42 +251,8 @@ const TEST_RAC_PACKAGES = [
         // output_files: 2
     },
 
-    {
-        package_id: "234221133",
-        name: "Query2 Xnet Package",
-        author: "CADRE Team",
-        created_date: "2019-08-22 13:37:15",
-        tools: ["11234221125"],
-        input_files: ["/dataset.csv", "/dataset_edges.csv"]
-        // output_files: 1 // extension .xnet
-    },
-
-    {
-        package_id: "234221134",
-        name: "xnet2_communities_wordcloud Package",
-        author: "CADRE Team",
-        created_date: "2019-08-27 14:13:28",
-        tools: ["11234221126"],
-        input_files: ["results.xnet"]
-    },
-    {
-        package_id: "234221135",
-        name: "Xnet Word Cloud",
-        author: "CADRE Team",
-        created_date: "2019-08-22 13:37:15",
-        tools: ["11234221127"],
-        input_files: ["results.xnet"]
-    },
 
 
-    {
-        package_id: "234221137",
-        name: "xnet2_figure_package ",
-        author: "CADRE Team",
-        created_date: "2019-08-22 13:37:15",
-        tools: ["11234221129"],
-        input_files: ["results.xnet"]
-    },
 
 
 

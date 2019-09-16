@@ -102,7 +102,7 @@
                                 <span>Degrees:</span>
                                 <span v-for="degree in [1, 2]"
                                       :key="`${field.field}_degree_${degree}`">
-                                    <!-- <label class="btn ml-3 mb-0"
+                                    <label class="btn ml-3 mb-0"
                                             :title=" degree > 1 ? 'Coming Soon...': ''"
                                            :class="{
                                                     'disabled': selected_fields.indexOf(field.field) == -1 || degree > 1,
@@ -116,8 +116,8 @@
                                                v-model="network_field_degrees[field.field]"
                                                :value="degree" />
                                         <span v-text="degree"></span>
-                                    </label> -->
-                                    <label class="btn ml-3 mb-0"
+                                    </label>
+                                    <!-- <label class="btn ml-3 mb-0"
                                            :class="{
                                                     'disabled': selected_fields.indexOf(field.field) == -1,
                                                     'btn-outline-primary': network_field_degrees[field.field] != degree,
@@ -130,7 +130,7 @@
                                                v-model="network_field_degrees[field.field]"
                                                :value="degree" />
                                         <span v-text="degree"></span>
-                                    </label>
+                                    </label> -->
                                 </span>
                             </div>
                         </div>
