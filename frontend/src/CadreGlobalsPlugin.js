@@ -2,6 +2,10 @@
 
 // import $axios from "axios";
 import $config from "../../conf/frontend.config.json";
+// import CryptoJS from "crypto-js";
+
+import Base32 from "hi-base32";
+
 // import Moment from "moment";
 export default {
     $store: undefined,
@@ -45,12 +49,10 @@ export default {
         //   // something logic ...
         // }
 
-
         /* axios proxy so that I don't have to add the auth-token header on every single request.  DRY. */
         function axiosWithAuthToken(options) {
             return cadreGlobals.axiosProxy(options);
         }
-
 
         function changeBaseURL(baseURL) {
             try {
@@ -68,15 +70,23 @@ export default {
         }
 
         let cadre_global_functions = {
-            axios: (options)=>{return this.axiosProxy(options)},
-            racAxios: (options)=>{return this.racAxios(options)},
-            qbAxios: (options)=>{return this.qbAxios(options)},
-            authAxios: (options)=>{return this.authAxios(options)},
+            axios: options => {
+                return this.axiosProxy(options);
+            },
+            racAxios: options => {
+                return this.racAxios(options);
+            },
+            qbAxios: options => {
+                return this.qbAxios(options);
+            },
+            authAxios: options => {
+                return this.authAxios(options);
+            },
             cloneObject: function(o) {
                 return cadreGlobals.cloneObject(o);
             },
             debounce: debounce,
-            changeBaseURL: changeBaseURL,
+            changeBaseURL: changeBaseURL
             // startLoading: function(key) {
             //     cadreGlobals.$store.commit("startLoading", key);
             // },
@@ -95,7 +105,6 @@ export default {
         })();
 
         Vue.$cadreConfig = Vue.prototype.$cadreConfig;
-
     },
     cloneObject: function(object) {
         if (object) {
@@ -107,7 +116,28 @@ export default {
         }
         return object;
     },
+    // base64encode: function(rawStr) {
 
+    //     let wordArray = CryptoJS.enc.Utf8.parse(rawStr);
+    //     let base64 = CryptoJS.enc.Base64.stringify(wordArray);
+    //     base64 = base64.replace(/\+/g, "-");
+    //     base64 = base64.replace(/\//g, "_");
+    //     return base64;
+    // },
+    // base64decode: function(base64) {
+    //     base64 = base64.replace(/-/g, "+");
+    //     base64 = base64.replace(/_/g, "/");
+    //     let parsedWordArray = CryptoJS.enc.Base64.parse(base64);
+    //     let parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
+    //     return parsedStr;
+    // },
+    base32encode: function(string){
+        return Base32.encode(string).toLowerCase();
+    },
+    base32decode: function(base32str)
+    {
+        return Base32.decode(base32str.toUpperCase());
+    },
     axios: function(options) {
         return this.axiosProxy(options);
     },
@@ -126,25 +156,21 @@ export default {
     axiosProxy: function(options) {
         options.headers = options.headers || {};
 
-        if(!options.headers["auth-token"])
-        {
+        if (!options.headers["auth-token"]) {
             if (!this.$store || !this.$store.getters || !this.$store.getters["user/authToken"]) {
                 // throw new Error("No auth token found");
                 console.info("No auth token found.");
             }
-            options.headers["auth-token"] = options.headers["auth-token"] || this.$store.getters['user/authToken'];
+            options.headers["auth-token"] = options.headers["auth-token"] || this.$store.getters["user/authToken"];
         }
 
-        if(!options.headers["auth-username"])
-        {
+        if (!options.headers["auth-username"]) {
             if (!this.$store || !this.$store.getters || !this.$store.getters["user/username"]) {
                 // throw new Error("No auth token found");
                 console.info("No auth token found.");
             }
-            options.headers["auth-username"] = options.headers["auth-username"] || this.$store.getters['user/username'];
+            options.headers["auth-username"] = options.headers["auth-username"] || this.$store.getters["user/username"];
         }
-
-
 
         var cadreGlobals = this;
         if ($config.show_log) {
@@ -176,7 +202,6 @@ export default {
                         console.debug("Unauthorized");
                         // cadreGlobals.$store.commit("invalidateToken");
                     }
-
 
                     // console.debug(error);
                     reject(error);

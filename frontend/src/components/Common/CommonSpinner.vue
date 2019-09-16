@@ -180,6 +180,7 @@ $size: 300px;
 } */
 .owl {
     animation: spin 4s infinite linear;
+    // transform: rotate(-20deg)
 }
 .circle {
     animation: spinother 2s infinite linear;
@@ -187,10 +188,10 @@ $size: 300px;
 
 @keyframes spin {
     0% {
-        transform: rotate(360deg);
+        transform: rotate(385deg);
     }
     100% {
-        transform: rotate(0deg);
+        transform: rotate(25deg);
     }
 }
 

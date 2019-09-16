@@ -17,15 +17,17 @@
                          alt="CADRE" /><span class="d-none">CADRE</span></router-link>
                 <button class="navbar-toggler"
                         type="button"
+                        @click="toggleMenu"
                         data-toggle="collapse"
                         data-target="#navbarSupportedContent"
                         aria-controls="navbarSupportedContent"
                         aria-expanded="false"
                         aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+                    <span class="navbar-toggler-icon"><fa icon="bars" /></span>
                 </button>
 
                 <div class="collapse navbar-collapse"
+                    :class="{'show': display_menu}"
                      id="navbarSupportedContent">
                     <ul class="navbar-nav mr-auto">
                         <!-- {% for page in pages.children if page.header.main == true %} -->
@@ -35,19 +37,19 @@
                         <!-- {% endfor %} -->
 
                         <li class="nav-item">
-                            <router-link :to="{name: 'query-builder-builder'}"
+                            <router-link class="p-3 p-md-0 d-inline-block" :to="{name: 'query-builder-builder'}"
                                          target="">Query Interface</router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link :to="{name: 'jupyter-hub'}"
+                            <router-link class="p-3 p-md-0 d-inline-block" :to="{name: 'jupyter-hub'}"
                                          target="">Jupyter Notebook</router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link :to="{name: 'rac-marketplace'}"
-                                         target="">RAC Marketplace</router-link>
+                            <router-link class="p-3 p-md-0 d-inline-block" :to="{name: 'rac-marketplace'}"
+                                         target="">Marketplace</router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link :to="{name: 'jobs-list'}"
+                            <router-link class="p-3 p-md-0 d-inline-block" :to="{name: 'jobs-list'}"
                                          target="">Job Status</router-link>
                         </li>
 
@@ -55,13 +57,13 @@
 
                     <div v-if="!token">
                         <a class="btn get-started-button"
-                           :href="login_url">Login</a>
+                           :href="login_url"><span class="p-3 p-md-0 d-inline-block">Login</span></a>
                     </div>
                     <div v-else>
-                        Logged in as <span v-text="username"></span>
+                        Logged in as <span v-text="decodedUsername"></span>
                         &nbsp;
                         <a class="btn get-started-button"
-                           :href="logout_url">Logout</a>
+                           @click="logout"><span class="p-3 p-md-0 d-inline-block">Logout</span></a>
                     </div>
 
                 </div>
@@ -73,7 +75,7 @@
                  class="d-flex justify-content-center construction alert-warning">
             <!-- <img src="@/assets/under_construction.gif" /> -->
 
-            <b>Work In Progress:</b>  This application is currently under development.  Design, features, and functionality will likely change prior to release.
+            <b>Work In Progress:&nbsp;</b> This application is currently under development. Design, features, and functionality will likely change prior to release.
 
         </section>
 
@@ -85,15 +87,18 @@
                      @stopLoading="stopLoading"
                      :isLoading="is_loading" />
 
-        <template v-else-if="error_message">
-            <div class="container">
+        <template v-if="error_message">
+            <div class="container pt-3">
                 <div class="alert alert-danger">Error: <span v-text="error_message"></span></div>
             </div>
         </template>
-        <template v-else>
-            <div class="container">
-                Loading...
-            </div>
+        <template v-if="!token">
+            <div class="container pt-3">
+                <div class="alert alert-info">
+                    You are not logged in.  You can log in <a class=""
+                           :href="login_url"><span class="">here</span></a>.
+                    </div>
+                </div>
         </template>
 
         <div v-if="is_loading"
@@ -103,7 +108,7 @@
                 <div class="icon">
                     <!-- <fa icon="circle-notch"
                         spin /> -->
-                        <spinner></spinner>
+                    <spinner></spinner>
                 </div>
                 <div v-for="(item, index) in loading_queue"
                      :key="`loading_${index}`"
@@ -113,31 +118,31 @@
 
         <footer id="main-footer">
             <div class="container">
-                <div class="logos d-flex justify-content-between align-items-center">
-                    <div class="">
+                <div class="logos d-flex flex-wrap flex-md-nowrap justify-content-between align-items-center">
+                    <!-- <div class=""> -->
                         <a href="https://cadre.iu.edu"
-                           class="cadre-logo"><img src="@/assets/img/logo-and-type.svg"
+                           class="cadre-logo"><img src="@/assets/img/cadre-logo.png"
                                  alt="CADRE" /><span class="d-none">CADRE</span></a>
 
-                    </div>
+                    <!-- </div> -->
                     <!-- <div class="">
                         &copy; <a href="https://iuni.iu.edu">Indiana University Network Science Institute</a>
                     </div> -->
-                    <div class="">
+                    <!-- <div class=""> -->
                         <a href="https://www.btaa.org/"
                            class="btaa-logo"><img src="@/assets/img/btaa-logo.png"
                                  alt="BTAA" /><span class="d-none">BTAA</span></a>
-                    </div>
-                    <div class="">
+                    <!-- </div> -->
+                    <!-- <div class=""> -->
                         <a href="https://libraries.indiana.edu/"
                            class="libraries-logo"><img src="@/assets/img/iu-libraries-logo.png"
                                  alt="IU Libraries" /><span class="d-none">IU Libraries</span></a>
-                    </div>
-                    <div class="">
+                    <!-- </div> -->
+                    <!-- <div class=""> -->
                         <a href="https://iuni.iu.edu"
                            class="iuni-logo"><img src="@/assets/img/iuni-logo.png"
                                  alt="IUNI" /><span class="d-none">IUNI</span></a>
-                    </div>
+                    <!-- </div> -->
 
                     <!-- {% for page in pages.children if page.header.main == true %}
             <div class="col">
@@ -181,8 +186,10 @@
     </div>
 </template>
 <script>
-
 import Spinner from "@/components/Common/CommonSpinner";
+
+// import CryptoJS from "crypto-js";
+import Base32 from "hi-base32";
 
 import { mapGetters } from "vuex";
 export default {
@@ -192,11 +199,12 @@ export default {
             loading_queue: {},
             loading_timeout: 0,
             max_loading_time: 30000, //30 seconds
-            min_loading_time: 500
+            min_loading_time: 500,
+            display_menu: false
         };
     },
     computed: {
-        ...mapGetters("user", ["authToken", "username"]),
+        ...mapGetters("user", ["authToken", "decodedUsername", "roles"]),
         token: function() {
             return this.authToken;
         },
@@ -214,6 +222,9 @@ export default {
         }
     },
     methods: {
+        toggleMenu: function(){
+            this.display_menu = !this.display_menu;
+        },
         startLoading: function({ key, message }) {
             this.addToLoadingQueue(key, message);
         },
@@ -289,15 +300,58 @@ export default {
                     console.error("Could not validate token.", error);
                 }
             );
+        },
+
+        logout: function() {
+            this.startLoading("logout");
+
+            let logout_prom = this.$store.dispatch("user/logout");
+
+            logout_prom.then(
+                response => {
+                    window.location.href = this.$cadreConfig.logout_url;
+                },
+                error => {
+                    this.error_message = "Could not log out.";
+                }
+            );
+
+            logout_prom.finally(() => {
+                this.stopLoading("logout");
+            });
         }
     },
     mounted: function() {
         // this.addToLoadingQueue("test");
         this.addToLoadingQueue("initialize");
         this.validate();
+
+        // let encoded = Base32.encode('this is a test');
+        // console.debug(encoded);
+
+        // console.debug(Base32.decode('MNYGK3DJNNQW4'));
+
+        // var rawStr = "hello world!";
+        // var wordArray = CryptoJS.enc.Utf8.parse(rawStr);
+        // var base64 = CryptoJS.enc.Base64.stringify(wordArray);
+        // console.log("encrypted:", base64);
+
+        // //decrypt
+        // // var parsedWordArray = CryptoJS.enc.Base64.parse(base64);
+        // var parsedWordArray = CryptoJS.enc.Base64.parse("YW55IGNhcm5hbCBwbGVhcw==");
+        // var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
+        // console.log("parsed:", parsedStr);
+        // var parsedWordArray = CryptoJS.enc.Base64.parse("YW55IGNhcm5hbCBwbGVhcw=");
+        // var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
+        // console.log("parsed:", parsedStr);
+        // var parsedWordArray = CryptoJS.enc.Base64.parse("YW55IGNhcm5hbCBwbGVhcw");
+        // var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
+        // console.log("parsed:", parsedStr);
+        // var parsedWordArray = CryptoJS.enc.Base64.parse("YW55IGNhcm5hbCBwbGVhcw===");
+        // var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
+        // console.log("parsed:", parsedStr);
     },
-    components:
-    {
+    components: {
         Spinner
     },
     watch: {
@@ -347,33 +401,22 @@ export default {
     max-width: 100%;
 }
 
-#main-footer
-{
-    .logos
-    {
+#main-footer {
+    .logos {
         position: relative;
-        max-height: 80px;
+        max-width: 100%;
+        // border: solid blue 1px;
+    }
+    .logos a {
+        // border: solid blue 1px;
+        display: block;
+        padding:  1rem;
     }
     .logos img
     {
-        max-height: 80px;
+        // border: solid blue 1px;
         max-width: 100%;
-        // height: 80px;
-        // width: auto;
-        // margin: 1rem;
-        // max-height: 80px;
-        // max-width: 100%;
     }
-    .logos .cadre-logo img
-    {
-        // height: 100%;
-        // max-height: 160px;
-        // height: 160px;
-        // width: 200%;
-    }
-    .logos .iuni-logo img
-    {
-        padding: 12px;
-    }
+
 }
 </style>

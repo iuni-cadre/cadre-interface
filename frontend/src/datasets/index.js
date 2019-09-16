@@ -6,11 +6,13 @@ export default{
     "wos": {
         name: "Web of Science",
         fields: WoS_Fields,
-        description: "Metadata for scholarly papers and their authors"
+        description: "Metadata for scholarly papers and their authors",
+        allowed_roles: ["wos_gold", "wos_limited"]
     },
     "mag": {
         name: "Microsoft Academic Graph",
         fields: MAG_Fields,
-        description: "Metadata for scholarly papers and their authors"
+        description: "Metadata for scholarly papers and their authors",
+        allowed_roles: []
     }
 }

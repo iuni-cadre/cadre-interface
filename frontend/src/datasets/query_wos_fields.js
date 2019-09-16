@@ -123,11 +123,16 @@ export default {
             label: "authors_email",
             type: 'single'
         },
-        {
-            field: 'references',
-            label: "references",
-            type: 'network'
-        },
+        // {
+        //     field: 'references',
+        //     label: "Citation Network",
+        //     type: 'network'
+        // },
+        // {
+        //     field: 'references',
+        //     label: "references",
+        //     type: 'single'
+        // },
         {
             field: 'issn',
             label: "issn",
@@ -189,6 +194,6 @@ export default {
         "wos_id",
         "year",
         "authors_full_name",
-        "references"
+        // "references"
     ]
 };

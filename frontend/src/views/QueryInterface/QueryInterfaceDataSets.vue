@@ -6,20 +6,43 @@
                 <h2>Choose a Dataset</h2>
                 <div class="card p-3">
                     <template v-for="(dataset, id) in datasets">
-                        <div :key="`dataset_${id}`"
+                        <div v-if="can_access_dataset(id)"
+                             :key="`dataset_${id}`"
                              class="d-flex">
                             <button class="btn m-3 p-3 d-flex align-items-center col-4 justify-content-between"
                                     :class="dataset_button_styles(id)"
                                     @click="selectDataset(id)">
                                 <span v-text="dataset.name"></span>
                                 <span class="checkbox">
-                                    <fa :icon="['far', (id === selected_dataset?'check-square':'square')]" />
+                                    <fa :icon="['far', (id === selected_dataset?'dot-circle':'circle')]" />
                                 </span>
                             </button>
 
                             <p class="m-3"
                                v-text="dataset.description || ''">
                             </p>
+                        </div>
+
+                        <div v-else
+                             :key="`dataset_${id}`"
+                             class="d-flex disabled dataset-disabled">
+                            <button disabled
+                                    class="btn m-3 p-3 d-flex align-items-center col-4 justify-content-between disabled"
+                                    :class="dataset_button_styles(id)">
+                                <span v-text="dataset.name"></span>
+                                <span class="checkbox">
+                                    <fa :icon="['far', (id === selected_dataset?'dot-circle':'circle')]" />
+                                </span>
+                            </button>
+
+                            <div class="p-3">
+                                <p class="m-0 text-muted">
+                                    Dataset is unavailable
+                                </p>
+                                <p class="m-0 text-muted"
+                                   v-text="dataset.description || ''">
+                                </p>
+                            </div>
                         </div>
                     </template>
 
@@ -56,6 +79,24 @@ export default {
                     return unselected_styles;
                 }
             };
+        },
+        can_access_dataset: function() {
+            let user_roles = this.$store.getters["user/roles"];
+            return function(dataset_id) {
+                let allow = false;
+                let dataset_roles = Datasets[dataset_id].allowed_roles;
+
+                //short circuit... if dataset has no allowed roles, it's open for all
+                if (dataset_roles.length == 0) {
+                    return true;
+                }
+                //check all my roles.  If at least one of my roles is allowed for this data set, return true
+                for (let role of user_roles) {
+                    if (dataset_roles.indexOf(role) > -1) {
+                        return true;
+                    }
+                }
+            };
         }
     },
     methods: {
@@ -65,9 +106,22 @@ export default {
     },
     components: {
         QueryBuilderHeader
+    },
+    mounted: function() {
+        if (!this.selected_dataset) {
+            this.selectDataset("mag");
+        }
     }
 };
 </script>
 
-<style>
+<style scoped>
+.dataset-disabled,
+.dataset-disabled button {
+    cursor: not-allowed;
+}
+.dataset-disabled
+{
+    opacity: .5;
+}
 </style>

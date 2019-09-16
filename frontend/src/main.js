@@ -9,11 +9,11 @@ import VueAxios from "vue-axios";
 import Config from "../../conf/frontend.config.json";
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faCircleNotch, faSpinner, faAtom, faCompactDisc, faExclamationTriangle} from '@fortawesome/free-solid-svg-icons';
-import { faSquare, faCheckSquare } from '@fortawesome/free-regular-svg-icons';
+import { faCircleNotch, faSpinner, faAtom, faCompactDisc, faExclamationTriangle, faSyncAlt, faTrashAlt, faBars, faHamburger} from '@fortawesome/free-solid-svg-icons';
+import { faSquare, faCheckSquare, faCircle, faDotCircle } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
-library.add(faSpinner, faCircleNotch, faAtom, faCompactDisc, faSquare, faCheckSquare, faExclamationTriangle);
+library.add(faSpinner, faCircleNotch, faAtom, faCompactDisc, faSquare, faCheckSquare, faExclamationTriangle, faSyncAlt, faTrashAlt, faBars, faHamburger, faCircle, faDotCircle);
 
 Vue.component('fa', FontAwesomeIcon);
 

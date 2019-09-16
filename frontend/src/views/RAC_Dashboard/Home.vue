@@ -5,26 +5,52 @@
 
             <hr />
 
-            <div>
+            <h3>Quick Start</h3>
+            <div class="py-3 row quick-start">
                 <!-- <button @click="goToQueryInterface()" class="btn btn-primary">Query Interface</button>
             &nbsp;&nbsp;
             <button @click="goToNotebook()" class="btn btn-primary">Jupyter Notebook</button> -->
                 <router-link :to="{name: 'query-builder'}"
                              target=""
-                             class="btn btn-primary">Query Interface</router-link>
+                             class="col d-flex">
+                    <div class="card flex-fill">
+                        <h4 class="btn btn-primary btn-lg">Query Interface</h4>
+                        <p>
+                            Pick a dataset and run a search query.
+                        </p>
+                    </div>
+                </router-link>
                 <!-- <a target="_blank" :href="`${this.query_interface_url}?username=${this.username}&token=${this.token}`" class="btn btn-primary">Query Interface</a> -->
-                &nbsp;&nbsp;
+
                 <!-- <a :href="" class="btn btn-primary">Jupyter Notebook</a> -->
                 <router-link :to="{name: 'jupyter-hub'}"
                              target=""
-                             class="btn btn-primary">Jupyter Notebook</router-link>
+                             class="col d-flex">
+                    <div class="card flex-fill">
+                        <h4 class="btn btn-primary btn-lg">Jupyter Notebook</h4>
+                        <p>
+                            Open a notebook environment to perform complex analytics on CADRE query results
+                        </p>
+                    </div>
+                </router-link>
 
-                &nbsp;&nbsp;
-
-                <router-link :to="{name: 'rac-marketplace'}"
-                             target=""
-                             class="btn btn-primary">RAC Marketplace</router-link>
             </div>
+            <hr />
+            <h3>Top Packages</h3>
+            &nbsp;&nbsp;
+            <div class="row flex-wrap d-flex mb-3">
+                <div v-for="(racpackage, index) in racpackages"
+                     :key="`racpackage_card_${index}`"
+                     class="col-md-4 flex-fill d-flex">
+                    <rac-package-card @startLoading="(data)=>{ $emit('startLoading', data); }"
+                                      @stopLoading="(data)=>{ $emit('stopLoading', data); }"
+                                      :rac-package="racpackage"></rac-package-card>
+                </div>
+
+            </div>
+            <router-link :to="{name: 'rac-marketplace'}"
+                         target=""
+                         class="btn btn-primary">Visit Full RAC Marketplace</router-link> <span class="ml-3 d-inline-block"><span v-text="racpackages_total_count"></span> Total Packages</span>
             <!-- <div>
             {{jupyter_full_url}}
         </div> -->
@@ -32,6 +58,11 @@
     </section>
 </template>
 <script>
+import Modal from "@/components/Common/CommonModal";
+import RacPackageCard from "@/components/Marketplace/MarketplaceRacPackageCard";
+
+const RAC_PACKAGES_TO_SHOW = 3;
+
 export default {
     data: function() {
         return {};
@@ -51,6 +82,13 @@ export default {
         },
         username: function() {
             return this.$store.getters["user/username"];
+        },
+
+        racpackages: function() {
+            return this.$store.getters["racpackage/packages"].slice(0, RAC_PACKAGES_TO_SHOW);
+        },
+        racpackages_total_count: function() {
+            return this.$store.getters["racpackage/packages"].length;
         }
     },
     methods: {
@@ -62,9 +100,29 @@ export default {
             this.$router.push({ name: "jupyter-hub" });
         }
     },
-    mounted: function() {}
+    components: {
+        Modal,
+        RacPackageCard
+    },
+    mounted: function() {
+        if (this.racpackages.length === 0) {
+            this.$emit("startLoading", { key: "get_packages", message: "" });
+            let get_packages_prom = this.$store.dispatch(
+                "racpackage/getPackages"
+            );
+            let get_tools_prom = this.$store.dispatch("racpackage/getTools");
+            Promise.all([get_packages_prom, get_tools_prom]).finally(() => {
+                //stop loading
+                this.$emit("stopLoading", { key: "get_packages" });
+            });
+        }
+    }
 };
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
+.quick-start > a
+{
+    text-decoration: none;
+}
 </style>
 

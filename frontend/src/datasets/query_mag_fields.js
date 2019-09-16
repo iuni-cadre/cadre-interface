@@ -41,11 +41,11 @@ export default {
             type: "single",
             label: "conference_instance_id"
         },
-        {
-            field: "paper_reference_id",
-            type: "single",
-            label: "paper_reference_id"
-        },
+        // {
+        //     field: "paper_reference_id",
+        //     type: "single",
+        //     label: "paper_reference_id"
+        // },
         {
             field: "field_of_study_id",
             type: "single",
@@ -176,6 +176,7 @@ export default {
         "year",
         "original_title",
         "authors_display_name",
+        "journal_display_name"
         // "author_id",
         // "citations"
     ]

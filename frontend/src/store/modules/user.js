@@ -2,6 +2,17 @@ import Globals from "../../CadreGlobalsPlugin";
 import axios from "axios";
 import Vue from "vue";
 
+import CryptoJS from "crypto-js";
+
+const TEST_USER = {
+    username: "test-user",
+    // roles: ["wos_gold"],
+    roles: [],
+    token: false //"fake_token"
+};
+
+const HEARTBEAT_INTERVAL = 60000;
+
 export default {
     namespaced: true,
     state: {
@@ -12,7 +23,7 @@ export default {
         token_is_valid: !!localStorage.getItem("token"),
         username: "",
         heartbeat_timer: 0,
-        heartbeat_interval: 30000
+        roles: []
     },
     getters: {
         tokenValid: function(state) {
@@ -33,6 +44,12 @@ export default {
         },
         username: function(state) {
             return state.username;
+        },
+        decodedUsername: function(state) {
+            return Globals.base32decode(state.username);
+        },
+        roles: function(state){
+            return state.roles;
         }
     },
     mutations: {
@@ -54,8 +71,10 @@ export default {
             state.isLoggedIn = false;
             state.auth_token = null;
             state.username = null;
+            Vue.set(state, "roles", []);
             localStorage.removeItem("token");
             localStorage.removeItem("username");
+            localStorage.removeItem("roles");
         },
         setToken: function(state, token) {
             state.auth_token = token;
@@ -75,9 +94,15 @@ export default {
             localStorage.removeItem("username");
             localStorage.setItem("username", username);
         },
+        setRoles: function(state, roles) {
+            Vue.set(state, "roles", roles);
+            localStorage.removeItem("roles");
+            localStorage.setItem("roles", roles);
+        },
         initializeToken: function(state) {
             state.auth_token = localStorage.getItem("token");
             state.username = localStorage.getItem("username");
+            state.roles = localStorage.getItem("roles");
         },
         invalidateToken: function(state) {
             state.token_is_valid = false;
@@ -95,7 +120,7 @@ export default {
                     method: "POST",
                     data: {
                         username: username
-                    },
+                    }
                 });
 
                 validate_prom.then(
@@ -105,13 +130,45 @@ export default {
                     error => {
                         console.warn(error);
 
-                        if(Vue.$cadreConfig.force_validation !== false)
-                        {
+                        if (Vue.$cadreConfig.force_validation !== false) {
                             commit("logout");
                         }
                     }
                 );
-            }, state.heartbeat_interval);
+            }, HEARTBEAT_INTERVAL);
+        },
+        logout: function({getters, commit}, payload) {
+            let username = getters.username;
+            let token = getters.authToken;
+            return new Promise((resolve, reject) => {
+                let validate_prom = Globals.authAxios({
+                    url: "/logout",
+                    method: "POST",
+                    data: {
+                        username: username
+                    },
+                    headers: {
+                        "auth-token": token,
+                        "auth-username": username
+                    }
+                });
+
+                validate_prom.then(
+                    response => {
+                        // dispatch("beatHeart");
+                        commit("logout");
+                        resolve(response)
+                    },
+                    error => {
+                        // console.warn(error);
+                        // if(Vue.$cadreConfig.force_validation !== false)
+                        // {
+                        //     commit("logout");
+                        // }
+                        reject(error);
+                    }
+                );
+            });
         },
         validateToken: function(context, payload) {
             //We must validate the token every time. If the token is not valid, it just gets removed.
@@ -135,9 +192,10 @@ export default {
                 });
 
                 if (Vue.$cadreConfig.force_validation === false) {
-                    context.commit("setToken", "fake");
-                    context.commit("setUsername", "fake");
-                    console.info("Token is valid");
+                    context.commit("setToken", TEST_USER.token);
+                    context.commit("setUsername", Globals.base32encode(TEST_USER.username));
+                    context.commit("setRoles", TEST_USER.roles);
+                    console.info("Fake user token is valid");
                     resolve({ msg: "Fake Validation" });
                 } else {
                     validate_prom.then(
@@ -146,6 +204,7 @@ export default {
                             context.commit("setToken", token);
                             context.commit("setJToken", j_token);
                             context.commit("setUsername", username);
+                            context.commit("setRoles", result.data.roles);
                             console.info("Token is valid");
                             resolve(result);
                         },

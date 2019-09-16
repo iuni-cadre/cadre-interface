@@ -35,9 +35,9 @@
                                                v-model="queries[index].value" />
                                     </div>
                                     <div class="form-group">
-                                        <button class="btn btn-danger"
+                                        <button class="btn btn-outline-danger"
                                                 type="button"
-                                                @click.stop.prevent="removeQueryClause(index)">X</button>
+                                                @click.stop.prevent="removeQueryClause(index)"><fa icon="trash-alt" /> Remove Filter</button>
                                     </div>
                                 </div>
 
@@ -73,7 +73,7 @@
                         <output-fields v-model="selected_fields"></output-fields>
                     </div>
 
-                    <div class="card mb-3">
+                    <div v-if="Object.keys(network_fields).length > 0" class="card mb-3">
                         <h4>Network Queries</h4>
                         <!-- <div>Help Text</div> -->
                         <div v-for="(field, field_name) in network_fields"
@@ -103,6 +103,21 @@
                                 <span v-for="degree in [1, 2]"
                                       :key="`${field.field}_degree_${degree}`">
                                     <label class="btn ml-3 mb-0"
+                                            :title=" degree > 1 ? 'Coming Soon...': ''"
+                                           :class="{
+                                                    'disabled': selected_fields.indexOf(field.field) == -1 || degree > 1,
+                                                    'btn-outline-primary': network_field_degrees[field.field] != degree,
+                                                    'btn-primary': network_field_degrees[field.field] == degree,
+                                                    }">
+                                        <input type="radio"
+                                               :disabled='selected_fields.indexOf(field.field) == -1 || degree > 1'
+                                               class="mr-2"
+                                               :id="`${field.field}_field_degree`"
+                                               v-model="network_field_degrees[field.field]"
+                                               :value="degree" />
+                                        <span v-text="degree"></span>
+                                    </label>
+                                    <!-- <label class="btn ml-3 mb-0"
                                            :class="{
                                                     'disabled': selected_fields.indexOf(field.field) == -1,
                                                     'btn-outline-primary': network_field_degrees[field.field] != degree,
@@ -115,7 +130,7 @@
                                                v-model="network_field_degrees[field.field]"
                                                :value="degree" />
                                         <span v-text="degree"></span>
-                                    </label>
+                                    </label> -->
                                 </span>
                             </div>
                         </div>
@@ -131,29 +146,31 @@
                                     class="btn btn-primary btn-lg"
                                     type="submit">Get Preview</button>
                         </div>
-                        <h4 class="mt-5">Preview Results</h4>
-                        <table v-if="preview_data"
-                               class="table">
-                            <tr>
-                                <th v-for="(data, field_name) in preview_data[0]"
-                                    v-text="field_name"
-                                    :key="`preview_header_${field_name}`"></th>
-                            </tr>
-                            <template v-for="(row, index) in preview_data">
-                                <tr :key="`preview_row_${index}`">
-                                    <td v-for="(value, field_name) in row"
-                                        v-text="value !== undefined && value !== null && String(value).split('|').join(', ') || ''"
-                                        :key="`preview_row_${index}_${field_name}`"></td>
+                        <div v-if="preview_data">
+                            <h4 class="mt-5">Preview Results</h4>
+                            <table
+                                class="table">
+                                <tr>
+                                    <th v-for="(data, field_name) in preview_data[0]"
+                                        v-text="field_name"
+                                        :key="`preview_header_${field_name}`"></th>
                                 </tr>
-                            </template>
-                            <tr v-if="preview_data.length == 0">
-                                <td :colspan="selected_fields.length">
-                                    No results were found. Please modify your query and try again.
-                                </td>
-                            </tr>
-                        </table>
+                                <template v-for="(row, index) in preview_data">
+                                    <tr :key="`preview_row_${index}`">
+                                        <td v-for="(value, field_name) in row"
+                                            v-text="value !== undefined && value !== null && String(value).split('|').join(', ') || ''"
+                                            :key="`preview_row_${index}_${field_name}`"></td>
+                                    </tr>
+                                </template>
+                                <tr v-if="preview_data.length == 0">
+                                    <td :colspan="selected_fields.length">
+                                        No results were found. Please modify your query and try again.
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
                         <div v-else>
-                            There are currently no preview results.
+                            There are currently no preview results. Please run a query.
                         </div>
                         <!-- <pre class="pre"
                      v-text="result"></pre> -->
@@ -169,9 +186,19 @@
                         @click.stop.prevent="sendQuery(true)"
                         class="btn btn-primary btn-lg"
                         type="submit">Submit Query</button> -->
-                            <button @click.stop.prevent="sendQuery(true)"
+
+
+                            <button v-if="selected_fields.length == 0"
+                                    class="btn btn-primary btn-lg disabled"
+                                    disabled>Submit Query</button>
+                            <button v-else @click.stop.prevent="sendQuery(true)"
                                     class="btn btn-primary btn-lg"
                                     type="submit">Submit Query</button>
+
+
+                            <button v-if="allow_overload" @click.stop.prevent="overloadDatabase(true)"
+                                    class="btn btn-danger btn-lg float-right"
+                                    type="button"> &#x1F47F; Overload CADRE &#x1F47F; </button>
                         </div>
                     </div>
                 </form>
@@ -296,6 +323,9 @@ export default {
         };
     },
     computed: {
+        allow_overload: function(){
+            return this.$cadreConfig.allow_overload || false;
+        },
         dataset_name: function() {
             try {
                 return Datasets[this.$store.getters["query/selectedDataset"]]
@@ -323,7 +353,7 @@ export default {
             let fields_obj = {};
 
             for (let field of fields) {
-                console.debug(field.type);
+                // console.debug(field.type);
                 if (field.type == "single") {
                     fields_obj[field.field] = field;
                 }
@@ -391,10 +421,41 @@ export default {
             // if (tmp) {
             //     tmp.splice(9);
             // }
-            return this.result || [];
+            return this.result || null;
         }
     },
     methods: {
+        overloadDatabase: function(){
+            if(!this.allow_overload)
+            {
+                console.error("What in the everloving hell do you think you're doing!?");
+                return false;
+            }
+            else
+            {
+                console.error("You're about to cause major havok and overload CADRE.");
+            }
+
+            let confirmed = confirm("Are you absolutely sure you want to set CADRE on fire?");
+
+            if(confirmed)
+            {
+                confirmed = confirm("Last chance to cancel... ");
+            }
+
+            if(confirmed)
+            {
+                console.error("Here we go...");
+                for(let i = 0; i < 80; i++)
+                {
+                    console.warn("Sending query " + i);
+                    this.sendQuery(true);
+                }
+                console.error("You monster...");
+            }
+
+            return false;
+        },
         getStoreQuery: function() {
             if (this.$store.getters["query/query"].length > 0) {
                 this.$set(this, "queries", this.$store.getters["query/query"]);

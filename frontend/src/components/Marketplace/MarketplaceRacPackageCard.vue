@@ -1,31 +1,33 @@
 <template>
-    <div>
-        <div class="racpackage-card card p-3">
-            <h4 v-text="racpackage.name">Package Name</h4>
-            <div class="small"
-                 v-text="`By: ${racpackage.author}`"></div>
-            <div class="small"
-                 v-text="`Created On: ${racpackage.created_date}`"></div>
-            <div class="racpackage-body row mt-3">
-                <div class="racpackage-info col">
-                    <dl>
-                        <dt class="mr-1">Tool: </dt>
-                        <dd class="ml-1 "
-                            v-text="tool_names"></dd>
+    <div class="flex-fill d-flex mb-3">
+        <div class="racpackage-card card p-3 flex-fill d-flex flex-column justify-content-between">
+            <div>
+                <h4 v-text="racpackage.name">Package Name</h4>
+                <div class="small"
+                     v-text="`By: ${racpackage.author}`"></div>
+                <div class="small"
+                     v-text="`Created On: ${racpackage.created_date}`"></div>
+                <div class="racpackage-body row mt-3">
+                    <div class="racpackage-info col jusify-content-between">
+                        <dl>
+                            <dt class="mr-1">Tool: </dt>
+                            <dd class="ml-1 "
+                                v-text="tool_names"></dd>
 
-                        <dt class="mr-1">Input Data: </dt>
-                        <dd class="ml-1 "
-                            v-text="input_files"></dd>
+                            <dt class="mr-1">Input Data: </dt>
+                            <dd class="ml-1 "
+                                v-text="input_files || 'No Input Data Required'"></dd>
 
-                    </dl>
+                        </dl>
 
-                </div>
-                <div class="col">
-                    <button class=" float-right btn-lg btn btn-primary"
-                            @click="show_run_modal = true">Run</button>
+                    </div>
+                    <!-- <div class="col">
+                </div> -->
                 </div>
             </div>
 
+            <button class=" float-right btn-lg btn btn-primary"
+                    @click="show_run_modal = true">Run</button>
         </div>
         <modal v-if="show_run_modal"
                @close="show_run_modal = false">
@@ -33,7 +35,7 @@
                 <!-- <pre v-text="racpackage"></pre> -->
                 <div class="card mb-3">
                     <div>
-                        Input Files: <strong v-text="input_files"></strong>
+                        Input Files: <strong v-text="input_files ||  'No Input Data Required'"></strong>
                     </div>
                 </div>
                 <div class="card mb-3">
@@ -43,10 +45,12 @@
 
                 </div>
                 <div class="form-group card">
-                    <label>Output Filenames</label>
-                    <ol class="pl-3">
+                    <label>Output Paths</label>
+
+                    <ol v-if="tool_output_files.length > 0"
+                        class="pl-3">
                         <li class="mb-1"
-                            v-for="(filename, index) in output_filenames"
+                            v-for="(filename, index) in tool_output_files"
                             :key="`filename_${index}`">
 
                             <div class="input-group">
@@ -62,6 +66,9 @@
                             </div>
                         </li>
                     </ol>
+                    <p v-else>
+                        This package does not require any output paths.
+                    </p>
                     <!-- <div class="d-flex justify-content-end text-right">
                         <button class="btn btn-outline-primary btn-sm"
                                 @click="addOutputFile"> + Add Additional Filename</button>
@@ -152,6 +159,17 @@ export default {
         },
         input_files: function() {
             return this.racpackage.input_files.join(", ");
+        },
+        tool_output_files: function() {
+            let output_files = [];
+            for (let tool_id of this.racpackage.tools) {
+                let tool = this.tool(tool_id);
+                if (tool) {
+                    output_files = [...output_files, ...tool.output_files];
+                }
+            }
+
+            return output_files;
         }
     },
     props: {
@@ -168,15 +186,14 @@ export default {
             for (let filename of this.output_filenames) {
                 if (filename.trim() == "") {
                     this.error = {
-                        error_message: "Output filename is empty."
+                        error_message: "Output path is empty."
                     };
                     return false;
                 }
             }
-            if (this.output_filenames.length != this.racpackage.output_files) {
+            if (this.output_filenames.length != this.tool_output_files.length) {
                 this.error = {
-                    error_message:
-                        "Must specify the correct number of filenames."
+                    error_message: "Must specify the correct number of paths."
                 };
                 return false;
             }
@@ -198,7 +215,7 @@ export default {
 
         runSuccess: function(response) {
             this.results = {
-                job_id: response.job_id,
+                job_id: response.job_id || (response[0] && response[0].job_id) || "Unknown",
                 success_message: "Package is running."
             };
             console.debug(this.results);
@@ -215,10 +232,10 @@ export default {
             this.$emit("stopLoading", { key: "running_package" });
         },
         initializeOutputFilenames: function() {
-            console.debug(this.racpackage);
+            // console.debug(this.racpackage);
             this.$set(this, "output_filenames", []);
-            for (let i = 0; i < this.racpackage.output_files; i++) {
-                this.output_filenames.push("");
+            for (let i = 0; i < this.tool_output_files.length; i++) {
+                this.output_filenames.push(this.tool_output_files[i]);
             }
         }
     },
