@@ -33,10 +33,6 @@ application = app = Flask(__name__,
 
 CORS(application)
 
-# This is the place where I am registering the blueprints
-from .routefunctions import rac_api
-app.register_blueprint(rac_api.blueprint)
-
 
 def send_post_proxy_request(url = "", payload = {}, headers = {}):
     try:
@@ -213,6 +209,10 @@ def index():
 def fallback(fallback):
     return render_template("/index.html")
 
+
+# This is the place where I am registering the blueprints
+from .routefunctions import rac_api
+app.register_blueprint(rac_api.blueprint)
 
 ########  ##     ## ##    ## 
 ##     ## ##     ## ###   ## 
