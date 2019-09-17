@@ -33,6 +33,11 @@ application = app = Flask(__name__,
 
 CORS(application)
 
+# This is the place where I am registering the blueprints
+from .routefunctions import rac_api
+app.register_blueprint(rac_api.blueprint)
+
+
 def send_post_proxy_request(url = "", payload = {}, headers = {}):
     try:
         r = requests.post(
@@ -80,8 +85,6 @@ def send_get_proxy_request(url = "", payload = {}, headers = {}):
         return jsonify({"error_message": "Proxy Error"}), 502
 
 
-
-
 ########     ###     ######        ###    ########  ####    ######## ##    ## ########  ########   #######  #### ##    ## ########  ######  
 ##     ##   ## ##   ##    ##      ## ##   ##     ##  ##     ##       ###   ## ##     ## ##     ## ##     ##  ##  ###   ##    ##    ##    ## 
 ##     ##  ##   ##  ##           ##   ##  ##     ##  ##     ##       ####  ## ##     ## ##     ## ##     ##  ##  ####  ##    ##    ##       
@@ -90,27 +93,24 @@ def send_get_proxy_request(url = "", payload = {}, headers = {}):
 ##    ##  ##     ## ##    ##    ##     ## ##         ##     ##       ##   ### ##     ## ##        ##     ##  ##  ##   ###    ##    ##    ## 
 ##     ## ##     ##  ######     ##     ## ##        ####    ######## ##    ## ########  ##         #######  #### ##    ##    ##     ######
 
-@application.route("/rac-api/new-notebook/<username>")
+# I have removed the @application.route to remove conflicts with blueprints
+
 def rac_api_new_notebook_username(username):
     return rac_api.new_notebook(username)
 
 
-@application.route("/rac-api/notebook-status/<username>")
 def rac_api_notebook_status_username(username):
     return rac_api.notebook_status(username)
 
 
-@application.route("/rac-api/get-new-notebook-token/<username>")
 def rac_api_get_new_notebook_token(username):
     return rac_api.get_new_notebook_token(username)
 
 
-@application.route("/rac-api/packages/run-package", methods=["POST"])
 def rac_api_run_package():
     return rac_api.run_package()
 
 
-@application.route("/rac-api/packages/get-packages")
 def rac_api_get_packages():
     return rac_api.get_packages()
 
@@ -208,6 +208,7 @@ def api_index(fallback=""):
 def index():
     return render_template("/index.html")
 
+
 @application.route("/<path:fallback>")
 def fallback(fallback):
     return render_template("/index.html")
@@ -216,7 +217,7 @@ def fallback(fallback):
 ########  ##     ## ##    ## 
 ##     ## ##     ## ###   ## 
 ##     ## ##     ## ####  ## 
-########  ##     ## ## ## ## 
+########  ##     ## ## ## ##
 ##   ##   ##     ## ##  #### 
 ##    ##  ##     ## ##   ### 
 ##     ##  #######  ##    ## 
