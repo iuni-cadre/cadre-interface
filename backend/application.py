@@ -211,7 +211,6 @@ def fallback(fallback):
 
 
 # This is the place where I am registering the blueprints
-from .routefunctions import rac_api
 app.register_blueprint(rac_api.blueprint)
 
 ########  ##     ## ##    ## 
