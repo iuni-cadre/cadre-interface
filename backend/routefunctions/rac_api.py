@@ -2,7 +2,9 @@ import uuid
 
 import requests
 import psycopg2
-from flask import Flask, render_template, request, json, jsonify
+from flask import Flask, Blueprint, render_template, request, json, jsonify
+
+blueprint = Blueprint('rac_api', __name__)
 
 from library import readconfig
 import boto3
@@ -13,14 +15,35 @@ meta_db_config = readconfig.meta_db
 auth_config = readconfig.auth
 aws_config = readconfig.aws
 
+
+@blueprint.route('/rac-api/new-notebook/<username>', methods=['POST'])
 def new_notebook(username):
+    """
+    This is a method which creates a new notebook server for the user.
+
+    Args:
+        username: This is the username of the person.
+
+    Returns:
+        This method returns the details of the newly created notebook server.
+    """
     headers = {"Authorization": "token " + jupyter_config["AuthToken"]}
     payload = {}
     r = requests.post(jupyter_config["APIURL"] + "/users/" + username + "/server", data=payload, headers=headers)
     return jsonify({"status_code": r.status_code, "text": r.text}), r.status_code
 
 
+@blueprint.route('/rac-api/notebook-status/<username>', methods=['GET'])
 def notebook_status(username):
+    """
+    This is a method which returns the status of the notebook.
+
+    Args:
+        username: This is the username of the person.
+
+    Returns:
+        This method returns a json object containing the details of the status of the notebook.
+    """
     headers = {"Authorization": "token "  + jupyter_config["AuthToken"]}
     payload = {}
     r = requests.get(jupyter_config["APIURL"] + "/users/" + username + "", data=payload, headers=headers)
@@ -36,7 +59,17 @@ def notebook_status(username):
         # return jsonify({"status_code": r.status_code, "text": r.text}), r.status_code
 
 
+@blueprint.route('/rac-api/get-new-notebook-token/<username>', methods=['GET'])
 def get_new_notebook_token(username):
+    """
+    This is a method which returns the token for the new notebook.
+
+    Args:
+        username: This is the username of the person.
+
+    Returns:
+        This method returns a json object containing the details of the token for the new notebook.
+    """
     try:
         conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
         cur = conn.cursor()
@@ -74,7 +107,16 @@ def get_new_notebook_token(username):
     return token, status_code
 
 
+@blueprint.route("/rac-api/packages/run-package", methods=["POST"])
 def run_package():
+    """
+    This is a method which is used to run the selected package.
+
+    Args:
+
+    Returns:
+        This method returns a json object containing the details of the package that needs to be run.
+    """
     auth_token = request.headers.get('auth-token')
     username = request.headers.get('auth-username')
     request_json = request.get_json()
@@ -139,9 +181,16 @@ def run_package():
         return jsonify({'error': 'error while publishing to SQS'}, 500)
 
 
-# This is the method that will get the details of all the packages
-# @application.route("/api/packages/get-packages")
+@blueprint.route('/rac-api/packages/get-packages', methods=['GET'])
 def get_packages():
+    """
+    This is a method which returns the details of all the packages
+
+    Args:
+
+    Returns:
+        This method returns a json object containing the details of all the packages.
+    """
     auth_token = request.headers.get('auth-token')
     username = request.headers.get('auth-username')
     limit = request.json.get('limit')
@@ -202,9 +251,16 @@ def get_packages():
     # return jsonify({"package_id": 1, "name": "aaa", "author":"a", "created_date":"2019-07-16 10:51:26", "tools":["1", "2"], "input_files":["/a", "/b"]})
 
 
-# This is the method that will actually create the packages
-# @application.route("/api/packages/create-packages")
+@blueprint.route("/rac-api/packages/create-packages", methods=['POST'])
 def create_packages():
+    """
+    This is a method that will actually create the package.
+
+    Args:
+
+    Returns:
+        This method returns a json object containing the package that needs to be created.
+    """
     auth_token = request.headers.get('auth-token')
     username = request.headers.get('auth-username')
     package_type = request.json.get('type')
