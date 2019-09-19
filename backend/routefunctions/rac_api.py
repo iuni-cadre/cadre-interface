@@ -229,7 +229,7 @@ def get_packages():
         page = 0
 
     if order is None:
-        order = 'package.name'
+        order = 'name'
 
     # Validating the Request here
     try:
