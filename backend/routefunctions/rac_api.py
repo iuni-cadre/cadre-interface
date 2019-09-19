@@ -198,6 +198,7 @@ def get_packages():
     order = request.json.get('order')
     search = request.json.get('search')
 
+    # We are verifying the auth token here
     if auth_token is None or username is None:
         return jsonify({"error": "auth headers are missing"}), 400
         # connection = cadre_meta_connection_pool.getconn()
@@ -215,33 +216,70 @@ def get_packages():
                                             verify=False)
     if validate_token_response.status_code is not 200:
         print(validate_token_response)
-        return jsonify({"error": "Invalid Token"}), 403
+        return jsonify({"Error": "Invalid Token"}), 403
 
     response_json = validate_token_response.json()
     user_id = response_json['user_id']
+
+    # Checking if no values are provided then assigning the default values
+    if limit is None:
+        limit = 25
+
+    if page is None:
+        page = 0
+
+    if order is None:
+        order = 'package.name'
+
+    # Validating the Request here
+    try:
+        limit_value = int(limit)
+        if limit_value > 0:
+            print("Yes limit is a positive integer.")
+            print("The value of limit is: ", limit_value)
+    except ValueError:
+        print("No Limit is not an Integer. It's a string")
+        return jsonify({"Error": "Invalid Request: Limit should be a positive integer."}), 400
+
+    try:
+        page_value = int(page)
+        if page_value >= 0:
+            print("Yes page is an Integer.")
+            print("The value of page is: ", page_value)
+    except ValueError:
+        print("No Page is not an Integer. It's a string")
+        return jsonify({"Error": "Invalid Request: Page should be a integer."}), 400
+
+    offset = page * limit
+
     # get package information from rac metadatabase
 
     # This is where we are actually connecting to the database and getting the details of the packages
     conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
     cur = conn.cursor()
+
+    # Here we are getting all the details of the all the different packages from the database
     try:
-        cur.execute("SELECT package_id, type, description, name, doi, created_on, created_by, tool_id FROM package WHERE username=%s;", [username])
+        cur.execute("SELECT max(package.package_id) as package_id, max(package.type) as type, max(package.description) as description, max(package.name) as name, max(package.doi) as doi, max(package.created_on) as created_on, max(package.created_by) as created_by, max(tool.tool_id) as tool_id, max(tool.description) as tool_description, max(tool.name) as tool_name, max(tool.script_name) as tool_script_name, array_agg(archive.name) as input_files FROM package, archive, tool where package.archive_id = archive.archive_id AND package.tool_id = tool.tool_id GROUP BY package.package_id ORDER BY %s LIMIT %d OFFSET %d;", [order, limit, offset])
+        if cur.rowcount == 0:
+            return jsonify({"Error:", "Query returns zero results."}), 404
         if cur.rowcount > 0:
             package_info = cur.fetchone()
             package_json = {
                 'package_id': package_info[0],
-                'tool_id': package_info[1],
-                'type': package_info[3],
-                'description': package_info[4],
-                'name': package_info[5],
-                'doi': package_info[6],
-                'created_on': package_info[8],
-                'created_by': package_info[10]
+                'type': package_info[1],
+                'description': package_info[2],
+                'name': package_info[3],
+                'doi': package_info[4],
+                'created_on': package_info[5],
+                'created_by': package_info[6],
+                'tools': [{'tool_id': package_info[7], 'tool_description': package_info[8], 'tool_name': package_info[9], 'tool_script_name': package_info[10]}],
+                'input_files': package_info[11]
             }
             package_response = json.dumps(package_json)
             return jsonify(json.loads(package_response), 200)
     except Exception:
-        return jsonify({"Error", "Problem querying the package table in the meta database."}), 500
+        return jsonify({"Error:", "Problem querying the package table or the archive table or the tools table in the meta database."}), 500
     finally:
         # Closing the database connection.
         cur.close()
