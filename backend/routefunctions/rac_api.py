@@ -289,6 +289,108 @@ def get_packages():
     # return jsonify({"package_id": 1, "name": "aaa", "author":"a", "created_date":"2019-07-16 10:51:26", "tools":["1", "2"], "input_files":["/a", "/b"]})
 
 
+@blueprint.route('/rac-api/get-tools', methods=['GET'])
+def get_packages():
+    """
+    This is a method which returns the details of all the tools.
+
+    Args:
+
+    Returns:
+        This method returns a json object containing the details of all the tools.
+    """
+    auth_token = request.headers.get('auth-token')
+    username = request.headers.get('auth-username')
+    limit = request.json.get('limit')
+    page = request.json.get('page')
+    order = request.json.get('order')
+    search = request.json.get('search')
+
+    # We are verifying the auth token here
+    if auth_token is None or username is None:
+        return jsonify({"error": "auth headers are missing"}), 400
+        # connection = cadre_meta_connection_pool.getconn()
+        # cursor = connection.cursor()
+    validata_token_args = {
+        'username': username
+    }
+    headers = {
+        'auth-token': auth_token,
+        'Content-Type': 'application/json'
+    }
+    validate_token_response = requests.post(auth_config["verify-token-endpoint"],
+                                            data=json.dumps(validata_token_args),
+                                            headers=headers,
+                                            verify=False)
+    if validate_token_response.status_code is not 200:
+        print(validate_token_response)
+        return jsonify({"Error": "Invalid Token"}), 403
+
+    response_json = validate_token_response.json()
+    user_id = response_json['user_id']
+
+    # Checking if no values are provided then assigning the default values
+    if limit is None:
+        limit = 25
+
+    if page is None:
+        page = 0
+
+    if order is None:
+        order = 'name'
+
+    # Validating the Request here
+    try:
+        limit_value = int(limit)
+        if limit_value > 0:
+            print("Yes limit is a positive integer.")
+            print("The value of limit is: ", limit_value)
+    except ValueError:
+        print("No Limit is not an Integer. It's a string")
+        return jsonify({"Error": "Invalid Request: Limit should be a positive integer."}), 400
+
+    try:
+        page_value = int(page)
+        if page_value >= 0:
+            print("Yes page is an Integer.")
+            print("The value of page is: ", page_value)
+    except ValueError:
+        print("No Page is not an Integer. It's a string")
+        return jsonify({"Error": "Invalid Request: Page should be a integer."}), 400
+
+    offset = page * limit
+
+    # get package information from rac metadatabase
+
+    # This is where we are actually connecting to the database and getting the details of the tools
+    conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
+    cur = conn.cursor()
+
+    # Here we are getting all the details of the all the different tools from the database
+    try:
+        cur.execute("SELECT tool_id, tool.description as tool_description, tool.name as tool_name, tool.script_name as tool_script_name, tool.created_on as tool_created_on FROM tool ORDER BY %s LIMIT %d OFFSET %d;", [order, limit, offset])
+        if cur.rowcount == 0:
+            return jsonify({"Error:", "Query returns zero results."}), 404
+        if cur.rowcount > 0:
+            tool_info = cur.fetchone()
+            tool_json = {
+                'tool_id': tool_info[0],
+                'tool_description': tool_info[1],
+                'tool_name': tool_info[2],
+                'tool_script_name': tool_info[3],
+                'created_on': tool_info[4]
+            }
+            tool_response = json.dumps(tool_json)
+            return jsonify(json.loads(tool_response), 200)
+    except Exception:
+        return jsonify({"Error:", "Problem querying the tools table in the meta database."}), 500
+    finally:
+        # Closing the database connection.
+        cur.close()
+        conn.close()
+        print("The database connection has been closed successfully.")
+
+
 @blueprint.route("/rac-api/packages/create-packages", methods=['POST'])
 def create_packages():
     """
