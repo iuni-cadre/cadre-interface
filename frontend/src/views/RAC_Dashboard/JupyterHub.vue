@@ -144,6 +144,7 @@ export default {
         },
         tryToCreateJupyterHub: function() {
             let jupyter_prom = this.$cadre.racAxios({
+                method: "POST",
                 url: this.jupyter_api_new_url
             });
             jupyter_prom.then(
