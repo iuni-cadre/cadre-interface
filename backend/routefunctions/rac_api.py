@@ -291,7 +291,7 @@ def get_packages():
 
 
 @blueprint.route('/rac-api/get-tools', methods=['GET'])
-def get_packages():
+def get_tools():
     """
     This is a method which returns the details of all the tools.
 
