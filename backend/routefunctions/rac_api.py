@@ -2,6 +2,7 @@ import uuid
 
 import requests
 import psycopg2
+import os
 from flask import Flask, Blueprint, render_template, request, json, jsonify
 
 blueprint = Blueprint('rac_api', __name__)
@@ -478,6 +479,77 @@ def create_packages():
                         'created_by': username}, 200)
     except Exception:
         return jsonify({"Error", "Problem querying database while inserting the data in the archive table."}), 500
+    finally:
+        # Closing the database connection.
+        cur.close()
+        conn.close()
+        print("The database connection has been closed successfully.")
+
+
+@blueprint.route('/rac-api/user-files', methods=['GET'])
+def get_user_files():
+    """
+    This is a method which will get a list of all the files/folders that a user has in their notebook.
+
+    Args:
+
+    Returns:
+        This method returns a json object containing the details of a single user's files based on the header token
+    """
+    auth_token = request.headers.get('auth-token')
+    username = request.headers.get('auth-username')
+
+    # We are verifying the auth token here
+    if auth_token is None or username is None:
+        return jsonify({"error": "auth headers are missing"}), 400
+        # connection = cadre_meta_connection_pool.getconn()
+        # cursor = connection.cursor()
+    validata_token_args = {
+        'username': username
+    }
+    headers = {
+        'auth-token': auth_token,
+        'Content-Type': 'application/json'
+    }
+    validate_token_response = requests.post(auth_config["verify-token-endpoint"],
+                                            data=json.dumps(validata_token_args),
+                                            headers=headers,
+                                            verify=False)
+    if validate_token_response.status_code is not 200:
+        print(validate_token_response)
+        return jsonify({"Error": "Invalid Token"}), 403
+
+    response_json = validate_token_response.json()
+    user_id = response_json['user_id']
+
+    # This is where we are actually connecting to the database
+    conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
+    cur = conn.cursor()
+
+    # Here we are getting all the details of the location of the efs directory of the user
+    try:
+        cur.execute("SELECT directory_location FROM jupyter_user WHERE jupyter_username= %s;", [username])
+        if cur.rowcount == 0:
+            return jsonify({"Error:", "The directory location is currently empty for the specific user."}), 404
+        if cur.rowcount > 0:
+            directory_path = cur.fetchone()
+            file_info = []
+            for root, dirs, files in os.walk(directory_path):
+                for file_name in files:
+                    print(os.path.join(root, file_name))
+                    file_info.append({'path': '{}'.format(os.path.join(root, file_name)), 'type': 'file'})
+                for directory_name in dirs:
+                    print(os.path.join(root, directory_name))
+                    file_info.append({'path': '{}'.format(os.path.join(root, directory_name)), 'type': 'folder'})
+
+            # Here we are printing the value of the list
+            for x in range(len(file_info)):
+                print(file_info[x])
+
+            files_response = json.dumps(file_info)
+            return jsonify(json.loads(files_response), 200)
+    except Exception:
+        return jsonify({"Error:", "Problem querying the tools table in the meta database."}), 500
     finally:
         # Closing the database connection.
         cur.close()
