@@ -18,11 +18,11 @@ from flask import Flask, render_template, request, json, jsonify
 from flask_cors import CORS
 
 
-config = readconfig.config
-jupyter_config = readconfig.jupyter
-meta_db_config = readconfig.meta_db
-auth_config = readconfig.auth
-data_config = readconfig.data
+config = {}
+jupyter_config = {}
+meta_db_config = {}
+auth_config = {}
+data_config = {}
 
 
 
@@ -222,4 +222,13 @@ app.register_blueprint(rac_api.blueprint)
 ##     ##  #######  ##    ## 
 
 if __name__ == '__main__':
+    readconfig.check_for_frontend()
+    readconfig.check_for_config_file()
+    readconfig.get_real_config()
+    config = readconfig.config
+    jupyter_config = readconfig.jupyter
+    meta_db_config = readconfig.meta_db
+    auth_config = readconfig.auth
+    data_config = readconfig.data
+
     application.run(host=config['FlaskHost'], port=int(config['FlaskPort']), debug=config['DebugMode']=='True')
