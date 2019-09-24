@@ -563,6 +563,7 @@ def get_package_details_from_package_id(package_id):
     This is a method which returns the details of the package associated with the package id
 
     Args:
+        package_id: This is the id of the package whose details we want
 
     Returns:
         This method returns a json object containing the details of the package associated with the package id
@@ -639,6 +640,7 @@ def get_tool_details_from_tool_id(tool_id):
        This is a method which returns the details of the tool associated with the tool id
 
        Args:
+            tool_id: This is the id of the tool whose details we want
 
        Returns:
            This method returns a json object containing the details of the tools associated with the tool id
