@@ -556,3 +556,145 @@ def get_user_files():
         conn.close()
         print("The database connection has been closed successfully.")
 
+
+@blueprint.route('/rac-api/get-package/<package_id>', methods=['GET'])
+def get_package_details_from_package_id(package_id):
+    """
+    This is a method which returns the details of the package associated with the package id
+
+    Args:
+
+    Returns:
+        This method returns a json object containing the details of the package associated with the package id
+    """
+    auth_token = request.headers.get('auth-token')
+    username = request.headers.get('auth-username')
+
+    # We are verifying the auth token here
+    if auth_token is None or username is None:
+        return jsonify({"Error": "Auth headers are missing"}), 401
+        # connection = cadre_meta_connection_pool.getconn()
+        # cursor = connection.cursor()
+    validata_token_args = {
+        'username': username
+    }
+    headers = {
+        'auth-token': auth_token,
+        'Content-Type': 'application/json'
+    }
+    validate_token_response = requests.post(auth_config["verify-token-endpoint"],
+                                            data=json.dumps(validata_token_args),
+                                            headers=headers,
+                                            verify=False)
+    if validate_token_response.status_code is not 200:
+        print(validate_token_response)
+        return jsonify({"Error": "Invalid Token"}), 403
+
+    response_json = validate_token_response.json()
+    user_id = response_json['user_id']
+
+    # get package information from rac metadatabase
+
+    # This is where we are actually connecting to the database and getting the details of the packages
+    conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
+                            password=meta_db_config["database-password"], host=meta_db_config["database-host"],
+                            port=meta_db_config["database-port"])
+    cur = conn.cursor()
+
+    # Here we are getting all the details of the package from the package id
+    try:
+        cur.execute("SELECT max(package.package_id) as package_id, max(package.type) as type, max(package.description) as description, max(package.name) as name, max(package.doi) as doi, max(package.created_on) as created_on, max(package.created_by) as created_by, max(tool.tool_id) as tool_id, max(tool.description) as tool_description, max(tool.name) as tool_name, max(tool.script_name) as tool_script_name, array_agg(archive.name) as input_files FROM package, archive, tool where package.archive_id = archive.archive_id AND package.tool_id = tool.tool_id AND package.package_id = %s;", [package_id])
+        if cur.rowcount == 0:
+            return jsonify({"Error:", "Query returns zero results."}), 404
+        if cur.rowcount > 0:
+            package_info = cur.fetchone()
+            package_json = {
+                'package_id': package_info[0],
+                'type': package_info[1],
+                'description': package_info[2],
+                'name': package_info[3],
+                'doi': package_info[4],
+                'created_on': package_info[5],
+                'created_by': package_info[6],
+                'tools': [
+                    {'tool_id': package_info[7], 'tool_description': package_info[8], 'tool_name': package_info[9],
+                     'tool_script_name': package_info[10]}],
+                'input_files': package_info[11]
+            }
+            package_response = json.dumps(package_json)
+            return jsonify(json.loads(package_response), 200)
+    except Exception:
+        return jsonify({"Error:",
+                        "Problem querying the package table or the archive table or the tools table in the meta database."}), 500
+    finally:
+        # Closing the database connection.
+        cur.close()
+        conn.close()
+        print("The database connection has been closed successfully.")
+
+
+@blueprint.route('/rac-api/get-tool/<tool_id>', methods=['GET'])
+def get_tool_details_from_tool_id(tool_id):
+    """
+       This is a method which returns the details of the tool associated with the tool id
+
+       Args:
+
+       Returns:
+           This method returns a json object containing the details of the tools associated with the tool id
+    """
+    auth_token = request.headers.get('auth-token')
+    username = request.headers.get('auth-username')
+
+    # We are verifying the auth token here
+    if auth_token is None or username is None:
+        return jsonify({"Error": "Auth headers are missing"}), 401
+        # connection = cadre_meta_connection_pool.getconn()
+        # cursor = connection.cursor()
+    validata_token_args = {
+        'username': username
+    }
+    headers = {
+        'auth-token': auth_token,
+        'Content-Type': 'application/json'
+    }
+    validate_token_response = requests.post(auth_config["verify-token-endpoint"],
+                                            data=json.dumps(validata_token_args),
+                                            headers=headers,
+                                            verify=False)
+    if validate_token_response.status_code is not 200:
+        print(validate_token_response)
+        return jsonify({"Error": "Invalid Token"}), 403
+
+    response_json = validate_token_response.json()
+    user_id = response_json['user_id']
+
+    # get package information from rac metadatabase
+
+    # This is where we are actually connecting to the database and getting the details of the tools
+    conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
+    cur = conn.cursor()
+
+    # Here we are getting all the details of the tool specified by the tool id
+    try:
+        cur.execute("SELECT tool_id, tool.description as tool_description, tool.name as tool_name, tool.script_name as tool_script_name, tool.created_on as tool_created_on FROM tool WHERE tool_id = %s;", [tool_id])
+        if cur.rowcount == 0:
+            return jsonify({"Error:", "Query returns zero results."}), 404
+        if cur.rowcount > 0:
+            tool_info = cur.fetchone()
+            tool_json = {
+                'tool_id': tool_info[0],
+                'tool_description': tool_info[1],
+                'tool_name': tool_info[2],
+                'tool_script_name': tool_info[3],
+                'created_on': tool_info[4]
+            }
+            tool_response = json.dumps(tool_json)
+            return jsonify(json.loads(tool_response), 200)
+    except Exception:
+        return jsonify({"Error:", "Problem querying the tools table in the meta database."}), 500
+    finally:
+        # Closing the database connection.
+        cur.close()
+        conn.close()
+        print("The database connection has been closed successfully.")
