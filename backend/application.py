@@ -236,6 +236,7 @@ def fallback(fallback):
 # Register blueprints here
 
 app.register_blueprint(rac_api.blueprint)
+app.register_blueprint(qi_api.blueprint)
 
 ########  ##     ## ##    ## 
 ##     ## ##     ## ###   ## 
