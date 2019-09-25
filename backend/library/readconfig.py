@@ -18,8 +18,8 @@ def check_for_config_file():
         sys.exit()
 
 
-real_config = "./conf/backend.config"
-sample_config = "./conf/example.backend.config"
+real_config = "../conf/backend.config"
+sample_config = "../conf/example.backend.config"
 
 
 config_parser = configparser.ConfigParser()
@@ -30,6 +30,7 @@ meta_db = config_parser['CADRE_META_DATABASE_INFO']
 aws = config_parser['AWS']
 auth = config_parser['AUTH']
 data = config_parser['DATA']
+test = config_parser['TESTING']
 
 
 def get_real_config():
@@ -40,3 +41,4 @@ def get_real_config():
     aws = config_parser['AWS']
     auth = config_parser['AUTH']
     data = config_parser['DATA']
+    test = config_parser['TESTING']
