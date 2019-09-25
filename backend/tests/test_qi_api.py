@@ -1,6 +1,7 @@
 import pytest
 # import mock
 # from pytest_mock import mocker
+import json
 from pprint import pprint
 
 from backend import application
@@ -26,8 +27,8 @@ class MockResponse:
 
 
 class MockPsycopgCursor:
-    def __init__(self, raise_exception):
-        self.rows = []
+    def __init__(self, raise_exception = False, rows = [], **kwargs):
+        self.rows = rows
         self.raise_exception = raise_exception
     def close(self):
         return True
@@ -43,11 +44,12 @@ class MockPsycopgCursor:
         self.raise_exception = raise_exception
 
 class MockPsycopgConnection:
-    def __init__(self, raise_exception = False):
+    def __init__(self, raise_exception = False, rows = [], **kwargs):
         self.raise_exception = raise_exception
+        self.rows = rows
         pass
     def cursor(self):
-        return MockPsycopgCursor(self.raise_exception)
+        return MockPsycopgCursor(raise_exception = self.raise_exception, rows = self.rows)
     def close(self):
         return True
 
@@ -184,7 +186,7 @@ def test_user_jobs_ep_fails_on_db_exception(client, mocker):
         "user_id": "12345"
     })
     mocker.patch("requests.post", return_value=mock_response)
-    mock_connection = MockPsycopgConnection(True) #raise exception
+    mock_connection = MockPsycopgConnection(raise_exception=True) #raise exception
     mocker.patch("psycopg2.connect", return_value=mock_connection)
 
     rv = client.get('/qi-api/user-jobs', headers={
@@ -193,3 +195,62 @@ def test_user_jobs_ep_fails_on_db_exception(client, mocker):
     })
     
     assert rv.status_code == 500
+
+
+    
+def test_user_jobs_ep_returns_jsonified_jobs_from_db(client, mocker):
+    '''
+    Checks that the endpoint is returning json that matches the mocked up data
+    '''
+    
+    rows = [
+        [
+            12345, 
+            23456, 
+            'http://www.example.com', 
+            'RUNNING', 
+            "date", 
+            "date", 
+            "query", 
+            "random description"
+        ],
+        [
+            12345, 
+            23456, 
+            'http://www.example.com', 
+            'RUNNING', 
+            "date", 
+            "date", 
+            "query", 
+            "random description"
+        ],
+        [
+            12345, 
+            23456, 
+            'http://www.example.com', 
+            'RUNNING', 
+            "date", 
+            "date", 
+            "query", 
+            "random description"
+        ]
+    ]
+
+    mock_response = MockResponse()
+    mock_response.set_status_code(200)
+    mock_response.set_json({
+        "roles": "some_roles",
+        "user_id": "12345"
+    })
+    mocker.patch("requests.post", return_value=mock_response)
+    mock_connection = MockPsycopgConnection(rows = rows)
+    mocker.patch("psycopg2.connect", return_value=mock_connection)
+
+    rv = client.get('/qi-api/user-jobs', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+    
+    pprint(rv.get_json())
+    pprint(rows);
+    assert rv.get_json() == (rows)
