@@ -44,3 +44,30 @@ def test_user_jobs_ep_fails_without_proper_headers(client):
     json = rv.get_json()
     assert rv.status_code == 400
     assert json["error"] and json["error"] == "auth headers are missing"
+
+    rv = client.get('/qi-api/user-jobs', headers= {
+        'auth-username': "SOME USERNAME"
+    })
+    json = rv.get_json()
+    assert rv.status_code == 400
+    assert json["error"] and json["error"] == "auth headers are missing"
+
+    rv = client.get('/qi-api/user-jobs', headers= {
+        'auth-token': "SOME TOKEN"
+    })
+    json = rv.get_json()
+    assert rv.status_code == 400
+    assert json["error"] and json["error"] == "auth headers are missing"
+
+    
+def test_user_jobs_ep_accepts_proper_headers(client):
+    """
+    end point gets past the missing header check with both headers
+    """
+
+    rv = client.get('/qi-api/user-jobs', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    assert rv.status_code != 400
