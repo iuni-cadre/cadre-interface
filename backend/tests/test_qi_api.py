@@ -1,6 +1,9 @@
 import pytest
-from backend import application
+# import mock
+# from pytest_mock import mocker
 from pprint import pprint
+
+from backend import application
 # import pprint
 # pp = pprint.PrettyPrinter(indent = 2)
 
@@ -8,7 +11,13 @@ from pprint import pprint
 
 
 
-# import boto3
+class MockResponse:
+    #Mocks up a response object and lets you set the error code
+    def __init__(self):
+        #default is a 200 success response
+        self.status_code = 200
+    def set_status_code(self, status_code):
+        self.status_code = status_code
 
 
 @pytest.fixture
@@ -71,3 +80,38 @@ def test_user_jobs_ep_accepts_proper_headers(client):
     })
 
     assert rv.status_code != 400
+
+
+
+def test_user_jobs_ep_does_fail_with_invalid_credentials(client, mocker):
+    """
+    mocker fakes a 401 response from authenticator endpoint to pass verification
+    """
+
+    mock_response = MockResponse()
+    mock_response.set_status_code(401)
+    mocker.patch("requests.post", return_value=mock_response)
+
+    rv = client.get('/qi-api/user-jobs', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    assert rv.status_code == 403
+
+
+def test_user_jobs_ep_does_not_fail_with_valid_credentials(client, mocker):
+    """
+    mocker fakes a 200 response from authenticator endpoint to pass verification
+    """
+    
+    mock_response = MockResponse()
+    mock_response.set_status_code(200)
+    mocker.patch("requests.post", return_value=mock_response)
+
+    rv = client.get('/qi-api/user-jobs', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    assert rv.status_code != 403
