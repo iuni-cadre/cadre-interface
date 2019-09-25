@@ -1,7 +1,7 @@
 
 import requests
 import psycopg2
-from flask import Flask, render_template, request, json, jsonify
+from flask import Flask, render_template, request, json, jsonify, Blueprint
 
 from library import readconfig
 
@@ -10,6 +10,10 @@ jupyter_config = readconfig.jupyter
 meta_db_config = readconfig.meta_db
 auth_config = readconfig.auth
 
+
+blueprint = Blueprint('qi_api', __name__)
+
+@blueprint.route('/qi-api/user-jobs')
 def user_jobs():
     request_json = request.get_json()
     
@@ -26,8 +30,8 @@ def user_jobs():
         'auth-token': auth_token,
         'Content-Type': 'application/json'
     }
-    print('**********************************')
-    print(auth_config["verify-token-endpoint"])
+    # print('**********************************')
+    # print(auth_config["verify-token-endpoint"])
 
     validate_token_response = requests.post(auth_config["verify-token-endpoint"],
                                             data=json.dumps(validata_token_args),

@@ -118,9 +118,9 @@ CORS(application)
 ##    ##   ##     ##     ## ##         ##  
  ##### ## ####    ##     ## ##        #### 
 
-@application.route("/qi-api/user-jobs")
-def qi_api_user_jobs():
-    return qi_api.user_jobs()
+# @application.route("/qi-api/user-jobs")
+# def qi_api_user_jobs():
+#     return qi_api.user_jobs()
     
 
    ###    ##     ## ######## ##     ##       ###    ########  #### 
