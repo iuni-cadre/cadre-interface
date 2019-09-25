@@ -9,6 +9,8 @@ conf/deploy.backend.config
 venv
 backend/venv
 backend/**/__pycache__
+backend/**/.cache
+**/.pytest_cache
 
 
 frontend/dist

@@ -18,30 +18,35 @@ def check_for_config_file():
         sys.exit()
 
 
-real_config = "../conf/backend.config"
-sample_config = "../conf/example.backend.config"
-if not path.isfile(real_config):
-    real_config = "./conf/backend.config"
-if not path.isfile(sample_config):
-    sample_config = "./conf/example.backend.config"
+config_filename = "./conf/backend.config"
+if not path.isfile(config_filename):
+    config_filename = "../conf/backend.config"
+if not path.isfile(config_filename):
+    config_filename = "./conf/example.backend.config"
+if not path.isfile(config_filename):
+    config_filename = "../conf/example.backend.config"
 
 config_parser = configparser.ConfigParser()
-config_parser.read(sample_config)
+config_parser.read(config_filename)
 config = config_parser['DEFAULT']
 jupyter = config_parser['JUPYTERAPI']
 meta_db = config_parser['CADRE_META_DATABASE_INFO']
 aws = config_parser['AWS']
 auth = config_parser['AUTH']
 data = config_parser['DATA']
-test = config_parser['TESTING']
 
-
-def get_real_config():
-    config_parser.read(real_config)
-    config = config_parser['DEFAULT']
-    jupyter = config_parser['JUPYTERAPI']
-    meta_db = config_parser['CADRE_META_DATABASE_INFO']
-    aws = config_parser['AWS']
-    auth = config_parser['AUTH']
-    data = config_parser['DATA']
+#silently fail if there is no testing key
+try:
     test = config_parser['TESTING']
+except:
+    test = []
+
+# def get_real_config():
+#     config_parser.read(real_config)
+#     config = config_parser['DEFAULT']
+#     jupyter = config_parser['JUPYTERAPI']
+#     meta_db = config_parser['CADRE_META_DATABASE_INFO']
+#     aws = config_parser['AWS']
+#     auth = config_parser['AUTH']
+#     data = config_parser['DATA']
+#     test = config_parser['TESTING']

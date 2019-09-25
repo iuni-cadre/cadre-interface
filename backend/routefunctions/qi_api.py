@@ -26,6 +26,9 @@ def user_jobs():
         'auth-token': auth_token,
         'Content-Type': 'application/json'
     }
+    print('**********************************')
+    print(auth_config["verify-token-endpoint"])
+
     validate_token_response = requests.post(auth_config["verify-token-endpoint"],
                                             data=json.dumps(validata_token_args),
                                             headers=headers,

@@ -223,8 +223,8 @@ app.register_blueprint(rac_api.blueprint)
 
 if __name__ == '__main__':
     readconfig.check_for_frontend()
-    readconfig.check_for_config_file()
-    readconfig.get_real_config()
+    # readconfig.check_for_config_file()
+    # readconfig.get_real_config()
     config = readconfig.config
     jupyter_config = readconfig.jupyter
     meta_db_config = readconfig.meta_db
