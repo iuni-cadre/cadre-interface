@@ -26,20 +26,28 @@ class MockResponse:
 
 
 class MockPsycopgCursor:
-    def __init__(self):
-        pass
+    def __init__(self, raise_exception):
+        self.rows = []
+        self.raise_exception = raise_exception
     def close(self):
         return True
     def execute(self, query, variables):
+        if(self.raise_exception):
+            raise Exception('Fake Exception') 
         pass
     def fetchall(self):
-        pass
+        return self.rows
+    def set_rows(self, rows):
+        self.rows = rows
+    def set_exception(self, throw_exception):
+        self.raise_exception = raise_exception
 
 class MockPsycopgConnection:
-    def __init__(self):
+    def __init__(self, raise_exception = False):
+        self.raise_exception = raise_exception
         pass
     def cursor(self):
-        return MockPsycopgCursor()
+        return MockPsycopgCursor(self.raise_exception)
     def close(self):
         return True
 
@@ -142,6 +150,9 @@ def test_user_jobs_ep_does_not_fail_with_valid_credentials(client, mocker):
 
 
 def test_user_jobs_ep_does_not_fail_with_successful_query(client, mocker):
+    '''
+    Uses psycopg mock to mock DB call
+    '''
 
     mock_response = MockResponse()
     mock_response.set_status_code(200)
@@ -157,5 +168,28 @@ def test_user_jobs_ep_does_not_fail_with_successful_query(client, mocker):
         'auth-token': "Some Token",
         'auth-username': "Some Username"
     })
-    print(rv.status_code)
-    assert False
+    
+    assert rv.status_code == 200
+
+
+def test_user_jobs_ep_fails_on_db_exception(client, mocker):
+    '''
+    Uses psycopg mock to mock DB call with exception
+    '''
+    
+    mock_response = MockResponse()
+    mock_response.set_status_code(200)
+    mock_response.set_json({
+        "roles": "some_roles",
+        "user_id": "12345"
+    })
+    mocker.patch("requests.post", return_value=mock_response)
+    mock_connection = MockPsycopgConnection(True) #raise exception
+    mocker.patch("psycopg2.connect", return_value=mock_connection)
+
+    rv = client.get('/qi-api/user-jobs', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+    
+    assert rv.status_code == 500
