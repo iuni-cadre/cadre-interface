@@ -16,8 +16,32 @@ class MockResponse:
     def __init__(self):
         #default is a 200 success response
         self.status_code = 200
+        self.json_data = None
     def set_status_code(self, status_code):
         self.status_code = status_code
+    def json(self):
+        return self.json_data
+    def set_json(self, fake_json):
+        self.json_data = fake_json
+
+
+class MockPsycopgCursor:
+    def __init__(self):
+        pass
+    def close(self):
+        return True
+    def execute(self, query, variables):
+        pass
+    def fetchall(self):
+        pass
+
+class MockPsycopgConnection:
+    def __init__(self):
+        pass
+    def cursor(self):
+        return MockPsycopgCursor()
+    def close(self):
+        return True
 
 
 @pytest.fixture
@@ -115,3 +139,23 @@ def test_user_jobs_ep_does_not_fail_with_valid_credentials(client, mocker):
     })
 
     assert rv.status_code != 403
+
+
+def test_user_jobs_ep_does_not_fail_with_successful_query(client, mocker):
+
+    mock_response = MockResponse()
+    mock_response.set_status_code(200)
+    mock_response.set_json({
+        "roles": "some_roles",
+        "user_id": "12345"
+    })
+    mocker.patch("requests.post", return_value=mock_response)
+    mock_connection = MockPsycopgConnection()
+    mocker.patch("psycopg2.connect", return_value=mock_connection)
+
+    rv = client.get('/qi-api/user-jobs', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+    print(rv.status_code)
+    assert False
