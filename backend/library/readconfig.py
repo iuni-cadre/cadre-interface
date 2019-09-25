@@ -20,7 +20,10 @@ def check_for_config_file():
 
 real_config = "../conf/backend.config"
 sample_config = "../conf/example.backend.config"
-
+if not path.isfile(real_config):
+    real_config = "./conf/backend.config"
+if not path.isfile(sample_config):
+    sample_config = "./conf/example.backend.config"
 
 config_parser = configparser.ConfigParser()
 config_parser.read(sample_config)
