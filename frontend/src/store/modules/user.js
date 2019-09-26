@@ -8,7 +8,7 @@ const TEST_USER = {
     username: "test-user",
     // roles: ["wos_gold"],
     roles: [],
-    token: false //"fake_token"
+    token: "fake_token"
 };
 
 const HEARTBEAT_INTERVAL = 60000;
@@ -48,7 +48,7 @@ export default {
         decodedUsername: function(state) {
             return Globals.base32decode(state.username);
         },
-        roles: function(state){
+        roles: function(state) {
             return state.roles;
         }
     },
@@ -115,29 +115,37 @@ export default {
                 // console.debug("Beat");
                 let username = getters.username;
                 let token = getters.authToken;
-                let validate_prom = Globals.authAxios({
-                    url: "/authenticate-token",
-                    method: "POST",
-                    data: {
-                        username: username
-                    }
-                });
 
-                validate_prom.then(
-                    response => {
-                        dispatch("beatHeart");
-                    },
-                    error => {
-                        console.warn(error);
-
-                        if (Vue.$cadreConfig.force_validation !== false) {
-                            commit("logout");
+                if(Vue.$cadreConfig.force_validation !== false)
+                {
+                    let validate_prom = Globals.authAxios({
+                        url: "/authenticate-token",
+                        method: "POST",
+                        data: {
+                            username: username
                         }
-                    }
-                );
+                    });
+
+                    validate_prom.then(
+                        response => {
+                            dispatch("beatHeart");
+                        },
+                        error => {
+                            console.warn(error);
+
+                            // if (Vue.$cadreConfig.force_validation !== false) {
+                                commit("logout");
+                            // }
+                        }
+                    );
+                }
+                else
+                {
+                    console.log("fake validation");
+                }
             }, HEARTBEAT_INTERVAL);
         },
-        logout: function({getters, commit}, payload) {
+        logout: function({ getters, commit }, payload) {
             let username = getters.username;
             let token = getters.authToken;
             return new Promise((resolve, reject) => {
@@ -157,7 +165,7 @@ export default {
                     response => {
                         // dispatch("beatHeart");
                         commit("logout");
-                        resolve(response)
+                        resolve(response);
                     },
                     error => {
                         // console.warn(error);
@@ -178,19 +186,6 @@ export default {
             return new Promise(function(resolve, reject) {
                 // console.debug(context)
 
-                // console.debug(username, token);
-                let validate_prom = Globals.authAxios({
-                    url: "/authenticate-token", //?username=" + (username || state.getters.username),
-                    method: "POST",
-                    data: {
-                        username: username
-                    },
-                    headers: {
-                        "auth-token": token,
-                        "auth-username": username
-                    }
-                });
-
                 if (Vue.$cadreConfig.force_validation === false) {
                     context.commit("setToken", TEST_USER.token);
                     context.commit("setUsername", Globals.base32encode(TEST_USER.username));
@@ -198,6 +193,19 @@ export default {
                     console.info("Fake user token is valid");
                     resolve({ msg: "Fake Validation" });
                 } else {
+                    // console.debug(username, token);
+                    let validate_prom = Globals.authAxios({
+                        url: "/authenticate-token", //?username=" + (username || state.getters.username),
+                        method: "POST",
+                        data: {
+                            username: username
+                        },
+                        headers: {
+                            "auth-token": token,
+                            "auth-username": username
+                        }
+                    });
+
                     validate_prom.then(
                         result => {
                             //if passed, set the token

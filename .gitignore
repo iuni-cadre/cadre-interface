@@ -14,6 +14,7 @@ backend/**/.cache
 
 
 frontend/dist
+frontend/public/test_data
 
 bundle
 eb_bundle*.zip
