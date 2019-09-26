@@ -33,52 +33,52 @@ application = app = Flask(__name__,
 
 CORS(application)
 
+# NOTE:  data and login proxies are done through apache, so this is unnecessary
+# def send_post_proxy_request(url = "", payload = {}, headers = {}):
+#     try:
+#         r = requests.post(
+#             url, 
+#             data=json.dumps(payload), 
+#             headers=headers
+#         )
+#         try:
+#             return json.dumps(r.json()), r.status_code, dict(r.headers)
+#         except ValueError as err:
+#             return r.text, r.status_code, dict(r.headers)
+#         except Exception as arg:
+#             print("*** PROXY ERROR ***")
+#             print(arg)
+#             print(url, r.status_code, r.text)
+#             return jsonify({"error_message": "Proxy Error"}), 502
+#     except Exception as arg:
+#         print("*** PROXY ERROR ***")
+#         print(arg)
+#         print(url)
+#         return jsonify({"error_message": "Proxy Error"}), 502
 
-def send_post_proxy_request(url = "", payload = {}, headers = {}):
-    try:
-        r = requests.post(
-            url, 
-            data=json.dumps(payload), 
-            headers=headers
-        )
-        try:
-            return json.dumps(r.json()), r.status_code, dict(r.headers)
-        except ValueError as err:
-            return r.text, r.status_code, dict(r.headers)
-        except Exception as arg:
-            print("*** PROXY ERROR ***")
-            print(arg)
-            print(url, r.status_code, r.text)
-            return jsonify({"error_message": "Proxy Error"}), 502
-    except Exception as arg:
-        print("*** PROXY ERROR ***")
-        print(arg)
-        print(url)
-        return jsonify({"error_message": "Proxy Error"}), 502
 
-
-def send_get_proxy_request(url = "", payload = {}, headers = {}):
-    try:
-        r = requests.get(
-            url, 
-            data=json.dumps(payload), 
-            headers=headers
-        )
+# def send_get_proxy_request(url = "", payload = {}, headers = {}):
+#     try:
+#         r = requests.get(
+#             url, 
+#             data=json.dumps(payload), 
+#             headers=headers
+#         )
         
-        try:
-            return json.dumps(r.json()), r.status_code, dict(r.headers)
-        except ValueError as err:
-            return r.text, r.status_code, dict(r.headers)
-        except Exception as arg:
-            print("*** PROXY ERROR ***")
-            print(arg)
-            print(url, r.status_code, r.text)
-            return jsonify({"error_message": "Proxy Error"}), 502
-    except Exception as arg:
-        print("*** PROXY ERROR ***")
-        print(arg)
-        print(url)
-        return jsonify({"error_message": "Proxy Error"}), 502
+#         try:
+#             return json.dumps(r.json()), r.status_code, dict(r.headers)
+#         except ValueError as err:
+#             return r.text, r.status_code, dict(r.headers)
+#         except Exception as arg:
+#             print("*** PROXY ERROR ***")
+#             print(arg)
+#             print(url, r.status_code, r.text)
+#             return jsonify({"error_message": "Proxy Error"}), 502
+#     except Exception as arg:
+#         print("*** PROXY ERROR ***")
+#         print(arg)
+#         print(url)
+#         return jsonify({"error_message": "Proxy Error"}), 502
 
 
 ########     ###     ######        ###    ########  ####    ######## ##    ## ########  ########   #######  #### ##    ## ########  ######  
@@ -91,24 +91,24 @@ def send_get_proxy_request(url = "", payload = {}, headers = {}):
 
 # I have removed the @application.route to remove conflicts with blueprints
 
-def rac_api_new_notebook_username(username):
-    return rac_api.new_notebook(username)
+# def rac_api_new_notebook_username(username):
+#     return rac_api.new_notebook(username)
 
 
-def rac_api_notebook_status_username(username):
-    return rac_api.notebook_status(username)
+# def rac_api_notebook_status_username(username):
+#     return rac_api.notebook_status(username)
 
 
-def rac_api_get_new_notebook_token(username):
-    return rac_api.get_new_notebook_token(username)
+# def rac_api_get_new_notebook_token(username):
+#     return rac_api.get_new_notebook_token(username)
 
 
-def rac_api_run_package():
-    return rac_api.run_package()
+# def rac_api_run_package():
+#     return rac_api.run_package()
 
 
-def rac_api_get_packages():
-    return rac_api.get_packages()
+# def rac_api_get_packages():
+#     return rac_api.get_packages()
 
  #######  ####       ###    ########  #### 
 ##     ##  ##       ## ##   ##     ##  ##  
@@ -118,9 +118,9 @@ def rac_api_get_packages():
 ##    ##   ##     ##     ## ##         ##  
  ##### ## ####    ##     ## ##        #### 
 
-@application.route("/qi-api/user-jobs")
-def qi_api_user_jobs():
-    return qi_api.user_jobs()
+# @application.route("/qi-api/user-jobs")
+# def qi_api_user_jobs():
+#     return qi_api.user_jobs()
     
 
    ###    ##     ## ######## ##     ##       ###    ########  #### 
@@ -147,16 +147,16 @@ def qi_api_user_jobs():
 # def auth_renew_token():
 #     return auth_api.renew_token()
 
-@application.route('/auth-api/<path:fallback>', methods=["POST"])
-def auth_post_proxy(fallback):
-    print("auth POST proxy: ", fallback)
-    return send_post_proxy_request(auth_config["APIURL"] + "/" + fallback, request.json, request.headers)
+# @application.route('/auth-api/<path:fallback>', methods=["POST"])
+# def auth_post_proxy(fallback):
+#     print("auth POST proxy: ", fallback)
+#     return send_post_proxy_request(auth_config["APIURL"] + "/" + fallback, request.json, request.headers)
 
 
-@application.route('/auth-api/<path:fallback>', methods=["GET"])
-def auth_get_proxy(fallback):
-    print("auth GET proxy: ", fallback)
-    return send_get_proxy_request(auth_config["APIURL"] + "/" + fallback, request.json, request.headers)
+# @application.route('/auth-api/<path:fallback>', methods=["GET"])
+# def auth_get_proxy(fallback):
+#     print("auth GET proxy: ", fallback)
+#     return send_get_proxy_request(auth_config["APIURL"] + "/" + fallback, request.json, request.headers)
 
 
 ########     ###    ########    ###          ###    ########  ####    ######## ##    ## ########  ########   #######  #### ##    ## ########  ######  
@@ -167,17 +167,17 @@ def auth_get_proxy(fallback):
 ##     ## ##     ##    ##    ##     ##    ##     ## ##         ##     ##       ##   ### ##     ## ##        ##     ##  ##  ##   ###    ##    ##    ## 
 ########  ##     ##    ##    ##     ##    ##     ## ##        ####    ######## ##    ## ########  ##         #######  #### ##    ##    ##     ######  
 
-@application.route('/data-api/<path:fallback>', methods=["POST"])
-def data_post_proxy(fallback):
-    print("data POST proxy: ", fallback)
-    response = send_post_proxy_request(data_config["APIURL"] + "/" + fallback, request.json, request.headers)
-    return response
+# @application.route('/data-api/<path:fallback>', methods=["POST"])
+# def data_post_proxy(fallback):
+#     print("data POST proxy: ", fallback)
+#     response = send_post_proxy_request(data_config["APIURL"] + "/" + fallback, request.json, request.headers)
+#     return response
 
 
-@application.route('/data-api/<path:fallback>', methods=["GET"])
-def data_get_proxy(fallback):
-    print("data GET proxy: ", fallback)
-    return send_get_proxy_request(data_config["APIURL"] + "/" + fallback, request.json, request.headers)
+# @application.route('/data-api/<path:fallback>', methods=["GET"])
+# def data_get_proxy(fallback):
+#     print("data GET proxy: ", fallback)
+#     return send_get_proxy_request(data_config["APIURL"] + "/" + fallback, request.json, request.headers)
 
 
 
@@ -202,16 +202,41 @@ def api_index(fallback=""):
 
 @application.route("/")
 def index():
+    '''
+    template renders frontend
+    '''
+
     return render_template("/index.html")
 
 
 @application.route("/<path:fallback>")
 def fallback(fallback):
+    '''
+    template renders frontend
+    '''
+
     return render_template("/index.html")
 
 
-# This is the place where I am registering the blueprints
+########  ########  ######   ####  ######  ######## ######## ########     
+##     ## ##       ##    ##   ##  ##    ##    ##    ##       ##     ##    
+##     ## ##       ##         ##  ##          ##    ##       ##     ##    
+########  ######   ##   ####  ##   ######     ##    ######   ########     
+##   ##   ##       ##    ##   ##        ##    ##    ##       ##   ##      
+##    ##  ##       ##    ##   ##  ##    ##    ##    ##       ##    ##     
+##     ## ########  ######   ####  ######     ##    ######## ##     ##    
+
+########  ##       ##     ## ######## ########  ########  #### ##    ## ########  ######  
+##     ## ##       ##     ## ##       ##     ## ##     ##  ##  ###   ##    ##    ##    ## 
+##     ## ##       ##     ## ##       ##     ## ##     ##  ##  ####  ##    ##    ##       
+########  ##       ##     ## ######   ########  ########   ##  ## ## ##    ##     ######  
+##     ## ##       ##     ## ##       ##        ##   ##    ##  ##  ####    ##          ## 
+##     ## ##       ##     ## ##       ##        ##    ##   ##  ##   ###    ##    ##    ## 
+########  ########  #######  ######## ##        ##     ## #### ##    ##    ##     ######  
+# Register blueprints here
+
 app.register_blueprint(rac_api.blueprint)
+app.register_blueprint(qi_api.blueprint)
 
 ########  ##     ## ##    ## 
 ##     ## ##     ## ###   ## 
