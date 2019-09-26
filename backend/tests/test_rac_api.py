@@ -120,159 +120,10 @@ def test_get_tools(client):
 def test_get_packages_ep_exists(client):
     """
     This is a method to test if the get packages api endpoint is working correctly
+    A plain, unauthenticated request should return a 400
     """
     rv = client.get('/rac-api/packages/get-packages')
-    json = rv.get_json()
-    unknown_endpoint = False
-    if json["error"] and rv.status_code == 404 and json["error"] == "Unknown endpoint.":
-        unknown_endpoint = True
-
-    assert not unknown_endpoint
-
-
-def test_get_packages_ep_fails_without_proper_headers(client):
-    """
-    The end point needs at least the auth-auth and auth-user headers
-    """
-
-    rv = client.get('/rac-api/packages/get-packages')
-    json = rv.get_json()
     assert rv.status_code == 400
-    assert json["error"] and json["error"] == "auth headers are missing"
-
-    rv = client.get('/rac-api/packages/get-packages', headers= {
-        'auth-username': "SOME USERNAME"
-    })
-    json = rv.get_json()
-    assert rv.status_code == 400
-    assert json["error"] and json["error"] == "auth headers are missing"
-
-    rv = client.get('/rac-api/packages/get-packages', headers= {
-        'auth-token': "SOME TOKEN"
-    })
-    json = rv.get_json()
-    assert rv.status_code == 400
-    assert json["error"] and json["error"] == "auth headers are missing"
-
-
-def test_get_packages_ep_accepts_proper_headers(client):
-    """
-    End point gets past the missing header check with both headers
-    """
-
-    rv = client.get('/rac-api/packages/get-packages', headers={
-        'auth-token': "Some Token",
-        'auth-username': "Some Username"
-    })
-
-    assert rv.status_code != 400
-
-
-def test_get_packages_ep_accepts_params(client):
-    """
-    End point doesn't blow up when we send parameters
-    """
-
-    rv = client.get('/rac-api/packages/get-packages?limit=50&page=1&order=name&search=', headers={
-        'auth-token': "Some Token",
-        'auth-username': "Some Username"
-    })
-
-    assert rv.status_code != 500
-
-
-def test_get_packages_ep_does_fail_with_invalid_credentials(client, mocker):
-    """
-    Mocker fakes a 401 response from authenticator endpoint to pass verification
-    """
-
-    mock_response = MockResponse()
-    mock_response.set_status_code(401)
-    mocker.patch("requests.post", return_value=mock_response)
-
-    rv = client.get('/rac-api/packages/get-packages', headers={
-        'auth-token': "Some Token",
-        'auth-username': "Some Username"
-    })
-
-    assert rv.status_code == 403
-
-
-def test_get_packages_ep_does_not_fail_with_valid_credentials(client, mocker):
-    """
-    Mocker fakes a 200 response from authenticator endpoint to pass verification
-    """
-
-    mock_response = MockResponse()
-    mock_response.set_status_code(200)
-    mocker.patch("requests.post", return_value=mock_response)
-
-    rv = client.get('/rac-api/packages/get-packages', headers={
-        'auth-token': "Some Token",
-        'auth-username': "Some Username"
-    })
-
-    assert rv.status_code != 403
-
-
-def test_get_packages_ep_does_not_fail_with_successful_query(client, mocker):
-    '''
-    Uses psycopg mock to mock DB call
-    '''
-
-    mock_response = MockResponse()
-    mock_response.set_status_code(200)
-    mock_response.set_json({
-        "package_id": "234221136",
-        "type": "CADRE_DEFINED",
-        "description": "package for delivering the data for the tutorial",
-        "name": "issi_data_package",
-        "doi": "",
-        "created_on": "2019-08-23T17:17:34.196818+00:00",
-        "created_by": "",
-        "tools": [{"tool_id": "11234221128", "tool_description": "Data for the ISSI tutorial", "tool_name": "issi_data", 'tool_script_name': "issi_tutorial.py"}],
-        "input_files": "ISSIDemoData.tar.gz"
-    })
-    mocker.patch("requests.post", return_value=mock_response)
-    mock_connection = MockPsycopgConnection()
-    mocker.patch("psycopg2.connect", return_value=mock_connection)
-
-    rv = client.get('/rac-api/packages/get-packages', headers={
-        'auth-token': "Some Token",
-        'auth-username': "Some Username"
-    })
-
-    assert rv.status_code == 200
-
-
-def test_get_packages_ep_fails_on_db_exception(client, mocker):
-    '''
-    Uses psycopg mock to mock DB call with exception
-    '''
-
-    mock_response = MockResponse()
-    mock_response.set_status_code(200)
-    mock_response.set_json({
-        "package_id": "234221136",
-        "type": "CADRE_DEFINED",
-        "description": "package for delivering the data for the tutorial",
-        "name": "issi_data_package",
-        "doi": "",
-        "created_on": "2019-08-23T17:17:34.196818+00:00",
-        "created_by": "",
-        "tools": [{"tool_id": "11234221128", "tool_description": "Data for the ISSI tutorial", "tool_name": "issi_data", 'tool_script_name': "issi_tutorial.py"}],
-        "input_files": "ISSIDemoData.tar.gz"
-    })
-    mocker.patch("requests.post", return_value=mock_response)
-    mock_connection = MockPsycopgConnection(raise_exception=True)  # raise exception
-    mocker.patch("psycopg2.connect", return_value=mock_connection)
-
-    rv = client.get('/rac-api/packages/get-packages', headers={
-        'auth-token': "Some Token",
-        'auth-username': "Some Username"
-    })
-
-    assert rv.status_code == 500
 
 
 def test_get_packages_ep_returns_jsonified_jobs_from_db(client, mocker):
@@ -370,50 +221,12 @@ def test_get_tool_details_from_tool_id(client):
     assert rv.status_code == 401
 
 
-def test_get_data_archives_ep_exists(client):
+def test_get_packages_accepts_proper_headers(client):
     """
-    If there is an error and the status code is 404 and the error message is "Unknown endpoint."
-    then the endpoint is unknown, so fail.
+    end point gets past the missing header check with both headers
     """
-    rv = client.get('/rac-api/get-data-archives')
-    json = rv.get_json()
-    unknown_endpoint = False
 
-    if json["error"] and rv.status_code == 404 and json["error"] == "Unknown endpoint.":
-        unknown_endpoint = True
-
-    assert not unknown_endpoint
-
-
-def test_get_data_archives_ep_fails_without_proper_headers(client):
-    """
-    End point needs at least the auth-auth and auth-user headers
-    """
-    rv = client.get('/rac-api/get-data-archives')
-    json = rv.get_json()
-    assert rv.status_code == 400
-    assert json["error"] and json["error"] == "auth headers are missing"
-
-    rv = client.get('/rac-api/get-data-archives', headers={
-        'auth-username': "SOME USERNAME"
-    })
-    json = rv.get_json()
-    assert rv.status_code == 400
-    assert json["error"] and json["error"] == "auth headers are missing"
-
-    rv = client.get('/rac-api/get-data-archives', headers={
-        'auth-token': "SOME TOKEN"
-    })
-    json = rv.get_json()
-    assert rv.status_code == 400
-    assert json["error"] and json["error"] == "auth headers are missing"
-
-
-def test_get_data_archives_ep_accepts_proper_headers(client):
-    """
-    End point gets passes the missing header check with both headers
-    """
-    rv = client.get('/rac-api/get-data-archives', headers={
+    rv = client.get('/rac-api/packages/get-packages', headers={
         'auth-token': "Some Token",
         'auth-username': "Some Username"
     })
@@ -421,139 +234,14 @@ def test_get_data_archives_ep_accepts_proper_headers(client):
     assert rv.status_code != 400
 
 
-def test_get_data_archives_ep_does_fail_with_invalid_credentials(client, mocker):
+def test_get_packages_accepts_params(client):
     """
-     Mocker fakes a 401 response from authenticator endpoint to pass verification
-    """
-
-    mock_response = MockResponse()
-    mock_response.set_status_code(401)
-    mocker.patch("requests.post", return_value=mock_response)
-
-    rv = client.get('/rac-api/get-data-archives', headers={
-        'auth-token': "Some Token",
-        'auth-username': "Some Username"
-    })
-
-    assert rv.status_code == 403
-
-
-def test_get_data_archives_ep_does_not_fail_with_valid_credentials(client, mocker):
-    """
-    Mocker fakes a 200 response from authenticator endpoint to pass verification
+    end point doesn't blow up when we send parameters
     """
 
-    mock_response = MockResponse()
-    mock_response.set_status_code(200)
-    mocker.patch("requests.post", return_value=mock_response)
-
-    rv = client.get('/rac-api/get-data-archives', headers={
+    rv = client.get('/rac-api/packages/get-packages?limit=50&page=1&order=name&search=', headers={
         'auth-token': "Some Token",
         'auth-username': "Some Username"
     })
 
-    assert rv.status_code != 403
-
-
-def test_get_data_archives_ep_does_not_fail_with_successful_query(client, mocker):
-    '''
-    Uses psycopg mock to mock DB call
-    '''
-
-    mock_response = MockResponse()
-    mock_response.set_status_code(200)
-    mock_response.set_json({
-        "archive_id": "11234221137",
-        "s3_location": "/cadre-file-archive/yan30",
-        "archive_description": "tar file",
-        "archive_name": "ISSIDemoData.tar.gz",
-        "archive_created_on": "2019-08-23T16:26:32.048808+00:00"
-    })
-    mocker.patch("requests.post", return_value=mock_response)
-    mock_connection = MockPsycopgConnection()
-    mocker.patch("psycopg2.connect", return_value=mock_connection)
-
-    rv = client.get('/rac-api/get-data-archives', headers={
-        'auth-token': "Some Token",
-        'auth-username': "Some Username"
-    })
-
-    assert rv.status_code == 200
-
-
-def test_get_data_archives_ep_fails_on_db_exception(client, mocker):
-    '''
-    Uses psycopg mock to mock DB call with exception
-    '''
-
-    mock_response = MockResponse()
-    mock_response.set_status_code(200)
-    mock_response.set_json({
-        "archive_id": "11234221137",
-        "s3_location": "/cadre-file-archive/yan30",
-        "archive_description": "tar file",
-        "archive_name": "ISSIDemoData.tar.gz",
-        "archive_created_on": "2019-08-23T16:26:32.048808+00:00"
-    })
-    mocker.patch("requests.post", return_value=mock_response)
-    mock_connection = MockPsycopgConnection(raise_exception=True)  # raise exception
-    mocker.patch("psycopg2.connect", return_value=mock_connection)
-
-    rv = client.get('/rac-api/get-data-archives', headers={
-        'auth-token': "Some Token",
-        'auth-username': "Some Username"
-    })
-
-    assert rv.status_code == 500
-
-
-def test_get_data_archives_ep_returns_jsonified_jobs_from_db(client, mocker):
-    '''
-    Checks that the endpoint is returning json that matches the mocked up data
-    '''
-
-    rows = [
-        [
-           "11234221137",
-            "/cadre-file-archive/yan30",
-            "tar file",
-            "ISSIDemoData.tar.gz",
-            "2019-08-23T16:26:32.048808+00:00"
-        ],
-        [
-            "11234221137",
-            "/cadre-file-archive/yan30",
-            "tar file",
-            "ISSIDemoData.tar.gz",
-            "2019-08-23T16:26:32.048808+00:00"
-        ],
-        [
-            "11234221137",
-            "/cadre-file-archive/yan30",
-            "tar file",
-            "ISSIDemoData.tar.gz",
-            "2019-08-23T16:26:32.048808+00:00"
-        ]
-    ]
-
-    mock_response = MockResponse()
-    mock_response.set_status_code(200)
-    mock_response.set_json({
-        "archive_id": "11234221137",
-        "s3_location": "/cadre-file-archive/yan30",
-        "archive_description": "tar file",
-        "archive_name": "ISSIDemoData.tar.gz",
-        "archive_created_on": "2019-08-23T16:26:32.048808+00:00"
-    })
-    mocker.patch("requests.post", return_value=mock_response)
-    mock_connection = MockPsycopgConnection(rows=rows)
-    mocker.patch("psycopg2.connect", return_value=mock_connection)
-
-    rv = client.get('/rac-api/get-data-archives', headers={
-        'auth-token': "Some Token",
-        'auth-username': "Some Username"
-    })
-
-    pprint(rv.get_json())
-    pprint(rows);
-    assert rv.get_json() == (rows)
+    assert rv.status_code != 500

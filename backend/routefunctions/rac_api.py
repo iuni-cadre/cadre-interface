@@ -225,13 +225,13 @@ def get_packages():
 
     # Checking if no values are provided then assigning the default values
     # if limit is None:
-    #   limit = 25
+    #     limit = 25
 
     # if page is None:
-    #    page = 0
+    #     page = 0
 
     # if order is None:
-    #    order = 'name'
+    #     order = 'name'
 
     # Validating the Request here
     try:
@@ -260,7 +260,7 @@ def get_packages():
 
     # Here we are getting all the details of the all the different packages from the database
     try:
-        cur.execute("SELECT max(package.package_id) as package_id, max(package.type) as type, max(package.description) as description, max(package.name) as name, max(package.doi) as doi, max(trim(both '\"' from to_json(package.created_on)::text)) as created_on, max(package.created_by) as created_by, max(tool.tool_id) as tool_id, max(tool.description) as tool_description, max(tool.name) as tool_name, max(tool.script_name) as tool_script_name, array_agg(archive.name) as input_files FROM package, archive, tool where package.archive_id = archive.archive_id AND package.tool_id = tool.tool_id GROUP BY package.package_id ORDER BY {} LIMIT {} OFFSET {};".format(order, limit, offset))
+        cur.execute("SELECT max(package.package_id) as package_id, max(package.type) as type, max(package.description) as description, max(package.name) as name, max(package.doi) as doi, max(package.created_on) as created_on, max(package.created_by) as created_by, max(tool.tool_id) as tool_id, max(tool.description) as tool_description, max(tool.name) as tool_name, max(tool.script_name) as tool_script_name, array_agg(archive.name) as input_files FROM package, archive, tool where package.archive_id = archive.archive_id AND package.tool_id = tool.tool_id GROUP BY package.package_id ORDER BY %s LIMIT %s OFFSET %s;", [order, limit, offset])
         if cur.rowcount == 0:
             return jsonify({"Error:", "Query returns zero results."}), 404
         if cur.rowcount > 0:
@@ -284,7 +284,7 @@ def get_packages():
             print(package_response)
             return jsonify(json.loads(package_response), 200)
     except Exception:
-        return jsonify({"Error:", "Problem querying the package table or the archive table or the tools table in the meta database."}), 500
+        return jsonify({"Error:": "Problem querying the package table or the archive table or the tools table in the meta database."}), 500
     finally:
         # Closing the database connection.
         cur.close()
@@ -371,7 +371,7 @@ def get_tools():
 
     # Here we are getting all the details of the all the different tools from the database
     try:
-        cur.execute("SELECT tool_id, tool.description as tool_description, tool.name as tool_name, tool.script_name as tool_script_name, trim(both '\"' from to_json(tool.created_on)::text) as tool_created_on FROM tool ORDER BY {} LIMIT {} OFFSET {};".format(order, limit, offset))
+        cur.execute("SELECT tool_id, tool.description as tool_description, tool.name as tool_name, tool.script_name as tool_script_name, tool.created_on as tool_created_on FROM tool ORDER BY %s LIMIT %s OFFSET %s;", [order, limit, offset])
         if cur.rowcount == 0:
             return jsonify({"Error:", "Query returns zero results."}), 404
         if cur.rowcount > 0:

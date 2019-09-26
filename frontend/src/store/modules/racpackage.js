@@ -113,8 +113,8 @@ export default {
                 // return true;
 
                 let axios_prom = Vue.$cadre.axios({
-                    url: Vue.$cadreConfig.rac_api_prefix + "/get-packages",
-                    data: {
+                    url: Vue.$cadreConfig.rac_api_prefix + "/packages/get-packages",
+                    params: {
                         limit: 50,
                         page: 1,
                         order: "name",
