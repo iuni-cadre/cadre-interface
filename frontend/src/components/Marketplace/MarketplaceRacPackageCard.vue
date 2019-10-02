@@ -164,8 +164,12 @@ export default {
             let output_files = [];
             for (let tool of this.racpackage.tools) {
                 // let tool = this.tool(tool_id);
-                if (tool) {
-                    output_files = [...output_files, ...tool.output_files];
+                try {
+                    if (tool) {
+                        output_files = [...output_files, ...tool.output_files];
+                    }
+                } catch (err) {
+
                 }
             }
 
