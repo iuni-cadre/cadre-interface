@@ -60,7 +60,7 @@ export default {
                     url: "/rac-api/packages/get-tools",
                     data: {
                         // limit: 50,
-                        // page: 1,
+                        // page: 0,
                         // order: 'name',
                         // search: ''
                     }
@@ -88,7 +88,7 @@ export default {
                     url: "/rac-api/packages/get-jobs",
                     data: {
                         // limit: 50,
-                        // page: 1,
+                        // page: 0,
                         // order: 'name',
                         // search: ''
                     }
@@ -116,7 +116,7 @@ export default {
                     url: Vue.$cadreConfig.rac_api_prefix + "/packages/get-packages",
                     params: {
                         limit: 50,
-                        page: 1,
+                        page: 0,
                         order: "name",
                         search: ""
                     },
