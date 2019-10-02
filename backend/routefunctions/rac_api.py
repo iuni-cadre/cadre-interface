@@ -126,7 +126,7 @@ def run_package():
         return jsonify({"error": "auth headers are missing"}), 400
     # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
-    validata_token_args = {
+    validate_token_args = {
         'username': username
     }
     headers = {
@@ -134,7 +134,7 @@ def run_package():
         'Content-Type': 'application/json'
     }
     validate_token_response = requests.post(auth_config["verify-token-endpoint"],
-                                            data=json.dumps(validata_token_args),
+                                            data=json.dumps(validate_token_args),
                                             headers=headers,
                                             verify=False)
     if validate_token_response.status_code is not 200:
@@ -204,7 +204,7 @@ def get_packages():
         return jsonify({"error": "auth headers are missing"}), 400
         # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
-    validata_token_args = {
+    validate_token_args = {
         'username': username
     }
     headers = {
@@ -212,15 +212,16 @@ def get_packages():
         'Content-Type': 'application/json'
     }
     validate_token_response = requests.post(auth_config["verify-token-endpoint"],
-                                            data=json.dumps(validata_token_args),
+                                            data=json.dumps(validate_token_args),
                                             headers=headers,
                                             verify=False)
     if validate_token_response.status_code is not 200:
         print(validate_token_response)
         return jsonify({"Error": "Invalid Token"}), 403
 
-    response_json = validate_token_response.json()
-    user_id = response_json['user_id']
+    # response_json = validate_token_response.json()
+    # print(response_json)
+    # user_id = response_json['user_id']
 
     # Checking if no values are provided then assigning the default values
     # if limit is None:
@@ -259,23 +260,28 @@ def get_packages():
 
     # Here we are getting all the details of the all the different packages from the database
     try:
-        cur.execute("SELECT max(package.package_id) as package_id, max(package.type) as type, max(package.description) as description, max(package.name) as name, max(package.doi) as doi, max(package.created_on) as created_on, max(package.created_by) as created_by, max(tool.tool_id) as tool_id, max(tool.description) as tool_description, max(tool.name) as tool_name, max(tool.script_name) as tool_script_name, array_agg(archive.name) as input_files FROM package, archive, tool where package.archive_id = archive.archive_id AND package.tool_id = tool.tool_id GROUP BY package.package_id ORDER BY {} LIMIT {} OFFSET {};".format(order, limit, offset))
+        cur.execute("SELECT max(package.package_id) as package_id, max(package.type) as type, max(package.description) as description, max(package.name) as name, max(package.doi) as doi, max(trim(both '\"' from to_json(package.created_on)::text)) as created_on, max(package.created_by) as created_by, max(tool.tool_id) as tool_id, max(tool.description) as tool_description, max(tool.name) as tool_name, max(tool.script_name) as tool_script_name, array_agg(archive.name) as input_files FROM package, archive, tool where package.archive_id = archive.archive_id AND package.tool_id = tool.tool_id GROUP BY package.package_id ORDER BY {} LIMIT {} OFFSET {};".format(order, limit, offset))
         if cur.rowcount == 0:
             return jsonify({"Error:", "Query returns zero results."}), 404
         if cur.rowcount > 0:
-            package_info = cur.fetchone()
-            package_json = {
-                'package_id': package_info[0],
-                'type': package_info[1],
-                'description': package_info[2],
-                'name': package_info[3],
-                'doi': package_info[4],
-                'created_on': package_info[5],
-                'created_by': package_info[6],
-                'tools': [{'tool_id': package_info[7], 'tool_description': package_info[8], 'tool_name': package_info[9], 'tool_script_name': package_info[10]}],
-                'input_files': package_info[11]
-            }
-            package_response = json.dumps(package_json)
+            package_info = cur.fetchall()
+            package_list = []
+            for packages in package_info:
+                package_json = {
+                    'package_id': packages[0],
+                    'type': packages[1],
+                    'description': packages[2],
+                    'name': packages[3],
+                    'doi': packages[4],
+                    'created_on': packages[5],
+                    'created_by': packages[6],
+                    'tools': [{'tool_id': packages[7], 'tool_description': packages[8], 'tool_name': packages[9], 'tool_script_name': packages[10]}],
+                    'input_files': packages[11]
+                }
+                package_list.append(package_json)
+            print(package_list)
+            package_response = json.dumps(package_list)
+            print(package_response)
             return jsonify(json.loads(package_response), 200)
     except Exception:
         return jsonify({"Error:", "Problem querying the package table or the archive table or the tools table in the meta database."}), 500
@@ -310,7 +316,7 @@ def get_tools():
         return jsonify({"error": "auth headers are missing"}), 400
         # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
-    validata_token_args = {
+    validate_token_args = {
         'username': username
     }
     headers = {
@@ -318,15 +324,15 @@ def get_tools():
         'Content-Type': 'application/json'
     }
     validate_token_response = requests.post(auth_config["verify-token-endpoint"],
-                                            data=json.dumps(validata_token_args),
+                                            data=json.dumps(validate_token_args),
                                             headers=headers,
                                             verify=False)
     if validate_token_response.status_code is not 200:
         print(validate_token_response)
         return jsonify({"Error": "Invalid Token"}), 403
 
-    response_json = validate_token_response.json()
-    user_id = response_json['user_id']
+    # response_json = validate_token_response.json()
+    # user_id = response_json['user_id']
 
     # Checking if no values are provided then assigning the default values
     # if limit is None:
@@ -365,19 +371,24 @@ def get_tools():
 
     # Here we are getting all the details of the all the different tools from the database
     try:
-        cur.execute("SELECT tool_id, tool.description as tool_description, tool.name as tool_name, tool.script_name as tool_script_name, tool.created_on as tool_created_on FROM tool ORDER BY {} LIMIT {} OFFSET {};".format(order, limit, offset))
+        cur.execute("SELECT tool_id, tool.description as tool_description, tool.name as tool_name, tool.script_name as tool_script_name, trim(both '\"' from to_json(tool.created_on)::text) as tool_created_on FROM tool ORDER BY {} LIMIT {} OFFSET {};".format(order, limit, offset))
         if cur.rowcount == 0:
             return jsonify({"Error:", "Query returns zero results."}), 404
         if cur.rowcount > 0:
-            tool_info = cur.fetchone()
-            tool_json = {
-                'tool_id': tool_info[0],
-                'tool_description': tool_info[1],
-                'tool_name': tool_info[2],
-                'tool_script_name': tool_info[3],
-                'created_on': tool_info[4]
-            }
-            tool_response = json.dumps(tool_json)
+            tool_info = cur.fetchall()
+            tool_list = []
+            for tools in tool_info:
+                tool_json = {
+                    'tool_id': tools[0],
+                    'tool_description': tools[1],
+                    'tool_name': tools[2],
+                    'tool_script_name': tools[3],
+                    'created_on': tools[4]
+                }
+                tool_list.append(tool_json)
+            print(tool_list)
+            tool_response = json.dumps(tool_list)
+            print(tool_response)
             return jsonify(json.loads(tool_response), 200)
     except Exception:
         return jsonify({"Error:", "Problem querying the tools table in the meta database."}), 500
@@ -411,7 +422,7 @@ def create_packages():
         return jsonify({"error": "auth headers are missing"}), 400
         # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
-    validata_token_args = {
+    validate_token_args = {
         'username': username
     }
     headers = {
@@ -419,7 +430,7 @@ def create_packages():
         'Content-Type': 'application/json'
     }
     validate_token_response = requests.post(auth_config["verify-token-endpoint"],
-                                            data=json.dumps(validata_token_args),
+                                            data=json.dumps(validate_token_args),
                                             headers=headers,
                                             verify=False)
     if validate_token_response.status_code is not 200:
@@ -428,6 +439,7 @@ def create_packages():
 
     response_json = validate_token_response.json()
     user_id = response_json['user_id']
+
     # This is where we are actually connecting to the database and inserting the details of the package in the package database
     conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
     cur = conn.cursor()
@@ -500,7 +512,7 @@ def get_user_files():
         return jsonify({"error": "auth headers are missing"}), 400
         # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
-    validata_token_args = {
+    validate_token_args = {
         'username': username
     }
     headers = {
@@ -508,15 +520,15 @@ def get_user_files():
         'Content-Type': 'application/json'
     }
     validate_token_response = requests.post(auth_config["verify-token-endpoint"],
-                                            data=json.dumps(validata_token_args),
+                                            data=json.dumps(validate_token_args),
                                             headers=headers,
                                             verify=False)
     if validate_token_response.status_code is not 200:
         print(validate_token_response)
         return jsonify({"Error": "Invalid Token"}), 403
 
-    response_json = validate_token_response.json()
-    user_id = response_json['user_id']
+    # response_json = validate_token_response.json()
+    # user_id = response_json['user_id']
 
     # This is where we are actually connecting to the database
     conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
@@ -526,8 +538,8 @@ def get_user_files():
     try:
         cur.execute("SELECT directory_location FROM jupyter_user WHERE jupyter_username= %s;", [username])
         if cur.rowcount == 0:
-            return jsonify({"Error:", "The directory location is currently empty for the specific user."}), 404
-        if cur.rowcount > 0:
+            return jsonify({"Error:" "The directory location is currently empty for the specific user."}), 404
+        if cur.rowcount == 1:
             directory_path = cur.fetchone()
             file_info = []
             for root, dirs, files in os.walk(directory_path):
@@ -544,8 +556,10 @@ def get_user_files():
 
             files_response = json.dumps(file_info)
             return jsonify(json.loads(files_response), 200)
+        if cur.rowcount > 1:
+            return jsonify({"Error:" "This directory location is present in more than one user's directory location."}), 404
     except Exception:
-        return jsonify({"Error:", "Problem querying the tools table in the meta database."}), 500
+        return jsonify({"Error:" "Problem querying the tools table in the meta database."}), 500
     finally:
         # Closing the database connection.
         cur.close()
@@ -572,7 +586,7 @@ def get_package_details_from_package_id(package_id):
         return jsonify({"Error": "Auth headers are missing"}), 401
         # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
-    validata_token_args = {
+    validate_token_args = {
         'username': username
     }
     headers = {
@@ -580,15 +594,15 @@ def get_package_details_from_package_id(package_id):
         'Content-Type': 'application/json'
     }
     validate_token_response = requests.post(auth_config["verify-token-endpoint"],
-                                            data=json.dumps(validata_token_args),
+                                            data=json.dumps(validate_token_args),
                                             headers=headers,
                                             verify=False)
     if validate_token_response.status_code is not 200:
         print(validate_token_response)
         return jsonify({"Error": "Invalid Token"}), 403
 
-    response_json = validate_token_response.json()
-    user_id = response_json['user_id']
+    # response_json = validate_token_response.json()
+    # user_id = response_json['user_id']
 
     # This is where we are actually connecting to the database and getting the details of the packages
     conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
@@ -598,26 +612,30 @@ def get_package_details_from_package_id(package_id):
 
     # Here we are getting all the details of the package from the package id
     try:
-        cur.execute("SELECT max(package.package_id) as package_id, max(package.type) as type, max(package.description) as description, max(package.name) as name, max(package.doi) as doi, max(package.created_on) as created_on, max(package.created_by) as created_by, max(tool.tool_id) as tool_id, max(tool.description) as tool_description, max(tool.name) as tool_name, max(tool.script_name) as tool_script_name, array_agg(archive.name) as input_files FROM package, archive, tool where package.archive_id = archive.archive_id AND package.tool_id = tool.tool_id AND package.package_id = {};".format(package_id))
+        cur.execute("SELECT max(package.package_id) as package_id, max(package.type) as type, max(package.description) as description, max(package.name) as name, max(package.doi) as doi, max(trim(both '\"' from to_json(package.created_on)::text)) as created_on, max(package.created_by) as created_by, max(tool.tool_id) as tool_id, max(tool.description) as tool_description, max(tool.name) as tool_name, max(tool.script_name) as tool_script_name, array_agg(archive.name) as input_files FROM package, archive, tool where package.archive_id = archive.archive_id AND package.tool_id = tool.tool_id AND package.package_id = '{}';".format(package_id))
         if cur.rowcount == 0:
-            return jsonify({"Error:", "Query returns zero results."}), 404
+            return jsonify({"Error:" "Query returns zero results."}), 404
         if cur.rowcount > 0:
-            package_info = cur.fetchone()
-            package_json = {
-                'package_id': package_info[0],
-                'type': package_info[1],
-                'description': package_info[2],
-                'name': package_info[3],
-                'doi': package_info[4],
-                'created_on': package_info[5],
-                'created_by': package_info[6],
-                'tools': [
-                    {'tool_id': package_info[7], 'tool_description': package_info[8], 'tool_name': package_info[9],
-                     'tool_script_name': package_info[10]}],
-                'input_files': package_info[11]
-            }
-            package_response = json.dumps(package_json)
+            package_info = cur.fetchall()
+            package_list = []
+            for packages in package_info:
+                package_json = {
+                    'package_id': packages[0],
+                    'type': packages[1],
+                    'description': packages[2],
+                    'name': packages[3],
+                    'doi': packages[4],
+                    'created_on': packages[5],
+                    'created_by': packages[6],
+                    'tools': [{'tool_id': packages[7], 'tool_description': packages[8], 'tool_name': packages[9], 'tool_script_name': packages[10]}],
+                    'input_files': packages[11]
+                }
+                package_list.append(package_json)
+            print(package_list)
+            package_response = json.dumps(package_list)
+            print(package_response)
             return jsonify(json.loads(package_response), 200)
+
     except Exception:
         return jsonify({"Error:",
                         "Problem querying the package table or the archive table or the tools table in the meta database."}), 500
@@ -647,7 +665,7 @@ def get_tool_details_from_tool_id(tool_id):
         return jsonify({"Error": "Auth headers are missing"}), 401
         # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
-    validata_token_args = {
+    validate_token_args = {
         'username': username
     }
     headers = {
@@ -655,15 +673,15 @@ def get_tool_details_from_tool_id(tool_id):
         'Content-Type': 'application/json'
     }
     validate_token_response = requests.post(auth_config["verify-token-endpoint"],
-                                            data=json.dumps(validata_token_args),
+                                            data=json.dumps(validate_token_args),
                                             headers=headers,
                                             verify=False)
     if validate_token_response.status_code is not 200:
         print(validate_token_response)
         return jsonify({"Error": "Invalid Token"}), 403
 
-    response_json = validate_token_response.json()
-    user_id = response_json['user_id']
+    # response_json = validate_token_response.json()
+    # user_id = response_json['user_id']
 
     # This is where we are actually connecting to the database and getting the details of the tools
     conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
@@ -671,19 +689,24 @@ def get_tool_details_from_tool_id(tool_id):
 
     # Here we are getting all the details of the tool specified by the tool id
     try:
-        cur.execute("SELECT tool_id, tool.description as tool_description, tool.name as tool_name, tool.script_name as tool_script_name, tool.created_on as tool_created_on FROM tool WHERE tool_id = {};".format(tool_id))
+        cur.execute("SELECT tool_id, tool.description as tool_description, tool.name as tool_name, tool.script_name as tool_script_name, trim(both '\"' from to_json(tool.created_on)::text) as tool_created_on FROM tool WHERE tool_id = '{}';".format(tool_id))
         if cur.rowcount == 0:
             return jsonify({"Error:", "Query returns zero results."}), 404
         if cur.rowcount > 0:
-            tool_info = cur.fetchone()
-            tool_json = {
-                'tool_id': tool_info[0],
-                'tool_description': tool_info[1],
-                'tool_name': tool_info[2],
-                'tool_script_name': tool_info[3],
-                'created_on': tool_info[4]
-            }
-            tool_response = json.dumps(tool_json)
+            tool_info = cur.fetchall()
+            tool_list = []
+            for tools in tool_info:
+                tool_json = {
+                    'tool_id': tools[0],
+                    'tool_description': tools[1],
+                    'tool_name': tools[2],
+                    'tool_script_name': tools[3],
+                    'created_on': tools[4]
+                }
+                tool_list.append(tool_json)
+            print(tool_list)
+            tool_response = json.dumps(tool_list)
+            print(tool_response)
             return jsonify(json.loads(tool_response), 200)
     except Exception:
         return jsonify({"Error:", "Problem querying the tools table in the meta database."}), 500
@@ -716,7 +739,7 @@ def get_data_archives():
         return jsonify({"error": "auth headers are missing"}), 400
         # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
-    validata_token_args = {
+    validate_token_args = {
         'username': username
     }
     headers = {
@@ -724,15 +747,15 @@ def get_data_archives():
         'Content-Type': 'application/json'
     }
     validate_token_response = requests.post(auth_config["verify-token-endpoint"],
-                                            data=json.dumps(validata_token_args),
+                                            data=json.dumps(validate_token_args),
                                             headers=headers,
                                             verify=False)
     if validate_token_response.status_code is not 200:
         print(validate_token_response)
         return jsonify({"Error": "Invalid Token"}), 403
 
-    response_json = validate_token_response.json()
-    user_id = response_json['user_id']
+    # response_json = validate_token_response.json()
+    # user_id = response_json['user_id']
 
     # Checking if no values are provided then assigning the default values
     # if limit is None:
@@ -771,19 +794,24 @@ def get_data_archives():
 
     # Here we are getting all the details of the all the data archives from the database
     try:
-        cur.execute("SELECT archive_id, s3_location, description as archive_description, name as archive_name, created_on as archive_created_on FROM archive ORDER BY {} LIMIT {} OFFSET {};".format(order, limit, offset))
+        cur.execute("SELECT archive_id, s3_location, description as archive_description, name as archive_name, trim(both '\"' from to_json(created_on)::text) as archive_created_on FROM archive ORDER BY {} LIMIT {} OFFSET {};".format(order, limit, offset))
+
         if cur.rowcount == 0:
             return jsonify({"Error:", "Query returns zero results."}), 404
         if cur.rowcount > 0:
-            archive_info = cur.fetchone()
-            archive_json = {
-                'archive_id': archive_info[0],
-                's3_location': archive_info[1],
-                'archive_description': archive_info[2],
-                'archive_name': archive_info[3],
-                'archive_created_on': archive_info[4]
-            }
-            archive_response = json.dumps(archive_json)
+            archive_info = cur.fetchall()
+            archive_list = []
+            for archives in archive_info:
+                archive_json = {
+                    'archive_id': archives[0],
+                    's3_location': archives[1],
+                    'archive_description': archives[2],
+                    'archive_name': archives[3],
+                    'archive_created_on': archives[4]
+                }
+                archive_list.append(archive_json)
+            print(archive_list)
+            archive_response = json.dumps(archive_list)
             return jsonify(json.loads(archive_response), 200)
     except Exception:
         return jsonify({"Error:", "Problem querying the archive table in the meta database."}), 500
@@ -792,3 +820,4 @@ def get_data_archives():
         cur.close()
         conn.close()
         print("The database connection has been closed successfully.")
+
