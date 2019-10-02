@@ -294,11 +294,16 @@ def get_packages():
                     'doi': packages[4],
                     'created_on': packages[5].isoformat(),
                     'created_by': packages[6],
-                    'tools': [{'tool_id': packages[7], 'tool_description': packages[8], 'tool_name': packages[9], 'tool_script_name': packages[10]}],
+                    'tools': [{
+                        'tool_id': packages[7], 
+                        'description': packages[8], 
+                        'name': packages[9], 
+                        'created_by': None
+                        # 'tool_script_name': packages[10]
+                    }],
                     'input_files': packages[11]
                 }
                 package_list.append(package_json)
-                
             return jsonify(package_list), 200
     except Exception as e:
         print("There was an error: ", str(e)) #sends the error to the log

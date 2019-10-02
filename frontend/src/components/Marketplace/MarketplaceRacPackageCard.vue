@@ -4,9 +4,9 @@
             <div>
                 <h4 v-text="racpackage.name">Package Name</h4>
                 <div class="small"
-                     v-text="`By: ${racpackage.author}`"></div>
+                     v-text="`By: ${racpackage.created_by || 'CADRE Team'}`"></div>
                 <div class="small"
-                     v-text="`Created On: ${racpackage.created_date}`"></div>
+                     v-text="`Created On: ${new Date(racpackage.created_on).toUTCString()}`"></div>
                 <div class="racpackage-body row mt-3">
                     <div class="racpackage-info col jusify-content-between">
                         <dl>
@@ -153,7 +153,7 @@ export default {
         tool_authors: function() {
             return this.racpackage.tools
                 .map(tool => {
-                    return tool.author;
+                    return tool.created_by;
                 })
                 .join(", ");
         },
