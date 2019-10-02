@@ -202,8 +202,7 @@ def get_packages():
     # We are verifying the auth token here
     if auth_token is None or username is None:
         return jsonify({"error": "auth headers are missing"}), 400
-        # connection = cadre_meta_connection_pool.getconn()
-        # cursor = connection.cursor()
+
     validate_token_args = {
         'username': username
     }
@@ -216,41 +215,36 @@ def get_packages():
                                             headers=headers,
                                             verify=False)
     if validate_token_response.status_code is not 200:
-        print(validate_token_response)
+        # print(validate_token_response)
         return jsonify({"Error": "Invalid Token"}), 403
-
-    # response_json = validate_token_response.json()
-    # print(response_json)
-    # user_id = response_json['user_id']
-
-    # Checking if no values are provided then assigning the default values
-    # if limit is None:
-    #   limit = 25
-
-    # if page is None:
-    #    page = 0
-
-    # if order is None:
-    #    order = 'name'
 
     # Validating the Request here
     try:
         limit_value = int(limit)
-        if limit_value > 0:
-            print("Yes limit is a positive integer.")
-            print("The value of limit is: ", limit_value)
+        # if limit_value > 0:
+        #     print("Yes limit is a positive integer.")
+        #     print("The value of limit is: ", limit_value)
     except ValueError:
-        print("No Limit is not an Integer. It's a string")
+        # print("No Limit is not an Integer. It's a string")
         return jsonify({"Error": "Invalid Request: Limit should be a positive integer."}), 400
 
     try:
         page_value = int(page)
-        if page_value >= 0:
-            print("Yes page is an Integer.")
-            print("The value of page is: ", page_value)
+        # if page_value >= 0:
+        #     print("Yes page is an Integer.")
+        #     print("The value of page is: ", page_value)
     except ValueError:
-        print("No Page is not an Integer. It's a string")
+        # print("No Page is not an Integer. It's a string")
         return jsonify({"Error": "Invalid Request: Page should be a integer."}), 400
+
+    # this prevents sql injection for the order by clause.  Never use data sent by the user directly in a query
+    actual_order_by = 'name'
+    if order == 'name':
+        actual_order_by = 'name'
+    if order == 'description':
+        actual_order_by = 'description'
+    if order == 'created_on':
+        actual_order_by = 'created_on'    
 
     offset = page * limit
 
@@ -259,11 +253,36 @@ def get_packages():
     cur = conn.cursor()
 
     # Here we are getting all the details of the all the different packages from the database
+    # Use multiline string to make query easier to read
+    # Only use string interpolation for Order By clause (using our sanitized actual_or_by)
+    # User psycopg2's substitution for other parameters to prevent other sql injection (limit, offset)
     try:
-        cur.execute("SELECT max(package.package_id) as package_id, max(package.type) as type, max(package.description) as description, max(package.name) as name, max(package.doi) as doi, max(trim(both '\"' from to_json(package.created_on)::text)) as created_on, max(package.created_by) as created_by, max(tool.tool_id) as tool_id, max(tool.description) as tool_description, max(tool.name) as tool_name, max(tool.script_name) as tool_script_name, array_agg(archive.name) as input_files FROM package, archive, tool where package.archive_id = archive.archive_id AND package.tool_id = tool.tool_id GROUP BY package.package_id ORDER BY {} LIMIT {} OFFSET {};".format(order, limit, offset))
+        query = """SELECT 
+                    max(package.package_id) as package_id, 
+                    max(package.type) as type, 
+                    max(package.description) as description, 
+                    max(package.name) as name, 
+                    max(package.doi) as doi, 
+                    max(package.created_on) as created_on, 
+                    max(package.created_by) as created_by, 
+                    max(tool.tool_id) as tool_id, 
+                    max(tool.description) as tool_description, 
+                    max(tool.name) as tool_name, 
+                    max(tool.script_name) as tool_script_name, 
+                    array_agg(archive.name) as input_files 
+                FROM package 
+                    JOIN archive ON (package.archive_id = archive.archive_id)
+                    JOIN tool ON (package.tool_id = tool.tool_id)
+                GROUP BY 
+                        package.package_id 
+                ORDER BY {order_by} 
+                LIMIT %s 
+                OFFSET %s;""".format(order_by=actual_order_by)
+
+        cur.execute(query, (limit, offset))
         if cur.rowcount == 0:
-            return jsonify({"Error:", "Query returns zero results."}), 404
-        if cur.rowcount > 0:
+            return jsonify({"Error": "Query returns zero results."}), 404
+        elif cur.rowcount > 0:
             package_info = cur.fetchall()
             package_list = []
             for packages in package_info:
@@ -273,25 +292,28 @@ def get_packages():
                     'description': packages[2],
                     'name': packages[3],
                     'doi': packages[4],
-                    'created_on': packages[5],
+                    'created_on': packages[5].isoformat(),
                     'created_by': packages[6],
-                    'tools': [{'tool_id': packages[7], 'tool_description': packages[8], 'tool_name': packages[9], 'tool_script_name': packages[10]}],
+                    'tools': [{
+                        'tool_id': packages[7], 
+                        'description': packages[8], 
+                        'name': packages[9], 
+                        'created_by': None
+                        # 'tool_script_name': packages[10]
+                    }],
                     'input_files': packages[11]
                 }
                 package_list.append(package_json)
-            print(package_list)
-            package_response = json.dumps(package_list)
-            print(package_response)
-            return jsonify(json.loads(package_response), 200)
-    except Exception:
-        return jsonify({"Error:", "Problem querying the package table or the archive table or the tools table in the meta database."}), 500
+            return jsonify(package_list), 200
+    except Exception as e:
+        print("There was an error: ", str(e)) #sends the error to the log
+        return jsonify({"error:": "Problem querying the package table or the archive table or the tools table in the meta database.", "details": str(e)}), 500
+
     finally:
-        # Closing the database connection.
         cur.close()
         conn.close()
-        print("The database connection has been closed successfully.")
+        # print("The database connection has been closed successfully.")
 
-    # return jsonify({"package_id": 1, "name": "aaa", "author":"a", "created_date":"2019-07-16 10:51:26", "tools":["1", "2"], "input_files":["/a", "/b"]})
 
 
 @blueprint.route('/rac-api/get-tools', methods=['GET'])
@@ -371,7 +393,7 @@ def get_tools():
 
     # Here we are getting all the details of the all the different tools from the database
     try:
-        cur.execute("SELECT tool_id, tool.description as tool_description, tool.name as tool_name, tool.script_name as tool_script_name, trim(both '\"' from to_json(tool.created_on)::text) as tool_created_on FROM tool ORDER BY {} LIMIT {} OFFSET {};".format(order, limit, offset))
+        cur.execute("SELECT tool_id, tool.description as tool_description, tool.name as tool_name, tool.script_name as tool_script_name, tool.created_on as tool_created_on FROM tool ORDER BY %s LIMIT %s OFFSET %s;", [order, limit, offset])
         if cur.rowcount == 0:
             return jsonify({"Error:", "Query returns zero results."}), 404
         if cur.rowcount > 0:

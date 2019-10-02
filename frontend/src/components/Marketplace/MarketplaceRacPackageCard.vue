@@ -4,9 +4,9 @@
             <div>
                 <h4 v-text="racpackage.name">Package Name</h4>
                 <div class="small"
-                     v-text="`By: ${racpackage.author}`"></div>
+                     v-text="`By: ${racpackage.created_by || 'CADRE Team'}`"></div>
                 <div class="small"
-                     v-text="`Created On: ${racpackage.created_date}`"></div>
+                     v-text="`Created On: ${new Date(racpackage.created_on).toUTCString()}`"></div>
                 <div class="racpackage-body row mt-3">
                     <div class="racpackage-info col jusify-content-between">
                         <dl>
@@ -123,37 +123,37 @@ export default {
         racpackage: function() {
             return this.RacPackage;
         },
-        tool: function() {
-            let packages = this.$store.getters["racpackage/tools"];
-            // console.debug(packages);
-            return tool_id => {
-                if (!packages[tool_id]) {
-                    console.warn(
-                        "Trying to get name of unknown tool " + tool_id
-                    );
-                    return {};
-                }
-                return packages[tool_id] || {};
-            };
-        },
+        // tool: function() {
+        //     let packages = this.$store.getters["racpackage/tools"];
+        //     // console.debug(packages);
+        //     return tool_id => {
+        //         if (!packages[tool_id]) {
+        //             console.warn(
+        //                 "Trying to get name of unknown tool " + tool_id
+        //             );
+        //             return {};
+        //         }
+        //         return packages[tool_id] || {};
+        //     };
+        // },
         tool_names: function() {
             return this.racpackage.tools
-                .map(tool_id => {
-                    return this.tool(tool_id).name;
+                .map(tool => {
+                    return tool.name;
                 })
                 .join(", ");
         },
         tool_descriptions: function() {
             return this.racpackage.tools
-                .map(tool_id => {
-                    return this.tool(tool_id).description;
+                .map(tool => {
+                    return tool.description;
                 })
                 .join(", ");
         },
         tool_authors: function() {
             return this.racpackage.tools
-                .map(tool_id => {
-                    return this.tool(tool_id).author;
+                .map(tool => {
+                    return tool.created_by;
                 })
                 .join(", ");
         },
@@ -162,10 +162,14 @@ export default {
         },
         tool_output_files: function() {
             let output_files = [];
-            for (let tool_id of this.racpackage.tools) {
-                let tool = this.tool(tool_id);
-                if (tool) {
-                    output_files = [...output_files, ...tool.output_files];
+            for (let tool of this.racpackage.tools) {
+                // let tool = this.tool(tool_id);
+                try {
+                    if (tool) {
+                        output_files = [...output_files, ...tool.output_files];
+                    }
+                } catch (err) {
+
                 }
             }
 

@@ -60,7 +60,7 @@ export default {
                     url: "/rac-api/packages/get-tools",
                     data: {
                         // limit: 50,
-                        // page: 1,
+                        // page: 0,
                         // order: 'name',
                         // search: ''
                     }
@@ -88,7 +88,7 @@ export default {
                     url: "/rac-api/packages/get-jobs",
                     data: {
                         // limit: 50,
-                        // page: 1,
+                        // page: 0,
                         // order: 'name',
                         // search: ''
                     }
@@ -108,22 +108,24 @@ export default {
         getPackages: function({ commit }) {
             return new Promise((resolve, reject) => {
                 //FOR TESTING
-                commit("setPackages", TEST_RAC_PACKAGES);
-                resolve({ status: 200, data: { message: "Test Packages" } });
-                return true;
+                // commit("setPackages", TEST_RAC_PACKAGES);
+                // resolve({ status: 200, data: { message: "Test Packages" } });
+                // return true;
 
                 let axios_prom = Vue.$cadre.axios({
-                    url: "/rac-api/packages/get-packages",
-                    data: {
+                    url: Vue.$cadreConfig.rac_api_prefix + "/packages/get-packages",
+                    params: {
                         limit: 50,
-                        page: 1,
+                        page: 0,
                         order: "name",
                         search: ""
-                    }
+                    },
+                    responseType: 'json'
                 });
                 axios_prom.then(
                     response => {
-                        let packages = response.data.packages;
+                        let packages = response.data;
+                        console.debug(response);
                         commit("setPackages", packages);
                         resolve(response);
                     },
