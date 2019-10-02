@@ -283,8 +283,8 @@ def get_packages():
             package_response = json.dumps(package_list)
             print(package_response)
             return jsonify(json.loads(package_response), 200)
-    except Exception:
-        return jsonify({"Error:": "Problem querying the package table or the archive table or the tools table in the meta database."}), 500
+    # except Exception:
+    #     return jsonify({"Error:": "Problem querying the package table or the archive table or the tools table in the meta database."}), 500
     finally:
         # Closing the database connection.
         cur.close()
