@@ -237,7 +237,7 @@ def get_packages():
         # print("No Page is not an Integer. It's a string")
         return jsonify({"Error": "Invalid Request: Page should be a integer."}), 400
 
-    # this prevents sql injection for the order by clause.  Never use data sent by the user directly in a query
+    # This prevents sql injection for the order by clause. Never use data sent by the user directly in a query
     actual_order_by = 'name'
     if order == 'name':
         actual_order_by = 'name'
@@ -353,19 +353,6 @@ def get_tools():
         print(validate_token_response)
         return jsonify({"Error": "Invalid Token"}), 403
 
-    # response_json = validate_token_response.json()
-    # user_id = response_json['user_id']
-
-    # Checking if no values are provided then assigning the default values
-    # if limit is None:
-    #    limit = 25
-
-    # if page is None:
-    #    page = 0
-
-    # if order is None:
-    #    order = 'name'
-
     # Validating the Request here
     try:
         limit_value = int(limit)
@@ -385,6 +372,15 @@ def get_tools():
         print("No Page is not an Integer. It's a string")
         return jsonify({"Error": "Invalid Request: Page should be a integer."}), 400
 
+    # This prevents sql injection for the order by clause. Never use data sent by the user directly in a query
+    actual_order_by = 'name'
+    if order == 'name':
+        actual_order_by = 'name'
+    if order == 'description':
+        actual_order_by = 'description'
+    if order == 'created_on':
+        actual_order_by = 'created_on'
+
     offset = page * limit
 
     # This is where we are actually connecting to the database and getting the details of the tools
@@ -393,7 +389,18 @@ def get_tools():
 
     # Here we are getting all the details of the all the different tools from the database
     try:
-        cur.execute("SELECT tool_id, tool.description as tool_description, tool.name as tool_name, tool.script_name as tool_script_name, tool.created_on as tool_created_on FROM tool ORDER BY %s LIMIT %s OFFSET %s;", [order, limit, offset])
+        query = """SELECT 
+                    tool_id, 
+                    tool.description as tool_description, 
+                    tool.name as tool_name, 
+                    tool.script_name as tool_script_name, 
+                    tool.created_on as tool_created_on
+                FROM tool 
+                ORDER BY {order_by} 
+                LIMIT %s 
+                OFFSET %s;""".format(order_by=actual_order_by)
+
+        cur.execute(query, (limit, offset))
         if cur.rowcount == 0:
             return jsonify({"Error:", "Query returns zero results."}), 404
         if cur.rowcount > 0:
@@ -405,7 +412,7 @@ def get_tools():
                     'tool_description': tools[1],
                     'tool_name': tools[2],
                     'tool_script_name': tools[3],
-                    'created_on': tools[4]
+                    'created_on': tools[4].isoformat()
                 }
                 tool_list.append(tool_json)
             print(tool_list)
@@ -634,7 +641,26 @@ def get_package_details_from_package_id(package_id):
 
     # Here we are getting all the details of the package from the package id
     try:
-        cur.execute("SELECT max(package.package_id) as package_id, max(package.type) as type, max(package.description) as description, max(package.name) as name, max(package.doi) as doi, max(trim(both '\"' from to_json(package.created_on)::text)) as created_on, max(package.created_by) as created_by, max(tool.tool_id) as tool_id, max(tool.description) as tool_description, max(tool.name) as tool_name, max(tool.script_name) as tool_script_name, array_agg(archive.name) as input_files FROM package, archive, tool where package.archive_id = archive.archive_id AND package.tool_id = tool.tool_id AND package.package_id = '{}';".format(package_id))
+        query = """SELECT 
+                    max(package.package_id) as package_id, 
+                    max(package.type) as type, 
+                    max(package.description) as description, 
+                    max(package.name) as name, 
+                    max(package.doi) as doi, 
+                    max(package.created_on) as created_on, 
+                    max(package.created_by) as created_by, 
+                    max(tool.tool_id) as tool_id, 
+                    max(tool.description) as tool_description, 
+                    max(tool.name) as tool_name, 
+                    max(tool.script_name) as tool_script_name, 
+                    array_agg(archive.name) as input_files 
+                FROM package 
+                JOIN archive ON (package.archive_id = archive.archive_id)
+                JOIN tool ON (package.tool_id = tool.tool_id)
+                WHERE package.package_id = %s;"""
+
+        cur.execute(query, package_id)
+
         if cur.rowcount == 0:
             return jsonify({"Error:" "Query returns zero results."}), 404
         if cur.rowcount > 0:
@@ -647,7 +673,7 @@ def get_package_details_from_package_id(package_id):
                     'description': packages[2],
                     'name': packages[3],
                     'doi': packages[4],
-                    'created_on': packages[5],
+                    'created_on': packages[5].isoformat(),
                     'created_by': packages[6],
                     'tools': [{'tool_id': packages[7], 'tool_description': packages[8], 'tool_name': packages[9], 'tool_script_name': packages[10]}],
                     'input_files': packages[11]
@@ -711,7 +737,16 @@ def get_tool_details_from_tool_id(tool_id):
 
     # Here we are getting all the details of the tool specified by the tool id
     try:
-        cur.execute("SELECT tool_id, tool.description as tool_description, tool.name as tool_name, tool.script_name as tool_script_name, trim(both '\"' from to_json(tool.created_on)::text) as tool_created_on FROM tool WHERE tool_id = '{}';".format(tool_id))
+        query = """SELECT 
+                    tool_id, 
+                    tool.description as tool_description, 
+                    tool.name as tool_name, 
+                    tool.script_name as tool_script_name, 
+                    tool.created_on as tool_created_on
+                FROM tool 
+                WHERE tool_id = %s;"""
+
+        cur.execute(query, tool_id)
         if cur.rowcount == 0:
             return jsonify({"Error:", "Query returns zero results."}), 404
         if cur.rowcount > 0:
@@ -723,7 +758,7 @@ def get_tool_details_from_tool_id(tool_id):
                     'tool_description': tools[1],
                     'tool_name': tools[2],
                     'tool_script_name': tools[3],
-                    'created_on': tools[4]
+                    'created_on': tools[4].isoformat()
                 }
                 tool_list.append(tool_json)
             print(tool_list)
@@ -779,16 +814,6 @@ def get_data_archives():
     # response_json = validate_token_response.json()
     # user_id = response_json['user_id']
 
-    # Checking if no values are provided then assigning the default values
-    # if limit is None:
-    #    limit = 25
-
-    # if page is None:
-    #    page = 0
-
-    # if order is None:
-    #    order = 'name'
-
     # Validating the Request here
     try:
         limit_value = int(limit)
@@ -808,6 +833,15 @@ def get_data_archives():
         print("No Page is not an Integer. It's a string")
         return jsonify({"Error": "Invalid Request: Page should be a integer."}), 400
 
+    # This prevents sql injection for the order by clause. Never use data sent by the user directly in a query
+    actual_order_by = 'name'
+    if order == 'name':
+        actual_order_by = 'name'
+    if order == 'description':
+        actual_order_by = 'description'
+    if order == 'created_on':
+        actual_order_by = 'created_on'
+
     offset = page * limit
 
     # This is where we are actually connecting to the database and getting the details of the archive
@@ -816,8 +850,18 @@ def get_data_archives():
 
     # Here we are getting all the details of the all the data archives from the database
     try:
-        cur.execute("SELECT archive_id, s3_location, description as archive_description, name as archive_name, trim(both '\"' from to_json(created_on)::text) as archive_created_on FROM archive ORDER BY {} LIMIT {} OFFSET {};".format(order, limit, offset))
+        query = """SELECT 
+                    archive_id,  
+                    s3_location, 
+                    description as archive_description, 
+                    name as archive_name, 
+                    created_on as archive_created_on
+                FROM archive
+                ORDER BY {order_by} 
+                LIMIT %s 
+                OFFSET %s;""".format(order_by=actual_order_by)
 
+        cur.execute(query, (limit, offset))
         if cur.rowcount == 0:
             return jsonify({"Error:", "Query returns zero results."}), 404
         if cur.rowcount > 0:
