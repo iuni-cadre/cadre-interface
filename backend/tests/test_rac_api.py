@@ -109,12 +109,154 @@ def test_notebook_status():
     pass
 
 
-def test_get_tools(client):
+def test_get_tools_ep_exists(client):
     """
     This is a method to test if the get tools api endpoint is working correctly
     """
-    rv = client.get('/rac-api/packages/get-tools')
-    assert rv.status_code == 404
+    rv = client.get('/rac-api/get-tools')
+    json = rv.get_json()
+    unknown_endpoint = False
+    if json["error"] and rv.status_code == 404 and json["error"] == "Unknown endpoint.":
+        unknown_endpoint = True
+
+    assert not unknown_endpoint
+
+
+def test_get_tools_ep_fails_without_proper_headers(client):
+    """
+    The end point needs at least the auth-auth and auth-user headers
+    """
+
+    rv = client.get('/rac-api/get-tools')
+    json = rv.get_json()
+    assert rv.status_code == 400
+    assert json["error"] and json["error"] == "auth headers are missing"
+
+    rv = client.get('/rac-api/get-tools', headers= {
+        'auth-username': "SOME USERNAME"
+    })
+    json = rv.get_json()
+    assert rv.status_code == 400
+    assert json["error"] and json["error"] == "auth headers are missing"
+
+    rv = client.get('/rac-api/get-tools', headers= {
+        'auth-token': "SOME TOKEN"
+    })
+    json = rv.get_json()
+    assert rv.status_code == 400
+    assert json["error"] and json["error"] == "auth headers are missing"
+
+
+def test_get_tools_ep_accepts_proper_headers(client):
+    """
+    End point gets past the missing header check with both headers
+    """
+
+    rv = client.get('/rac-api/get-tools', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    assert rv.status_code != 400
+
+
+def test_get_tools_ep_accepts_params(client):
+    """
+    End point doesn't blow up when we send parameters
+    """
+
+    rv = client.get('/rac-api/get-tools?limit=50&page=1&order=name&search=', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    assert rv.status_code != 500
+
+
+def test_get_tools_ep_does_fail_with_invalid_credentials(client, mocker):
+    """
+    Mocker fakes a 401 response from authenticator endpoint to pass verification
+    """
+
+    mock_response = MockResponse()
+    mock_response.set_status_code(401)
+    mocker.patch("requests.post", return_value=mock_response)
+
+    rv = client.get('/rac-api/get-tools', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    assert rv.status_code == 403
+
+
+def test_get_tools_ep_does_not_fail_with_valid_credentials(client, mocker):
+    """
+    Mocker fakes a 200 response from authenticator endpoint to pass verification
+    """
+
+    mock_response = MockResponse()
+    mock_response.set_status_code(200)
+    mocker.patch("requests.post", return_value=mock_response)
+
+    rv = client.get('/rac-api/get-tools', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    assert rv.status_code != 403
+
+
+def test_get_tools_ep_does_not_fail_with_successful_query(client, mocker):
+    '''
+    Uses psycopg mock to mock DB call
+    '''
+
+    mock_response = MockResponse()
+    mock_response.set_status_code(200)
+    mock_response.set_json({
+        "tool_id": "11234221128",
+        "tool_description": "Data for the ISSI tutorial",
+        "tool_name": "issi_data",
+        "tool_script_name": "issi_tutorial.py",
+        "created_on": "2019-08-23T16:01:33.935043+00:00"
+    })
+    mocker.patch("requests.post", return_value=mock_response)
+    mock_connection = MockPsycopgConnection()
+    mocker.patch("psycopg2.connect", return_value=mock_connection)
+
+    rv = client.get('/rac-api/get-tools', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    assert rv.status_code == 200
+
+
+def test_get_tools_ep_fails_on_db_exception(client, mocker):
+    '''
+    Uses psycopg mock to mock DB call with exception
+    '''
+
+    mock_response = MockResponse()
+    mock_response.set_status_code(200)
+    mock_response.set_json({
+        "tool_id": "11234221128",
+        "tool_description": "Data for the ISSI tutorial",
+        "tool_name": "issi_data",
+        "tool_script_name": "issi_tutorial.py",
+        "created_on": "2019-08-23T16:01:33.935043+00:00"
+    })
+    mocker.patch("requests.post", return_value=mock_response)
+    mock_connection = MockPsycopgConnection(raise_exception=True)  # raise exception
+    mocker.patch("psycopg2.connect", return_value=mock_connection)
+
+    rv = client.get('/rac-api/get-tools', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    assert rv.status_code == 500
 
 
 def test_get_packages_ep_exists(client):
