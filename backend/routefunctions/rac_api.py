@@ -15,7 +15,7 @@ jupyter_config = readconfig.jupyter
 meta_db_config = readconfig.meta_db
 auth_config = readconfig.auth
 aws_config = readconfig.aws
-
+efs_path_config = readconfig.efs_path
 
 @blueprint.route('/rac-api/new-notebook/<username>', methods=['POST'])
 def new_notebook(username):
@@ -535,6 +535,8 @@ def get_user_files():
     """
     auth_token = request.headers.get('auth-token')
     username = request.headers.get('auth-username')
+    level = int(request.args.get('level', 2))
+    path = request.args.get('path', '')
 
     # We are verifying the auth token here
     if auth_token is None or username is None:
@@ -559,19 +561,23 @@ def get_user_files():
     # response_json = validate_token_response.json()
     # user_id = response_json['user_id']
 
-    # This is where we are actually connecting to the database
-    conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
-    cur = conn.cursor()
+    # Validating the Request here
+    try:
+        level_value = int(level)
+        if level_value >= 0:
+            print("Yes level is an Integer.")
+    except ValueError:
+        print("No level is not an Integer. It's a string")
+        return jsonify({"Error": "Invalid Request: Level should be a integer."}), 400
 
     # Here we are getting all the details of the location of the efs directory of the user
     try:
-        cur.execute("SELECT directory_location FROM jupyter_user WHERE jupyter_username= %s;", [username])
-        if cur.rowcount == 0:
-            return jsonify({"Error:" "The directory location is currently empty for the specific user."}), 404
-        if cur.rowcount == 1:
-            directory_path = cur.fetchone()
-            file_info = []
-            for root, dirs, files in os.walk(directory_path):
+        efs_path = efs_path_config["efs-path"]
+        directory_path = efs_path + username + path
+        file_info = []
+        for root, dirs, files in os.walk(directory_path):
+            _root = root.replace(directory_path, '')
+            if _root.count(os.sep) < level:
                 for file_name in files:
                     print(os.path.join(root, file_name))
                     file_info.append({'path': '{}'.format(os.path.join(root, file_name)), 'type': 'file'})
@@ -579,21 +585,16 @@ def get_user_files():
                     print(os.path.join(root, directory_name))
                     file_info.append({'path': '{}'.format(os.path.join(root, directory_name)), 'type': 'folder'})
 
-            # Here we are printing the value of the list
-            for x in range(len(file_info)):
-                print(file_info[x])
+        # Here we are printing the value of the list
+        for x in range(len(file_info)):
+            print(file_info[x])
 
-            files_response = json.dumps(file_info)
-            return jsonify(json.loads(files_response), 200)
-        if cur.rowcount > 1:
-            return jsonify({"Error:" "This directory location is present in more than one user's directory location."}), 404
+        files_response = json.dumps(file_info)
+        return jsonify(json.loads(files_response), 200)
     except Exception:
-        return jsonify({"Error:" "Problem querying the tools table in the meta database."}), 500
+        return jsonify({"Error:" "The path provided does not exist."}), 500
     finally:
-        # Closing the database connection.
-        cur.close()
-        conn.close()
-        print("The database connection has been closed successfully.")
+        print("The request has been handled.")
 
 
 @blueprint.route('/rac-api/get-package/<package_id>', methods=['GET'])
@@ -873,7 +874,7 @@ def get_data_archives():
                     's3_location': archives[1],
                     'archive_description': archives[2],
                     'archive_name': archives[3],
-                    'archive_created_on': archives[4]
+                    'archive_created_on': archives[4].isoformat()
                 }
                 archive_list.append(archive_json)
             print(archive_list)
