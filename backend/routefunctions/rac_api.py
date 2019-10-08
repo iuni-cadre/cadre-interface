@@ -4,6 +4,7 @@ import requests
 import psycopg2
 import os
 from flask import Flask, Blueprint, render_template, request, json, jsonify
+from datetime import date
 
 blueprint = Blueprint('rac_api', __name__)
 
@@ -16,6 +17,14 @@ meta_db_config = readconfig.meta_db
 auth_config = readconfig.auth
 aws_config = readconfig.aws
 efs_path_config = readconfig.efs_path
+
+
+class DateEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, date):
+            return str(obj)
+        return json.JSONEncoder.default(self, obj)
+
 
 @blueprint.route('/rac-api/new-notebook/<username>', methods=['POST'])
 def new_notebook(username):
@@ -292,7 +301,7 @@ def get_packages():
                     'description': packages[2],
                     'name': packages[3],
                     'doi': packages[4],
-                    'created_on': packages[5].isoformat(),
+                    'created_on': packages[5],
                     'created_by': packages[6],
                     'tools': [{
                         'tool_id': packages[7], 
@@ -304,16 +313,17 @@ def get_packages():
                     'input_files': packages[11]
                 }
                 package_list.append(package_json)
-            return jsonify(package_list), 200
+            package_response = json.dumps(package_list, cls=DateEncoder)
+            print(package_response)
+            return jsonify(json.loads(package_response), 200)
     except Exception as e:
-        print("There was an error: ", str(e)) #sends the error to the log
-        return jsonify({"error:": "Problem querying the package table or the archive table or the tools table in the meta database.", "details": str(e)}), 500
+        print("There was an error: ", str(e))  # Sends the error to the log
+        return jsonify({"Error:": "Problem querying the package table or the archive table or the tools table in the meta database.", "details": str(e)}), 500
 
     finally:
         cur.close()
         conn.close()
         # print("The database connection has been closed successfully.")
-
 
 
 @blueprint.route('/rac-api/get-tools', methods=['GET'])
@@ -412,11 +422,10 @@ def get_tools():
                     'tool_description': tools[1],
                     'tool_name': tools[2],
                     'tool_script_name': tools[3],
-                    'created_on': tools[4].isoformat()
+                    'created_on': tools[4]
                 }
                 tool_list.append(tool_json)
-            print(tool_list)
-            tool_response = json.dumps(tool_list)
+            tool_response = json.dumps(tool_list, cls=DateEncoder)
             print(tool_response)
             return jsonify(json.loads(tool_response), 200)
     except Exception:
@@ -613,7 +622,7 @@ def get_package_details_from_package_id(package_id):
 
     # We are verifying the auth token here
     if auth_token is None or username is None:
-        return jsonify({"Error": "Auth headers are missing"}), 401
+        return jsonify({"Error": "Auth headers are missing"}), 400
         # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
     validate_token_args = {
@@ -642,25 +651,24 @@ def get_package_details_from_package_id(package_id):
 
     # Here we are getting all the details of the package from the package id
     try:
-        query = """SELECT 
-                    max(package.package_id) as package_id, 
-                    max(package.type) as type, 
-                    max(package.description) as description, 
-                    max(package.name) as name, 
-                    max(package.doi) as doi, 
-                    max(package.created_on) as created_on, 
-                    max(package.created_by) as created_by, 
-                    max(tool.tool_id) as tool_id, 
-                    max(tool.description) as tool_description, 
-                    max(tool.name) as tool_name, 
-                    max(tool.script_name) as tool_script_name, 
-                    array_agg(archive.name) as input_files 
+        query = ("""SELECT max(package.package_id) as package_id, 
+                      max(package.type) as type, 
+                      max(package.description) as description, 
+                      max(package.name) as name, 
+                      max(package.doi) as doi, 
+                      max(package.created_on) as created_on, 
+                      max(package.created_by) as created_by, 
+                      max(tool.tool_id) as tool_id, 
+                      max(tool.description) as tool_description, 
+                      max(tool.name) as tool_name, 
+                      max(tool.script_name) as tool_script_name, 
+                      array_agg(archive.name) as input_files 
                 FROM package 
-                JOIN archive ON (package.archive_id = archive.archive_id)
-                JOIN tool ON (package.tool_id = tool.tool_id)
-                WHERE package.package_id = %s;"""
+                JOIN archive ON (package.archive_id = archive.archive_id) 
+                JOIN tool ON (package.tool_id = tool.tool_id) 
+                WHERE package.package_id = '%s'""" % (package_id))
 
-        cur.execute(query, package_id)
+        cur.execute(query)
 
         if cur.rowcount == 0:
             return jsonify({"Error:" "Query returns zero results."}), 404
@@ -674,20 +682,26 @@ def get_package_details_from_package_id(package_id):
                     'description': packages[2],
                     'name': packages[3],
                     'doi': packages[4],
-                    'created_on': packages[5].isoformat(),
+                    'created_on': packages[5],
                     'created_by': packages[6],
-                    'tools': [{'tool_id': packages[7], 'tool_description': packages[8], 'tool_name': packages[9], 'tool_script_name': packages[10]}],
+                    'tools': [{
+                        'tool_id': packages[7],
+                        'description': packages[8],
+                        'name': packages[9],
+                        'created_by': 'None',
+                        'tool_script_name': packages[10]
+                    }],
                     'input_files': packages[11]
                 }
                 package_list.append(package_json)
-            print(package_list)
-            package_response = json.dumps(package_list)
+            package_response = json.dumps(package_list, cls=DateEncoder)
             print(package_response)
             return jsonify(json.loads(package_response), 200)
 
-    except Exception:
-        return jsonify({"Error:",
-                        "Problem querying the package table or the archive table or the tools table in the meta database."}), 500
+    except Exception as e:
+        print("There was an error: ", str(e))  # sends the error to the log
+        return jsonify({"Error:": "Problem querying the package table or the archive table or the tools table in the meta database.", "details": str(e)}), 500
+
     finally:
         # Closing the database connection.
         cur.close()
@@ -738,16 +752,16 @@ def get_tool_details_from_tool_id(tool_id):
 
     # Here we are getting all the details of the tool specified by the tool id
     try:
-        query = """SELECT 
-                    tool_id, 
-                    tool.description as tool_description, 
-                    tool.name as tool_name, 
-                    tool.script_name as tool_script_name, 
+        query = ("""SELECT
+                    tool_id,
+                    tool.description as tool_description,
+                    tool.name as tool_name,
+                    tool.script_name as tool_script_name,
                     tool.created_on as tool_created_on
-                FROM tool 
-                WHERE tool_id = %s;"""
+                FROM tool
+                WHERE tool_id = '%s';""" % (tool_id))
 
-        cur.execute(query, tool_id)
+        cur.execute(query)
         if cur.rowcount == 0:
             return jsonify({"Error:", "Query returns zero results."}), 404
         if cur.rowcount > 0:
@@ -759,11 +773,10 @@ def get_tool_details_from_tool_id(tool_id):
                     'tool_description': tools[1],
                     'tool_name': tools[2],
                     'tool_script_name': tools[3],
-                    'created_on': tools[4].isoformat()
+                    'created_on': tools[4]
                 }
                 tool_list.append(tool_json)
-            print(tool_list)
-            tool_response = json.dumps(tool_list)
+            tool_response = json.dumps(tool_list, cls=DateEncoder)
             print(tool_response)
             return jsonify(json.loads(tool_response), 200)
     except Exception:
@@ -874,11 +887,11 @@ def get_data_archives():
                     's3_location': archives[1],
                     'archive_description': archives[2],
                     'archive_name': archives[3],
-                    'archive_created_on': archives[4].isoformat()
+                    'archive_created_on': archives[4]
                 }
                 archive_list.append(archive_json)
-            print(archive_list)
-            archive_response = json.dumps(archive_list)
+            archive_response = json.dumps(archive_list, cls=DateEncoder)
+            print(archive_response)
             return jsonify(json.loads(archive_response), 200)
     except Exception:
         return jsonify({"Error:", "Problem querying the archive table in the meta database."}), 500
