@@ -81,7 +81,9 @@ def get_new_notebook_token(username):
         This method returns a json object containing the details of the token for the new notebook.
     """
     try:
-        conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
+        conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
+                                password=meta_db_config["database-password"], host=meta_db_config["database-host"],
+                                port=meta_db_config["database-port"])
         cur = conn.cursor()
     except:
         conn.close()
@@ -258,7 +260,9 @@ def get_packages():
     offset = page * limit
 
     # This is where we are actually connecting to the database and getting the details of the packages
-    conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
+    conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
+                            password=meta_db_config["database-password"], host=meta_db_config["database-host"],
+                            port=meta_db_config["database-port"])
     cur = conn.cursor()
 
     # Here we are getting all the details of the all the different packages from the database
@@ -266,27 +270,26 @@ def get_packages():
     # Only use string interpolation for Order By clause (using our sanitized actual_or_by)
     # User psycopg2's substitution for other parameters to prevent other sql injection (limit, offset)
     try:
-        query = """SELECT 
-                    max(package.package_id) as package_id, 
-                    max(package.type) as type, 
-                    max(package.description) as description, 
-                    max(package.name) as name, 
-                    max(package.doi) as doi, 
-                    max(package.created_on) as created_on, 
-                    max(package.created_by) as created_by, 
-                    max(tool.tool_id) as tool_id, 
-                    max(tool.description) as tool_description, 
-                    max(tool.name) as tool_name, 
-                    max(tool.script_name) as tool_script_name, 
-                    array_agg(archive.name) as input_files 
-                FROM package 
-                    JOIN archive ON (package.archive_id = archive.archive_id)
-                    JOIN tool ON (package.tool_id = tool.tool_id)
-                GROUP BY 
-                        package.package_id 
-                ORDER BY {order_by} 
-                LIMIT %s 
-                OFFSET %s;""".format(order_by=actual_order_by)
+        query = "SELECT " \
+                "max(package.package_id) as package_id, " \
+                "max(package.type) as type, " \
+                "max(package.description) as description, " \
+                "max(package.name) as name, " \
+                "max(package.doi) as doi, " \
+                "max(package.created_on) as created_on, " \
+                "max(package.created_by) as created_by, " \
+                "max(tool.tool_id) as tool_id, " \
+                "max(tool.description) as tool_description, " \
+                "max(tool.name) as tool_name, " \
+                "max(tool.script_name) as tool_script_name, " \
+                "array_agg(archive.name) as input_files " \
+                "FROM package " \
+                "JOIN archive ON (package.archive_id = archive.archive_id) " \
+                "JOIN tool ON (package.tool_id = tool.tool_id) " \
+                "GROUP BY package.package_id " \
+                "ORDER BY {} " \
+                "LIMIT %s " \
+                "OFFSET %s ".format(actual_order_by)
 
         cur.execute(query, (limit, offset))
         if cur.rowcount == 0:
@@ -307,7 +310,7 @@ def get_packages():
                         'tool_id': packages[7], 
                         'description': packages[8], 
                         'name': packages[9], 
-                        'created_by': None
+                        'created_by': 'None'
                         # 'tool_script_name': packages[10]
                     }],
                     'input_files': packages[11]
@@ -394,21 +397,23 @@ def get_tools():
     offset = page * limit
 
     # This is where we are actually connecting to the database and getting the details of the tools
-    conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
+    conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
+                            password=meta_db_config["database-password"], host=meta_db_config["database-host"],
+                            port=meta_db_config["database-port"])
     cur = conn.cursor()
 
     # Here we are getting all the details of the all the different tools from the database
     try:
-        query = """SELECT 
-                    tool_id, 
-                    tool.description as tool_description, 
-                    tool.name as tool_name, 
-                    tool.script_name as tool_script_name, 
-                    tool.created_on as tool_created_on
-                FROM tool 
-                ORDER BY {order_by} 
-                LIMIT %s 
-                OFFSET %s;""".format(order_by=actual_order_by)
+        query = "SELECT " \
+                "tool_id as tool_id, " \
+                "description as tool_description, " \
+                "name as tool_name, " \
+                "script_name as tool_script_name, " \
+                "created_on as tool_created_on " \
+                "FROM tool " \
+                "ORDER BY {} " \
+                "LIMIT %s " \
+                "OFFSET %s ".format(actual_order_by)
 
         cur.execute(query, (limit, offset))
         if cur.rowcount == 0:
@@ -479,7 +484,9 @@ def create_packages():
     user_id = response_json['user_id']
 
     # This is where we are actually connecting to the database and inserting the details of the package in the package database
-    conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
+    conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
+                            password=meta_db_config["database-password"], host=meta_db_config["database-host"],
+                            port=meta_db_config["database-port"])
     cur = conn.cursor()
     try:
         package_id = str(uuid.uuid4())
@@ -651,24 +658,25 @@ def get_package_details_from_package_id(package_id):
 
     # Here we are getting all the details of the package from the package id
     try:
-        query = ("""SELECT max(package.package_id) as package_id, 
-                      max(package.type) as type, 
-                      max(package.description) as description, 
-                      max(package.name) as name, 
-                      max(package.doi) as doi, 
-                      max(package.created_on) as created_on, 
-                      max(package.created_by) as created_by, 
-                      max(tool.tool_id) as tool_id, 
-                      max(tool.description) as tool_description, 
-                      max(tool.name) as tool_name, 
-                      max(tool.script_name) as tool_script_name, 
-                      array_agg(archive.name) as input_files 
-                FROM package 
-                JOIN archive ON (package.archive_id = archive.archive_id) 
-                JOIN tool ON (package.tool_id = tool.tool_id) 
-                WHERE package.package_id = '%s'""" % (package_id))
+        query = "SELECT " \
+                "max(package.package_id) as package_id, " \
+                "max(package.type) as type, " \
+                "max(package.description) as description, " \
+                "max(package.name) as name, " \
+                "max(package.doi) as doi, " \
+                "max(package.created_on) as created_on, " \
+                "max(package.created_by) as created_by, " \
+                "max(tool.tool_id) as tool_id, " \
+                "max(tool.description) as tool_description, " \
+                "max(tool.name) as tool_name, " \
+                "max(tool.script_name) as tool_script_name, " \
+                "array_agg(archive.name) as input_files " \
+                "FROM package " \
+                "JOIN archive ON (package.archive_id = archive.archive_id) " \
+                "JOIN tool ON (package.tool_id = tool.tool_id) " \
+                "WHERE package.package_id = %s "
 
-        cur.execute(query)
+        cur.execute(query, (package_id,))
 
         if cur.rowcount == 0:
             return jsonify({"Error:" "Query returns zero results."}), 404
@@ -747,21 +755,24 @@ def get_tool_details_from_tool_id(tool_id):
     # user_id = response_json['user_id']
 
     # This is where we are actually connecting to the database and getting the details of the tools
-    conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
+    conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
+                            password=meta_db_config["database-password"], host=meta_db_config["database-host"],
+                            port=meta_db_config["database-port"])
     cur = conn.cursor()
 
     # Here we are getting all the details of the tool specified by the tool id
     try:
-        query = ("""SELECT
-                    tool_id,
-                    tool.description as tool_description,
-                    tool.name as tool_name,
-                    tool.script_name as tool_script_name,
-                    tool.created_on as tool_created_on
-                FROM tool
-                WHERE tool_id = '%s';""" % (tool_id))
+        query = "SELECT " \
+                "tool_id, " \
+                "description as tool_description, " \
+                "name as tool_name, " \
+                "script_name as tool_script_name, " \
+                "created_on as tool_created_on " \
+                "FROM tool " \
+                "WHERE tool_id=%s "
 
-        cur.execute(query)
+        cur.execute(query, (tool_id,))
+
         if cur.rowcount == 0:
             return jsonify({"Error:", "Query returns zero results."}), 404
         if cur.rowcount > 0:
@@ -859,21 +870,23 @@ def get_data_archives():
     offset = page * limit
 
     # This is where we are actually connecting to the database and getting the details of the archive
-    conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
+    conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
+                            password=meta_db_config["database-password"], host=meta_db_config["database-host"],
+                            port=meta_db_config["database-port"])
     cur = conn.cursor()
 
     # Here we are getting all the details of the all the data archives from the database
     try:
-        query = """SELECT 
-                    archive_id,  
-                    s3_location, 
-                    description as archive_description, 
-                    name as archive_name, 
-                    created_on as archive_created_on
-                FROM archive
-                ORDER BY {order_by} 
-                LIMIT %s 
-                OFFSET %s;""".format(order_by=actual_order_by)
+        query = "SELECT " \
+                "archive_id, " \
+                "s3_location, " \
+                "description as archive_description, " \
+                "name as archive_name, " \
+                "created_on as archive_created_on " \
+                "FROM archive " \
+                "ORDER BY {} " \
+                "LIMIT %s " \
+                "OFFSET %s ".format(actual_order_by)
 
         cur.execute(query, (limit, offset))
         if cur.rowcount == 0:
