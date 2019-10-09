@@ -1,6 +1,6 @@
 #!/bin/bash
 # pushd scripts
-exec bin/compile &
+exec bin/build_deployment &
 wait
 # pushd ..
 

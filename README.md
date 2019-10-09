@@ -34,9 +34,7 @@ Update settings as appropriate.
 Frontend is built using Vue.js and can be compiled and updated using `npm`
 
 ```
-cd frontend
-npm install
-npm run build
+bin/build
 ```
 
 ### Install Backend
@@ -44,10 +42,7 @@ npm run build
 The backend is written in Python and uses the Flask microframework.
 
 ```
-cd backend
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+bin/install_backend
 ```
 
 ### Start Microserver
