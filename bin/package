@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pushd ..
+# pushd ..
 
 # create the bundle
 rm -rf ./bundle
@@ -18,4 +18,4 @@ cp -r ./backend/library/*.py ./bundle/library
 cp -r ./backend/routefunctions/*.py ./bundle/routefunctions
 cp -r ./.ebextensions ./bundle
 
-pushd deployment
+# pushd deployment

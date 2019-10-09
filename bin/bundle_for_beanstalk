@@ -1,13 +1,13 @@
 #!/bin/bash
-pushd scripts
-exec ./compile.sh &
+# pushd scripts
+exec bin/compile &
 wait
-pushd ..
-
-pushd scripts
-exec ./package.sh &
+# pushd ..
+# 
+# pushd scripts
+exec bin/package &
 wait
-pushd ..
+# pushd ..
 
 rm -rf eb_bundle*.zip
 

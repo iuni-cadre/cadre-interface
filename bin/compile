@@ -1,0 +1,19 @@
+#!/bin/bash
+# pushd ../conf
+mv conf/frontend.config.json conf/frontend.config.json.tmp
+mv conf/deploy.frontend.config.json conf/frontend.config.json
+#rebuild node app
+pushd frontend
+if [ ! -d "./node_modules" ]; then
+    exec npm ci &
+    wait
+fi
+exec npm run build &
+wait
+pushd ..
+
+# pushd ../conf
+mv conf/frontend.config.json conf/deploy.frontend.config.json
+mv conf/frontend.config.json.tmp conf/frontend.config.json
+
+# pushd ../deployment
