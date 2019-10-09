@@ -3,12 +3,25 @@ from os import path
 import configparser
 
 def check_for_frontend():
-    #make sure the frontend exists before even starting the app
-    frontend_exists = path.isfile("./frontend/index.html")
+    """
+        make sure the frontend exists before even starting the app
+    """
+
+    #default to  current frontend (which may be a sym link)
+    frontend_folder = "./frontend"
+    frontend_exists = path.isfile(frontend_folder + "/index.html")
+
+    #if there's no local frontend, might be on windows, so try the build folder directly in the frontend folder
+    if not frontend_exists:
+        frontend_folder = "../frontend/dist"
+        frontend_exists = path.isfile(frontend_folder + "/index.html")
+
     if not frontend_exists:
         print("Server cannot start.  Frontend does not exist.  ../frontend/dist does not exist.")
-        print("Go to frontend directory and run 'npm run build' to build the frontend.")
-        sys.exit()
+        print("Go to project root and run 'bin/build' to build the frontend")
+        # sys.exit()
+    else:
+        return frontend_folder
 
 
 def check_for_config_file():
@@ -41,13 +54,3 @@ try:
     test = config_parser['TESTING']
 except:
     test = []
-
-# def get_real_config():
-#     config_parser.read(real_config)
-#     config = config_parser['DEFAULT']
-#     jupyter = config_parser['JUPYTERAPI']
-#     meta_db = config_parser['CADRE_META_DATABASE_INFO']
-#     aws = config_parser['AWS']
-#     auth = config_parser['AUTH']
-#     data = config_parser['DATA']
-#     test = config_parser['TESTING']
