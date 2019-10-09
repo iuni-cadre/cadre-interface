@@ -55,7 +55,7 @@ pip install -r requirements.txt
 When running locally, the flask microservice can be started using the following command.
 
 ```
-./start.sh
+bin/start
 ```
 
 In production, the query builder is deployed using AWS's Elastic Beanstalk hosting and does not rely on this start script.  It runs the application directly.
@@ -66,13 +66,13 @@ In production, the query builder is deployed using AWS's Elastic Beanstalk hosti
 After you've got everything running properly through flask, you need to duplicate the two config files and prepend `deploy.` to the filename of the duplicates.  You should have `deploy.backend.config` and `deploy.frontend.config.json`.  These two files will be the config files that the bundle will use.  They can be altered to contain the production configuration settings.  you can bundle the app for deployment on AWS elastic beanstalk by running one of the below commands:
 
 ```
-./bundle_for_beanstalk.sh
+bin/bundle_for_beanstalk
 ```
 
 or
 
 ```
-./deploy_to_beanstalk.sh
+bin/deploy_to_beanstalk
 ```
 
 Both of these shell scripts will compile the frontend using `npm run build` and then bundle all the files up into a file called `eb_bundle.zip`.  `bundle_for_beanstalk` will only bundle the files and append a timestamp to the filename.  This file can then be uploaded manually to EBS.  
