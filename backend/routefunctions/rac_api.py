@@ -134,7 +134,7 @@ def run_package():
     request_json = request.get_json()
 
     if auth_token is None or username is None:
-        return jsonify({"error": "auth headers are missing"}), 400
+        return jsonify({"error": "auth headers are missing"}), 401
     # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
     validate_token_args = {
@@ -212,7 +212,7 @@ def get_packages():
 
     # We are verifying the auth token here
     if auth_token is None or username is None:
-        return jsonify({"error": "auth headers are missing"}), 400
+        return jsonify({"error": "auth headers are missing"}), 401
 
     validate_token_args = {
         'username': username
@@ -227,7 +227,7 @@ def get_packages():
                                             verify=False)
     if validate_token_response.status_code is not 200:
         # print(validate_token_response)
-        return jsonify({"Error": "Invalid Token"}), 403
+        return jsonify({"error": "Invalid Token"}), 403
 
     # Validating the Request here
     try:
@@ -237,7 +237,7 @@ def get_packages():
         #     print("The value of limit is: ", limit_value)
     except ValueError:
         # print("No Limit is not an Integer. It's a string")
-        return jsonify({"Error": "Invalid Request: Limit should be a positive integer."}), 400
+        return jsonify({"error": "Invalid Request: Limit should be a positive integer."}), 400
 
     try:
         page_value = int(page)
@@ -246,7 +246,7 @@ def get_packages():
         #     print("The value of page is: ", page_value)
     except ValueError:
         # print("No Page is not an Integer. It's a string")
-        return jsonify({"Error": "Invalid Request: Page should be a integer."}), 400
+        return jsonify({"error": "Invalid Request: Page should be a integer."}), 400
 
     # This prevents sql injection for the order by clause. Never use data sent by the user directly in a query
     actual_order_by = 'name'
@@ -293,7 +293,7 @@ def get_packages():
 
         cur.execute(query, (limit, offset))
         if cur.rowcount == 0:
-            return jsonify({"Error": "Query returns zero results."}), 404
+            return jsonify({"error": "Query returns zero results."}), 404
         elif cur.rowcount > 0:
             package_info = cur.fetchall()
             package_list = []
@@ -321,7 +321,7 @@ def get_packages():
             return jsonify(json.loads(package_response), 200)
     except Exception as e:
         print("There was an error: ", str(e))  # Sends the error to the log
-        return jsonify({"Error:": "Problem querying the package table or the archive table or the tools table in the meta database.", "details": str(e)}), 500
+        return jsonify({"error:": "Problem querying the package table or the archive table or the tools table in the meta database.", "details": str(e)}), 500
 
     finally:
         cur.close()
@@ -348,7 +348,7 @@ def get_tools():
 
     # We are verifying the auth token here
     if auth_token is None or username is None:
-        return jsonify({"error": "auth headers are missing"}), 400
+        return jsonify({"error": "auth headers are missing"}), 401
         # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
     validate_token_args = {
@@ -364,7 +364,7 @@ def get_tools():
                                             verify=False)
     if validate_token_response.status_code is not 200:
         print(validate_token_response)
-        return jsonify({"Error": "Invalid Token"}), 403
+        return jsonify({"error": "Invalid Token"}), 403
 
     # Validating the Request here
     try:
@@ -374,7 +374,7 @@ def get_tools():
             print("The value of limit is: ", limit_value)
     except ValueError:
         print("No Limit is not an Integer. It's a string")
-        return jsonify({"Error": "Invalid Request: Limit should be a positive integer."}), 400
+        return jsonify({"error": "Invalid Request: Limit should be a positive integer."}), 400
 
     try:
         page_value = int(page)
@@ -383,7 +383,7 @@ def get_tools():
             print("The value of page is: ", page_value)
     except ValueError:
         print("No Page is not an Integer. It's a string")
-        return jsonify({"Error": "Invalid Request: Page should be a integer."}), 400
+        return jsonify({"error": "Invalid Request: Page should be a integer."}), 400
 
     # This prevents sql injection for the order by clause. Never use data sent by the user directly in a query
     actual_order_by = 'name'
@@ -417,7 +417,7 @@ def get_tools():
 
         cur.execute(query, (limit, offset))
         if cur.rowcount == 0:
-            return jsonify({"Error:", "Query returns zero results."}), 404
+            return jsonify({"error:", "Query returns zero results."}), 404
         if cur.rowcount > 0:
             tool_info = cur.fetchall()
             tool_list = []
@@ -434,7 +434,7 @@ def get_tools():
             print(tool_response)
             return jsonify(json.loads(tool_response), 200)
     except Exception:
-        return jsonify({"Error:", "Problem querying the tools table in the meta database."}), 500
+        return jsonify({"error:", "Problem querying the tools table in the meta database."}), 500
     finally:
         # Closing the database connection.
         cur.close()
@@ -462,7 +462,7 @@ def create_packages():
     input_file_list = request.json.get('input-file-list')
 
     if auth_token is None or username is None:
-        return jsonify({"error": "auth headers are missing"}), 400
+        return jsonify({"error": "auth headers are missing"}), 401
         # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
     validate_token_args = {
@@ -531,7 +531,7 @@ def create_packages():
                         'created_on': created_on,
                         'created_by': username}, 200)
     except Exception:
-        return jsonify({"Error", "Problem querying database while inserting the data in the archive table."}), 500
+        return jsonify({"error:", "Problem querying database while inserting the data in the archive table."}), 500
     finally:
         # Closing the database connection.
         cur.close()
@@ -556,7 +556,7 @@ def get_user_files():
 
     # We are verifying the auth token here
     if auth_token is None or username is None:
-        return jsonify({"error": "auth headers are missing"}), 400
+        return jsonify({"error": "auth headers are missing"}), 401
         # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
     validate_token_args = {
@@ -572,7 +572,7 @@ def get_user_files():
                                             verify=False)
     if validate_token_response.status_code is not 200:
         print(validate_token_response)
-        return jsonify({"Error": "Invalid Token"}), 403
+        return jsonify({"error": "Invalid Token"}), 403
 
     # response_json = validate_token_response.json()
     # user_id = response_json['user_id']
@@ -584,7 +584,7 @@ def get_user_files():
             print("Yes level is an Integer.")
     except ValueError:
         print("No level is not an Integer. It's a string")
-        return jsonify({"Error": "Invalid Request: Level should be a integer."}), 400
+        return jsonify({"error": "Invalid Request: Level should be a integer."}), 400
 
     # Here we are getting all the details of the location of the efs directory of the user
     try:
@@ -608,7 +608,7 @@ def get_user_files():
         files_response = json.dumps(file_info)
         return jsonify(json.loads(files_response), 200)
     except Exception:
-        return jsonify({"Error:" "The path provided does not exist."}), 500
+        return jsonify({"error:" "The path provided does not exist."}), 500
     finally:
         print("The request has been handled.")
 
@@ -629,7 +629,7 @@ def get_package_details_from_package_id(package_id):
 
     # We are verifying the auth token here
     if auth_token is None or username is None:
-        return jsonify({"Error": "Auth headers are missing"}), 400
+        return jsonify({"error": "Auth headers are missing"}), 401
         # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
     validate_token_args = {
@@ -645,7 +645,7 @@ def get_package_details_from_package_id(package_id):
                                             verify=False)
     if validate_token_response.status_code is not 200:
         print(validate_token_response)
-        return jsonify({"Error": "Invalid Token"}), 403
+        return jsonify({"error": "Invalid Token"}), 403
 
     # response_json = validate_token_response.json()
     # user_id = response_json['user_id']
@@ -679,7 +679,7 @@ def get_package_details_from_package_id(package_id):
         cur.execute(query, (package_id,))
 
         if cur.rowcount == 0:
-            return jsonify({"Error:" "Query returns zero results."}), 404
+            return jsonify({"error:" "Query returns zero results."}), 404
         if cur.rowcount > 0:
             package_info = cur.fetchall()
             package_list = []
@@ -708,7 +708,7 @@ def get_package_details_from_package_id(package_id):
 
     except Exception as e:
         print("There was an error: ", str(e))  # sends the error to the log
-        return jsonify({"Error:": "Problem querying the package table or the archive table or the tools table in the meta database.", "details": str(e)}), 500
+        return jsonify({"error": "Problem querying the package table or the archive table or the tools table in the meta database.", "details": str(e)}), 500
 
     finally:
         # Closing the database connection.
@@ -733,7 +733,7 @@ def get_tool_details_from_tool_id(tool_id):
 
     # We are verifying the auth token here
     if auth_token is None or username is None:
-        return jsonify({"Error": "Auth headers are missing"}), 401
+        return jsonify({"error": "Auth headers are missing"}), 401
         # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
     validate_token_args = {
@@ -749,7 +749,7 @@ def get_tool_details_from_tool_id(tool_id):
                                             verify=False)
     if validate_token_response.status_code is not 200:
         print(validate_token_response)
-        return jsonify({"Error": "Invalid Token"}), 403
+        return jsonify({"error": "Invalid Token"}), 403
 
     # response_json = validate_token_response.json()
     # user_id = response_json['user_id']
@@ -774,7 +774,7 @@ def get_tool_details_from_tool_id(tool_id):
         cur.execute(query, (tool_id,))
 
         if cur.rowcount == 0:
-            return jsonify({"Error:", "Query returns zero results."}), 404
+            return jsonify({"error:", "Query returns zero results."}), 404
         if cur.rowcount > 0:
             tool_info = cur.fetchall()
             tool_list = []
@@ -791,7 +791,7 @@ def get_tool_details_from_tool_id(tool_id):
             print(tool_response)
             return jsonify(json.loads(tool_response), 200)
     except Exception:
-        return jsonify({"Error:", "Problem querying the tools table in the meta database."}), 500
+        return jsonify({"error:", "Problem querying the tools table in the meta database."}), 500
     finally:
         # Closing the database connection.
         cur.close()
@@ -818,7 +818,7 @@ def get_data_archives():
 
     # We are verifying the auth token here
     if auth_token is None or username is None:
-        return jsonify({"error": "auth headers are missing"}), 400
+        return jsonify({"error": "auth headers are missing"}), 401
         # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
     validate_token_args = {
@@ -834,7 +834,7 @@ def get_data_archives():
                                             verify=False)
     if validate_token_response.status_code is not 200:
         print(validate_token_response)
-        return jsonify({"Error": "Invalid Token"}), 403
+        return jsonify({"error": "Invalid Token"}), 403
 
     # response_json = validate_token_response.json()
     # user_id = response_json['user_id']
@@ -847,7 +847,7 @@ def get_data_archives():
             print("The value of limit is: ", limit_value)
     except ValueError:
         print("No Limit is not an Integer. It's a string")
-        return jsonify({"Error": "Invalid Request: Limit should be a positive integer."}), 400
+        return jsonify({"error": "Invalid Request: Limit should be a positive integer."}), 400
 
     try:
         page_value = int(page)
@@ -856,7 +856,7 @@ def get_data_archives():
             print("The value of page is: ", page_value)
     except ValueError:
         print("No Page is not an Integer. It's a string")
-        return jsonify({"Error": "Invalid Request: Page should be a integer."}), 400
+        return jsonify({"error": "Invalid Request: Page should be a integer."}), 400
 
     # This prevents sql injection for the order by clause. Never use data sent by the user directly in a query
     actual_order_by = 'name'
@@ -890,7 +890,7 @@ def get_data_archives():
 
         cur.execute(query, (limit, offset))
         if cur.rowcount == 0:
-            return jsonify({"Error:", "Query returns zero results."}), 404
+            return jsonify({"error:", "Query returns zero results."}), 404
         if cur.rowcount > 0:
             archive_info = cur.fetchall()
             archive_list = []
@@ -907,7 +907,7 @@ def get_data_archives():
             print(archive_response)
             return jsonify(json.loads(archive_response), 200)
     except Exception:
-        return jsonify({"Error:", "Problem querying the archive table in the meta database."}), 500
+        return jsonify({"error:", "Problem querying the archive table in the meta database."}), 500
     finally:
         # Closing the database connection.
         cur.close()

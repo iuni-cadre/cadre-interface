@@ -40,7 +40,7 @@ class MockPsycopgCursor:
         return self.rows
     def set_rows(self, rows):
         self.rows = rows
-    def set_exception(self, throw_exception):
+    def set_exception(self, raise_exception):
         self.raise_exception = raise_exception
 
 class MockPsycopgConnection:
@@ -85,21 +85,21 @@ def test_user_jobs_ep_fails_without_proper_headers(client):
 
     rv = client.get('/qi-api/user-jobs')
     json = rv.get_json()
-    assert rv.status_code == 400
+    assert rv.status_code == 401
     assert json["error"] and json["error"] == "auth headers are missing"
 
     rv = client.get('/qi-api/user-jobs', headers= {
         'auth-username': "SOME USERNAME"
     })
     json = rv.get_json()
-    assert rv.status_code == 400
+    assert rv.status_code == 401
     assert json["error"] and json["error"] == "auth headers are missing"
 
     rv = client.get('/qi-api/user-jobs', headers= {
         'auth-token': "SOME TOKEN"
     })
     json = rv.get_json()
-    assert rv.status_code == 400
+    assert rv.status_code == 401
     assert json["error"] and json["error"] == "auth headers are missing"
 
     
@@ -197,7 +197,7 @@ def test_user_jobs_ep_fails_on_db_exception(client, mocker):
     assert rv.status_code == 500
 
 
-    
+
 def test_user_jobs_ep_returns_jsonified_jobs_from_db(client, mocker):
     '''
     Checks that the endpoint is returning json that matches the mocked up data

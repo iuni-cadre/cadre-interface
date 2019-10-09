@@ -20,7 +20,7 @@ def user_jobs():
     auth_token = request.headers.get('auth-token')
     username = request.headers.get('auth-username')
     if auth_token is None or username is None:
-        return jsonify({"error": "auth headers are missing"}), 400
+        return jsonify({"error": "auth headers are missing"}), 401
     # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
     validata_token_args = {
