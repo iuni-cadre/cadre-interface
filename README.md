@@ -86,6 +86,8 @@ If configured properly, the `deploy_to_beanstalk` script will also deploy the bu
 
 `backend` contains the Flask App.  It contains two symbolic links `frontend` and `conf`.  `conf` points directly to the root `/conf` directory.  `frontend` points to `/frontend/dist` where the frontend gets built to
 
+`bin` contains many helper scripts to make deployment and development easier
+
 `conf` contains two configuration files that define settings for the frontend and the backend
 
 `frontend` contains the Vue.js application source.  Using the command `npm run build` at the command line will build the application and put it in the `dist` folder.  Many of the files are boilerplate created by the Vue CLI.
