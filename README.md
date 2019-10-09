@@ -34,9 +34,7 @@ Update settings as appropriate.
 Frontend is built using Vue.js and can be compiled and updated using `npm`
 
 ```
-cd frontend
-npm install
-npm run build
+bin/build
 ```
 
 ### Install Backend
@@ -44,10 +42,7 @@ npm run build
 The backend is written in Python and uses the Flask microframework.
 
 ```
-cd backend
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+bin/install_backend
 ```
 
 ### Start Microserver
@@ -55,7 +50,7 @@ pip install -r requirements.txt
 When running locally, the flask microservice can be started using the following command.
 
 ```
-./start.sh
+bin/start
 ```
 
 In production, the query builder is deployed using AWS's Elastic Beanstalk hosting and does not rely on this start script.  It runs the application directly.
@@ -66,13 +61,13 @@ In production, the query builder is deployed using AWS's Elastic Beanstalk hosti
 After you've got everything running properly through flask, you need to duplicate the two config files and prepend `deploy.` to the filename of the duplicates.  You should have `deploy.backend.config` and `deploy.frontend.config.json`.  These two files will be the config files that the bundle will use.  They can be altered to contain the production configuration settings.  you can bundle the app for deployment on AWS elastic beanstalk by running one of the below commands:
 
 ```
-./bundle_for_beanstalk.sh
+bin/bundle_for_beanstalk
 ```
 
 or
 
 ```
-./deploy_to_beanstalk.sh
+bin/deploy_to_beanstalk
 ```
 
 Both of these shell scripts will compile the frontend using `npm run build` and then bundle all the files up into a file called `eb_bundle.zip`.  `bundle_for_beanstalk` will only bundle the files and append a timestamp to the filename.  This file can then be uploaded manually to EBS.  
@@ -90,6 +85,8 @@ If configured properly, the `deploy_to_beanstalk` script will also deploy the bu
 `.elasticbeanstalk` contains a config file that defines settings for the Elastic Beanstalk Environment
 
 `backend` contains the Flask App.  It contains two symbolic links `frontend` and `conf`.  `conf` points directly to the root `/conf` directory.  `frontend` points to `/frontend/dist` where the frontend gets built to
+
+`bin` contains many helper scripts to make deployment and development easier
 
 `conf` contains two configuration files that define settings for the frontend and the backend
 

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+mv conf/frontend.config.json conf/frontend.config.json.tmp
+mv conf/deploy.frontend.config.json conf/frontend.config.json
+
+#rebuild node app
+exec bin/build &
+wait
+
+mv conf/frontend.config.json conf/deploy.frontend.config.json
+mv conf/frontend.config.json.tmp conf/frontend.config.json
