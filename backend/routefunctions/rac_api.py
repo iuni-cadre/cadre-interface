@@ -4,6 +4,7 @@ import requests
 import psycopg2
 import os
 from flask import Flask, Blueprint, render_template, request, json, jsonify
+from datetime import date
 
 blueprint = Blueprint('rac_api', __name__)
 
@@ -16,6 +17,14 @@ meta_db_config = readconfig.meta_db
 auth_config = readconfig.auth
 aws_config = readconfig.aws
 efs_path_config = readconfig.efs_path
+
+
+class DateEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, date):
+            return str(obj)
+        return json.JSONEncoder.default(self, obj)
+
 
 @blueprint.route('/rac-api/new-notebook/<username>', methods=['POST'])
 def new_notebook(username):
@@ -72,7 +81,9 @@ def get_new_notebook_token(username):
         This method returns a json object containing the details of the token for the new notebook.
     """
     try:
-        conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
+        conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
+                                password=meta_db_config["database-password"], host=meta_db_config["database-host"],
+                                port=meta_db_config["database-port"])
         cur = conn.cursor()
     except:
         conn.close()
@@ -123,7 +134,7 @@ def run_package():
     request_json = request.get_json()
 
     if auth_token is None or username is None:
-        return jsonify({"error": "auth headers are missing"}), 400
+        return jsonify({"error": "auth headers are missing"}), 401
     # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
     validate_token_args = {
@@ -201,7 +212,7 @@ def get_packages():
 
     # We are verifying the auth token here
     if auth_token is None or username is None:
-        return jsonify({"error": "auth headers are missing"}), 400
+        return jsonify({"error": "auth headers are missing"}), 401
 
     validate_token_args = {
         'username': username
@@ -216,7 +227,7 @@ def get_packages():
                                             verify=False)
     if validate_token_response.status_code is not 200:
         # print(validate_token_response)
-        return jsonify({"Error": "Invalid Token"}), 403
+        return jsonify({"error": "Invalid Token"}), 403
 
     # Validating the Request here
     try:
@@ -226,7 +237,7 @@ def get_packages():
         #     print("The value of limit is: ", limit_value)
     except ValueError:
         # print("No Limit is not an Integer. It's a string")
-        return jsonify({"Error": "Invalid Request: Limit should be a positive integer."}), 400
+        return jsonify({"error": "Invalid Request: Limit should be a positive integer."}), 400
 
     try:
         page_value = int(page)
@@ -235,7 +246,7 @@ def get_packages():
         #     print("The value of page is: ", page_value)
     except ValueError:
         # print("No Page is not an Integer. It's a string")
-        return jsonify({"Error": "Invalid Request: Page should be a integer."}), 400
+        return jsonify({"error": "Invalid Request: Page should be a integer."}), 400
 
     # This prevents sql injection for the order by clause. Never use data sent by the user directly in a query
     actual_order_by = 'name'
@@ -249,7 +260,9 @@ def get_packages():
     offset = page * limit
 
     # This is where we are actually connecting to the database and getting the details of the packages
-    conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
+    conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
+                            password=meta_db_config["database-password"], host=meta_db_config["database-host"],
+                            port=meta_db_config["database-port"])
     cur = conn.cursor()
 
     # Here we are getting all the details of the all the different packages from the database
@@ -257,31 +270,30 @@ def get_packages():
     # Only use string interpolation for Order By clause (using our sanitized actual_or_by)
     # User psycopg2's substitution for other parameters to prevent other sql injection (limit, offset)
     try:
-        query = """SELECT 
-                    max(package.package_id) as package_id, 
-                    max(package.type) as type, 
-                    max(package.description) as description, 
-                    max(package.name) as name, 
-                    max(package.doi) as doi, 
-                    max(package.created_on) as created_on, 
-                    max(package.created_by) as created_by, 
-                    max(tool.tool_id) as tool_id, 
-                    max(tool.description) as tool_description, 
-                    max(tool.name) as tool_name, 
-                    max(tool.script_name) as tool_script_name, 
-                    array_agg(archive.name) as input_files 
-                FROM package 
-                    JOIN archive ON (package.archive_id = archive.archive_id)
-                    JOIN tool ON (package.tool_id = tool.tool_id)
-                GROUP BY 
-                        package.package_id 
-                ORDER BY {order_by} 
-                LIMIT %s 
-                OFFSET %s;""".format(order_by=actual_order_by)
+        query = "SELECT " \
+                "max(package.package_id) as package_id, " \
+                "max(package.type) as type, " \
+                "max(package.description) as description, " \
+                "max(package.name) as name, " \
+                "max(package.doi) as doi, " \
+                "max(package.created_on) as created_on, " \
+                "max(package.created_by) as created_by, " \
+                "max(tool.tool_id) as tool_id, " \
+                "max(tool.description) as tool_description, " \
+                "max(tool.name) as tool_name, " \
+                "max(tool.script_name) as tool_script_name, " \
+                "array_agg(archive.name) as input_files " \
+                "FROM package " \
+                "JOIN archive ON (package.archive_id = archive.archive_id) " \
+                "JOIN tool ON (package.tool_id = tool.tool_id) " \
+                "GROUP BY package.package_id " \
+                "ORDER BY {} " \
+                "LIMIT %s " \
+                "OFFSET %s ".format(actual_order_by)
 
         cur.execute(query, (limit, offset))
         if cur.rowcount == 0:
-            return jsonify({"Error": "Query returns zero results."}), 404
+            return jsonify({"error": "Query returns zero results."}), 404
         elif cur.rowcount > 0:
             package_info = cur.fetchall()
             package_list = []
@@ -292,28 +304,29 @@ def get_packages():
                     'description': packages[2],
                     'name': packages[3],
                     'doi': packages[4],
-                    'created_on': packages[5].isoformat(),
+                    'created_on': packages[5],
                     'created_by': packages[6],
                     'tools': [{
                         'tool_id': packages[7], 
                         'description': packages[8], 
                         'name': packages[9], 
-                        'created_by': None
+                        'created_by': 'None'
                         # 'tool_script_name': packages[10]
                     }],
                     'input_files': packages[11]
                 }
                 package_list.append(package_json)
-            return jsonify(package_list), 200
+            package_response = json.dumps(package_list, cls=DateEncoder)
+            print(package_response)
+            return jsonify(json.loads(package_response), 200)
     except Exception as e:
-        print("There was an error: ", str(e)) #sends the error to the log
+        print("There was an error: ", str(e))  # Sends the error to the log
         return jsonify({"error:": "Problem querying the package table or the archive table or the tools table in the meta database.", "details": str(e)}), 500
 
     finally:
         cur.close()
         conn.close()
         # print("The database connection has been closed successfully.")
-
 
 
 @blueprint.route('/rac-api/get-tools', methods=['GET'])
@@ -335,7 +348,7 @@ def get_tools():
 
     # We are verifying the auth token here
     if auth_token is None or username is None:
-        return jsonify({"error": "auth headers are missing"}), 400
+        return jsonify({"error": "auth headers are missing"}), 401
         # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
     validate_token_args = {
@@ -351,7 +364,7 @@ def get_tools():
                                             verify=False)
     if validate_token_response.status_code is not 200:
         print(validate_token_response)
-        return jsonify({"Error": "Invalid Token"}), 403
+        return jsonify({"error": "Invalid Token"}), 403
 
     # Validating the Request here
     try:
@@ -361,7 +374,7 @@ def get_tools():
             print("The value of limit is: ", limit_value)
     except ValueError:
         print("No Limit is not an Integer. It's a string")
-        return jsonify({"Error": "Invalid Request: Limit should be a positive integer."}), 400
+        return jsonify({"error": "Invalid Request: Limit should be a positive integer."}), 400
 
     try:
         page_value = int(page)
@@ -370,7 +383,7 @@ def get_tools():
             print("The value of page is: ", page_value)
     except ValueError:
         print("No Page is not an Integer. It's a string")
-        return jsonify({"Error": "Invalid Request: Page should be a integer."}), 400
+        return jsonify({"error": "Invalid Request: Page should be a integer."}), 400
 
     # This prevents sql injection for the order by clause. Never use data sent by the user directly in a query
     actual_order_by = 'name'
@@ -384,25 +397,27 @@ def get_tools():
     offset = page * limit
 
     # This is where we are actually connecting to the database and getting the details of the tools
-    conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
+    conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
+                            password=meta_db_config["database-password"], host=meta_db_config["database-host"],
+                            port=meta_db_config["database-port"])
     cur = conn.cursor()
 
     # Here we are getting all the details of the all the different tools from the database
     try:
-        query = """SELECT 
-                    tool_id, 
-                    tool.description as tool_description, 
-                    tool.name as tool_name, 
-                    tool.script_name as tool_script_name, 
-                    tool.created_on as tool_created_on
-                FROM tool 
-                ORDER BY {order_by} 
-                LIMIT %s 
-                OFFSET %s;""".format(order_by=actual_order_by)
+        query = "SELECT " \
+                "tool_id as tool_id, " \
+                "description as tool_description, " \
+                "name as tool_name, " \
+                "script_name as tool_script_name, " \
+                "created_on as tool_created_on " \
+                "FROM tool " \
+                "ORDER BY {} " \
+                "LIMIT %s " \
+                "OFFSET %s ".format(actual_order_by)
 
         cur.execute(query, (limit, offset))
         if cur.rowcount == 0:
-            return jsonify({"Error:", "Query returns zero results."}), 404
+            return jsonify({"error:", "Query returns zero results."}), 404
         if cur.rowcount > 0:
             tool_info = cur.fetchall()
             tool_list = []
@@ -412,15 +427,14 @@ def get_tools():
                     'tool_description': tools[1],
                     'tool_name': tools[2],
                     'tool_script_name': tools[3],
-                    'created_on': tools[4].isoformat()
+                    'created_on': tools[4]
                 }
                 tool_list.append(tool_json)
-            print(tool_list)
-            tool_response = json.dumps(tool_list)
+            tool_response = json.dumps(tool_list, cls=DateEncoder)
             print(tool_response)
             return jsonify(json.loads(tool_response), 200)
     except Exception:
-        return jsonify({"Error:", "Problem querying the tools table in the meta database."}), 500
+        return jsonify({"error:", "Problem querying the tools table in the meta database."}), 500
     finally:
         # Closing the database connection.
         cur.close()
@@ -448,7 +462,7 @@ def create_packages():
     input_file_list = request.json.get('input-file-list')
 
     if auth_token is None or username is None:
-        return jsonify({"error": "auth headers are missing"}), 400
+        return jsonify({"error": "auth headers are missing"}), 401
         # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
     validate_token_args = {
@@ -470,7 +484,9 @@ def create_packages():
     user_id = response_json['user_id']
 
     # This is where we are actually connecting to the database and inserting the details of the package in the package database
-    conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
+    conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
+                            password=meta_db_config["database-password"], host=meta_db_config["database-host"],
+                            port=meta_db_config["database-port"])
     cur = conn.cursor()
     try:
         package_id = str(uuid.uuid4())
@@ -515,7 +531,7 @@ def create_packages():
                         'created_on': created_on,
                         'created_by': username}, 200)
     except Exception:
-        return jsonify({"Error", "Problem querying database while inserting the data in the archive table."}), 500
+        return jsonify({"error:", "Problem querying database while inserting the data in the archive table."}), 500
     finally:
         # Closing the database connection.
         cur.close()
@@ -540,7 +556,7 @@ def get_user_files():
 
     # We are verifying the auth token here
     if auth_token is None or username is None:
-        return jsonify({"error": "auth headers are missing"}), 400
+        return jsonify({"error": "auth headers are missing"}), 401
         # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
     validate_token_args = {
@@ -556,7 +572,7 @@ def get_user_files():
                                             verify=False)
     if validate_token_response.status_code is not 200:
         print(validate_token_response)
-        return jsonify({"Error": "Invalid Token"}), 403
+        return jsonify({"error": "Invalid Token"}), 403
 
     # response_json = validate_token_response.json()
     # user_id = response_json['user_id']
@@ -568,7 +584,7 @@ def get_user_files():
             print("Yes level is an Integer.")
     except ValueError:
         print("No level is not an Integer. It's a string")
-        return jsonify({"Error": "Invalid Request: Level should be a integer."}), 400
+        return jsonify({"error": "Invalid Request: Level should be a integer."}), 400
 
     # Here we are getting all the details of the location of the efs directory of the user
     try:
@@ -592,7 +608,7 @@ def get_user_files():
         files_response = json.dumps(file_info)
         return jsonify(json.loads(files_response), 200)
     except Exception:
-        return jsonify({"Error:" "The path provided does not exist."}), 500
+        return jsonify({"error:" "The path provided does not exist."}), 500
     finally:
         print("The request has been handled.")
 
@@ -613,7 +629,7 @@ def get_package_details_from_package_id(package_id):
 
     # We are verifying the auth token here
     if auth_token is None or username is None:
-        return jsonify({"Error": "Auth headers are missing"}), 401
+        return jsonify({"error": "Auth headers are missing"}), 401
         # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
     validate_token_args = {
@@ -629,7 +645,7 @@ def get_package_details_from_package_id(package_id):
                                             verify=False)
     if validate_token_response.status_code is not 200:
         print(validate_token_response)
-        return jsonify({"Error": "Invalid Token"}), 403
+        return jsonify({"error": "Invalid Token"}), 403
 
     # response_json = validate_token_response.json()
     # user_id = response_json['user_id']
@@ -642,28 +658,28 @@ def get_package_details_from_package_id(package_id):
 
     # Here we are getting all the details of the package from the package id
     try:
-        query = """SELECT 
-                    max(package.package_id) as package_id, 
-                    max(package.type) as type, 
-                    max(package.description) as description, 
-                    max(package.name) as name, 
-                    max(package.doi) as doi, 
-                    max(package.created_on) as created_on, 
-                    max(package.created_by) as created_by, 
-                    max(tool.tool_id) as tool_id, 
-                    max(tool.description) as tool_description, 
-                    max(tool.name) as tool_name, 
-                    max(tool.script_name) as tool_script_name, 
-                    array_agg(archive.name) as input_files 
-                FROM package 
-                JOIN archive ON (package.archive_id = archive.archive_id)
-                JOIN tool ON (package.tool_id = tool.tool_id)
-                WHERE package.package_id = %s;"""
+        query = "SELECT " \
+                "max(package.package_id) as package_id, " \
+                "max(package.type) as type, " \
+                "max(package.description) as description, " \
+                "max(package.name) as name, " \
+                "max(package.doi) as doi, " \
+                "max(package.created_on) as created_on, " \
+                "max(package.created_by) as created_by, " \
+                "max(tool.tool_id) as tool_id, " \
+                "max(tool.description) as tool_description, " \
+                "max(tool.name) as tool_name, " \
+                "max(tool.script_name) as tool_script_name, " \
+                "array_agg(archive.name) as input_files " \
+                "FROM package " \
+                "JOIN archive ON (package.archive_id = archive.archive_id) " \
+                "JOIN tool ON (package.tool_id = tool.tool_id) " \
+                "WHERE package.package_id = %s "
 
-        cur.execute(query, package_id)
+        cur.execute(query, (package_id,))
 
         if cur.rowcount == 0:
-            return jsonify({"Error:" "Query returns zero results."}), 404
+            return jsonify({"error:" "Query returns zero results."}), 404
         if cur.rowcount > 0:
             package_info = cur.fetchall()
             package_list = []
@@ -674,20 +690,26 @@ def get_package_details_from_package_id(package_id):
                     'description': packages[2],
                     'name': packages[3],
                     'doi': packages[4],
-                    'created_on': packages[5].isoformat(),
+                    'created_on': packages[5],
                     'created_by': packages[6],
-                    'tools': [{'tool_id': packages[7], 'tool_description': packages[8], 'tool_name': packages[9], 'tool_script_name': packages[10]}],
+                    'tools': [{
+                        'tool_id': packages[7],
+                        'description': packages[8],
+                        'name': packages[9],
+                        'created_by': 'None',
+                        'tool_script_name': packages[10]
+                    }],
                     'input_files': packages[11]
                 }
                 package_list.append(package_json)
-            print(package_list)
-            package_response = json.dumps(package_list)
+            package_response = json.dumps(package_list, cls=DateEncoder)
             print(package_response)
             return jsonify(json.loads(package_response), 200)
 
-    except Exception:
-        return jsonify({"Error:",
-                        "Problem querying the package table or the archive table or the tools table in the meta database."}), 500
+    except Exception as e:
+        print("There was an error: ", str(e))  # sends the error to the log
+        return jsonify({"error": "Problem querying the package table or the archive table or the tools table in the meta database.", "details": str(e)}), 500
+
     finally:
         # Closing the database connection.
         cur.close()
@@ -711,7 +733,7 @@ def get_tool_details_from_tool_id(tool_id):
 
     # We are verifying the auth token here
     if auth_token is None or username is None:
-        return jsonify({"Error": "Auth headers are missing"}), 401
+        return jsonify({"error": "Auth headers are missing"}), 401
         # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
     validate_token_args = {
@@ -727,29 +749,32 @@ def get_tool_details_from_tool_id(tool_id):
                                             verify=False)
     if validate_token_response.status_code is not 200:
         print(validate_token_response)
-        return jsonify({"Error": "Invalid Token"}), 403
+        return jsonify({"error": "Invalid Token"}), 403
 
     # response_json = validate_token_response.json()
     # user_id = response_json['user_id']
 
     # This is where we are actually connecting to the database and getting the details of the tools
-    conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
+    conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
+                            password=meta_db_config["database-password"], host=meta_db_config["database-host"],
+                            port=meta_db_config["database-port"])
     cur = conn.cursor()
 
     # Here we are getting all the details of the tool specified by the tool id
     try:
-        query = """SELECT 
-                    tool_id, 
-                    tool.description as tool_description, 
-                    tool.name as tool_name, 
-                    tool.script_name as tool_script_name, 
-                    tool.created_on as tool_created_on
-                FROM tool 
-                WHERE tool_id = %s;"""
+        query = "SELECT " \
+                "tool_id, " \
+                "description as tool_description, " \
+                "name as tool_name, " \
+                "script_name as tool_script_name, " \
+                "created_on as tool_created_on " \
+                "FROM tool " \
+                "WHERE tool_id=%s "
 
-        cur.execute(query, tool_id)
+        cur.execute(query, (tool_id,))
+
         if cur.rowcount == 0:
-            return jsonify({"Error:", "Query returns zero results."}), 404
+            return jsonify({"error:", "Query returns zero results."}), 404
         if cur.rowcount > 0:
             tool_info = cur.fetchall()
             tool_list = []
@@ -759,15 +784,14 @@ def get_tool_details_from_tool_id(tool_id):
                     'tool_description': tools[1],
                     'tool_name': tools[2],
                     'tool_script_name': tools[3],
-                    'created_on': tools[4].isoformat()
+                    'created_on': tools[4]
                 }
                 tool_list.append(tool_json)
-            print(tool_list)
-            tool_response = json.dumps(tool_list)
+            tool_response = json.dumps(tool_list, cls=DateEncoder)
             print(tool_response)
             return jsonify(json.loads(tool_response), 200)
     except Exception:
-        return jsonify({"Error:", "Problem querying the tools table in the meta database."}), 500
+        return jsonify({"error:", "Problem querying the tools table in the meta database."}), 500
     finally:
         # Closing the database connection.
         cur.close()
@@ -794,7 +818,7 @@ def get_data_archives():
 
     # We are verifying the auth token here
     if auth_token is None or username is None:
-        return jsonify({"error": "auth headers are missing"}), 400
+        return jsonify({"error": "auth headers are missing"}), 401
         # connection = cadre_meta_connection_pool.getconn()
         # cursor = connection.cursor()
     validate_token_args = {
@@ -810,7 +834,7 @@ def get_data_archives():
                                             verify=False)
     if validate_token_response.status_code is not 200:
         print(validate_token_response)
-        return jsonify({"Error": "Invalid Token"}), 403
+        return jsonify({"error": "Invalid Token"}), 403
 
     # response_json = validate_token_response.json()
     # user_id = response_json['user_id']
@@ -823,7 +847,7 @@ def get_data_archives():
             print("The value of limit is: ", limit_value)
     except ValueError:
         print("No Limit is not an Integer. It's a string")
-        return jsonify({"Error": "Invalid Request: Limit should be a positive integer."}), 400
+        return jsonify({"error": "Invalid Request: Limit should be a positive integer."}), 400
 
     try:
         page_value = int(page)
@@ -832,7 +856,7 @@ def get_data_archives():
             print("The value of page is: ", page_value)
     except ValueError:
         print("No Page is not an Integer. It's a string")
-        return jsonify({"Error": "Invalid Request: Page should be a integer."}), 400
+        return jsonify({"error": "Invalid Request: Page should be a integer."}), 400
 
     # This prevents sql injection for the order by clause. Never use data sent by the user directly in a query
     actual_order_by = 'name'
@@ -846,25 +870,27 @@ def get_data_archives():
     offset = page * limit
 
     # This is where we are actually connecting to the database and getting the details of the archive
-    conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
+    conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
+                            password=meta_db_config["database-password"], host=meta_db_config["database-host"],
+                            port=meta_db_config["database-port"])
     cur = conn.cursor()
 
     # Here we are getting all the details of the all the data archives from the database
     try:
-        query = """SELECT 
-                    archive_id,  
-                    s3_location, 
-                    description as archive_description, 
-                    name as archive_name, 
-                    created_on as archive_created_on
-                FROM archive
-                ORDER BY {order_by} 
-                LIMIT %s 
-                OFFSET %s;""".format(order_by=actual_order_by)
+        query = "SELECT " \
+                "archive_id, " \
+                "s3_location, " \
+                "description as archive_description, " \
+                "name as archive_name, " \
+                "created_on as archive_created_on " \
+                "FROM archive " \
+                "ORDER BY {} " \
+                "LIMIT %s " \
+                "OFFSET %s ".format(actual_order_by)
 
         cur.execute(query, (limit, offset))
         if cur.rowcount == 0:
-            return jsonify({"Error:", "Query returns zero results."}), 404
+            return jsonify({"error:", "Query returns zero results."}), 404
         if cur.rowcount > 0:
             archive_info = cur.fetchall()
             archive_list = []
@@ -874,14 +900,14 @@ def get_data_archives():
                     's3_location': archives[1],
                     'archive_description': archives[2],
                     'archive_name': archives[3],
-                    'archive_created_on': archives[4].isoformat()
+                    'archive_created_on': archives[4]
                 }
                 archive_list.append(archive_json)
-            print(archive_list)
-            archive_response = json.dumps(archive_list)
+            archive_response = json.dumps(archive_list, cls=DateEncoder)
+            print(archive_response)
             return jsonify(json.loads(archive_response), 200)
     except Exception:
-        return jsonify({"Error:", "Problem querying the archive table in the meta database."}), 500
+        return jsonify({"error:", "Problem querying the archive table in the meta database."}), 500
     finally:
         # Closing the database connection.
         cur.close()

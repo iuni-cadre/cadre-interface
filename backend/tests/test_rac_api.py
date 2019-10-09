@@ -129,21 +129,21 @@ def test_get_tools_ep_fails_without_proper_headers(client):
 
     rv = client.get('/rac-api/get-tools')
     json = rv.get_json()
-    assert rv.status_code == 400
+    assert rv.status_code == 401
     assert json["error"] and json["error"] == "auth headers are missing"
 
     rv = client.get('/rac-api/get-tools', headers= {
         'auth-username': "SOME USERNAME"
     })
     json = rv.get_json()
-    assert rv.status_code == 400
+    assert rv.status_code == 401
     assert json["error"] and json["error"] == "auth headers are missing"
 
     rv = client.get('/rac-api/get-tools', headers= {
         'auth-token': "SOME TOKEN"
     })
     json = rv.get_json()
-    assert rv.status_code == 400
+    assert rv.status_code == 401
     assert json["error"] and json["error"] == "auth headers are missing"
 
 
@@ -279,21 +279,21 @@ def test_get_packages_ep_fails_without_proper_headers(client):
 
     rv = client.get('/rac-api/packages/get-packages')
     json = rv.get_json()
-    assert rv.status_code == 400
+    assert rv.status_code == 401
     assert json["error"] and json["error"] == "auth headers are missing"
 
     rv = client.get('/rac-api/packages/get-packages', headers= {
         'auth-username': "SOME USERNAME"
     })
     json = rv.get_json()
-    assert rv.status_code == 400
+    assert rv.status_code == 401
     assert json["error"] and json["error"] == "auth headers are missing"
 
     rv = client.get('/rac-api/packages/get-packages', headers= {
         'auth-token': "SOME TOKEN"
     })
     json = rv.get_json()
-    assert rv.status_code == 400
+    assert rv.status_code == 401
     assert json["error"] and json["error"] == "auth headers are missing"
 
 
@@ -370,7 +370,7 @@ def test_get_packages_ep_does_not_fail_with_successful_query(client, mocker):
         "description": "package for delivering the data for the tutorial",
         "name": "issi_data_package",
         "doi": "",
-        "created_on": "2019-08-23T17:17:34.196818+00:00",
+        "created_on": "2019-08-23 17:17:34.196818+00:00",
         "created_by": "",
         "tools": [{"tool_id": "11234221128", "tool_description": "Data for the ISSI tutorial", "tool_name": "issi_data", 'tool_script_name': "issi_tutorial.py"}],
         "input_files": "ISSIDemoData.tar.gz"
@@ -400,7 +400,7 @@ def test_get_packages_ep_fails_on_db_exception(client, mocker):
         "description": "package for delivering the data for the tutorial",
         "name": "issi_data_package",
         "doi": "",
-        "created_on": "2019-08-23T17:17:34.196818+00:00",
+        "created_on": "2019-08-23 17:17:34.196818+00:00",
         "created_by": "",
         "tools": [{"tool_id": "11234221128", "tool_description": "Data for the ISSI tutorial", "tool_name": "issi_data", 'tool_script_name': "issi_tutorial.py"}],
         "input_files": "ISSIDemoData.tar.gz"
@@ -429,7 +429,7 @@ def test_get_packages_ep_returns_jsonified_jobs_from_db(client, mocker):
             "package for delivering the data for the tutorial",
             "issi_data_package",
             "",
-            "2019-08-23T17:17:34.196818+00:00",
+            "2019-08-23 17:17:34.196818+00:00",
             "",
             [{"11234221128", "Data for the ISSI tutorial", "issi_data", "issi_tutorial.py"}],
             "ISSIDemoData.tar.gz"
@@ -440,7 +440,7 @@ def test_get_packages_ep_returns_jsonified_jobs_from_db(client, mocker):
             "package for delivering the data for the tutorial",
             "issi_data_package",
             "",
-            "2019-08-23T17:17:34.196818+00:00",
+            "2019-08-23 17:17:34.196818+00:00",
             "",
             [{"11234221128", "Data for the ISSI tutorial", "issi_data", "issi_tutorial.py"}],
             "ISSIDemoData.tar.gz"
@@ -451,7 +451,7 @@ def test_get_packages_ep_returns_jsonified_jobs_from_db(client, mocker):
             "package for delivering the data for the tutorial",
             "issi_data_package",
             "",
-            "2019-08-23T17:17:34.196818+00:00",
+            "2019-08-23 17:17:34.196818+00:00",
             "",
             [{"11234221128", "Data for the ISSI tutorial", "issi_data", "issi_tutorial.py"}],
             "ISSIDemoData.tar.gz"
@@ -466,7 +466,7 @@ def test_get_packages_ep_returns_jsonified_jobs_from_db(client, mocker):
         "description": "package for delivering the data for the tutorial",
         "name": "issi_data_package",
         "doi": "",
-        "created_on": "2019-08-23T17:17:34.196818+00:00",
+        "created_on": "2019-08-23 17:17:34.196818+00:00",
         "created_by": "",
         "tools": [{"tool_id": "11234221128", "tool_description": "Data for the ISSI tutorial", "tool_name": "issi_data",
                    'tool_script_name': "issi_tutorial.py"}],
@@ -506,21 +506,21 @@ def test_get_user_files_ep_fails_without_proper_headers(client):
 
     rv = client.get('/rac-api/user-files')
     json = rv.get_json()
-    assert rv.status_code == 400
+    assert rv.status_code == 401
     assert json["error"] and json["error"] == "auth headers are missing"
 
     rv = client.get('/rac-api/packages/get-packages', headers= {
         'auth-username': "SOME USERNAME"
     })
     json = rv.get_json()
-    assert rv.status_code == 400
+    assert rv.status_code == 401
     assert json["error"] and json["error"] == "auth headers are missing"
 
     rv = client.get('/rac-api/user-files', headers= {
         'auth-token': "SOME TOKEN"
     })
     json = rv.get_json()
-    assert rv.status_code == 400
+    assert rv.status_code == 401
     assert json["error"] and json["error"] == "auth headers are missing"
 
 
@@ -584,13 +584,124 @@ def test_get_user_files_ep_does_not_fail_with_valid_credentials(client, mocker):
     assert rv.status_code != 403
 
 
-def test_get_package_details_from_package_id(client):
+def test_get_package_details_from_package_id_ep_accepts_proper_headers(client):
     """
-    This is a method to test if the get details of the package from the package id is working correctly
+    End point gets past the missing header check with both headers
     """
-    package_id = '234221133'
-    rv = client.get('/rac-api/get-package/{}'.format(package_id))
-    assert rv.status_code == 401
+
+    rv = client.get('/rac-api/get-package/<package_id>', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    assert rv.status_code != 400
+
+
+def test_get_package_details_from_package_id_ep_accepts_params(client):
+    """
+    End point doesn't blow up when we send parameters
+    """
+
+    rv = client.get('/rac-api/get-package?package_id=234221136', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    assert rv.status_code != 500
+
+
+def test_get_package_details_from_package_id_ep_does_fail_with_invalid_credentials(client, mocker):
+    """
+    Mocker fakes a 401 response from authenticator endpoint to pass verification
+    """
+
+    mock_response = MockResponse()
+    mock_response.set_status_code(401)
+    mocker.patch("requests.post", return_value=mock_response)
+
+    rv = client.get('/rac-api/get-package/<package_id>', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    assert rv.status_code == 403
+
+
+def test_get_package_details_from_package_id_ep_does_not_fail_with_valid_credentials(client, mocker):
+    """
+    Mocker fakes a 200 response from authenticator endpoint to pass verification
+    """
+
+    mock_response = MockResponse()
+    mock_response.set_status_code(200)
+    mocker.patch("requests.post", return_value=mock_response)
+
+    rv = client.get('/rac-api/get-package/<package_id>', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    assert rv.status_code != 403
+
+
+def test_get_package_details_from_package_id_ep_does_not_fail_with_successful_query(client, mocker):
+    '''
+    Uses psycopg mock to mock DB call
+    '''
+
+    mock_response = MockResponse()
+    mock_response.set_status_code(200)
+    mock_response.set_json({
+        "package_id": "234221136",
+        "type": "CADRE_DEFINED",
+        "description": "package for delivering the data for the tutorial",
+        "name": "issi_data_package",
+        "doi": "",
+        "created_on": "2019-08-23 17:17:34.196818+00:00",
+        "created_by": "",
+        "tools": [{"tool_id": "11234221128", "tool_description": "Data for the ISSI tutorial", "tool_name": "issi_data", 'tool_script_name': "issi_tutorial.py"}],
+        "input_files": "ISSIDemoData.tar.gz"
+    })
+    mocker.patch("requests.post", return_value=mock_response)
+    mock_connection = MockPsycopgConnection()
+    mocker.patch("psycopg2.connect", return_value=mock_connection)
+
+    rv = client.get('/rac-api/get-package/<package_id>', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    assert rv.status_code == 200
+
+
+def test_get_package_details_from_package_id_ep_fails_on_db_exception(client, mocker):
+    '''
+    Uses psycopg mock to mock DB call with exception
+    '''
+
+    mock_response = MockResponse()
+    mock_response.set_status_code(200)
+    mock_response.set_json({
+        "package_id": "234221136",
+        "type": "CADRE_DEFINED",
+        "description": "package for delivering the data for the tutorial",
+        "name": "issi_data_package",
+        "doi": "",
+        "created_on": "2019-08-23 17:17:34.196818+00:00",
+        "created_by": "",
+        "tools": [{"tool_id": "11234221128", "tool_description": "Data for the ISSI tutorial", "tool_name": "issi_data", 'tool_script_name': "issi_tutorial.py"}],
+        "input_files": "ISSIDemoData.tar.gz"
+    })
+    mocker.patch("requests.post", return_value=mock_response)
+    mock_connection = MockPsycopgConnection(raise_exception=True)  # raise exception
+    mocker.patch("psycopg2.connect", return_value=mock_connection)
+
+    rv = client.get('/rac-api/get-package/<package_id>', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    assert rv.status_code == 500
 
 
 def test_get_tool_details_from_tool_id(client):
@@ -623,21 +734,21 @@ def test_get_data_archives_ep_fails_without_proper_headers(client):
     """
     rv = client.get('/rac-api/get-data-archives')
     json = rv.get_json()
-    assert rv.status_code == 400
+    assert rv.status_code == 401
     assert json["error"] and json["error"] == "auth headers are missing"
 
     rv = client.get('/rac-api/get-data-archives', headers={
         'auth-username': "SOME USERNAME"
     })
     json = rv.get_json()
-    assert rv.status_code == 400
+    assert rv.status_code == 401
     assert json["error"] and json["error"] == "auth headers are missing"
 
     rv = client.get('/rac-api/get-data-archives', headers={
         'auth-token': "SOME TOKEN"
     })
     json = rv.get_json()
-    assert rv.status_code == 400
+    assert rv.status_code == 401
     assert json["error"] and json["error"] == "auth headers are missing"
 
 
@@ -699,7 +810,7 @@ def test_get_data_archives_ep_does_not_fail_with_successful_query(client, mocker
         "s3_location": "/cadre-file-archive/yan30",
         "archive_description": "tar file",
         "archive_name": "ISSIDemoData.tar.gz",
-        "archive_created_on": "2019-08-23T16:26:32.048808+00:00"
+        "archive_created_on": "2019-08-23 17:17:34.196818+00:00"
     })
     mocker.patch("requests.post", return_value=mock_response)
     mock_connection = MockPsycopgConnection()
@@ -725,7 +836,7 @@ def test_get_data_archives_ep_fails_on_db_exception(client, mocker):
         "s3_location": "/cadre-file-archive/yan30",
         "archive_description": "tar file",
         "archive_name": "ISSIDemoData.tar.gz",
-        "archive_created_on": "2019-08-23T16:26:32.048808+00:00"
+        "archive_created_on": "2019-08-23 17:17:34.196818+00:00"
     })
     mocker.patch("requests.post", return_value=mock_response)
     mock_connection = MockPsycopgConnection(raise_exception=True)  # raise exception
@@ -745,27 +856,13 @@ def test_get_data_archives_ep_returns_jsonified_jobs_from_db(client, mocker):
     '''
 
     rows = [
-        [
+        {
            "11234221137",
             "/cadre-file-archive/yan30",
             "tar file",
             "ISSIDemoData.tar.gz",
-            "2019-08-23T16:26:32.048808+00:00"
-        ],
-        [
-            "11234221137",
-            "/cadre-file-archive/yan30",
-            "tar file",
-            "ISSIDemoData.tar.gz",
-            "2019-08-23T16:26:32.048808+00:00"
-        ],
-        [
-            "11234221137",
-            "/cadre-file-archive/yan30",
-            "tar file",
-            "ISSIDemoData.tar.gz",
-            "2019-08-23T16:26:32.048808+00:00"
-        ]
+            "2019-08-23 17:17:34.196818+00:00"
+        }
     ]
 
     mock_response = MockResponse()
@@ -775,7 +872,7 @@ def test_get_data_archives_ep_returns_jsonified_jobs_from_db(client, mocker):
         "s3_location": "/cadre-file-archive/yan30",
         "archive_description": "tar file",
         "archive_name": "ISSIDemoData.tar.gz",
-        "archive_created_on": "2019-08-23T16:26:32.048808+00:00"
+        "archive_created_on": "2019-08-23 17:17:34.196818+00:00"
     })
     mocker.patch("requests.post", return_value=mock_response)
     mock_connection = MockPsycopgConnection(rows=rows)
