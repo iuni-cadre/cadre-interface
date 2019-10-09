@@ -23,3 +23,5 @@ eb_bundle*.zip
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
 !.elasticbeanstalk/example.config.yml
+
+.ebextensions/storage-efs-mountfilesystem.config
