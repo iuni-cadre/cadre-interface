@@ -1,0 +1,9 @@
+#!/bin/bash
+
+#rebuild node app
+pushd frontend
+
+exec npm run test-clear &
+wait 
+exec npm run test -- tests/$1 || true &
+wait

@@ -1,7 +1,0 @@
-#!/bin/bash
-
-#rebuild node app
-pushd frontend
-
-exec npm run test &
-wait
