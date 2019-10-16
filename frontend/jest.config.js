@@ -1,5 +1,5 @@
 module.exports = {
-    verbose: true,
+    verbose: false,
     moduleFileExtensions: [
         "js",
         "json",
@@ -9,7 +9,7 @@ module.exports = {
         ".*\\.(vue)$": "vue-jest",
         "^.+\\.js$": "<rootDir>/node_modules/babel-jest"
     },
-    collectCoverage: true,
+    collectCoverage: false,
     collectCoverageFrom: [
         "src/components/*.{js,vue}",
         "!**/node_modules/**"
