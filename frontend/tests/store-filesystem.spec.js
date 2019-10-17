@@ -2,9 +2,27 @@ import Vue from "vue";
 import Vuex from "vuex";
 Vue.use(Vuex);
 
+import axios from "axios";
+jest.mock("axios");
+
+import CadreGlobalFunctions from "./mock-plugin";
+
+// import mockAxios from "jest-mock-axios";
+
 import { actions, mutations, getters, state } from "../src/store";
 import FullStore from "../src/store";
 import Filesystem from "../src/store/modules/filesystem";
+
+Vue.use(CadreGlobalFunctions, {
+    store: {
+        getters: {
+            "user/authToken": "fake-token",
+            "user/username": "fake-username"
+        }
+    },
+    axios: axios,
+    config: {}
+});
 
 describe("filesystem store", () => {
     let store;
@@ -48,7 +66,6 @@ describe("filesystem store", () => {
     // });
 });
 
-
 describe("getFiles", () => {
     let store;
     beforeEach(() => {
@@ -63,10 +80,24 @@ describe("getFiles", () => {
         });
     });
 
-    it("returns a promise", ()=>{
-        expect.assertions(1);
-        let prom = store.dispatch("getFiles");
+    afterEach(() => {
+        // mockAxios.reset();
+    });
 
-        return expect(prom).rejects.toEqual('balls');
+    it("calls the correct endpoint", () => {
+        // let catchFn = jest.fn();
+        // let thenFn = jest.fn();
+
+        // axios.mockResolvedValue("TEST");
+
+        let prom = store.dispatch("getFiles").catch(err => {});
+
+        expect(axios.mock.calls[0][0].url).toBe("/rac-api/user-files");
+        expect(axios.mock.calls[0][0].method).toBe("GET");
+
+        return expect(prom).resolves.toBeTruthy();
+        // expect(mockAxios.get).toHaveBeenCalledWith('/');
+
+        // return expect(prom).rejects.toEqual("test");
     });
 });

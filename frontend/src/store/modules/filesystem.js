@@ -21,7 +21,25 @@ export default {
         getFiles: function() {
             // return 'test';
             return new Promise((resolve, reject) => {
-                reject({error: "balls"});
+                // let prom = axios.get("/");
+
+                // let prom = axios({
+                //     url: "/",
+                //     method: "GET"
+                // });
+                let prom = Vue.$cadre.axios({
+                    url: "/",
+                    method: "GET"
+                });
+
+                prom.then(
+                    resp => {
+                        resolve(resp);
+                    },
+                    err => {
+                        reject(err);
+                    }
+                );
             });
         }
     }
