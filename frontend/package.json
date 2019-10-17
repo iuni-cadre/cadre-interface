@@ -6,9 +6,9 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "testvue": "vue-cli-service test:unit",
-    "test": "jest || true",
+    "test": "jest tests/ || true",
     "test-clear": "jest --clearCache",
-    "test-single": "jest"
+    "test-single": "jest ${FILE} || true"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.17",

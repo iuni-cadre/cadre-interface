@@ -5,5 +5,10 @@ pushd frontend
 
 exec npm run test-clear &
 wait 
-exec npm run test -- tests/$1 || true &
+if [ -z $1 ]; then
+    exec npm run test &
+else
+    export FILE=tests/$1
+    exec  npm run test-single &
+fi
 wait
