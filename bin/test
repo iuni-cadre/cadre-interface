@@ -1,9 +1,28 @@
 #!/bin/bash
 
-pushd backend
-source venv/bin/activate
+if [[ $1 == b || $1 == back || $1 == backend || -z $1 ]]; then
 
-exec python -m pytest &
-wait
+    echo ""
+    echo ""
+    echo ""
+    echo "          **************** backend tests *****************"
+    echo ""
+    echo ""
+    echo ""
+    exec bin/testbackend &
+    wait
+    
+fi
 
-pushd ..
+if [[ $1 == f || $1 == front || $1 == frontend || -z $1 ]]; then
+
+    echo ""
+    echo ""
+    echo ""
+    echo "          **************** frontend tests ****************"
+    echo ""
+    echo ""
+    echo ""
+    exec bin/testfrontend $2 &
+    wait
+fi
