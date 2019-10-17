@@ -28,7 +28,7 @@ export default {
                 //     method: "GET"
                 // });
                 let prom = Vue.$cadre.axios({
-                    url: "/",
+                    url: "/test",
                     method: "GET"
                 });
 
