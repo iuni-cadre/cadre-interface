@@ -80,6 +80,12 @@ describe("getFiles", () => {
         expect(axios.mock.calls[0][0].method).toBe("GET");
     });
 
+    it("calls with correct parameters", () => {
+        let prom = store.dispatch("getFiles", {path: "/query-results"}).catch(err => {});
+
+        expect(axios.mock.calls[0][0].params).toEqual({path: "/query-results"});
+    });
+
     it("saves output structure to state", () => {
         let sample_response = {
             data: [
