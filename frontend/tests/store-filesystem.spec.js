@@ -9,7 +9,7 @@ import CadreGlobalFunctions from "./mock-plugin";
 
 // import mockAxios from "jest-mock-axios";
 
-import { actions, mutations, getters, state } from "../src/store";
+// import { actions, mutations, getters, state } from "../src/store";
 import FullStore from "../src/store";
 import Filesystem from "../src/store/modules/filesystem";
 
@@ -237,4 +237,8 @@ describe("updateFileStructure mutation", () => {
             }
         ]);
     });
+});
+
+describe("FileBrowser component", () =>{
+
 });
