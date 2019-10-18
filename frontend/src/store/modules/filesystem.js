@@ -100,11 +100,19 @@ export default {
         /**
          * Should hit the rac API and return the children of a folder
          */
-        getFiles: function({ commit }) {
+        getFiles: function({ commit }, payload) {
+            // console.debug(payload);
+            let path = payload && payload.path || "";
+            let level = 1;
+
             return new Promise((resolve, reject) => {
                 let prom = Vue.$cadre.axios({
-                    url: "/rac-api/user-files",
-                    method: "GET"
+                    url: Vue.$cadreConfig.rac_api_prefix + "/user-files",
+                    method: "GET",
+                    params: {
+                        path: path,
+                        level: level
+                    }
                 });
 
                 prom.then(

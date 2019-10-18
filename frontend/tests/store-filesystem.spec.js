@@ -21,7 +21,9 @@ Vue.use(CadreGlobalFunctions, {
         }
     },
     axios: axios,
-    config: {}
+    config: {
+        rac_api_prefix: "/rac-api"
+    }
 });
 
 let store;
@@ -34,7 +36,7 @@ beforeEach(() => {
     });
 });
 
-describe.skip("filesystem store", () => {
+describe("filesystem store", () => {
     beforeEach(() => {
         console.error = msg => {
             throw new Error(msg);
@@ -71,6 +73,7 @@ describe.skip("filesystem store", () => {
 describe("getFiles", () => {
     afterEach(() => {
         // mockAxios.reset();
+        axios.mockReset();
     });
 
     it("calls the correct endpoint", () => {
@@ -82,8 +85,7 @@ describe("getFiles", () => {
 
     it("calls with correct parameters", () => {
         let prom = store.dispatch("getFiles", {path: "/query-results"}).catch(err => {});
-
-        expect(axios.mock.calls[0][0].params).toEqual({path: "/query-results"});
+        expect(axios.mock.calls[0][0].params).toEqual({path: "/query-results", level: 1});
     });
 
     it("saves output structure to state", () => {
