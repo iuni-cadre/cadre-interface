@@ -53,6 +53,11 @@ export default new Router({
             path: "/rac",
             name: "rac-marketplace",
             component: RAC_Marketplace
+        },
+        {
+            path: "/component_test",
+            name: "component_test",
+            component: () => import(/* webpackChunkName: "Test" */ './views/Tests/ComponentTester.vue')
         }
         // {
         //   path: '/about',
