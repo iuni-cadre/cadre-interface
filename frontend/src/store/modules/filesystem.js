@@ -18,9 +18,19 @@ export default {
         setRoot: function(state, root) {
             state.root = root;
         },
+
+        /**
+         * Updates the file structure and flat file structure
+         * @param {array} payload - expects an array filled with pieces of file structure
+         * */
         updateFileStructure: function(state, payload) {
-            state.flat_file_structure = state.flat_file_structure.concat(payload);
-            state.flat_file_structure.sort((a, b) => {
+            /* TODO: empty folder if a folder is refreshed. */
+
+            let list = state.flat_file_structure;
+
+            // join the existing structure with the new structure
+            list = list.concat(payload);
+            list.sort((a, b) => {
                 if (a.path > b.path) {
                     return 1;
                 } else if (a.path < b.path) {
@@ -30,8 +40,9 @@ export default {
                 }
             });
 
+            //remove duplicates
             let seen_paths = [];
-            state.flat_file_structure = state.flat_file_structure.filter(item => {
+            list = list.filter(item => {
                 if (seen_paths.indexOf(item.path) < 0) {
                     seen_paths.push(item.path);
                     return true;
@@ -40,8 +51,9 @@ export default {
                 }
             });
 
-            let list = state.flat_file_structure;
+            //construct tree structure
 
+            //start empty map
             let map = {
                 "": {
                     path: "/",
@@ -50,45 +62,46 @@ export default {
                 }
             };
 
+            //put all folders into map and add children array
             for (let i in list) {
                 let item = list[i];
                 if (item.type == "file") {
                     continue;
                 }
-                // item.parent_folder = item.path.split("/"); //.pop();
-                // item.parent_folder.pop();
-                // item.parent_folder = item.parent_folder.join("/");
                 item.children = [];
                 map[item.path] = item;
             }
-            // console.debug(map)
+
+            //build the tree structure
             for (let i in list) {
                 let item = list[i];
 
-                let parent_folder = item.path.split("/"); //.pop();
+                //parent folder will be the key in the map
+                let parent_folder = item.path.split("/");
                 parent_folder.pop();
                 parent_folder = parent_folder.join("/");
 
+                //if a file, just add to folder
                 if (item.type == "file") {
                     map[parent_folder].children.push(item);
                 } else if (item.type == "folder") {
+                    //if folder, add the map item to the parent folder, preserving the folder's chidlren
                     map[parent_folder].children.push(map[item.path]);
                 }
             }
 
-            return (state.file_structure = [map[""]]);
+            //update the structure
+            state.flat_file_structure = list;
+            state.file_structure = [map[""]];
         }
     },
     actions: {
-        getFiles: function({ commit }) {
-            // return 'test';
-            return new Promise((resolve, reject) => {
-                // let prom = axios.get("/");
 
-                // let prom = axios({
-                //     url: "/",
-                //     method: "GET"
-                // });
+        /**
+         * Should hit the rac API and return the children of a folder
+         */
+        getFiles: function({ commit }) {
+            return new Promise((resolve, reject) => {
                 let prom = Vue.$cadre.axios({
                     url: "/rac-api/user-files",
                     method: "GET"
