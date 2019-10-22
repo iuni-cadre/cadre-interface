@@ -318,7 +318,7 @@ def get_packages():
                 package_list.append(package_json)
             package_response = json.dumps(package_list, cls=DateEncoder)
             print(package_response)
-            return jsonify(json.loads(package_response), 200)
+            return jsonify(json.loads(package_response)), 200
     except Exception as e:
         print("There was an error: ", str(e))  # Sends the error to the log
         return jsonify({"error:": "Problem querying the package table or the archive table or the tools table in the meta database.", "details": str(e)}), 500
@@ -432,7 +432,7 @@ def get_tools():
                 tool_list.append(tool_json)
             tool_response = json.dumps(tool_list, cls=DateEncoder)
             print(tool_response)
-            return jsonify(json.loads(tool_response), 200)
+            return jsonify(json.loads(tool_response)), 200
     except Exception:
         return jsonify({"error:", "Problem querying the tools table in the meta database."}), 500
     finally:
@@ -529,7 +529,7 @@ def create_packages():
                         'description': archive_description,
                         'name': input_file_list,
                         'created_on': created_on,
-                        'created_by': username}, 200)
+                        'created_by': username}), 200
     except Exception:
         return jsonify({"error:", "Problem querying database while inserting the data in the archive table."}), 500
     finally:
@@ -606,7 +606,7 @@ def get_user_files():
             print(file_info[x])
 
         files_response = json.dumps(file_info)
-        return jsonify(json.loads(files_response), 200)
+        return jsonify(json.loads(files_response)), 200
     except Exception:
         return jsonify({"error:" "The path provided does not exist."}), 500
     finally:
@@ -704,7 +704,7 @@ def get_package_details_from_package_id(package_id):
                 package_list.append(package_json)
             package_response = json.dumps(package_list, cls=DateEncoder)
             print(package_response)
-            return jsonify(json.loads(package_response), 200)
+            return jsonify(json.loads(package_response)), 200
 
     except Exception as e:
         print("There was an error: ", str(e))  # sends the error to the log
@@ -789,7 +789,7 @@ def get_tool_details_from_tool_id(tool_id):
                 tool_list.append(tool_json)
             tool_response = json.dumps(tool_list, cls=DateEncoder)
             print(tool_response)
-            return jsonify(json.loads(tool_response), 200)
+            return jsonify(json.loads(tool_response)), 200
     except Exception:
         return jsonify({"error:", "Problem querying the tools table in the meta database."}), 500
     finally:
@@ -905,7 +905,7 @@ def get_data_archives():
                 archive_list.append(archive_json)
             archive_response = json.dumps(archive_list, cls=DateEncoder)
             print(archive_response)
-            return jsonify(json.loads(archive_response), 200)
+            return jsonify(json.loads(archive_response)), 200
     except Exception:
         return jsonify({"error:", "Problem querying the archive table in the meta database."}), 500
     finally:
