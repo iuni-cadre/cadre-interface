@@ -8,14 +8,31 @@ import axios from "axios";
 import VueAxios from "vue-axios";
 import Config from "../../conf/frontend.config.json";
 
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { faCircleNotch, faSpinner, faAtom, faCompactDisc, faExclamationTriangle, faSyncAlt, faTrashAlt, faBars, faHamburger} from '@fortawesome/free-solid-svg-icons';
-import { faSquare, faCheckSquare, faCircle, faDotCircle } from '@fortawesome/free-regular-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faCircleNotch, faSpinner, faAtom, faCompactDisc, faExclamationTriangle, faSyncAlt, faTrashAlt, faBars, faHamburger, faChevronRight, faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import { faSquare, faCheckSquare, faCircle, faDotCircle, faFolder, faFolderOpen, faFile } from "@fortawesome/free-regular-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
-library.add(faSpinner, faCircleNotch, faAtom, faCompactDisc, faSquare, faCheckSquare, faExclamationTriangle, faSyncAlt, faTrashAlt, faBars, faHamburger, faCircle, faDotCircle);
+library.add(faSpinner,
+     faCircleNotch,
+     faAtom,
+     faCompactDisc,
+     faSquare,
+     faCheckSquare,
+     faExclamationTriangle,
+     faSyncAlt,
+     faTrashAlt,
+     faBars,
+     faHamburger,
+     faCircle,
+     faDotCircle,
+     faFolder,
+     faFolderOpen,
+     faChevronDown,
+     faChevronRight,
+     faFile);
 
-Vue.component('fa', FontAwesomeIcon);
+Vue.component("fa", FontAwesomeIcon);
 
 import CadreGlobalFunctions from "./CadreGlobalsPlugin.js";
 
