@@ -904,7 +904,7 @@ def get_data_archives():
                 }
                 archive_list.append(archive_json)
             archive_response = json.dumps(archive_list, cls=DateEncoder)
-            print(archive_response)
+            # print(archive_response)
             return jsonify(json.loads(archive_response)), 200
     except Exception:
         return jsonify({"error:", "Problem querying the archive table in the meta database."}), 500
