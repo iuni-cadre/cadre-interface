@@ -2,6 +2,7 @@ import pytest
 import os
 import requests
 import sys
+import datetime
 
 from flask import Flask, render_template, request, json, jsonify
 from pprint import pprint
@@ -178,64 +179,71 @@ def test_get_packages_ep_returns_jsonified_jobs_from_db(client, mocker):
     Checks that the endpoint is returning json that matches the mocked up data
     '''
 
+    now = datetime.datetime.now()
+
     rows = [
         [
-            "234221136",
-            "CADRE_DEFINED",
-            "package for delivering the data for the tutorial",
-            "issi_data_package",
-            "",
-            "2019-08-23 17:17:34.196818+00:00",
-            "",
-            [
+            '1234567890', #package_id, 
+            'type', #type, 
+            'some description', #description, 
+            'package_name', #name, 
+            'doi_number', #doi, 
+            now, #created_on, 
+            'cadre team', #created_by, 
+            'tool_1', #tool_id, 
+            'tool_desc1', #tool_description, 
+            'tool_name1', #tool_name, 
+            'tool_script.py', #tool_script_name, 
+            'input1.csv,input2.csv'#input_files 
+        ],
+        [
+            '1234567890', #package_id, 
+            'type', #type, 
+            'some description', #description, 
+            'package_name', #name, 
+            'doi_number', #doi, 
+            now, #created_on, 
+            'cadre team', #created_by, 
+            'tool_2', #tool_id, 
+            'tool_desc2', #tool_description, 
+            'tool_name2', #tool_name, 
+            'tool_script2.py', #tool_script_name, 
+            'input1.csv,input2.csv'#input_files 
+        ]
+    ]
+
+    expected_output = [
+        {
+            'package_id': '1234567890',
+            'type': 'type',
+            'description': 'some description',
+            'name': 'package_name',
+            'doi': 'doi_number',
+            'created_on': now.isoformat(),
+            'created_by': 'cadre team',
+            'tools': [
                 {
-                    "11234221128", 
-                "Data for the ISSI tutorial", 
-                "issi_data", 
-                "issi_tutorial.py"
+                    'tool_id': 'tool_1',
+                    'description': 'tool_desc1',
+                    'name': 'tool_name1',
+                    'tool_script_name': 'tool_script.py',
+                    # 'tool_script_name': packages[10]
+                },
+                {
+                    'tool_id': 'tool_2',
+                    'description': 'tool_desc2',
+                    'name': 'tool_name2',
+                    'tool_script_name': 'tool_script2.py',
+                    # 'tool_script_name': packages[10]
                 }
             ],
-            "ISSIDemoData.tar.gz"
-        ],
-        [
-            "234221136",
-            "CADRE_DEFINED",
-            "package for delivering the data for the tutorial",
-            "issi_data_package",
-            "",
-            "2019-08-23 17:17:34.196818+00:00",
-            "",
-            [{"11234221128", "Data for the ISSI tutorial", "issi_data", "issi_tutorial.py"}],
-            "ISSIDemoData.tar.gz"
-        ],
-        [
-            "234221136",
-            "CADRE_DEFINED",
-            "package for delivering the data for the tutorial",
-            "issi_data_package",
-            "",
-            "2019-08-23 17:17:34.196818+00:00",
-            "",
-            [{"11234221128", "Data for the ISSI tutorial", "issi_data", "issi_tutorial.py"}],
-            "ISSIDemoData.tar.gz"
-        ]
+            'input_files': 'input1.csv,input2.csv'
+        }
     ]
 
     mock_response = MockResponse()
     mock_response.set_status_code(200)
     mocker.patch("requests.post", return_value=mock_response)
-    # mock_response.set_json({
-    #     "package_id": "234221136",
-    #     "type": "CADRE_DEFINED",
-    #     "description": "package for delivering the data for the tutorial",
-    #     "name": "issi_data_package",
-    #     "doi": "",
-    #     "created_on": "2019-08-23 17:17:34.196818+00:00",
-    #     "created_by": "",
-    #     "tools": [{"tool_id": "11234221128", "tool_description": "Data for the ISSI tutorial", "tool_name": "issi_data",
-    #                'tool_script_name': "issi_tutorial.py"}],
-    #     "input_files": "ISSIDemoData.tar.gz"
-    # })
 
     mock_connection = MockPsycopgConnection(rows=rows)
     mocker.patch("psycopg2.connect", return_value=mock_connection)
@@ -243,10 +251,9 @@ def test_get_packages_ep_returns_jsonified_jobs_from_db(client, mocker):
     rv = client.get('/rac-api/packages/get-packages', headers={
         'auth-token': "Some Token",
         'auth-username': "Some Username"
-    })
+    }) 
 
-    # pprint(rv.get_json())
-    # pprint(rows);
-
-    assert rv.get_json() == (rows)
+    pprint(rv.get_json())
+    pprint(expected_output)
+    assert rv.get_json() == (expected_output)
 

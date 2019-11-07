@@ -226,26 +226,17 @@ def get_packages():
                                             headers=headers,
                                             verify=False)
     if validate_token_response.status_code is not 200:
-        # print(validate_token_response)
         return jsonify({"error": "Invalid Token"}), 403
 
     # Validating the Request here
     try:
         limit_value = int(limit)
-        # if limit_value > 0:
-        #     print("Yes limit is a positive integer.")
-        #     print("The value of limit is: ", limit_value)
     except ValueError:
-        # print("No Limit is not an Integer. It's a string")
         return jsonify({"error": "Invalid Request: Limit should be a positive integer."}), 400
 
     try:
         page_value = int(page)
-        # if page_value >= 0:
-        #     print("Yes page is an Integer.")
-        #     print("The value of page is: ", page_value)
     except ValueError:
-        # print("No Page is not an Integer. It's a string")
         return jsonify({"error": "Invalid Request: Page should be a integer."}), 400
 
     # This prevents sql injection for the order by clause. Never use data sent by the user directly in a query
@@ -295,30 +286,51 @@ def get_packages():
         if cur.rowcount == 0:
             return jsonify({"error": "Query returns zero results."}), 404
         elif cur.rowcount > 0:
-            package_info = cur.fetchall()
-            package_list = []
-            for packages in package_info:
-                package_json = {
-                    'package_id': packages[0],
-                    'type': packages[1],
-                    'description': packages[2],
-                    'name': packages[3],
-                    'doi': packages[4],
-                    'created_on': packages[5],
-                    'created_by': packages[6],
-                    'tools': [{
-                        'tool_id': packages[7], 
-                        'description': packages[8], 
-                        'name': packages[9], 
-                        'created_by': 'None'
-                        # 'tool_script_name': packages[10]
-                    }],
-                    'input_files': packages[11]
-                }
-                package_list.append(package_json)
-            package_response = json.dumps(package_list, cls=DateEncoder)
-            print(package_response)
-            return jsonify(json.loads(package_response)), 200
+            packages = cur.fetchall()
+            packages_dict = {}
+            
+            for package in packages:
+                #pull apart the row:
+                package_id = package[0]
+                p_type = package[1]
+                description = package[2]
+                name = package[3]
+                doi = package[4]
+                created_on = package[5].isoformat()
+                created_by = package[6]
+                tool_tool_id = package[7]
+                tool_description = package[8]
+                tool_name = package[9]
+                tool_script_name = package[10]
+                input_files = package[11]
+                
+                #get the existing item on the dict or create an empty one
+                p = packages_dict.get(package_id, {})
+                #set all the props
+                p['package_id'] = package_id
+                p['type'] = p_type
+                p['description'] = description
+                p['name'] = name
+                p['doi'] = doi
+                p['created_on'] = created_on
+                p['created_by'] = created_by
+                p['input_files'] = input_files
+
+                # get the tools or default to []
+                p['tools'] = p.get('tools', [])
+                # add a new tool
+                p['tools'].append(
+                    {
+                        'tool_id': tool_tool_id,
+                        'description': tool_description,
+                        'name': tool_name,
+                        'tool_script_name': tool_script_name
+                    }
+                )
+                #put it back on the dict
+                packages_dict[package_id] = p
+            #return a jsonified version of the dict values only
+            return jsonify(list(packages_dict.values())), 200
     except Exception as e:
         print("There was an error: ", str(e))  # Sends the error to the log
         return jsonify({"error:": "Problem querying the package table or the archive table or the tools table in the meta database.", "details": str(e)}), 500
@@ -326,7 +338,6 @@ def get_packages():
     finally:
         cur.close()
         conn.close()
-        # print("The database connection has been closed successfully.")
 
 
 @blueprint.route('/rac-api/get-tools', methods=['GET'])
