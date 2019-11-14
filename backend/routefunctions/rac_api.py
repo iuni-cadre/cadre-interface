@@ -619,7 +619,7 @@ def get_user_files():
         files_response = json.dumps(file_info)
         return jsonify(json.loads(files_response)), 200
     except Exception:
-        return jsonify({"error:" "The path provided does not exist."}), 500
+        return jsonify({"error:" "The path provided does not exist."}), 404
     finally:
         print("The request has been handled.")
 
