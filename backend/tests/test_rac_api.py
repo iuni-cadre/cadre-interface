@@ -12,7 +12,7 @@ from backend.library import readconfig
 
 # url = 'http://aa36a4acbbb4311e991df02800e92ef4-1296978337.us-east-2.elb.amazonaws.com/hub/api' # This is the URL of the Jupyter Notebook API
 
-from .conftest import MockPsycopgConnection, MockPsycopgCursor, MockResponse
+from .conftest import MockPsycopgConnection, MockPsycopgCursor, MockResponse, patch_cursor, patch_user
 
 
 
@@ -67,7 +67,7 @@ def test_no_unknown_endpoints(client):
     assert failed_paths == ['/api/failonme - 404']
 
 
-def test_for_401_on_invalid_user(client, mocker):
+def test_for_401_on_invalid_credentials(client, mocker):
     auth_token = "FAKE_TOKEN"
     headers_options = [
         {},
@@ -116,39 +116,6 @@ def test_for_401_on_invalid_user(client, mocker):
     assert failed_paths == []
 
 
-
-    # headers = {
-    #     "auth-username": auth_token
-    # }
-    # failed_paths = []
-    # for path in ALL_ENDPOINTS:
-    #     rv = None
-    #     p = "{0}".format(path)
-    #     if ENDPOINT_METHODS[path] == "GET":
-    #         rv = client.get(p, headers=headers, content_type='application/json', data=json.dumps(json_to_send))
-    #     else:
-    #         rv = client.post(p, headers=headers, content_type='application/json', data=json.dumps(json_to_send))
-    #     if rv.status_code != 401:
-    #         error = '{0} - {1}'.format(p, rv.status_code)
-    #         failed_paths.append(error)
-    # assert failed_paths == ['/api/failonme - 404']
-
-    # headers = {
-    #     "auth-username": auth_token
-    # }
-    # failed_paths = []
-    # for path in ALL_ENDPOINTS:
-    #     rv = None
-    #     p = "{0}".format(path)
-    #     if ENDPOINT_METHODS[path] == "GET":
-    #         rv = client.get(p, headers=headers, content_type='application/json', data=json.dumps(json_to_send))
-    #     else:
-    #         rv = client.post(p, headers=headers, content_type='application/json', data=json.dumps(json_to_send))
-    #     if rv.status_code != 401:
-    #         error = '{0} - {1}'.format(p, rv.status_code)
-    #         failed_paths.append(error)
-    # assert failed_paths == ['/api/failonme - 404']
-
     # rv = client.get('/qi-api/user-jobs')
     # json = rv.get_json()
     # assert rv.status_code == 401
@@ -168,7 +135,32 @@ def test_for_401_on_invalid_user(client, mocker):
     # assert rv.status_code == 401
     # assert json["error"] and json["error"] == "auth headers are missing"
 
+def test_for_403_on_invalid_user(client, mocker):
 
+    #doesn't fail with 401 if has headers
+    failed_paths = []
+    headers = {
+        "auth-token": "fake_token",
+        "auth-username": "fake_username"
+    }
+    json_to_send = {}
+    
+    # mock_response = MockResponse()
+    # mock_response.set_status_code(401)
+    # mocker.patch("requests.post", return_value=mock_response)
+    patch_cursor(mocker)
+    patch_user(mocker, status_code = 401)
+    for path in ALL_ENDPOINTS:
+        rv = None
+        p = "{0}".format(path)
+        if ENDPOINT_METHODS[path] == "GET":
+            rv = client.get(p, headers=headers, content_type='application/json', data=json.dumps(json_to_send))
+        else:
+            rv = client.post(p, headers=headers, content_type='application/json', data=json.dumps(json_to_send))
+        if rv.status_code != 403:
+            error = '{0} - {1}'.format(p, rv.status_code)
+            failed_paths.append(error)
+    assert failed_paths == ['/api/failonme - 404']
 
 
 ENDPOINT_METHODS = {}

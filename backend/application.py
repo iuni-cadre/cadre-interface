@@ -47,13 +47,14 @@ fallback_blueprint = Blueprint('fallbacks', __name__)
 @fallback_blueprint.route("/api", methods=['GET', 'POST'])
 @fallback_blueprint.route("/api/", methods=['GET', 'POST'])
 @fallback_blueprint.route("/api/<path:fallback>", methods=['GET', 'POST'])
-@fallback_blueprint.route("/rac-api", methods=['GET', 'POST'])
-@fallback_blueprint.route("/rac-api/", methods=['GET', 'POST'])
-@fallback_blueprint.route("/rac-api/<path:fallback>", methods=['GET', 'POST'])
-@fallback_blueprint.route("/qi-api", methods=['GET', 'POST'])
-@fallback_blueprint.route("/qi-api/", methods=['GET', 'POST'])
-@fallback_blueprint.route("/qi-api/<path:fallback>", methods=['GET', 'POST'])
+@rac_api.blueprint.route("/rac-api", methods=['GET', 'POST'])
+@rac_api.blueprint.route("/rac-api/", methods=['GET', 'POST'])
+@rac_api.blueprint.route("/rac-api/<path:fallback>", methods=['GET', 'POST'])
+@qi_api.blueprint.route("/qi-api", methods=['GET', 'POST'])
+@qi_api.blueprint.route("/qi-api/", methods=['GET', 'POST'])
+@qi_api.blueprint.route("/qi-api/<path:fallback>", methods=['GET', 'POST'])
 def api_index(fallback=""):
+    print(fallback)
     return jsonify({"error": "Unknown endpoint."}), 404
 
 

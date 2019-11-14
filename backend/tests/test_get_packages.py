@@ -178,9 +178,7 @@ def test_get_packages_ep_returns_jsonified_jobs_from_db(client, mocker):
     '''
     Checks that the endpoint is returning json that matches the mocked up data
     '''
-
     now = datetime.datetime.now()
-
     rows = [
         [
             '1234567890', #package_id, 
