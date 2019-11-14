@@ -31,28 +31,28 @@ def test_get_data_archives_ep_exists(client):
     assert not unknown_endpoint
 
 
-def test_get_data_archives_ep_fails_without_proper_headers(client):
-    """
-    End point needs at least the auth-auth and auth-user headers
-    """
-    rv = client.get('/rac-api/get-data-archives')
-    json = rv.get_json()
-    assert rv.status_code == 401
-    assert json["error"] and json["error"] == "auth headers are missing"
+# def test_get_data_archives_ep_fails_without_proper_headers(client):
+#     """
+#     End point needs at least the auth-auth and auth-user headers
+#     """
+#     rv = client.get('/rac-api/get-data-archives')
+#     json = rv.get_json()
+#     assert rv.status_code == 401
+#     assert json["error"] and json["error"] == "auth headers are missing"
 
-    rv = client.get('/rac-api/get-data-archives', headers={
-        'auth-username': "SOME USERNAME"
-    })
-    json = rv.get_json()
-    assert rv.status_code == 401
-    assert json["error"] and json["error"] == "auth headers are missing"
+#     rv = client.get('/rac-api/get-data-archives', headers={
+#         'auth-username': "SOME USERNAME"
+#     })
+#     json = rv.get_json()
+#     assert rv.status_code == 401
+#     assert json["error"] and json["error"] == "auth headers are missing"
 
-    rv = client.get('/rac-api/get-data-archives', headers={
-        'auth-token': "SOME TOKEN"
-    })
-    json = rv.get_json()
-    assert rv.status_code == 401
-    assert json["error"] and json["error"] == "auth headers are missing"
+#     rv = client.get('/rac-api/get-data-archives', headers={
+#         'auth-token': "SOME TOKEN"
+#     })
+#     json = rv.get_json()
+#     assert rv.status_code == 401
+#     assert json["error"] and json["error"] == "auth headers are missing"
 
 
 def test_get_data_archives_ep_accepts_proper_headers(client):

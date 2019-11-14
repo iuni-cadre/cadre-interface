@@ -28,29 +28,29 @@ def test_get_tools_ep_exists(client):
     assert not unknown_endpoint
 
 
-def test_get_tools_ep_fails_without_proper_headers(client):
-    """
-    The end point needs at least the auth-auth and auth-user headers
-    """
+# def test_get_tools_ep_fails_without_proper_headers(client):
+#     """
+#     The end point needs at least the auth-auth and auth-user headers
+#     """
 
-    rv = client.get('/rac-api/get-tools')
-    json = rv.get_json()
-    assert rv.status_code == 401
-    assert json["error"] and json["error"] == "auth headers are missing"
+#     rv = client.get('/rac-api/get-tools')
+#     json = rv.get_json()
+#     assert rv.status_code == 401
+#     assert json["error"] and json["error"] == "auth headers are missing"
 
-    rv = client.get('/rac-api/get-tools', headers= {
-        'auth-username': "SOME USERNAME"
-    })
-    json = rv.get_json()
-    assert rv.status_code == 401
-    assert json["error"] and json["error"] == "auth headers are missing"
+#     rv = client.get('/rac-api/get-tools', headers= {
+#         'auth-username': "SOME USERNAME"
+#     })
+#     json = rv.get_json()
+#     assert rv.status_code == 401
+#     assert json["error"] and json["error"] == "auth headers are missing"
 
-    rv = client.get('/rac-api/get-tools', headers= {
-        'auth-token': "SOME TOKEN"
-    })
-    json = rv.get_json()
-    assert rv.status_code == 401
-    assert json["error"] and json["error"] == "auth headers are missing"
+#     rv = client.get('/rac-api/get-tools', headers= {
+#         'auth-token': "SOME TOKEN"
+#     })
+#     json = rv.get_json()
+#     assert rv.status_code == 401
+#     assert json["error"] and json["error"] == "auth headers are missing"
 
 
 def test_get_tools_ep_accepts_proper_headers(client):
@@ -166,10 +166,10 @@ def test_get_tools_ep_fails_on_db_exception(client, mocker):
 
 
 
-def test_get_tool_details_from_tool_id(client):
-    """
-    This is a method to test if the get details of the tool from the tool id is working correctly
-    """
-    tool_id = '11234221124'
-    rv = client.get('/rac-api/get-tool/{}'.format(tool_id))
-    assert rv.status_code == 401
+# def test_get_tool_details_from_tool_id(client):
+#     """
+#     This is a method to test if the get details of the tool from the tool id is working correctly
+#     """
+#     tool_id = '11234221124'
+#     rv = client.get('/rac-api/get-tool/{}'.format(tool_id))
+#     assert rv.status_code == 401

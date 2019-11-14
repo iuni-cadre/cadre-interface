@@ -78,29 +78,29 @@ def test_user_jobs_ep_exists(client):
     assert not unknown_endpoint
 
 
-def test_user_jobs_ep_fails_without_proper_headers(client):
-    """
-    end point needs at least the auth-auth and auth-user headers
-    """
+# def test_user_jobs_ep_fails_without_proper_headers(client):
+#     """
+#     end point needs at least the auth-auth and auth-user headers
+#     """
 
-    rv = client.get('/qi-api/user-jobs')
-    json = rv.get_json()
-    assert rv.status_code == 401
-    assert json["error"] and json["error"] == "auth headers are missing"
+#     rv = client.get('/qi-api/user-jobs')
+#     json = rv.get_json()
+#     assert rv.status_code == 401
+#     assert json["error"] and json["error"] == "auth headers are missing"
 
-    rv = client.get('/qi-api/user-jobs', headers= {
-        'auth-username': "SOME USERNAME"
-    })
-    json = rv.get_json()
-    assert rv.status_code == 401
-    assert json["error"] and json["error"] == "auth headers are missing"
+#     rv = client.get('/qi-api/user-jobs', headers= {
+#         'auth-username': "SOME USERNAME"
+#     })
+#     json = rv.get_json()
+#     assert rv.status_code == 401
+#     assert json["error"] and json["error"] == "auth headers are missing"
 
-    rv = client.get('/qi-api/user-jobs', headers= {
-        'auth-token': "SOME TOKEN"
-    })
-    json = rv.get_json()
-    assert rv.status_code == 401
-    assert json["error"] and json["error"] == "auth headers are missing"
+#     rv = client.get('/qi-api/user-jobs', headers= {
+#         'auth-token': "SOME TOKEN"
+#     })
+#     json = rv.get_json()
+#     assert rv.status_code == 401
+#     assert json["error"] and json["error"] == "auth headers are missing"
 
     
 def test_user_jobs_ep_accepts_proper_headers(client):
