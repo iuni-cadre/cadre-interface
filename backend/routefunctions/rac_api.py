@@ -37,6 +37,11 @@ def new_notebook(username):
     Returns:
         This method returns the details of the newly created notebook server.
     """
+    auth_token = request.headers.get('auth-token')
+    username = request.headers.get('auth-username')
+    if auth_token is None or username is None:
+        return jsonify({"error": "auth headers are missing"}), 401
+
     headers = {"Authorization": "token " + jupyter_config["AuthToken"]}
     payload = {}
     r = requests.post(jupyter_config["APIURL"] + "/users/" + username + "/server", data=payload, headers=headers)
@@ -54,6 +59,10 @@ def notebook_status(username):
     Returns:
         This method returns a json object containing the details of the status of the notebook.
     """
+    auth_token = request.headers.get('auth-token')
+    username = request.headers.get('auth-username')
+    if auth_token is None or username is None:
+        return jsonify({"error": "auth headers are missing"}), 401
     headers = {"Authorization": "token "  + jupyter_config["AuthToken"]}
     payload = {}
     r = requests.get(jupyter_config["APIURL"] + "/users/" + username + "", data=payload, headers=headers)
@@ -80,6 +89,10 @@ def get_new_notebook_token(username):
     Returns:
         This method returns a json object containing the details of the token for the new notebook.
     """
+    auth_token = request.headers.get('auth-token')
+    username = request.headers.get('auth-username')
+    if auth_token is None or username is None:
+        return jsonify({"error": "auth headers are missing"}), 401
     try:
         conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
                                 password=meta_db_config["database-password"], host=meta_db_config["database-host"],
@@ -624,7 +637,7 @@ def get_user_files():
         print("The request has been handled.")
 
 
-@blueprint.route('/rac-api/get-package/<package_id>', methods=['GET'])
+@blueprint.route('/rac-api/packages/get-package/<package_id>', methods=['GET'])
 def get_package_details_from_package_id(package_id):
     """
     This is a method which returns the details of the package associated with the package id
