@@ -13,7 +13,7 @@ from backend.library import readconfig
 
 # url = 'http://aa36a4acbbb4311e991df02800e92ef4-1296978337.us-east-2.elb.amazonaws.com/hub/api' # This is the URL of the Jupyter Notebook API
 
-from .conftest import MockPsycopgConnection, MockPsycopgCursor, MockResponse
+from .conftest import MockPsycopgConnection, MockPsycopgCursor, MockResponse, patch_user, patch_cursor
 
 
 def test_get_packages_ep_exists(client):
@@ -118,23 +118,9 @@ def test_get_packages_ep_does_not_fail_with_successful_query(client, mocker):
     '''
     Uses psycopg mock to mock DB call
     '''
-
-    mock_response = MockResponse()
-    mock_response.set_status_code(200)
-    mock_response.set_json({
-        "package_id": "234221136",
-        "type": "CADRE_DEFINED",
-        "description": "package for delivering the data for the tutorial",
-        "name": "issi_data_package",
-        "doi": "",
-        "created_on": "2019-08-23 17:17:34.196818+00:00",
-        "created_by": "",
-        "tools": [{"tool_id": "11234221128", "tool_description": "Data for the ISSI tutorial", "tool_name": "issi_data", 'tool_script_name': "issi_tutorial.py"}],
-        "input_files": "ISSIDemoData.tar.gz"
-    })
-    mocker.patch("requests.post", return_value=mock_response)
-    mock_connection = MockPsycopgConnection()
-    mocker.patch("psycopg2.connect", return_value=mock_connection)
+    rows = sample_rows
+    patch_user(mocker)
+    patch_cursor(mocker, rows)
 
     rv = client.get('/rac-api/packages/get-packages', headers={
         'auth-token': "Some Token",
@@ -178,37 +164,9 @@ def test_get_packages_ep_returns_jsonified_jobs_from_db(client, mocker):
     '''
     Checks that the endpoint is returning json that matches the mocked up data
     '''
-    now = datetime.datetime.now()
-    rows = [
-        [
-            '1234567890', #package_id, 
-            'type', #type, 
-            'some description', #description, 
-            'package_name', #name, 
-            'doi_number', #doi, 
-            now, #created_on, 
-            'cadre team', #created_by, 
-            'tool_1', #tool_id, 
-            'tool_desc1', #tool_description, 
-            'tool_name1', #tool_name, 
-            'tool_script.py', #tool_script_name, 
-            'input1.csv,input2.csv'#input_files 
-        ],
-        [
-            '1234567890', #package_id, 
-            'type', #type, 
-            'some description', #description, 
-            'package_name', #name, 
-            'doi_number', #doi, 
-            now, #created_on, 
-            'cadre team', #created_by, 
-            'tool_2', #tool_id, 
-            'tool_desc2', #tool_description, 
-            'tool_name2', #tool_name, 
-            'tool_script2.py', #tool_script_name, 
-            'input1.csv,input2.csv'#input_files 
-        ]
-    ]
+    now = global_now
+
+    rows = sample_rows
 
     expected_output = [
         {
@@ -255,3 +213,34 @@ def test_get_packages_ep_returns_jsonified_jobs_from_db(client, mocker):
     pprint(expected_output)
     assert rv.get_json() == (expected_output)
 
+global_now = datetime.datetime.now()
+sample_rows = [
+    [
+        '1234567890', #package_id, 
+        'type', #type, 
+        'some description', #description, 
+        'package_name', #name, 
+        'doi_number', #doi, 
+        global_now, #created_on, 
+        'cadre team', #created_by, 
+        'tool_1', #tool_id, 
+        'tool_desc1', #tool_description, 
+        'tool_name1', #tool_name, 
+        'tool_script.py', #tool_script_name, 
+        'input1.csv,input2.csv'#input_files 
+    ],
+    [
+        '1234567890', #package_id, 
+        'type', #type, 
+        'some description', #description, 
+        'package_name', #name, 
+        'doi_number', #doi, 
+        global_now, #created_on, 
+        'cadre team', #created_by, 
+        'tool_2', #tool_id, 
+        'tool_desc2', #tool_description, 
+        'tool_name2', #tool_name, 
+        'tool_script2.py', #tool_script_name, 
+        'input1.csv,input2.csv'#input_files 
+    ]
+]

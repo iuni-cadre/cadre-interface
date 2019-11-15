@@ -116,7 +116,6 @@ def test_get_package_details_from_package_id_ep_fails_on_db_exception(client, mo
     '''
     Uses psycopg mock to mock DB call with exception
     '''
-
     mock_response = MockResponse()
     mock_response.set_status_code(200)
     mocker.patch("requests.post", return_value=mock_response)

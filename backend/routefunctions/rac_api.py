@@ -491,12 +491,12 @@ def get_tools():
                     'tool_description': tools[1],
                     'tool_name': tools[2],
                     'tool_script_name': tools[3],
-                    'created_on': tools[4]
+                    'created_on': tools[4].isoformat()
                 }
                 tool_list.append(tool_json)
-            tool_response = json.dumps(tool_list, cls=DateEncoder)
-            print(tool_response)
-            return jsonify(json.loads(tool_response)), 200
+            # tool_response = json.dumps(tool_list, cls=DateEncoder)
+            # print(tool_response)
+            return jsonify(tool_list), 200
     except Exception:
         return jsonify({"error:", "Problem querying the tools table in the meta database."}), 500
     finally:
