@@ -42,7 +42,7 @@ class MockPsycopgCursor:
         for variable in variables:
             x = x + (extensions.adapt(str(variable)).getquoted().decode('utf-8'),)
         full_query = full_query % x
-        print("QUERY TO EXECUTE: " + full_query)
+        print("QUERY TO EXECUTE: " + (full_query.replace('    ', ' ')))
         #put the query on the list so we can check later if need be
         self.queries.append(full_query)
 
@@ -81,11 +81,16 @@ class MockPsycopgConnection:
     def __init__(self, raise_exception = False, rows = [], **kwargs):
         self.raise_exception = raise_exception
         self.rows = rows
+        self.my_cursor = MockPsycopgCursor(raise_exception = self.raise_exception, rows = self.rows)
         pass
     def cursor(self):
-        return MockPsycopgCursor(raise_exception = self.raise_exception, rows = self.rows)
+        return self.my_cursor
     def close(self):
         return True
+    def commit(self):
+        return True
+    def set_cursor(self, cursor):
+        self.my_cursor = cursor
 
 
 
@@ -111,17 +116,13 @@ def patch_cursor(mocker, rows=[], **kwargs):
     Adds all the required mocking for DB connections
     """
     mock_connection = MockPsycopgConnection(rows=rows)
-    mock_cursor = mock_connection.cursor()
+    # mock_cursor = mock_connection.cursor()
+    mock_cursor = MockPsycopgCursor(rows=rows)
     if 'result_sets' in kwargs:
         for result_set in kwargs.get('result_sets'):
             mock_cursor.add_row_set(result_set)
-    # @contextmanager
-    # def get_db_cursor(commit=False):
-    #     try:
-    #         yield mock_cursor
-    #     finally:
-    #         pass
-    # mocker.patch("middleware.api.views.backend_util.get_db_cursor", get_db_cursor)
+    mock_connection.set_cursor(mock_cursor)
+
     mocker.patch("psycopg2.connect", return_value=mock_connection)
     return mock_cursor, mock_connection
 
@@ -133,6 +134,7 @@ def patch_user(mocker, **kwargs):
     mock_response = MockResponse()
     # if 'status_code' in kwargs:
     mock_response.set_status_code(kwargs.get('status_code', 200))
+    mock_response.set_json(kwargs.get("json", {}))
     mocker.patch("requests.post", return_value=mock_response)
     # mock_user = user_model.User(user_id=1, token="token")
     # mocker.patch('middleware.api.views.user_model.User.query', user_model.Query())

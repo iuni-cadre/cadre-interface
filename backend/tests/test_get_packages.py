@@ -16,55 +16,6 @@ from backend.library import readconfig
 from .conftest import MockPsycopgConnection, MockPsycopgCursor, MockResponse, patch_user, patch_cursor
 
 
-def test_get_packages_ep_exists(client):
-    """
-    This is a method to test if the get packages api endpoint is working correctly
-    """
-    rv = client.get('/rac-api/packages/get-packages')
-    json = rv.get_json()
-    unknown_endpoint = False
-    if json["error"] and rv.status_code == 404 and json["error"] == "Unknown endpoint.":
-        unknown_endpoint = True
-
-    assert not unknown_endpoint
-
-
-# def test_get_packages_ep_fails_without_proper_headers(client):
-#     """
-#     The end point needs at least the auth-auth and auth-user headers
-#     """
-
-#     rv = client.get('/rac-api/packages/get-packages')
-#     json = rv.get_json()
-#     assert rv.status_code == 401
-#     assert json["error"] and json["error"] == "auth headers are missing"
-
-#     rv = client.get('/rac-api/packages/get-packages', headers= {
-#         'auth-username': "SOME USERNAME"
-#     })
-#     json = rv.get_json()
-#     assert rv.status_code == 401
-#     assert json["error"] and json["error"] == "auth headers are missing"
-
-#     rv = client.get('/rac-api/packages/get-packages', headers= {
-#         'auth-token': "SOME TOKEN"
-#     })
-#     json = rv.get_json()
-#     assert rv.status_code == 401
-#     assert json["error"] and json["error"] == "auth headers are missing"
-
-
-def test_get_packages_ep_accepts_proper_headers(client):
-    """
-    End point gets past the missing header check with both headers
-    """
-
-    rv = client.get('/rac-api/packages/get-packages', headers={
-        'auth-token': "Some Token",
-        'auth-username': "Some Username"
-    })
-
-    assert rv.status_code != 400
 
 
 def test_get_packages_ep_accepts_params(client):
@@ -78,40 +29,6 @@ def test_get_packages_ep_accepts_params(client):
     })
 
     assert rv.status_code != 500
-
-
-def test_get_packages_ep_does_fail_with_invalid_credentials(client, mocker):
-    """
-    Mocker fakes a 401 response from authenticator endpoint to pass verification
-    """
-
-    mock_response = MockResponse()
-    mock_response.set_status_code(401)
-    mocker.patch("requests.post", return_value=mock_response)
-
-    rv = client.get('/rac-api/packages/get-packages', headers={
-        'auth-token': "Some Token",
-        'auth-username': "Some Username"
-    })
-
-    assert rv.status_code == 403
-
-
-def test_get_packages_ep_does_not_fail_with_valid_credentials(client, mocker):
-    """
-    Mocker fakes a 200 response from authenticator endpoint to pass verification
-    """
-
-    mock_response = MockResponse()
-    mock_response.set_status_code(200)
-    mocker.patch("requests.post", return_value=mock_response)
-
-    rv = client.get('/rac-api/packages/get-packages', headers={
-        'auth-token': "Some Token",
-        'auth-username': "Some Username"
-    })
-
-    assert rv.status_code != 403
 
 
 def test_get_packages_ep_does_not_fail_with_successful_query(client, mocker):
@@ -213,6 +130,113 @@ def test_get_packages_ep_returns_jsonified_jobs_from_db(client, mocker):
     pprint(expected_output)
     assert rv.get_json() == (expected_output)
 
+
+def test_packages_new_fails_if_missing_params(client, mocker):
+    headers = {
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    }
+    patch_user(mocker)
+    rv = client.post('/rac-api/packages/new', headers=headers) 
+    assert rv.status_code == 400
+
+    rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
+        "name": "somename",
+        "description": "fake_data",
+        "tools": "fake_data",
+        "input_files": "fake.csv",
+        "archive_id": "1234",
+        "type": "sometype"
+    })) 
+    assert rv.status_code != 400
+
+    rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
+        # "name": "somename",
+        "description": "fake_data",
+        "tools": "fake_data",
+        "input_files": "fake.csv",
+        "archive_id": "1234",
+        "type": "sometype"
+    })) 
+    assert rv.status_code == 400
+    
+    rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
+        "name": "somename",
+        # "description": "fake_data",
+        "tools": "fake_data",
+        "input_files": "fake.csv",
+        "archive_id": "1234",
+        "type": "sometype"
+    })) 
+    assert rv.status_code == 400
+    rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
+        "name": "somename",
+        "description": "fake_data",
+        # "tools": "fake_data",
+        "input_files": "fake.csv",
+        "archive_id": "1234",
+        "type": "sometype"
+    })) 
+    assert rv.status_code == 400
+    rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
+        "name": "somename",
+        "description": "fake_data",
+        "tools": "fake_data",
+        # "input_files": "fake.csv",
+        "archive_id": "1234",
+        "type": "sometype"
+    })) 
+    assert rv.status_code == 400
+    rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
+        "name": "somename",
+        "description": "fake_data",
+        "tools": "fake_data",
+        "input_files": "fake.csv",
+        # "archive_id": "1234",
+        "type": "sometype"
+    })) 
+    assert rv.status_code == 400
+    rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
+        "name": "somename",
+        "description": "fake_data",
+        "tools": "fake_data",
+        "input_files": "fake.csv",
+        "archive_id": "1234",
+        # "type": "sometype"
+    })) 
+    assert rv.status_code == 400
+
+def test_packages_new_sends_correct_user_id(client, mocker):
+    patch_user(mocker, json={"user_id":"FAKEUSERID"})
+    mock_cursor, mock_connection = patch_cursor(mocker, [[]])
+    headers = {
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    }
+    mocker.patch("uuid.uuid4", return_value="uuid_test")
+    rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
+        "name": "string_1",
+        "description": "string_2",
+        "tools": "string_3",
+        "input_files": "string_4",
+        "archive_id": "string_5",
+        "type": "string_6"
+    })) 
+
+    #query index 0 should be the index query
+    assert mock_cursor.queries[0].count('FAKEUSERID') > 0
+    assert mock_cursor.queries[0].count('uuid_test') > 0
+    assert mock_cursor.queries[0].count('string_1') > 0
+    assert mock_cursor.queries[0].count('string_2') > 0
+    assert mock_cursor.queries[0].count('string_6') > 0
+
+ ######     ###    ##     ## ########  ##       ########    ########     ###    ########    ###    
+##    ##   ## ##   ###   ### ##     ## ##       ##          ##     ##   ## ##      ##      ## ##   
+##        ##   ##  #### #### ##     ## ##       ##          ##     ##  ##   ##     ##     ##   ##  
+ ######  ##     ## ## ### ## ########  ##       ######      ##     ## ##     ##    ##    ##     ## 
+      ## ######### ##     ## ##        ##       ##          ##     ## #########    ##    ######### 
+##    ## ##     ## ##     ## ##        ##       ##          ##     ## ##     ##    ##    ##     ## 
+ ######  ##     ## ##     ## ##        ######## ########    ########  ##     ##    ##    ##     ## 
 global_now = datetime.datetime.now()
 sample_rows = [
     [

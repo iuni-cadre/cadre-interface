@@ -94,6 +94,43 @@ def test_get_tools_ep_fails_on_db_exception(client, mocker):
 
 
 
+def test_get_tool_ep_returns_correct_json(client, mocker):
+    '''
+    Uses psycopg mock to mock DB call
+    '''
+    #get first row from sample rows
+    rows = [sample_rows[0]]
+    patch_user(mocker)
+    patch_cursor(mocker, rows)
+
+    expected_result = {
+        "tool_id": "123456",
+        "description": "some tool description",
+        "name": "tool name",
+        "script_name": "script_name.py",
+        "created_on": global_now.isoformat()
+        }
+    
+
+    rv = client.get('/rac-api/get-tool/123456', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    assert rv.status_code == 200
+    assert rv.get_json() == expected_result
+
+
+
+
+
+ ######     ###    ##     ## ########  ##       ########    ########     ###    ########    ###    
+##    ##   ## ##   ###   ### ##     ## ##       ##          ##     ##   ## ##      ##      ## ##   
+##        ##   ##  #### #### ##     ## ##       ##          ##     ##  ##   ##     ##     ##   ##  
+ ######  ##     ## ## ### ## ########  ##       ######      ##     ## ##     ##    ##    ##     ## 
+      ## ######### ##     ## ##        ##       ##          ##     ## #########    ##    ######### 
+##    ## ##     ## ##     ## ##        ##       ##          ##     ## ##     ##    ##    ##     ## 
+ ######  ##     ## ##     ## ##        ######## ########    ########  ##     ##    ##    ##     ## 
 global_now = datetime.datetime.now()
 sample_rows = [
     [
