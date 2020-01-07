@@ -10,7 +10,7 @@ export default {
     name: "file",
     data: function(){
         return {
-            checked: false
+            checked: this.selectedPaths.indexOf(this.item.path) >= 0
         }
     },
     computed: {
@@ -21,13 +21,14 @@ export default {
         }
     },
     props: {
-        item: Object
+        item: Object,
+        selectedPaths: Array
     },
     watch: {
         checked: function(){
             this.$emit("checked", this.item.path);
         }
-    }
+    },
 };
 </script>
 

@@ -5,6 +5,7 @@
              :key="`file_browser_${item.path}`">
             <component :is="item.type"
                        :item="item"
+                       :selectedPaths="selected_paths"
                        @error="handleError"
                        @refresh="(path)=>{ refreshFolder(path) }" 
                        @checked="(path)=>{ selectPath(path) }"/>

@@ -1,31 +1,37 @@
 <template>
     <div class="folder">
-        <div
-            @click="opened = !opened"
-            class="folder-name"
-        >
-            <fa
-                v-if="!opened"
-                :icon="['fas', 'chevron-right']"
-            />
-            <fa
-                v-if="opened"
-                :icon="['fas', 'chevron-down']"
-            />
-            {{name}}
-            <button
-                class="btn btn-link"
-                @click.stop.prevent="refreshFolder(item.path)"
+        <div class="folder-name-container">
+            <div
+                v-if="!is_root"
+                class="checkbox-container form-check"
             >
-                <fa :icon="'sync-alt'" />
-                <span>Refresh</span>
-            </button>
-        </div>
-        <div v-if="!is_root">
-            <input
-                v-model="checked"
-                type="checkbox"
-            />
+                <input
+                    class="form-check-input"
+                    v-model="checked"
+                    type="checkbox"
+                />
+            </div>
+            <div
+                @click="opened = !opened"
+                class="folder-name"
+            >
+                <fa
+                    v-if="!opened"
+                    :icon="['fas', 'chevron-right']"
+                />
+                <fa
+                    v-if="opened"
+                    :icon="['fas', 'chevron-down']"
+                />
+                {{name}}
+                <button
+                    class="btn btn-link"
+                    @click.stop.prevent="refreshFolder(item.path)"
+                >
+                    <fa :icon="'sync-alt'" />
+                    <span>Refresh</span>
+                </button>
+            </div>
         </div>
 
         <ul
@@ -38,6 +44,7 @@
             >
                 <folder
                     :item="subitem"
+                    :selectedPaths="selectedPaths"
                     @refresh="(path) => {refreshFolder(path); }"
                     @checked="(path) => {selectPath(path)}"
                 />
@@ -48,6 +55,7 @@
             >
                 <file
                     :item="subitem"
+                    :selectedPaths="selectedPaths"
                     @checked="(path) => {selectPath(path)}"
                 />
             </li>
@@ -64,7 +72,7 @@ export default {
     data: function() {
         return {
             opened: false,
-            checked: false
+            checked: this.selectedPaths.indexOf(this.item.path) >= 0
         };
     },
     computed: {
@@ -88,7 +96,8 @@ export default {
         }
     },
     props: {
-        item: Object
+        item: Object,
+        selectedPaths: Array
     },
     components: {
         File,
@@ -140,6 +149,30 @@ ul {
 
     &:hover button {
         display: inline-block;
+    }
+}
+.folder-name-container {
+    & > div {
+        display: inline-block;
+    }
+
+    .checkbox-container {
+        // display: block;
+        // background-color: blue;
+        // position: absolute;
+        margin-left: -2rem;
+        padding-left: 2rem;
+        width: 2rem;
+        position: relative;
+        height: 1.5rem;
+        vertical-align: middle;
+    }
+    .checkbox-container input {
+        display: none;
+    }
+    &:hover .checkbox-container input,
+    .checkbox-container input:checked {
+        display: block;
     }
 }
 </style>
