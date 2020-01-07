@@ -23,11 +23,12 @@
                         aria-controls="navbarSupportedContent"
                         aria-expanded="false"
                         aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"><fa icon="bars" /></span>
+                    <span class="navbar-toggler-icon">
+                        <fa icon="bars" /></span>
                 </button>
 
                 <div class="collapse navbar-collapse"
-                    :class="{'show': display_menu}"
+                     :class="{'show': display_menu}"
                      id="navbarSupportedContent">
                     <ul class="navbar-nav mr-auto">
                         <!-- {% for page in pages.children if page.header.main == true %} -->
@@ -37,19 +38,23 @@
                         <!-- {% endfor %} -->
 
                         <li class="nav-item">
-                            <router-link class="p-3 p-md-0 d-inline-block" :to="{name: 'query-builder-builder'}"
+                            <router-link class="p-3 p-md-0 d-inline-block"
+                                         :to="{name: 'query-builder-builder'}"
                                          target="">Query Interface</router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link class="p-3 p-md-0 d-inline-block" :to="{name: 'jupyter-hub'}"
+                            <router-link class="p-3 p-md-0 d-inline-block"
+                                         :to="{name: 'jupyter-hub'}"
                                          target="">Jupyter Notebook</router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link class="p-3 p-md-0 d-inline-block" :to="{name: 'rac-marketplace'}"
+                            <router-link class="p-3 p-md-0 d-inline-block"
+                                         :to="{name: 'rac-marketplace'}"
                                          target="">Marketplace</router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link class="p-3 p-md-0 d-inline-block" :to="{name: 'jobs-list'}"
+                            <router-link class="p-3 p-md-0 d-inline-block"
+                                         :to="{name: 'jobs-list'}"
                                          target="">Job Status</router-link>
                         </li>
 
@@ -73,10 +78,12 @@
 
         <section v-if="is_under_construction"
                  class="d-flex justify-content-center construction alert-warning">
-            <!-- <img src="@/assets/under_construction.gif" /> -->
-
-            <b>Work In Progress:&nbsp;</b> This application is currently under development. Design, features, and functionality will likely change prior to release.
-
+            <div>
+                <div class="text-center"><img src="@/assets/under_construction.gif" /></div>
+                <!-- <h1>This interface should not be used for anything.  It will likely not function </h1> -->
+                <br />
+                <b>Work In Progress:&nbsp;</b> This application is currently under development and is not production ready. Design, features, and functionality will likely change prior to release.
+            </div>
         </section>
 
         <!-- <hr /> -->
@@ -95,10 +102,10 @@
         <template v-if="!token">
             <div class="container pt-3">
                 <div class="alert alert-info">
-                    You are not logged in.  You can log in <a class=""
-                           :href="login_url"><span class="">here</span></a>.
-                    </div>
+                    You are not logged in. You can log in <a class=""
+                       :href="login_url"><span class="">here</span></a>.
                 </div>
+            </div>
         </template>
 
         <div v-if="is_loading"
@@ -120,28 +127,28 @@
             <div class="container">
                 <div class="logos d-flex flex-wrap flex-md-nowrap justify-content-between align-items-center">
                     <!-- <div class=""> -->
-                        <a href="https://cadre.iu.edu"
-                           class="cadre-logo"><img src="@/assets/img/cadre-logo.png"
-                                 alt="CADRE" /><span class="d-none">CADRE</span></a>
+                    <a href="https://cadre.iu.edu"
+                       class="cadre-logo"><img src="@/assets/img/cadre-logo.png"
+                             alt="CADRE" /><span class="d-none">CADRE</span></a>
 
                     <!-- </div> -->
                     <!-- <div class="">
                         &copy; <a href="https://iuni.iu.edu">Indiana University Network Science Institute</a>
                     </div> -->
                     <!-- <div class=""> -->
-                        <a href="https://www.btaa.org/"
-                           class="btaa-logo"><img src="@/assets/img/btaa-logo.png"
-                                 alt="BTAA" /><span class="d-none">BTAA</span></a>
+                    <a href="https://www.btaa.org/"
+                       class="btaa-logo"><img src="@/assets/img/btaa-logo.png"
+                             alt="BTAA" /><span class="d-none">BTAA</span></a>
                     <!-- </div> -->
                     <!-- <div class=""> -->
-                        <a href="https://libraries.indiana.edu/"
-                           class="libraries-logo"><img src="@/assets/img/iu-libraries-logo.png"
-                                 alt="IU Libraries" /><span class="d-none">IU Libraries</span></a>
+                    <a href="https://libraries.indiana.edu/"
+                       class="libraries-logo"><img src="@/assets/img/iu-libraries-logo.png"
+                             alt="IU Libraries" /><span class="d-none">IU Libraries</span></a>
                     <!-- </div> -->
                     <!-- <div class=""> -->
-                        <a href="https://iuni.iu.edu"
-                           class="iuni-logo"><img src="@/assets/img/iuni-logo.png"
-                                 alt="IUNI" /><span class="d-none">IUNI</span></a>
+                    <a href="https://iuni.iu.edu"
+                       class="iuni-logo"><img src="@/assets/img/iuni-logo.png"
+                             alt="IUNI" /><span class="d-none">IUNI</span></a>
                     <!-- </div> -->
 
                     <!-- {% for page in pages.children if page.header.main == true %}
@@ -222,7 +229,7 @@ export default {
         }
     },
     methods: {
-        toggleMenu: function(){
+        toggleMenu: function() {
             this.display_menu = !this.display_menu;
         },
         startLoading: function({ key, message }) {
@@ -410,13 +417,11 @@ export default {
     .logos a {
         // border: solid blue 1px;
         display: block;
-        padding:  1rem;
+        padding: 1rem;
     }
-    .logos img
-    {
+    .logos img {
         // border: solid blue 1px;
         max-width: 100%;
     }
-
 }
 </style>

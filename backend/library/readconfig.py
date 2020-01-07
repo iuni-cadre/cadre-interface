@@ -50,7 +50,7 @@ data = config_parser['DATA']
 efs_path = config_parser['EFSPATH']
 
 #silently fail if there is no testing key
-try:
-    test = config_parser['TESTING']
-except:
-    test = []
+# try:
+#     test = config_parser['TESTING']
+# except:
+#     test = []
