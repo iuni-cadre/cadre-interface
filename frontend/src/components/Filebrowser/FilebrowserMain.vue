@@ -9,7 +9,8 @@
             <component :is="item.type"
                        :item="item"
                        @error="handleError"
-                       @refresh="(path)=>{ refreshFolder(path) }" />
+                       @refresh="(path)=>{ refreshFolder(path) }" 
+                       @checked="(path)=>{ selectPath(path) }"/>
         </div>
 
         <template v-if="error_message">
@@ -55,7 +56,8 @@ export default {
     data: function() {
         return {
             opened_paths: [],
-            error_message: ""
+            error_message: "",
+            selected_paths: []
         };
     },
     computed: {
@@ -74,11 +76,28 @@ export default {
         getFiles: function(path)
         {
             console.debug(path);
+        },
+        selectPath: function(path){
+            let path_index = this.selected_paths.indexOf(path);
+            if(path_index < 0)
+            {
+                this.selected_paths.push(path);
+            }
+            else
+            {
+                this.selected_paths.splice(path_index, 1);
+            }
+            return this.selected_paths;
         }
     },
     components: {
         Folder,
         File
+    },
+    watch: {
+        selected_paths: function(){
+            this.$emit("selectedChange", this.selected_paths);
+        }
     },
     mounted: function() {
         let filesystem_prom = this.$store.dispatch("filesystem/getFiles");

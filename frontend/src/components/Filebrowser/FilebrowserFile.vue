@@ -1,12 +1,18 @@
 <template>
     <div class="file-name">
-        <span class="filetype"><fa :icon="['far', 'file']" /></span> {{name}}
+        <div><span class="filetype"><fa :icon="['far', 'file']" /></span> {{name}}</div>
+        <div><input v-model="checked" type="checkbox" /></div>
     </div>
 </template>
 
 <script>
 export default {
     name: "file",
+    data: function(){
+        return {
+            checked: false
+        }
+    },
     computed: {
         name: function() {
             let tmp = this.item.path.split("/");
@@ -16,6 +22,11 @@ export default {
     },
     props: {
         item: Object
+    },
+    watch: {
+        checked: function(){
+            this.$emit("checked", this.item.path);
+        }
     }
 };
 </script>

@@ -21,7 +21,7 @@ export default {
     install: function(Vue, options) {
         this.setStore(options.store);
         this.setAxios(options.axios);
-        console.debug("Cadre Globals Installed");
+        // console.debug("Cadre Globals Installed");
         // console.debug(this);
         var cadreGlobals = this;
 

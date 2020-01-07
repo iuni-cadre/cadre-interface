@@ -1,26 +1,55 @@
 <template>
     <div class="folder">
-        <div @click="opened = !opened"
-             class="folder-name">
-            <fa v-if="!opened"
-                :icon="['fas', 'chevron-right']" />
-            <fa v-if="opened"
-                :icon="['fas', 'chevron-down']" />
+        <div
+            @click="opened = !opened"
+            class="folder-name"
+        >
+            <fa
+                v-if="!opened"
+                :icon="['fas', 'chevron-right']"
+            />
+            <fa
+                v-if="opened"
+                :icon="['fas', 'chevron-down']"
+            />
             {{name}}
-            <button class="btn btn-link"
-                    @click.stop.prevent="refreshFolder(item.path)">
-                <fa :icon="'sync-alt'" /><span>Refresh</span></button>
+            <button
+                class="btn btn-link"
+                @click.stop.prevent="refreshFolder(item.path)"
+            >
+                <fa :icon="'sync-alt'" />
+                <span>Refresh</span>
+            </button>
         </div>
-        <ul v-if="opened"
-            class="list-unstyled">
-            <li v-for="subitem in child_folders"
-                :key="`li_${subitem.path}`">
-                <folder :item="subitem"
-                        @refresh="(path) => {refreshFolder(path); }" />
+        <div v-if="!is_root">
+            <input
+                v-model="checked"
+                type="checkbox"
+            />
+        </div>
+
+        <ul
+            v-if="opened"
+            class="list-unstyled"
+        >
+            <li
+                v-for="subitem in child_folders"
+                :key="`li_${subitem.path}`"
+            >
+                <folder
+                    :item="subitem"
+                    @refresh="(path) => {refreshFolder(path); }"
+                    @checked="(path) => {selectPath(path)}"
+                />
             </li>
-            <li v-for="subitem in child_files"
-                :key="`li_${subitem.path}`">
-                <file :item="subitem" />
+            <li
+                v-for="subitem in child_files"
+                :key="`li_${subitem.path}`"
+            >
+                <file
+                    :item="subitem"
+                    @checked="(path) => {selectPath(path)}"
+                />
             </li>
         </ul>
     </div>
@@ -34,7 +63,8 @@ export default {
     name: "folder",
     data: function() {
         return {
-            opened: false
+            opened: false,
+            checked: false
         };
     },
     computed: {
@@ -52,6 +82,9 @@ export default {
             return this.item.children.filter(item => {
                 return item.type === "folder";
             });
+        },
+        is_root: function() {
+            return this.name == "/";
         }
     },
     props: {
@@ -64,10 +97,18 @@ export default {
     methods: {
         refreshFolder: function(path) {
             this.$emit("refresh", path);
+        },
+        selectPath: function(path) {
+            this.$emit("checked", path);
+        }
+    },
+    watch: {
+        checked: function() {
+            this.selectPath(this.item.path);
         }
     },
     mounted: function() {
-        if (this.name == "/") {
+        if (this.is_root) {
             this.opened = true;
         }
     }

@@ -108,6 +108,108 @@ describe("FilebrowserMain", () => {
         wrapper.destroy();
 
     });
+
+    test("folders and files have checkboxes", async () => {
+        axios.mockReturnValue(Promise.resolve(sample_response_1));
+        let wrapper = mount(FilebrowserMain, {
+            propsData: {},
+            mocks: {},
+            stubs: {},
+            store,
+
+        });
+        let folders = wrapper.findAll('ul .folder-name'); //all folders not including root
+        folders.trigger("click"); //click those folder names
+        await wrapper.vm.$nextTick();
+
+        let checkboxes = wrapper.findAll('input[type=checkbox]'); //all files
+        expect(checkboxes.length).toEqual(store.state.filesystem.flat_file_structure.length);
+        wrapper.destroy();
+
+    });
+
+    test("checking files bubbles up the selected items", async () => {
+        axios.mockReturnValue(Promise.resolve(sample_response_1));
+        let wrapper = mount(FilebrowserMain, {
+            propsData: {},
+            mocks: {},
+            stubs: {},
+            store,
+
+        });
+        let folders = wrapper.findAll('ul .folder-name'); //all folders not including root
+        folders.trigger("click"); //click those folder names
+        await wrapper.vm.$nextTick();
+
+        let checkboxes = wrapper.findAll('input[type=checkbox]'); //all files
+        checkboxes.trigger("click");
+        await wrapper.vm.$nextTick();
+        
+        expect(wrapper.vm.selected_paths.length).toEqual(4);
+        wrapper.destroy();
+
+    });
+
+    test("checkboxes add to selected_paths array", async () => {
+        axios.mockReturnValue(Promise.resolve(sample_response_1));
+        let wrapper = mount(FilebrowserMain, {
+            propsData: {},
+            mocks: {},
+            stubs: {},
+            store,
+
+        });
+        let folders = wrapper.findAll('input[type=checkbox]'); 
+        folders.trigger("click"); 
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.selected_paths.length).toEqual(2);
+        wrapper.destroy();
+
+    });
+
+    test("selected paths get put on selected_paths array ", async () => {
+        axios.mockReturnValue(Promise.resolve(sample_response_1));
+        let wrapper = mount(FilebrowserMain, {
+            propsData: {},
+            mocks: {},
+            stubs: {},
+            store,
+
+        });
+        let folders = wrapper.findAll('input[type=checkbox]'); 
+        folders.trigger("click"); 
+        await wrapper.vm.$nextTick();
+        let expected = [
+            sample_response_1.data[0].path,
+            sample_response_1.data[1].path,
+        ]
+        expect(wrapper.vm.selected_paths).toEqual(expected);
+        wrapper.destroy();
+
+    });
+    
+
+    test("deselecting box removes from selected_paths", async () => {
+        axios.mockReturnValue(Promise.resolve(sample_response_1));
+        let wrapper = mount(FilebrowserMain, {
+            propsData: {},
+            mocks: {},
+            stubs: {},
+            store,
+
+        });
+        let folders = wrapper.findAll('input[type=checkbox]'); 
+        folders.trigger("click"); 
+        await wrapper.vm.$nextTick();
+        folders.at(0).trigger("click");
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.selected_paths.length).toEqual(1);
+        wrapper.destroy();
+
+    });
+
 });
 
 
