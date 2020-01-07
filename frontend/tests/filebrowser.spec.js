@@ -5,6 +5,32 @@ import Vue from "vue";
 import Vuex from "vuex";
 Vue.use(Vuex);
 
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faCircleNotch, faSpinner, faAtom, faCompactDisc, faExclamationTriangle, faSyncAlt, faTrashAlt, faBars, faHamburger, faChevronRight, faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import { faSquare, faCheckSquare, faCircle, faDotCircle, faFolder, faFolderOpen, faFile } from "@fortawesome/free-regular-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+
+library.add(faSpinner,
+    faCircleNotch,
+    faAtom,
+    faCompactDisc,
+    faSquare,
+    faCheckSquare,
+    faExclamationTriangle,
+    faSyncAlt,
+    faTrashAlt,
+    faBars,
+    faHamburger,
+    faCircle,
+    faDotCircle,
+    faFolder,
+    faFolderOpen,
+    faChevronDown,
+    faChevronRight,
+    faFile);
+
+Vue.component("fa", FontAwesomeIcon);
+
 // import UserModule from "../src/store/modules/user.js";
 // import QueryModule from "../src/store/modules/query.js";
 // import RacPackageModule from "../src/store/modules/racpackage.js";
@@ -64,7 +90,7 @@ describe("FilebrowserMain", () => {
         expect(wrapper.vm.file_structure).toEqual(store.state.filesystem.file_structure);
     });
 
-    test("renders list items for all folders and files", () =>{
+    test("renders list items for all folders and files", async () => {
         axios.mockReturnValue(Promise.resolve(sample_response_1));
         let wrapper = mount(FilebrowserMain, {
             propsData: {},
@@ -73,10 +99,14 @@ describe("FilebrowserMain", () => {
             store,
 
         });
+        let folders = wrapper.findAll('ul .folder-name'); //all folders not including root
+        folders.trigger("click"); //click those folder names
+        await wrapper.vm.$nextTick();
 
-        let li_count = wrapper.findAll('li').length;
-        expect(li_count).toEqual(store.state.filesystem.flat_file_structure.length);
+        let files = wrapper.findAll('.file-name'); //all files
+        expect(files.length + folders.length).toEqual(store.state.filesystem.flat_file_structure.length);
         wrapper.destroy();
+
     });
 });
 
