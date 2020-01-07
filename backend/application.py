@@ -118,7 +118,7 @@ if __name__ == '__main__':
     meta_db_config = readconfig.meta_db
     auth_config = readconfig.auth
     data_config = readconfig.data
-    test_config = readconfig.test
+    # test_config = readconfig.test
     efs_path_config = readconfig.efs_path
 
     application.run(host=config['FlaskHost'], port=int(config['FlaskPort']), debug=config['DebugMode']=='True')
