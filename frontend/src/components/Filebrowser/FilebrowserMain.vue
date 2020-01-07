@@ -1,9 +1,6 @@
 <template>
     <div>
         <!-- This is a file browser -->
-        <!-- <pre>{{
-            file_structure
-        }}</pre> -->
         <div v-for="item in file_structure"
              :key="`file_browser_${item.path}`">
             <component :is="item.type"
@@ -13,6 +10,9 @@
                        @checked="(path)=>{ selectPath(path) }"/>
         </div>
 
+        <pre>{{
+            selected_paths
+        }}</pre>
         <template v-if="error_message">
             <div class="modal show"
                  style="display: block;"

@@ -1,7 +1,7 @@
 <template>
     <div class="file-name">
+        <div class="checkbox-container"><input class="form-check-input" v-model="checked" type="checkbox" /></div>
         <div><span class="filetype"><fa :icon="['far', 'file']" /></span> {{name}}</div>
-        <div><input v-model="checked" type="checkbox" /></div>
     </div>
 </template>
 
@@ -44,6 +44,32 @@ export default {
 
     &:hover button{
         display: inline-block;
+    }
+
+    div
+    {
+        display: inline-block;
+    }
+
+    .checkbox-container
+    {
+        // display: block;
+        // background-color: blue;
+        // position: absolute;
+        margin-left: -2rem;
+        padding-left: 2rem;
+        width: 2rem;
+        position: relative;
+        height: 1.5rem;
+        vertical-align: middle;
+    }
+    .checkbox-container input
+    {
+        display: none;
+    }
+    &:hover .checkbox-container input, .checkbox-container input:checked
+    {
+        display: block;
     }
 }
 </style>
