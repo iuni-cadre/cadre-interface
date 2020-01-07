@@ -17,5 +17,6 @@ mkdir ./bundle/library ./bundle/routefunctions
 cp -r ./backend/library/*.py ./bundle/library
 cp -r ./backend/routefunctions/*.py ./bundle/routefunctions
 cp -r ./.ebextensions ./bundle
+rm ./bundle/.ebextensions/example.*
 
 # pushd deployment

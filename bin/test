@@ -2,17 +2,8 @@
 
 if [[ $1 == b || $1 == back || $1 == backend || -z $1 ]]; then
 
-    echo ""
-    echo ""
-    echo ""
-    echo "          **************** backend tests *****************"
-    echo ""
-    echo ""
-    echo ""
-    exec bin/testbackend &
-    wait
-    
-fi
+exec python -m pytest $1 $2 &
+wait
 
 if [[ $1 == f || $1 == front || $1 == frontend || -z $1 ]]; then
 

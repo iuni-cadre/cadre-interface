@@ -26,6 +26,36 @@ class DateEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
+
+def validate_user(headers={}, **kwargs):
+    request_headers = headers #kwargs.get("headers", {})
+
+    auth_token = request_headers.get('auth-token')
+    username = request_headers.get('auth-username')
+
+    # We are verifying the auth token here
+    if auth_token is None or username is None:
+        return False, (jsonify({"error": "Auth headers are missing"}), 401)
+        # connection = cadre_meta_connection_pool.getconn()
+        # cursor = connection.cursor()
+    validate_token_args = {
+        'username': username
+    }
+    headers = {
+        'auth-token': auth_token,
+        'Content-Type': 'application/json'
+    }
+    validate_token_response = requests.post(auth_config["verify-token-endpoint"],
+                                            data=json.dumps(validate_token_args),
+                                            headers=headers,
+                                            verify=False)
+    if validate_token_response.status_code is not 200:
+        # print(validate_token_response)
+        # print(validate_token_response.status_code)
+        return False, (jsonify({"error": "Invalid Token"}), 403)
+    return True, validate_token_response
+
+
 @blueprint.route('/rac-api/new-notebook/<username>', methods=['POST'])
 def new_notebook(username):
     """
@@ -37,6 +67,14 @@ def new_notebook(username):
     Returns:
         This method returns the details of the newly created notebook server.
     """
+    is_valid, valid_response = validate_user(headers=request.headers)
+    if is_valid is not True:
+        return valid_response
+    auth_token = request.headers.get('auth-token')
+    username = request.headers.get('auth-username')
+    # if auth_token is None or username is None:
+    #     return jsonify({"error": "auth headers are missing"}), 401
+
     headers = {"Authorization": "token " + jupyter_config["AuthToken"]}
     payload = {}
     r = requests.post(jupyter_config["APIURL"] + "/users/" + username + "/server", data=payload, headers=headers)
@@ -54,6 +92,13 @@ def notebook_status(username):
     Returns:
         This method returns a json object containing the details of the status of the notebook.
     """
+    is_valid, valid_response = validate_user(headers=request.headers)
+    if is_valid is not True:
+        return valid_response
+    auth_token = request.headers.get('auth-token')
+    username = request.headers.get('auth-username')
+    # if auth_token is None or username is None:
+    #     return jsonify({"error": "auth headers are missing"}), 401
     headers = {"Authorization": "token "  + jupyter_config["AuthToken"]}
     payload = {}
     r = requests.get(jupyter_config["APIURL"] + "/users/" + username + "", data=payload, headers=headers)
@@ -80,6 +125,14 @@ def get_new_notebook_token(username):
     Returns:
         This method returns a json object containing the details of the token for the new notebook.
     """
+    is_valid, valid_response = validate_user(headers=request.headers)
+    if is_valid is not True:
+        return valid_response
+
+    auth_token = request.headers.get('auth-token')
+    username = request.headers.get('auth-username')
+    # if auth_token is None or username is None:
+    #     return jsonify({"error": "auth headers are missing"}), 401
     try:
         conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
                                 password=meta_db_config["database-password"], host=meta_db_config["database-host"],
@@ -226,26 +279,17 @@ def get_packages():
                                             headers=headers,
                                             verify=False)
     if validate_token_response.status_code is not 200:
-        # print(validate_token_response)
         return jsonify({"error": "Invalid Token"}), 403
 
     # Validating the Request here
     try:
         limit_value = int(limit)
-        # if limit_value > 0:
-        #     print("Yes limit is a positive integer.")
-        #     print("The value of limit is: ", limit_value)
     except ValueError:
-        # print("No Limit is not an Integer. It's a string")
         return jsonify({"error": "Invalid Request: Limit should be a positive integer."}), 400
 
     try:
         page_value = int(page)
-        # if page_value >= 0:
-        #     print("Yes page is an Integer.")
-        #     print("The value of page is: ", page_value)
     except ValueError:
-        # print("No Page is not an Integer. It's a string")
         return jsonify({"error": "Invalid Request: Page should be a integer."}), 400
 
     # This prevents sql injection for the order by clause. Never use data sent by the user directly in a query
@@ -295,30 +339,51 @@ def get_packages():
         if cur.rowcount == 0:
             return jsonify({"error": "Query returns zero results."}), 404
         elif cur.rowcount > 0:
-            package_info = cur.fetchall()
-            package_list = []
-            for packages in package_info:
-                package_json = {
-                    'package_id': packages[0],
-                    'type': packages[1],
-                    'description': packages[2],
-                    'name': packages[3],
-                    'doi': packages[4],
-                    'created_on': packages[5],
-                    'created_by': packages[6],
-                    'tools': [{
-                        'tool_id': packages[7], 
-                        'description': packages[8], 
-                        'name': packages[9], 
-                        'created_by': 'None'
-                        # 'tool_script_name': packages[10]
-                    }],
-                    'input_files': packages[11]
-                }
-                package_list.append(package_json)
-            package_response = json.dumps(package_list, cls=DateEncoder)
-            print(package_response)
-            return jsonify(json.loads(package_response)), 200
+            packages = cur.fetchall()
+            packages_dict = {}
+            
+            for package in packages:
+                #pull apart the row:
+                package_id = package[0]
+                p_type = package[1]
+                description = package[2]
+                name = package[3]
+                doi = package[4]
+                created_on = package[5].isoformat()
+                created_by = package[6]
+                tool_tool_id = package[7]
+                tool_description = package[8]
+                tool_name = package[9]
+                tool_script_name = package[10]
+                input_files = package[11]
+                
+                #get the existing item on the dict or create an empty one
+                p = packages_dict.get(package_id, {})
+                #set all the props
+                p['package_id'] = package_id
+                p['type'] = p_type
+                p['description'] = description
+                p['name'] = name
+                p['doi'] = doi
+                p['created_on'] = created_on
+                p['created_by'] = created_by
+                p['input_files'] = input_files
+
+                # get the tools or default to []
+                p['tools'] = p.get('tools', [])
+                # add a new tool
+                p['tools'].append(
+                    {
+                        'tool_id': tool_tool_id,
+                        'description': tool_description,
+                        'name': tool_name,
+                        'tool_script_name': tool_script_name
+                    }
+                )
+                #put it back on the dict
+                packages_dict[package_id] = p
+            #return a jsonified version of the dict values only
+            return jsonify(list(packages_dict.values())), 200
     except Exception as e:
         print("There was an error: ", str(e))  # Sends the error to the log
         return jsonify({"error:": "Problem querying the package table or the archive table or the tools table in the meta database.", "details": str(e)}), 500
@@ -326,7 +391,6 @@ def get_packages():
     finally:
         cur.close()
         conn.close()
-        # print("The database connection has been closed successfully.")
 
 
 @blueprint.route('/rac-api/get-tools', methods=['GET'])
@@ -427,12 +491,12 @@ def get_tools():
                     'tool_description': tools[1],
                     'tool_name': tools[2],
                     'tool_script_name': tools[3],
-                    'created_on': tools[4]
+                    'created_on': tools[4].isoformat()
                 }
                 tool_list.append(tool_json)
-            tool_response = json.dumps(tool_list, cls=DateEncoder)
-            print(tool_response)
-            return jsonify(json.loads(tool_response)), 200
+            # tool_response = json.dumps(tool_list, cls=DateEncoder)
+            # print(tool_response)
+            return jsonify(tool_list), 200
     except Exception:
         return jsonify({"error:", "Problem querying the tools table in the meta database."}), 500
     finally:
@@ -454,33 +518,30 @@ def create_packages():
     """
     auth_token = request.headers.get('auth-token')
     username = request.headers.get('auth-username')
-    package_type = request.json.get('type')
-    archive_description = request.json.get('archive-description')
-    package_description = request.json.get('description')
-    package_name = request.json.get('name')
-    created_on = request.json.get('created_on')
-    input_file_list = request.json.get('input-file-list')
 
-    if auth_token is None or username is None:
-        return jsonify({"error": "auth headers are missing"}), 401
-        # connection = cadre_meta_connection_pool.getconn()
-        # cursor = connection.cursor()
-    validate_token_args = {
-        'username': username
-    }
-    headers = {
-        'auth-token': auth_token,
-        'Content-Type': 'application/json'
-    }
-    validate_token_response = requests.post(auth_config["verify-token-endpoint"],
-                                            data=json.dumps(validate_token_args),
-                                            headers=headers,
-                                            verify=False)
-    if validate_token_response.status_code is not 200:
-        print(validate_token_response)
-        return jsonify({"error": "Invalid Token"}), 403
+    is_valid, valid_response = validate_user(headers=request.headers)
+    if is_valid != True:
+        return valid_response
 
-    response_json = validate_token_response.json()
+    try:
+        request_json = request.get_json()
+        package_name = request_json.get('name', None)
+        package_description = request_json.get('description', None)
+        tools = request_json.get('tools', None)
+        input_file_list = request_json.get('input_files', None)
+        archive_id = request_json.get('archive_id', None)
+        package_type = request_json.get('type', None)
+        # print(request_json)
+        if package_name is None or package_description is None \
+            or archive_id is None or package_type is None \
+            or tools is None or input_file_list is None:
+            raise AttributeError
+    except AttributeError as err:
+        # raise err
+        return jsonify({"error": "Missing Paramters"}), 400
+
+
+    response_json = valid_response.get_json()
     user_id = response_json['user_id']
 
     # This is where we are actually connecting to the database and inserting the details of the package in the package database
@@ -491,8 +552,27 @@ def create_packages():
     try:
         package_id = str(uuid.uuid4())
         print(package_id)
-        insert_q = "INSERT INTO package(package_id, type, description, name, created_on, created_by) VALUES (%s, %s, %s, %s, %s, %s)"
-        data = (package_id, package_type, package_description, package_name, created_on, username)
+        insert_q = """INSERT INTO package (
+                        package_id, 
+                        type, 
+                        description, 
+                        name, 
+                        created_on, 
+                        created_by
+                    ) VALUES (
+                        %s, 
+                        %s, 
+                        %s, 
+                        %s, 
+                        NOW(), 
+                        %s
+                    )"""
+        data = (
+            package_id, 
+            package_type, 
+            package_description, 
+            package_name,
+            user_id)
         cur.execute(insert_q, data)
         conn.commit()
         print("Data inserted in the package table successfully.")
@@ -608,12 +688,12 @@ def get_user_files():
         files_response = json.dumps(file_info)
         return jsonify(json.loads(files_response)), 200
     except Exception:
-        return jsonify({"error:" "The path provided does not exist."}), 500
+        return jsonify({"error:" "The path provided does not exist."}), 404
     finally:
         print("The request has been handled.")
 
 
-@blueprint.route('/rac-api/get-package/<package_id>', methods=['GET'])
+@blueprint.route('/rac-api/packages/get-package/<package_id>', methods=['GET'])
 def get_package_details_from_package_id(package_id):
     """
     This is a method which returns the details of the package associated with the package id
@@ -623,32 +703,12 @@ def get_package_details_from_package_id(package_id):
 
     Returns:
         This method returns a json object containing the details of the package associated with the package id
-    """
+    """    
+    is_valid, valid_response = validate_user(headers=request.headers)
+    if is_valid is not True:
+        return valid_response
     auth_token = request.headers.get('auth-token')
     username = request.headers.get('auth-username')
-
-    # We are verifying the auth token here
-    if auth_token is None or username is None:
-        return jsonify({"error": "Auth headers are missing"}), 401
-        # connection = cadre_meta_connection_pool.getconn()
-        # cursor = connection.cursor()
-    validate_token_args = {
-        'username': username
-    }
-    headers = {
-        'auth-token': auth_token,
-        'Content-Type': 'application/json'
-    }
-    validate_token_response = requests.post(auth_config["verify-token-endpoint"],
-                                            data=json.dumps(validate_token_args),
-                                            headers=headers,
-                                            verify=False)
-    if validate_token_response.status_code is not 200:
-        print(validate_token_response)
-        return jsonify({"error": "Invalid Token"}), 403
-
-    # response_json = validate_token_response.json()
-    # user_id = response_json['user_id']
 
     # This is where we are actually connecting to the database and getting the details of the packages
     conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
@@ -657,56 +717,79 @@ def get_package_details_from_package_id(package_id):
     cur = conn.cursor()
 
     # Here we are getting all the details of the package from the package id
+
+
     try:
-        query = "SELECT " \
-                "max(package.package_id) as package_id, " \
-                "max(package.type) as type, " \
-                "max(package.description) as description, " \
-                "max(package.name) as name, " \
-                "max(package.doi) as doi, " \
-                "max(package.created_on) as created_on, " \
-                "max(package.created_by) as created_by, " \
-                "max(tool.tool_id) as tool_id, " \
-                "max(tool.description) as tool_description, " \
-                "max(tool.name) as tool_name, " \
-                "max(tool.script_name) as tool_script_name, " \
-                "array_agg(archive.name) as input_files " \
-                "FROM package " \
-                "JOIN archive ON (package.archive_id = archive.archive_id) " \
-                "JOIN tool ON (package.tool_id = tool.tool_id) " \
-                "WHERE package.package_id = %s "
+        query = """SELECT 
+                max(package.package_id) as package_id, 
+                max(package.type) as type, 
+                max(package.description) as description, 
+                max(package.name) as name, 
+                max(package.doi) as doi, 
+                max(package.created_on) as created_on, 
+                max(package.created_by) as created_by, 
+                max(tool.tool_id) as tool_id, 
+                max(tool.description) as tool_description, 
+                max(tool.name) as tool_name, 
+                max(tool.script_name) as tool_script_name, 
+                array_agg(archive.name) as input_files 
+                FROM package 
+                JOIN archive ON (package.archive_id = archive.archive_id) 
+                JOIN tool ON (package.tool_id = tool.tool_id) 
+                GROUP BY package.package_id 
+                WHERE package_id = %s """
 
         cur.execute(query, (package_id,))
-
         if cur.rowcount == 0:
-            return jsonify({"error:" "Query returns zero results."}), 404
-        if cur.rowcount > 0:
-            package_info = cur.fetchall()
-            package_list = []
-            for packages in package_info:
-                package_json = {
-                    'package_id': packages[0],
-                    'type': packages[1],
-                    'description': packages[2],
-                    'name': packages[3],
-                    'doi': packages[4],
-                    'created_on': packages[5],
-                    'created_by': packages[6],
-                    'tools': [{
-                        'tool_id': packages[7],
-                        'description': packages[8],
-                        'name': packages[9],
-                        'created_by': 'None',
-                        'tool_script_name': packages[10]
-                    }],
-                    'input_files': packages[11]
-                }
-                package_list.append(package_json)
-            package_response = json.dumps(package_list, cls=DateEncoder)
-            print(package_response)
-            return jsonify(json.loads(package_response)), 200
+            return jsonify({"error": "Query returns zero results."}), 404
+        elif cur.rowcount > 0:
+            packages = cur.fetchall()
+            packages_dict = {}
+            
+            for package in packages:
+                #pull apart the row:
+                package_id = package[0]
+                p_type = package[1]
+                description = package[2]
+                name = package[3]
+                doi = package[4]
+                created_on = package[5].isoformat()
+                created_by = package[6]
+                tool_tool_id = package[7]
+                tool_description = package[8]
+                tool_name = package[9]
+                tool_script_name = package[10]
+                input_files = package[11]
+                
+                #get the existing item on the dict or create an empty one
+                p = packages_dict.get(package_id, {})
+                #set all the props
+                p['package_id'] = package_id
+                p['type'] = p_type
+                p['description'] = description
+                p['name'] = name
+                p['doi'] = doi
+                p['created_on'] = created_on
+                p['created_by'] = created_by
+                p['input_files'] = input_files
 
+                # get the tools or default to []
+                p['tools'] = p.get('tools', [])
+                # add a new tool
+                p['tools'].append(
+                    {
+                        'tool_id': tool_tool_id,
+                        'description': tool_description,
+                        'name': tool_name,
+                        'tool_script_name': tool_script_name
+                    }
+                )
+                #put it back on the dict
+                packages_dict[package_id] = p
+            #return a jsonified version of the dict values only
+            return jsonify(list(packages_dict.values())), 200
     except Exception as e:
+        # print(str(e.__traceback__.))
         print("There was an error: ", str(e))  # sends the error to the log
         return jsonify({"error": "Problem querying the package table or the archive table or the tools table in the meta database.", "details": str(e)}), 500
 
@@ -715,6 +798,7 @@ def get_package_details_from_package_id(package_id):
         cur.close()
         conn.close()
         print("The database connection has been closed successfully.")
+
 
 
 @blueprint.route('/rac-api/get-tool/<tool_id>', methods=['GET'])
@@ -728,29 +812,9 @@ def get_tool_details_from_tool_id(tool_id):
        Returns:
            This method returns a json object containing the details of the tools associated with the tool id
     """
-    auth_token = request.headers.get('auth-token')
-    username = request.headers.get('auth-username')
-
-    # We are verifying the auth token here
-    if auth_token is None or username is None:
-        return jsonify({"error": "Auth headers are missing"}), 401
-        # connection = cadre_meta_connection_pool.getconn()
-        # cursor = connection.cursor()
-    validate_token_args = {
-        'username': username
-    }
-    headers = {
-        'auth-token': auth_token,
-        'Content-Type': 'application/json'
-    }
-    validate_token_response = requests.post(auth_config["verify-token-endpoint"],
-                                            data=json.dumps(validate_token_args),
-                                            headers=headers,
-                                            verify=False)
-    if validate_token_response.status_code is not 200:
-        print(validate_token_response)
-        return jsonify({"error": "Invalid Token"}), 403
-
+    is_valid, valid_response = validate_user(headers=request.headers)
+    if is_valid is not True:
+        return valid_response
     # response_json = validate_token_response.json()
     # user_id = response_json['user_id']
 
@@ -762,14 +826,14 @@ def get_tool_details_from_tool_id(tool_id):
 
     # Here we are getting all the details of the tool specified by the tool id
     try:
-        query = "SELECT " \
-                "tool_id, " \
-                "description as tool_description, " \
-                "name as tool_name, " \
-                "script_name as tool_script_name, " \
-                "created_on as tool_created_on " \
-                "FROM tool " \
-                "WHERE tool_id=%s "
+        query = """SELECT 
+                    tool_id, 
+                    description as tool_description, 
+                    name as tool_name, 
+                    script_name as tool_script_name, 
+                    created_on as tool_created_on 
+                FROM tool 
+                WHERE tool_id=%s """
 
         cur.execute(query, (tool_id,))
 
@@ -777,19 +841,19 @@ def get_tool_details_from_tool_id(tool_id):
             return jsonify({"error:", "Query returns zero results."}), 404
         if cur.rowcount > 0:
             tool_info = cur.fetchall()
-            tool_list = []
+            tool_json = {}
             for tools in tool_info:
+                if tools[0] != tool_id:
+                    continue
                 tool_json = {
                     'tool_id': tools[0],
-                    'tool_description': tools[1],
-                    'tool_name': tools[2],
-                    'tool_script_name': tools[3],
-                    'created_on': tools[4]
+                    'description': tools[1],
+                    'name': tools[2],
+                    'script_name': tools[3],
+                    'created_on': tools[4].isoformat()
                 }
-                tool_list.append(tool_json)
-            tool_response = json.dumps(tool_list, cls=DateEncoder)
-            print(tool_response)
-            return jsonify(json.loads(tool_response)), 200
+                break
+            return jsonify(tool_json), 200
     except Exception:
         return jsonify({"error:", "Problem querying the tools table in the meta database."}), 500
     finally:
@@ -890,7 +954,7 @@ def get_data_archives():
 
         cur.execute(query, (limit, offset))
         if cur.rowcount == 0:
-            return jsonify({"error:", "Query returns zero results."}), 404
+            return jsonify({"error": "Query returns zero results."}), 404
         if cur.rowcount > 0:
             archive_info = cur.fetchall()
             archive_list = []
@@ -904,7 +968,7 @@ def get_data_archives():
                 }
                 archive_list.append(archive_json)
             archive_response = json.dumps(archive_list, cls=DateEncoder)
-            print(archive_response)
+            # print(archive_response)
             return jsonify(json.loads(archive_response)), 200
     except Exception:
         return jsonify({"error:", "Problem querying the archive table in the meta database."}), 500

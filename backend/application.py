@@ -14,7 +14,7 @@ from routefunctions import rac_api, qi_api
 
 from library import readconfig
 
-from flask import Flask, render_template, request, json, jsonify
+from flask import Flask, render_template, request, json, jsonify, Blueprint
 from flask_cors import CORS
 
 
@@ -33,6 +33,7 @@ application = app = Flask(__name__,
 
 CORS(application)
 
+
 ########    ###    ##       ##       ########     ###     ######  ##    ##  ######     
 ##         ## ##   ##       ##       ##     ##   ## ##   ##    ## ##   ##  ##    ##    
 ##        ##   ##  ##       ##       ##     ##  ##   ##  ##       ##  ##   ##          
@@ -41,17 +42,23 @@ CORS(application)
 ##       ##     ## ##       ##       ##     ## ##     ## ##    ## ##   ##  ##    ##    
 ##       ##     ## ######## ######## ########  ##     ##  ######  ##    ##  ######     
 
-@application.route("/rac-api")
-@application.route("/rac-api/")
-@application.route("/rac-api/<path:fallback>")
-@application.route("/qi-api")
-@application.route("/qi-api/")
-@application.route("/qi-api/<path:fallback>")
+fallback_blueprint = Blueprint('fallbacks', __name__)
+
+@fallback_blueprint.route("/api", methods=['GET', 'POST'])
+@fallback_blueprint.route("/api/", methods=['GET', 'POST'])
+@fallback_blueprint.route("/api/<path:fallback>", methods=['GET', 'POST'])
+@rac_api.blueprint.route("/rac-api", methods=['GET', 'POST'])
+@rac_api.blueprint.route("/rac-api/", methods=['GET', 'POST'])
+@rac_api.blueprint.route("/rac-api/<path:fallback>", methods=['GET', 'POST'])
+@qi_api.blueprint.route("/qi-api", methods=['GET', 'POST'])
+@qi_api.blueprint.route("/qi-api/", methods=['GET', 'POST'])
+@qi_api.blueprint.route("/qi-api/<path:fallback>", methods=['GET', 'POST'])
 def api_index(fallback=""):
+    print(fallback)
     return jsonify({"error": "Unknown endpoint."}), 404
 
 
-@application.route("/")
+@fallback_blueprint.route("/")
 def index():
     '''
     template renders frontend
@@ -60,13 +67,15 @@ def index():
     return render_template("/index.html")
 
 
-@application.route("/<path:fallback>")
+@fallback_blueprint.route("/<path:fallback>")
 def fallback(fallback):
     '''
     template renders frontend
     '''
 
     return render_template("/index.html")
+
+
 
 
 ########  ########  ######   ####  ######  ######## ######## ########     
@@ -88,6 +97,11 @@ def fallback(fallback):
 
 app.register_blueprint(rac_api.blueprint)
 app.register_blueprint(qi_api.blueprint)
+app.register_blueprint(fallback_blueprint)
+
+
+
+
 
 ########  ##     ## ##    ## 
 ##     ## ##     ## ###   ## 
@@ -104,7 +118,7 @@ if __name__ == '__main__':
     meta_db_config = readconfig.meta_db
     auth_config = readconfig.auth
     data_config = readconfig.data
-    test_config = readconfig.test
+    # test_config = readconfig.test
     efs_path_config = readconfig.efs_path
 
     application.run(host=config['FlaskHost'], port=int(config['FlaskPort']), debug=config['DebugMode']=='True')
