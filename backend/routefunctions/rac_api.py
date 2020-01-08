@@ -1,3 +1,4 @@
+import traceback
 import uuid
 
 import requests
@@ -9,6 +10,7 @@ from datetime import date
 blueprint = Blueprint('rac_api', __name__)
 
 from library import readconfig
+import util
 import boto3
 
 config = readconfig.config
@@ -16,7 +18,6 @@ jupyter_config = readconfig.jupyter
 meta_db_config = readconfig.meta_db
 auth_config = readconfig.auth
 aws_config = readconfig.aws
-efs_path_config = readconfig.efs_path
 
 
 class DateEncoder(json.JSONEncoder):
@@ -24,7 +25,6 @@ class DateEncoder(json.JSONEncoder):
         if isinstance(obj, date):
             return str(obj)
         return json.JSONEncoder.default(self, obj)
-
 
 
 def validate_user(headers={}, **kwargs):
@@ -506,6 +506,107 @@ def get_tools():
         print("The database connection has been closed successfully.")
 
 
+@blueprint.route("/rac-api/tools/new", methods=['POST'])
+def create_tool():
+    """
+    This is a method that will create the tool.
+
+    Returns:
+        This method returns a json object containing the tool that created.
+    """
+    auth_token = request.headers.get('auth-token')
+    username = request.headers.get('auth-username')
+
+    is_valid, valid_response = validate_user(headers=request.headers)
+    if is_valid != True:
+        return valid_response
+
+    try:
+        request_json = request.get_json()
+        tool_name = request_json.get('name', None)
+        description = request_json.get('description', None)
+        install_commands = request_json.get('install_commands', None)
+        file_paths = request_json.get('file_paths', None)
+        entrypoint_script = request_json.get('entrypoint', None)
+        environment = request_json.get('environment', None)
+
+        if tool_name is None or install_commands is None \
+            or file_paths is None or entrypoint_script is None \
+            or environment is None:
+            raise AttributeError
+
+        response_json = valid_response.get_json()
+        user_id = response_json['user_id']
+        tool_id = str(uuid.uuid4())
+        if 'python' is environment:
+            command = 'python'
+        else:
+            command = environment
+
+        copy_files = []
+        for file_path in file_paths:
+            file_info = {'name': file_path}
+            copy_files.append(file_info)
+        install_commands_list = []
+        if ',' in install_commands:
+            commands_list = install_commands.split(",")
+            for command in commands_list:
+                command_info = {'name': command}
+                install_commands_list.append(command_info)
+        else:
+            install_commands_list = [{'name': install_commands}]
+        # create dockerfile
+        docker_template_json = {
+            'copy_files': copy_files,
+            'commands': install_commands_list,
+            'entrypoint': entrypoint_script
+        }
+        util.tool_util.create_python_dockerfile_and_upload_s3(tool_id, docker_template_json)
+        # upload tools
+        util.tool_util.upload_tool_scripts_to_s3(file_paths, tool_id)
+        # create database connection
+        conn = psycopg2.connect(dbname=meta_db_config["database-name"],
+                                user=meta_db_config["database-username"],
+                                password=meta_db_config["database-password"],
+                                host=meta_db_config["database-host"],
+                                port=meta_db_config["database-port"])
+        cur = conn.cursor()
+
+        insert_q = "INSERT INTO tool(tool_id,description, name, script_name, command, created_on, created_by) VALUES (%s,%s,%s,%s,%s,NOW(),%s)"
+        data = (tool_id, description, tool_name, entrypoint_script, command, user_id)
+        cur.execute(insert_q, data)
+        conn.commit()
+        print("Data inserted in the tool table successfully.")
+        tool_q = "SELECT tool_id, name, description, script_name, created_on FROM tool where tool_id=%s"
+        cur.execute(tool_q, (tool_id,))
+        if cur.rowcount > 0:
+            tool_info = cur.fetchone()
+            tool_json = {
+                'tool_id': tool_info[0],
+                'name': tool_info[1],
+                'author': username,
+                'description': tool_info[2],
+                'entrypoint': tool_info[3],
+                'created_on': tool_info[4]
+            }
+            tool_response = json.dumps(tool_json, cls=DateEncoder)
+            return jsonify(json.loads(tool_response), 200)
+    except AttributeError as error:
+        traceback.print_tb(error.__traceback__)
+        print("error", "Request is missing required parameters.")
+        return jsonify({"error": "Missing request paramters"}), 400
+    except Exception as err:
+        traceback.print_tb(err.__traceback__)
+        print("Error", "Problem while inserting the data in the tool table.")
+        return jsonify({"error:", "Problem while inserting the data in the tool table."}), 500
+    finally:
+        # Closing the database connection.
+        cur.close()
+        conn.close()
+        print("The database connection has been closed successfully.")
+
+
+# TODO Check s3 upload as file upload done in the tool creation ep
 @blueprint.route("/rac-api/packages/new", methods=['POST'])
 def create_packages():
     """
@@ -668,7 +769,7 @@ def get_user_files():
 
     # Here we are getting all the details of the location of the efs directory of the user
     try:
-        efs_path = efs_path_config["efs-path"]
+        efs_path = aws_config["efs-path"]
         directory_path = efs_path + username + path
         file_info = []
         for root, dirs, files in os.walk(directory_path):
@@ -798,7 +899,6 @@ def get_package_details_from_package_id(package_id):
         cur.close()
         conn.close()
         print("The database connection has been closed successfully.")
-
 
 
 @blueprint.route('/rac-api/get-tool/<tool_id>', methods=['GET'])
