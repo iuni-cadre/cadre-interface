@@ -1,7 +1,7 @@
 <template>
     <div class="file-name">
-        <div class="checkbox-container"><input class="form-check-input" v-model="checked" type="checkbox" /></div>
-        <div><span class="filetype"><fa :icon="['far', 'file']" /></span> {{name}}</div>
+        <div class="checkbox-container"><input :id="`checkbox ${item.path}`" class="form-check-input" v-model="checked" type="checkbox" /></div>
+        <label :for="`checkbox ${item.path}`"><div><span class="filetype"><fa :icon="icon" /></span> {{name}}</div></label>
     </div>
 </template>
 
@@ -18,6 +18,19 @@ export default {
             let tmp = this.item.path.split("/");
             let name = tmp.pop();
             return name || "/";
+        },
+        extension: function(){
+            return this.item.path.split(".")[this.item.path.split(".").length - 1];
+        },
+        icon: function(){
+            if(this.extension == "py")
+            {
+                return ['fab', 'python'];
+            }
+            else
+            {
+                return ['far', 'file'];
+            }
         }
     },
     props: {
@@ -51,7 +64,10 @@ export default {
     {
         display: inline-block;
     }
-
+    label {
+        cursor: pointer;
+        margin: 0;
+    }
     .checkbox-container
     {
         // display: block;

@@ -1,17 +1,23 @@
 <template>
 
     <div class="container my-5">
-        <file-browser />
+        <new-tool-form @selectedChange="updated"/>
     </div>
 
 </template>
 
 <script>
-import FileBrowser from "../../components/Filebrowser/FilebrowserMain";
+// import FileBrowser from "../../components/Filebrowser/FilebrowserMain";
+import NewToolForm from "../../components/Marketplace/MarketplaceNewToolForm";
 
 export default {
     components: {
-        FileBrowser
+        NewToolForm
+    },
+    methods: {
+        updated: function(){
+            // alert("UPDATED");
+        }
     },
     mounted: function() {
 
@@ -31,6 +37,11 @@ export default {
             },
             {
                 path: "/query-results/JOBID2345.csv",
+                type: "file",
+                download_url: "https://xxxxxxxxxxx" //S3 bucket path or custom proxy url for downloading... however we decide to implement downloads
+            },
+            {
+                path: "/query-results/script.py",
                 type: "file",
                 download_url: "https://xxxxxxxxxxx" //S3 bucket path or custom proxy url for downloading... however we decide to implement downloads
             }

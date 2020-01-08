@@ -11,9 +11,9 @@
                        @checked="(path)=>{ selectPath(path) }"/>
         </div>
 
-        <pre>{{
+        <!-- <pre>{{
             selected_paths
-        }}</pre>
+        }}</pre> -->
         <template v-if="error_message">
             <div class="modal show"
                  style="display: block;"
@@ -66,6 +66,9 @@ export default {
             return this.$store.state.filesystem.file_structure;
         }
     },
+    props: {
+        value: Array
+    },
     methods: {
         handleError: function(error_message) {
             this.error_message = error_message;
@@ -97,7 +100,13 @@ export default {
     },
     watch: {
         selected_paths: function(){
-            this.$emit("selectedChange", this.selected_paths);
+            this.$emit("input", this.selected_paths);
+        },
+        value: function(){
+            if(this.value != this.selected_paths)
+            {
+                this.$set(this, "selected_paths", this.value);
+            }
         }
     },
     mounted: function() {

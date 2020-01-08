@@ -141,6 +141,12 @@ ul {
     -webkit-user-select: none;
     user-select: none;
 
+}
+.folder-name-container {
+    & > div {
+        display: inline-block;
+    }
+    
     button {
         display: none;
         max-height: 1rem;
@@ -148,11 +154,6 @@ ul {
     }
 
     &:hover button {
-        display: inline-block;
-    }
-}
-.folder-name-container {
-    & > div {
         display: inline-block;
     }
 
