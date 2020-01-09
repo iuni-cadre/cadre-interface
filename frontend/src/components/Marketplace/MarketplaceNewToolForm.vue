@@ -1,6 +1,6 @@
 <template>
     <div>
-        <form @submit.stop.prevent>
+        <form @submit.stop.prevent="submitForm">
             <div class="form-group">
                 <label>Environment</label>
                 <div class="form-control">Python</div>
@@ -66,12 +66,28 @@
             </div>
             {{data_to_send}}
         </form>
+        <modal
+            v-if="error_message.length > 0"
+            @close="error_message=[]"
+            modalStyle="danger"
+        >
+            <div>
+                <p>There was a problem with your submission.</p>
+                <ul>
+                    <li
+                        v-for="(message, index) in error_message"
+                        :key="`error_message_${index}`"
+                        v-text="message"
+                    ></li>
+                </ul>
+            </div>
+        </modal>
     </div>
 </template>
 
 <script>
 import FileBrowser from "../../components/Filebrowser/FilebrowserMain";
-
+import Modal from "../../components/Common/CommonModal";
 export default {
     data: function() {
         return {
@@ -82,7 +98,9 @@ export default {
                 file_paths: [],
                 entrypoint: "",
                 environment: ""
-            }
+            },
+            new_too_endpoint: this.$cadreConfig.rac_api_prefix + "/tools/new",
+            error_message: []
         };
     },
     computed: {
@@ -97,7 +115,62 @@ export default {
         }
     },
     components: {
-        FileBrowser
+        FileBrowser,
+        Modal
+    },
+    methods: {
+        submitForm: function() {
+            this.$emit("startLoading", {
+                key: "newTool",
+                message: "Creating new tool"
+            });
+            let is_valid = this.validateForm();
+            console.debug(this.data_to_send);
+            if (!is_valid) {
+                this.$emit("stopLoading", { key: "newTool" });
+            } else {
+                let prom = new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        console.debug("RESOLVED"), resolve();
+                    }, 5000);
+                });
+                prom.then(response => {
+                    this.$emit("toolCreated");
+                }, error => {}).finally(() => {
+                    this.$emit("stopLoading", { key: "newTool" });
+                });
+            }
+        },
+        validateForm: function() {
+            let errors = [];
+
+            if (this.data_to_send.name.trim() == "") {
+                errors.push("Name is a required field.");
+            }
+            if (this.data_to_send.description.trim() == "") {
+                errors.push("Description is a required field.");
+            }
+            if (this.data_to_send.file_paths.length <= 0) {
+                errors.push("Must include at least one file.");
+            }
+            if (this.data_to_send.entrypoint.trim() == "") {
+                errors.push("Entrypoint is a required field.");
+            } else if (
+                this.data_to_send.file_paths.indexOf(
+                    this.data_to_send.entrypoint
+                ) < 0
+            ) {
+                errors.push("Chosen entrypoint file must be added explicitly.");
+            }
+            console.debug(errors);
+            this.$set(this, "error_message", errors);
+            if (errors.length > 0) {
+                // console.debug("Form not valid.");
+                return false;
+            } else {
+                return true;
+            }
+        }
     },
     mounted: function() {
         this.data_to_send.environment = "python";

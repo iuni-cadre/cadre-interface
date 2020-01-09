@@ -1,7 +1,7 @@
 <template>
 
     <div class="container my-5">
-        <new-tool-form @selectedChange="updated"/>
+        <new-tool-form @startLoading="(key)=>$emit('startLoading',key)" @stopLoading="(key)=>$emit('stopLoading',key)"/>
     </div>
 
 </template>

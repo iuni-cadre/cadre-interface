@@ -10,11 +10,13 @@
                        @refresh="(path)=>{ refreshFolder(path) }" 
                        @checked="(path)=>{ selectPath(path) }"/>
         </div>
-
+        <modal v-if="error_message" @close="error_message=''" modalStyle="danger">
+            <div v-text="error_message"></div>
+        </modal>
         <!-- <pre>{{
             selected_paths
         }}</pre> -->
-        <template v-if="error_message">
+        <!-- <template v-if="error_message">
             <div class="modal show"
                  style="display: block;"
                  tabindex="-1"
@@ -46,13 +48,15 @@
             </div>
             <div class="modal-backdrop fade show"
                  @click="error_message = ''"></div>
-        </template>
+        </template> -->
+
     </div>
 </template>
 
 <script>
 import Folder from "./FilebrowserFolder";
 import File from "./FilebrowserFile";
+import Modal from "../Common/CommonModal";
 export default {
     data: function() {
         return {
@@ -96,7 +100,8 @@ export default {
     },
     components: {
         Folder,
-        File
+        File,
+        Modal
     },
     watch: {
         selected_paths: function(){
