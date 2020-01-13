@@ -1,21 +1,33 @@
 <template>
     <div>
         <!-- This is a file browser -->
-        <div v-for="item in file_structure"
-             :key="`file_browser_${item.path}`">
-            <component :is="item.type"
-                       :item="item"
-                       :selectedPaths="selected_paths"
-                       @error="handleError"
-                       @refresh="(path)=>{ refreshFolder(path) }" 
-                       @checked="(path)=>{ selectPath(path) }"/>
+
+        <div
+            v-for="item in file_structure"
+            :key="`file_browser_${item.path}`"
+        >
+            <component
+                :is="item.type"
+                :item="item"
+                :selectedPaths="selected_paths"
+                @error="handleError"
+                @refresh="(path)=>{ refreshFolder(path) }"
+                @checked="(path)=>{ selectPath(path) }"
+            />
         </div>
-        <modal v-if="error_message" @close="error_message=''" modalStyle="danger">
+        <div v-if="file_structure.length == 0">
+            Could not fetch file listing
+        </div>
+        <modal
+            v-if="error_message"
+            @close="error_message=''"
+            modalStyle="danger"
+        >
             <div v-text="error_message"></div>
         </modal>
         <!-- <pre>{{
             selected_paths
-        }}</pre> -->
+        }}</pre>-->
         <!-- <template v-if="error_message">
             <div class="modal show"
                  style="display: block;"
@@ -48,8 +60,7 @@
             </div>
             <div class="modal-backdrop fade show"
                  @click="error_message = ''"></div>
-        </template> -->
-
+        </template>-->
     </div>
 </template>
 
@@ -81,18 +92,14 @@ export default {
             console.debug(path);
             this.getFiles(path);
         },
-        getFiles: function(path)
-        {
+        getFiles: function(path) {
             console.debug(path);
         },
-        selectPath: function(path){
+        selectPath: function(path) {
             let path_index = this.selected_paths.indexOf(path);
-            if(path_index < 0)
-            {
+            if (path_index < 0) {
                 this.selected_paths.push(path);
-            }
-            else
-            {
+            } else {
                 this.selected_paths.splice(path_index, 1);
             }
             return this.selected_paths;
@@ -104,12 +111,11 @@ export default {
         Modal
     },
     watch: {
-        selected_paths: function(){
+        selected_paths: function() {
             this.$emit("input", this.selected_paths);
         },
-        value: function(){
-            if(this.value != this.selected_paths)
-            {
+        value: function() {
+            if (this.value != this.selected_paths) {
                 this.$set(this, "selected_paths", this.value);
             }
         }
@@ -120,7 +126,7 @@ export default {
             resp => {},
             err => {
                 console.error(err);
-                this.handleError("Could not reach server.");
+                this.handleError("Could not fetch user file listing.");
             }
         );
     }
