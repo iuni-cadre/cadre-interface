@@ -19,7 +19,7 @@
                     <button type="button"
                         class="close float-right"
                         aria-label="Close"
-                        @click="close"><span aria-hidden="true">&times;</span></button>
+                        @click.stop.prevent="close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body">
                     <div class="d-flex align-items-center">
@@ -35,7 +35,7 @@
                         class="btn mt-2 btn-lg"
                         :class="'btn-' + (okButtonStyle || modalStyle)"
                         v-if="okButtonLabel"
-                        @click="ok"><fa v-if="modalType === 'delete'"
+                        @click.stop.prevent="ok"><fa v-if="modalType === 'delete'"
                             class="mr-2 fa fa-trash"
                             :icon="['far', 'trash-alt']"
                             aria-hidden="true"></fa>{{okButtonLabel}}</button>
@@ -44,7 +44,7 @@
                     <button
                         class="btn"
                         :class="'btn-' + (closeButtonStyle || modalStyle)"
-                        @click="close">{{closeButtonLabel}}</button>
+                        @click.stop.prevent="close">{{closeButtonLabel}}</button>
 
                 </div>
             </div>

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#rebuild node app
+pushd frontend
+
+exec npm run test-clear &
+wait 
+if [ -z $1 ]; then
+    exec npm run test &
+else
+    export FILE=tests/$1
+    exec  npm run test-single &
+fi
+wait

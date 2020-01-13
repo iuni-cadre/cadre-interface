@@ -1,0 +1,9 @@
+#!/bin/bash
+
+pushd backend
+source venv/bin/activate
+
+exec python -m pytest &
+wait
+
+pushd ..

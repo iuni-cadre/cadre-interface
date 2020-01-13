@@ -4,10 +4,16 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build"
+    "build": "vue-cli-service build",
+    "testvue": "vue-cli-service test:unit",
+    "test": "jest tests/ || true",
+    "test-clear": "jest --clearCache",
+    "test-single": "jest ${FILE} || true",
+    "test-single-test": "jest tests/ -t ${TEST} || true"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.17",
+    "@fortawesome/free-brands-svg-icons": "^5.12.0",
     "@fortawesome/free-regular-svg-icons": "^5.9.0",
     "@fortawesome/free-solid-svg-icons": "^5.8.1",
     "@fortawesome/vue-fontawesome": "^0.1.6",
@@ -21,10 +27,20 @@
     "vuex": "^3.0.1"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.3.0",
-    "@vue/cli-service": "^3.6.0",
-    "node-sass": "^4.13.0",
+    "@babel/plugin-transform-async-to-generator": "^7.5.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.6.0",
+    "@babel/preset-env": "^7.6.3",
+    "@vue/cli-plugin-babel": "^3.12.0",
+    "@vue/cli-plugin-unit-jest": "^4.0.0",
+    "@vue/cli-service": "^3.12.0",
+    "@vue/test-utils": "^1.0.0-beta.29",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-jest": "^24.9.0",
+    "jest": "^24.9.0",
+    "jest-mock-axios": "^3.1.1",
+    "node-sass": "^4.12.0",
     "sass-loader": "^7.0.1",
+    "vue-jest": "^3.0.5",
     "vue-template-compiler": "^2.5.21"
   }
 }
