@@ -52,6 +52,7 @@ export default {
         getTools: function({ commit }) {
             return new Promise((resolve, reject) => {
                 //FOR TESTING
+                // console.debug(TEST_RAC_TOOLS);
                 commit("setTools", TEST_RAC_TOOLS);
                 resolve({ status: 200, data: { message: "Test Tools" } });
                 return true;
@@ -198,3 +199,25 @@ export default {
         }
     }
 };
+
+
+const TEST_RAC_TOOLS = [
+    {
+        tool_id: "112342211261",
+        name: "tool_name1",
+        author: "username",
+        description: "some description",
+        entrypoint: "some_script1.py",
+        created_on: "2020-01-07 14:15:00",
+    },
+    {
+        tool_id: "112342211262",
+        name: "tool_name2",
+        author: "username",
+        description: "some description",
+        entrypoint: "some_script2.py",
+        created_on: "2020-01-07 14:15:00",
+    }
+    
+]
+const TEST_RAC_JOBS = {}

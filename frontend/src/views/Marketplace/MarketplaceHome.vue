@@ -20,8 +20,24 @@
                     </div>
                 </div>
 
-                <create-package-modal :show-modal="show_create_modal"
-                                      @close="show_create_modal = false"></create-package-modal>
+<hr />
+
+                <div class="tools-container">
+                    <h3>Tools</h3>
+                    <div class="row flex-wrap">
+                        <div v-for="(ractool, index) in ractools"
+                             :key="`ractool_card_${index}`"
+                             class="col-md-4 d-flex">
+                            <rac-tool-card @startLoading="(data)=>{ $emit('startLoading', data); }"
+                                              @stopLoading="(data)=>{ $emit('stopLoading', data); }"
+                                              :rac-tool="ractool"></rac-tool-card>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- <create-package-modal :show-modal="show_create_modal"
+                                      @close="show_create_modal = false"></create-package-modal> -->
             </div>
         </section>
     </div>
@@ -30,6 +46,7 @@
 <script>
 import Modal from "@/components/Common/CommonModal";
 import RacPackageCard from "@/components/Marketplace/MarketplaceRacPackageCard";
+import RacToolCard from "@/components/Marketplace/MarketplaceRacToolCard";
 import CreatePackageModal from "@/components/Marketplace/MarketplaceCreateRacPackageModal";
 
 export default {
@@ -41,11 +58,16 @@ export default {
     computed: {
         racpackages: function() {
             return this.$store.getters["racpackage/packages"];
+        },
+        ractools: function(){
+            return this.$store.getters["racpackage/tools"];
         }
+
     },
     components: {
         Modal,
         RacPackageCard,
+        RacToolCard,
         CreatePackageModal
     },
     methods: {},
