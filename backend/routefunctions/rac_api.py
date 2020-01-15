@@ -542,6 +542,7 @@ def create_tool():
         request_json['job_id'] = job_id
         request_json['tool_id'] = tool_id
         request_json['username'] = username
+        request_json['user_id'] = user_id
         # Send message to tool queue
         sqs_client = boto3.client('sqs',
                                   aws_access_key_id=aws_config["aws_access_key_id"],
