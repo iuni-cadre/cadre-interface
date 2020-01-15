@@ -1,3 +1,4 @@
+import traceback
 import uuid
 
 import requests
@@ -9,6 +10,7 @@ from datetime import date
 blueprint = Blueprint('rac_api', __name__)
 
 from library import readconfig
+import util
 import boto3
 
 config = readconfig.config
@@ -16,7 +18,6 @@ jupyter_config = readconfig.jupyter
 meta_db_config = readconfig.meta_db
 auth_config = readconfig.auth
 aws_config = readconfig.aws
-efs_path_config = readconfig.efs_path
 
 
 class DateEncoder(json.JSONEncoder):
@@ -24,7 +25,6 @@ class DateEncoder(json.JSONEncoder):
         if isinstance(obj, date):
             return str(obj)
         return json.JSONEncoder.default(self, obj)
-
 
 
 def validate_user(headers={}, **kwargs):
@@ -506,13 +506,91 @@ def get_tools():
         print("The database connection has been closed successfully.")
 
 
+@blueprint.route("/rac-api/tools/new", methods=['POST'])
+def create_tool():
+    """
+    This is a method that will create the tool.
+
+    Returns:
+        This method returns a json object containing the tool that created.
+    """
+    auth_token = request.headers.get('auth-token')
+    username = request.headers.get('auth-username')
+
+    is_valid, valid_response = validate_user(headers=request.headers)
+    if is_valid != True:
+        return valid_response
+
+    try:
+        request_json = request.get_json()
+        tool_name = request_json.get('name', None)
+        description = request_json.get('description', None)
+        install_commands = request_json.get('install_commands', None)
+        file_paths = request_json.get('file_paths', None)
+        entrypoint_script = request_json.get('entrypoint', None)
+        environment = request_json.get('environment', None)
+
+        if tool_name is None or install_commands is None \
+            or file_paths is None or entrypoint_script is None \
+            or environment is None:
+            raise AttributeError
+
+        response_json = valid_response.get_json()
+        user_id = response_json['user_id']
+        job_id = str(uuid.uuid4())
+        tool_id = str(uuid.uuid4())
+        request_json['job_id'] = job_id
+        request_json['tool_id'] = tool_id
+        request_json['username'] = username
+        # Send message to tool queue
+        sqs_client = boto3.client('sqs',
+                                  aws_access_key_id=aws_config["aws_access_key_id"],
+                                  aws_secret_access_key=aws_config["aws_secret_access_key"],
+                                  region_name=aws_config["region_name"])
+
+        queue_url = aws_config["tool_queue"]
+        query_in_string = json.dumps(request_json)
+        sqs_response = sqs_client.send_message(
+            QueueUrl=queue_url,
+            MessageBody=query_in_string,
+            MessageGroupId='cadre'
+        )
+        if 'MessageId' in sqs_response:
+            message_id = sqs_response['MessageId']
+            # save job information to meta database
+            conn = psycopg2.connect(dbname=meta_db_config["database-name"],
+                                    user=meta_db_config["database-username"],
+                                    password=meta_db_config["database-password"],
+                                    host=meta_db_config["database-host"],
+                                    port=meta_db_config["database-port"])
+            cur = conn.cursor()
+            insert_q = "INSERT INTO user_job(job_id, user_id, message_id,job_status, type, started_on) VALUES (%s,%s,%s,%s,%s,clock_timestamp())"
+            data = (job_id, user_id, message_id, 'SUBMITTED', 'TOOL')
+            cur.execute(insert_q, data)
+            conn.commit()
+
+            return jsonify({'message_id': message_id,
+                            'job_id': job_id,
+                            'tool_id': tool_id}), 200
+        else:
+            return jsonify({'error': 'error while publishing to SQS'}, 500)
+    except Exception as err:
+        traceback.print_tb(err.__traceback__)
+        print("Error", "Problem while inserting the data in the tool table.")
+        return jsonify({"error:", "Problem while inserting the data in the tool table."}), 500
+    finally:
+        # Closing the database connection.
+        cur.close()
+        conn.close()
+        print("The database connection has been closed successfully.")
+
+
+# TODO Check s3 upload as file upload done in the tool creation ep
 @blueprint.route("/rac-api/packages/new", methods=['POST'])
 def create_packages():
     """
     This is a method that will actually create the package.
-
     Args:
-
     Returns:
         This method returns a json object containing the package that needs to be created.
     """
@@ -528,88 +606,76 @@ def create_packages():
         package_name = request_json.get('name', None)
         package_description = request_json.get('description', None)
         tools = request_json.get('tools', None)
-        input_file_list = request_json.get('input_files', None)
-        archive_id = request_json.get('archive_id', None)
+        input_file_archive_ids = request_json.get('input_files', None)
+        output_files = request_json.get('output_files', None)
         package_type = request_json.get('type', None)
-        # print(request_json)
         if package_name is None or package_description is None \
-            or archive_id is None or package_type is None \
-            or tools is None or input_file_list is None:
+            or package_type is None \
+            or tools is None or input_file_archive_ids is None:
             raise AttributeError
-    except AttributeError as err:
-        # raise err
-        return jsonify({"error": "Missing Paramters"}), 400
 
+        response_json = valid_response.get_json()
+        user_id = response_json['user_id']
 
-    response_json = valid_response.get_json()
-    user_id = response_json['user_id']
-
-    # This is where we are actually connecting to the database and inserting the details of the package in the package database
-    conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
-                            password=meta_db_config["database-password"], host=meta_db_config["database-host"],
-                            port=meta_db_config["database-port"])
-    cur = conn.cursor()
-    try:
+        # create database connection
+        conn = psycopg2.connect(dbname=meta_db_config["database-name"],
+                                user=meta_db_config["database-username"],
+                                password=meta_db_config["database-password"],
+                                host=meta_db_config["database-host"],
+                                port=meta_db_config["database-port"])
+        cur = conn.cursor()
         package_id = str(uuid.uuid4())
-        print(package_id)
-        insert_q = """INSERT INTO package (
-                        package_id, 
-                        type, 
-                        description, 
-                        name, 
-                        created_on, 
-                        created_by
-                    ) VALUES (
-                        %s, 
-                        %s, 
-                        %s, 
-                        %s, 
-                        NOW(), 
-                        %s
-                    )"""
-        data = (
-            package_id, 
-            package_type, 
-            package_description, 
-            package_name,
-            user_id)
+        insert_q = "INSERT INTO package(package_id,type,description,name,created_on, created_by) VALUES (%s,%s,%s,%s,NOW(),%s)"
+        data = (package_id,package_type, package_description, package_name, user_id)
         cur.execute(insert_q, data)
         conn.commit()
         print("Data inserted in the package table successfully.")
-    except Exception:
-        print("Error", "Problem querying database while inserting the data in the package table.")
-
-    # Now we will copy the input file to S3 using the boto3 library
-    s3_job_dir = username
-    s3_client = boto3.resource('s3',
-                               aws_access_key_id=aws_config["aws_access_key_id"],
-                               aws_secret_access_key=aws_config["aws_secret_access_key"],
-                               region_name=aws_config["region_name"])
-    root_bucket_name = aws_config["s3_root_dir"]
-    print(root_bucket_name)
-    root_bucket = s3_client.Bucket(root_bucket_name)
-    bucket_job_id = root_bucket_name + '/' + s3_job_dir
-    print("Bucket Job ID: " + bucket_job_id)
-    s3_location = 's3://' + bucket_job_id
-    print(s3_location)
-    for files in input_file_list:
-        s3_client.meta.client.upload_file('%s' % input_file_list[files], root_bucket_name,
-                                          bucket_job_id + '%s' % input_file_list[files])
-
-    # Now we will insert the details of the archived files in the archive table
-    try:
-        archive_id = str(uuid.uuid4())
-        print(archive_id)
-        insert_query = "INSERT INTO archive(archive_id, s3_location, description, name, created_on, created_by) VALUES (%s, %s, %s, %s, %s, %s)"
-        data_query = (archive_id, s3_location, archive_description, input_file_list, created_on, username)
-        cur.execute(insert_query, data_query)
-        conn.commit()
-        return jsonify({'archive_id': archive_id,
-                        's3_location': s3_location,
-                        'description': archive_description,
-                        'name': input_file_list,
-                        'created_on': created_on,
-                        'created_by': username}), 200
+        # get tool info from db
+        tools_info = []
+        archives_info = []
+        for tool_id in tools:
+            tool_q = "SELECT tool_id, name, description, script_name, created_on FROM tool where tool_id=%s"
+            cur.execute(tool_q, (tool_id,))
+            if cur.rowcount > 0:
+                tool_info = cur.fetchone()
+                tool_json = {
+                    'tool_id': tool_info[0],
+                    'name': tool_info[1],
+                    'author': username,
+                    'description': tool_info[2],
+                    'entrypoint': tool_info[3],
+                    'created_on': tool_info[4]
+                }
+                tools_info.append(tool_json)
+        # get archive info from db
+        for archive_id in input_file_archive_ids:
+            archive_q = "SELECT name, description FROM archive where archive_id=%s"
+            cur.execute(archive_q, (archive_id,))
+            if cur.rowcount > 0:
+                archive_info = cur.fetchone()
+                archive_json = {
+                    'name': archive_info[0],
+                    'description': archive_info[1]
+                }
+                archives_info.append(archive_json)
+        package_q = "SELECT package_id, name, type, description, created_on FROM package WHERE package_id=%s"
+        cur.execute(package_q, (package_id,))
+        if cur.rowcount > 0:
+            package_info = cur.fetchone()
+            package_json = {
+                'package_id': package_info[0],
+                'name': package_info[1],
+                'type': package_info[2],
+                'description': package_info[3],
+                'created_on': package_info[4],
+                'tools': tools_info,
+                'input_files': archives_info
+            }
+            package_response = json.dumps(package_json, cls=DateEncoder)
+            return jsonify(json.loads(package_response), 200)
+    except AttributeError as err:
+        # raise err
+        return jsonify({"error": "Missing Paramters"}), 400
     except Exception:
         return jsonify({"error:", "Problem querying database while inserting the data in the archive table."}), 500
     finally:
@@ -668,7 +734,7 @@ def get_user_files():
 
     # Here we are getting all the details of the location of the efs directory of the user
     try:
-        efs_path = efs_path_config["efs-path"]
+        efs_path = aws_config["efs-path"]
         directory_path = efs_path + username + path
         file_info = []
         for root, dirs, files in os.walk(directory_path):
@@ -798,7 +864,6 @@ def get_package_details_from_package_id(package_id):
         cur.close()
         conn.close()
         print("The database connection has been closed successfully.")
-
 
 
 @blueprint.route('/rac-api/get-tool/<tool_id>', methods=['GET'])
