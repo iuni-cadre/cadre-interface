@@ -10,7 +10,7 @@ from datetime import date
 blueprint = Blueprint('rac_api', __name__)
 
 from library import readconfig
-import util
+# import util
 import boto3
 
 config = readconfig.config
