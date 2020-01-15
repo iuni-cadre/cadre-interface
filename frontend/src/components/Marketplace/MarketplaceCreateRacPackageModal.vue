@@ -166,12 +166,12 @@ export default {
                 });
         },
         refreshMyJobs: function() {
-            this.$emit("startLoading", { key: "get_jobs", message: "" });
-            let get_jobs_prom = this.$store.dispatch("racpackage/getMyJobs");
-            Promise.all([get_jobs_prom]).finally(() => {
-                //stop loading
-                this.$emit("stopLoading", { key: "get_jobs" });
-            });
+            // this.$emit("startLoading", { key: "get_jobs", message: "" });
+            // let get_jobs_prom = this.$store.dispatch("racpackage/getMyJobs");
+            // Promise.all([get_jobs_prom]).finally(() => {
+            //     //stop loading
+            //     this.$emit("stopLoading", { key: "get_jobs" });
+            // });
         }
     },
     watch: {

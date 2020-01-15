@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div style="width: 100%;">
         <form @submit.stop.prevent="submitForm">
             <div class="form-group">
                 <label>Environment</label>
@@ -64,7 +64,7 @@
             <div class="form-group">
                 <button class="btn btn-primary">Create New Tool</button>
             </div>
-            {{data_to_send}}
+            <!-- {{data_to_send}} -->
         </form>
         <modal
             v-if="error_message.length > 0"
@@ -99,7 +99,7 @@ export default {
                 entrypoint: "",
                 environment: ""
             },
-            new_too_endpoint: this.$cadreConfig.rac_api_prefix + "/tools/new",
+            new_tool_endpoint: this.$cadreConfig.rac_api_prefix + "/tools/new",
             error_message: []
         };
     },
@@ -125,18 +125,28 @@ export default {
                 message: "Creating new tool"
             });
             let is_valid = this.validateForm();
-            console.debug(this.data_to_send);
+            // console.debug(this.data_to_send);
             if (!is_valid) {
                 this.$emit("stopLoading", { key: "newTool" });
             } else {
-                let prom = new Promise((resolve, reject) => {
-                    setTimeout(() => {
-                        console.debug("RESOLVED"), resolve();
-                    }, 5000);
+                // let prom = new Promise((resolve, reject) => {
+                //     setTimeout(() => {
+                //         console.debug("RESOLVED"), resolve();
+                //     }, 5000);
+                // });
+                let url = this.$cadreConfig.rac_api_prefix + "/tools/new";
+                let prom = this.$cadre.axios({
+                    url: url,
+                    method: "POST",
+                    data: this.data_to_send
                 });
                 prom.then(response => {
                     this.$emit("toolCreated");
-                }, error => {}).finally(() => {
+                }, error => {
+                    let message = (error && error.response && error.response.statusText) || "Unknown error.";
+                    console.debug(error);
+                    this.error_message.push(message);
+                }).finally(() => {
                     this.$emit("stopLoading", { key: "newTool" });
                 });
             }

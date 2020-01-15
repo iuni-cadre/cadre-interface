@@ -3,7 +3,7 @@
 pushd backend
 source venv/bin/activate
 
-exec python -m pytest &
+exec python -m pytest -v &
 wait
 
 pushd ..

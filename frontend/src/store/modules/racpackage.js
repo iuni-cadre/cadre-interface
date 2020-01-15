@@ -52,17 +52,19 @@ export default {
         getTools: function({ commit }) {
             return new Promise((resolve, reject) => {
                 //FOR TESTING
-                commit("setTools", TEST_RAC_TOOLS);
-                resolve({ status: 200, data: { message: "Test Tools" } });
-                return true;
+                // console.debug(TEST_RAC_TOOLS);
+                // commit("setTools", TEST_RAC_TOOLS);
+                // resolve({ status: 200, data: { message: "Test Tools" } });
+                // return true;
 
                 let axios_prom = Vue.$cadre.axios({
-                    url: "/rac-api/packages/get-tools",
-                    data: {
-                        // limit: 50,
-                        // page: 0,
-                        // order: 'name',
-                        // search: ''
+                    url: Vue.$cadreConfig.rac_api_prefix + "/packages/get-tools",
+                    method: "GET",
+                    params: {
+                        limit: 50,
+                        page: 0,
+                        order: 'name',
+                        search: ''
                     }
                 });
                 axios_prom.then(
@@ -79,13 +81,13 @@ export default {
         },
         getMyJobs: function({ commit }) {
             return new Promise((resolve, reject) => {
-                //FOR TESTING
-                commit("setMyJobs", TEST_RAC_JOBS);
-                resolve({ status: 200, data: { message: "Test JOBS" } });
-                return true;
+                // //FOR TESTING
+                // commit("setMyJobs", TEST_RAC_JOBS);
+                // resolve({ status: 200, data: { message: "Test JOBS" } });
+                // return true;
 
                 let axios_prom = Vue.$cadre.axios({
-                    url: "/rac-api/packages/get-jobs",
+                    url: Vue.$cadreConfig.rac_api_prefix + "/packages/get-jobs",
                     data: {
                         // limit: 50,
                         // page: 0,
@@ -198,3 +200,25 @@ export default {
         }
     }
 };
+
+
+const TEST_RAC_TOOLS = [
+    {
+        tool_id: "112342211261",
+        name: "tool_name1",
+        author: "username",
+        description: "some description",
+        entrypoint: "some_script1.py",
+        created_on: "2020-01-07 14:15:00",
+    },
+    {
+        tool_id: "112342211262",
+        name: "tool_name2",
+        author: "username",
+        description: "some description",
+        entrypoint: "some_script2.py",
+        created_on: "2020-01-07 14:15:00",
+    }
+    
+]
+const TEST_RAC_JOBS = {}
