@@ -535,7 +535,7 @@ def create_tool():
             or environment is None:
             raise AttributeError
 
-        response_json = valid_response.get_json()
+        response_json = valid_response.json()
         user_id = response_json['user_id']
         job_id = str(uuid.uuid4())
         tool_id = str(uuid.uuid4())
