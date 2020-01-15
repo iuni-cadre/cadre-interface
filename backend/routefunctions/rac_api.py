@@ -672,19 +672,17 @@ def get_user_files():
         directory_path = efs_path + username + path
         file_info = []
         for root, dirs, files in os.walk(directory_path):
-            _root = root.replace(directory_path, '')
-            if _root.count(os.sep) < level:
-                for file_name in files:
-                    print(os.path.join(root, file_name))
-                    file_info.append({'path': '{}'.format(os.path.join(root, file_name)), 'type': 'file'})
-                for directory_name in dirs:
-                    print(os.path.join(root, directory_name))
-                    file_info.append({'path': '{}'.format(os.path.join(root, directory_name)), 'type': 'folder'})
-
+            _root = root.replace(directory_path, '', 1)
+            # if _root.count(os.sep) < level: #removing level restriction for now
+            for file_name in files:
+                path_from_home = os.path.join(root, file_name).replace(directory_path, '', 1)
+                file_info.append({'path': '{}'.format(path_from_home), 'type': 'file'})
+            for directory_name in dirs:
+                path_from_home = os.path.join(root, directory_name).replace(directory_path, '', 1)
+                file_info.append({'path': '{}'.format(path_from_home), 'type': 'folder'})
         # Here we are printing the value of the list
-        for x in range(len(file_info)):
-            print(file_info[x])
-
+        # for x in range(len(file_info)):
+        #     print(file_info[x])
         files_response = json.dumps(file_info)
         return jsonify(json.loads(files_response)), 200
     except Exception:
