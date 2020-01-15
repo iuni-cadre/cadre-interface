@@ -537,64 +537,43 @@ def create_tool():
 
         response_json = valid_response.get_json()
         user_id = response_json['user_id']
+        job_id = str(uuid.uuid4())
         tool_id = str(uuid.uuid4())
-        if 'python' is environment:
-            command = 'python'
-        else:
-            command = environment
+        request_json['job_id'] = job_id
+        request_json['tool_id'] = tool_id
+        request_json['username'] = username
+        # Send message to tool queue
+        sqs_client = boto3.client('sqs',
+                                  aws_access_key_id=aws_config["aws_access_key_id"],
+                                  aws_secret_access_key=aws_config["aws_secret_access_key"],
+                                  region_name=aws_config["region_name"])
 
-        copy_files = []
-        for file_path in file_paths:
-            file_info = {'name': file_path}
-            copy_files.append(file_info)
-        install_commands_list = []
-        if ',' in install_commands:
-            commands_list = install_commands.split(",")
-            for command in commands_list:
-                command_info = {'name': command}
-                install_commands_list.append(command_info)
-        else:
-            install_commands_list = [{'name': install_commands}]
-        # create dockerfile
-        docker_template_json = {
-            'copy_files': copy_files,
-            'commands': install_commands_list,
-            'entrypoint': entrypoint_script
-        }
-        util.tool_util.create_python_dockerfile_and_upload_s3(tool_id, docker_template_json)
-        # upload tools
-        util.tool_util.upload_tool_scripts_to_s3(file_paths, tool_id)
-        # create database connection
-        conn = psycopg2.connect(dbname=meta_db_config["database-name"],
-                                user=meta_db_config["database-username"],
-                                password=meta_db_config["database-password"],
-                                host=meta_db_config["database-host"],
-                                port=meta_db_config["database-port"])
-        cur = conn.cursor()
+        queue_url = aws_config["tool_queue"]
+        query_in_string = json.dumps(request_json)
+        sqs_response = sqs_client.send_message(
+            QueueUrl=queue_url,
+            MessageBody=query_in_string,
+            MessageGroupId='cadre'
+        )
+        if 'MessageId' in sqs_response:
+            message_id = sqs_response['MessageId']
+            # save job information to meta database
+            conn = psycopg2.connect(dbname=meta_db_config["database-name"],
+                                    user=meta_db_config["database-username"],
+                                    password=meta_db_config["database-password"],
+                                    host=meta_db_config["database-host"],
+                                    port=meta_db_config["database-port"])
+            cur = conn.cursor()
+            insert_q = "INSERT INTO user_job(job_id, user_id, message_id,job_status, type, started_on) VALUES (%s,%s,%s,%s,%s,clock_timestamp())"
+            data = (job_id, user_id, message_id, 'SUBMITTED', 'TOOL')
+            cur.execute(insert_q, data)
+            conn.commit()
 
-        insert_q = "INSERT INTO tool(tool_id,description, name, script_name, command, created_on, created_by) VALUES (%s,%s,%s,%s,%s,NOW(),%s)"
-        data = (tool_id, description, tool_name, entrypoint_script, command, user_id)
-        cur.execute(insert_q, data)
-        conn.commit()
-        print("Data inserted in the tool table successfully.")
-        tool_q = "SELECT tool_id, name, description, script_name, created_on FROM tool where tool_id=%s"
-        cur.execute(tool_q, (tool_id,))
-        if cur.rowcount > 0:
-            tool_info = cur.fetchone()
-            tool_json = {
-                'tool_id': tool_info[0],
-                'name': tool_info[1],
-                'author': username,
-                'description': tool_info[2],
-                'entrypoint': tool_info[3],
-                'created_on': tool_info[4]
-            }
-            tool_response = json.dumps(tool_json, cls=DateEncoder)
-            return jsonify(json.loads(tool_response), 200)
-    except AttributeError as error:
-        traceback.print_tb(error.__traceback__)
-        print("error", "Request is missing required parameters.")
-        return jsonify({"error": "Missing request paramters"}), 400
+            return jsonify({'message_id': message_id,
+                            'job_id': job_id,
+                            'tool_id': tool_id}), 200
+        else:
+            return jsonify({'error': 'error while publishing to SQS'}, 500)
     except Exception as err:
         traceback.print_tb(err.__traceback__)
         print("Error", "Problem while inserting the data in the tool table.")
