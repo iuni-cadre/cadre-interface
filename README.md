@@ -11,6 +11,8 @@ Dependencies can be found in `/backend/requirements.txt` and `/frontend/package.
 
 Install Node using NVM:  https://github.com/nvm-sh/nvm/blob/master/README.md
 
+Install Vue CLI:  https://cli.vuejs.org/guide/installation.html
+
 Use Python Virtual Environments:  https://docs.python.org/3/library/venv.html
 
 ## Setup and Deployment

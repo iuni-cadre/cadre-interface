@@ -82,6 +82,19 @@
                 </ul>
             </div>
         </modal>
+        <modal
+            v-if="success"
+            @close="closeSuccessModal"
+            modalStyle="success"
+        >
+            <div>
+                <p>Your tool is being created.</p>
+                <p>You can check on its status on the Job Status page:</p>
+                <p>
+                    <router-link :to="{name: 'jobs-list'}">View Jobs</router-link>
+                </p>
+            </div>
+        </modal>
     </div>
 </template>
 
@@ -100,7 +113,8 @@ export default {
                 environment: ""
             },
             new_tool_endpoint: this.$cadreConfig.rac_api_prefix + "/tools/new",
-            error_message: []
+            error_message: [],
+            success: null
         };
     },
     computed: {
@@ -134,22 +148,34 @@ export default {
                 //         console.debug("RESOLVED"), resolve();
                 //     }, 5000);
                 // });
+                // console.debug("TEST");
                 let url = this.$cadreConfig.rac_api_prefix + "/tools/new";
                 let prom = this.$cadre.axios({
                     url: url,
                     method: "POST",
                     data: this.data_to_send
                 });
-                prom.then(response => {
-                    this.$emit("toolCreated");
-                }, error => {
-                    let message = (error && error.response && error.response.statusText) || "Unknown error.";
-                    console.debug(error);
-                    this.error_message.push(message);
-                }).finally(() => {
+                prom.then(
+                    response => {
+                        this.success = response;
+                    },
+                    error => {
+                        let message =
+                            (error &&
+                                error.response &&
+                                error.response.statusText) ||
+                            "Unknown error.";
+                        console.debug(error);
+                        this.error_message.push(message);
+                    }
+                ).finally(() => {
                     this.$emit("stopLoading", { key: "newTool" });
                 });
             }
+        },
+        closeSuccessModal: function() {
+            this.success = null;
+            this.$emit("toolCreated");
         },
         validateForm: function() {
             let errors = [];
@@ -172,7 +198,7 @@ export default {
             ) {
                 errors.push("Chosen entrypoint file must be added explicitly.");
             }
-            console.debug(errors);
+            // console.debug(errors);
             this.$set(this, "error_message", errors);
             if (errors.length > 0) {
                 // console.debug("Form not valid.");

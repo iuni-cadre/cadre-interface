@@ -56,7 +56,9 @@
                     modal-width="60%"
                     modal-title="Create New Tool"
                 >
-                    <new-tool-form></new-tool-form>
+                    <new-tool-form
+                        @toolCreated="show_create_tool_modal = false;"
+                    ></new-tool-form>
                 </modal>
                 <modal
                     @ok="show_create_tool_modal = false; confirm_tool_create_modal_close = false;"
