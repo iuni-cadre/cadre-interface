@@ -47,7 +47,6 @@ meta_db = config_parser['CADRE_META_DATABASE_INFO']
 aws = config_parser['AWS']
 auth = config_parser['AUTH']
 data = config_parser['DATA']
-efs_path = config_parser['EFSPATH']
 
 #silently fail if there is no testing key
 # try:
