@@ -57,6 +57,11 @@
                                          :to="{name: 'jobs-list'}"
                                          target="">Job Status</router-link>
                         </li>
+                        <!-- <li class="nav-item">
+                            <router-link class="p-3 p-md-0 d-inline-block"
+                                         :to="{name: 'your-home'}"
+                                         target="">Your CADRE</router-link>
+                        </li> -->
 
                     </ul>
 
@@ -387,6 +392,11 @@ export default {
             color: #42b983;
         }
     }
+}
+
+header#main-header .nav-item
+{
+    // font-size: .875rem;
 }
 
 #loading-screen {
