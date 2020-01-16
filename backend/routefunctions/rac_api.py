@@ -9,7 +9,7 @@ from datetime import date
 
 blueprint = Blueprint('rac_api', __name__)
 
-from library import readconfig
+from backend.library import readconfig
 # import util
 import boto3
 

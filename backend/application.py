@@ -10,9 +10,9 @@ import configparser
 import requests
 import psycopg2
 
-from routefunctions import rac_api, qi_api
+from backend.routefunctions import rac_api, qi_api
 
-from library import readconfig
+from backend.library import readconfig
 
 from flask import Flask, render_template, request, json, jsonify, Blueprint
 from flask_cors import CORS
@@ -27,8 +27,8 @@ data_config = readconfig.data
 frontend_folder = readconfig.check_for_frontend()
 
 application = app = Flask(__name__, 
-    template_folder=frontend_folder,
-    static_folder=frontend_folder + "/assets"
+    template_folder=str(frontend_folder),
+    static_folder=str(frontend_folder) + "/assets"
     )
 
 CORS(application)

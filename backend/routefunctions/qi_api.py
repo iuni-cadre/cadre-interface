@@ -3,7 +3,7 @@ import requests
 import psycopg2
 from flask import Flask, render_template, request, json, jsonify, Blueprint
 
-from library import readconfig
+from backend.library import readconfig
 
 config = readconfig.config
 jupyter_config = readconfig.jupyter

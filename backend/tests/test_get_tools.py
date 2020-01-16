@@ -122,6 +122,30 @@ def test_get_tool_ep_returns_correct_json(client, mocker):
 
 
 
+# get-tools/user
+ ######   ######## ########         ########  #######   #######  ##        ######        ## ##     ##  ######  ######## ########  
+##    ##  ##          ##               ##    ##     ## ##     ## ##       ##    ##      ##  ##     ## ##    ## ##       ##     ## 
+##        ##          ##               ##    ##     ## ##     ## ##       ##           ##   ##     ## ##       ##       ##     ## 
+##   #### ######      ##    #######    ##    ##     ## ##     ## ##        ######     ##    ##     ##  ######  ######   ########  
+##    ##  ##          ##               ##    ##     ## ##     ## ##             ##   ##     ##     ##       ## ##       ##   ##   
+##    ##  ##          ##               ##    ##     ## ##     ## ##       ##    ##  ##      ##     ## ##    ## ##       ##    ##  
+ ######   ########    ##               ##     #######   #######  ########  ######  ##        #######   ######  ######## ##     ## 
+
+
+
+def test_get_tools_user_exists_params(client):
+    """
+    End point doesn't blow up when we send parameters
+    """
+
+    rv = client.get('/rac-api/get-tools/user', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    response_json = rv.get_json()
+    assert rv.status_code != 404
+    assert response_json["error"] != "Unknown endpoint."
 
 
  ######     ###    ##     ## ########  ##       ########    ########     ###    ########    ###    
