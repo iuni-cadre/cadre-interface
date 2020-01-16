@@ -7,7 +7,7 @@ import os
 from flask import request, json, jsonify, Flask, Blueprint, render_template
 from datetime import date
 
-from backend.library import readconfig
+from library import readconfig
 import boto3
 
 config = readconfig.config

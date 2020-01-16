@@ -6,7 +6,7 @@ import pytest
 from flask import Flask, render_template, request, json, jsonify
 from pprint import pprint
 from backend import application
-from backend.library import readconfig, utilities
+from library import readconfig, utilities
 
 # test = readconfig.test
 

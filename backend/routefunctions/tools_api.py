@@ -9,7 +9,7 @@ from datetime import date
 
 blueprint = Blueprint('rac_api_tools', __name__)
 
-from backend.library import readconfig, utilities
+from library import readconfig, utilities
 import boto3
 
 config = readconfig.config
@@ -52,7 +52,11 @@ def get_tools():
     if not is_valid:
         return validate_token_response
 
-    validate_response_json = validate_token_response.get_json()
+    validate_response_json = None
+    try:
+        validate_response_json = validate_token_response.get_json()
+    except:
+        validate_response_json = validate_token_response.json()
     user_id = validate_response_json.get("user_id", None)
 
     if not user_id:
@@ -103,7 +107,7 @@ def get_tools():
                 script_name as tool_script_name,
                 created_on as tool_created_on
                 FROM tool
-                WHERE %s
+                WHERE created_by = %s
                 ORDER BY {}
                 LIMIT %s
                 OFFSET %s; """.format(actual_order_by)
