@@ -179,6 +179,7 @@ ALL_ENDPOINTS = [
     "/rac-api/packages/get-package/:package_id",
     "/rac-api/packages/new",
     "/rac-api/get-tools",
+    "/rac-api/get-tools/user",
     "/rac-api/get-tool/:tool_id",
     # "/rac-api/tools/new", #not yet implemented
     "/rac-api/get-data-archives",
