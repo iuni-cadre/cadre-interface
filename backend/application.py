@@ -10,7 +10,7 @@ import configparser
 import requests
 import psycopg2
 
-from backend.routefunctions import rac_api, qi_api, tools_api
+from backend.routefunctions import rac_api, qi_api, tools_api, archive_api, users_api, notebooks_api, packages_api
 
 from backend.library import readconfig
 
@@ -98,6 +98,10 @@ def fallback(fallback):
 app.register_blueprint(rac_api.blueprint)
 app.register_blueprint(qi_api.blueprint)
 app.register_blueprint(tools_api.blueprint)
+app.register_blueprint(users_api.blueprint)
+app.register_blueprint(archive_api.blueprint)
+app.register_blueprint(notebooks_api.blueprint)
+app.register_blueprint(packages_api.blueprint)
 app.register_blueprint(fallback_blueprint)
 
 
