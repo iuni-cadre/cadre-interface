@@ -6,7 +6,7 @@ import sys
 from flask import Flask, render_template, request, json, jsonify
 from pprint import pprint
 from backend import application
-from backend.library import readconfig
+from library import readconfig
 
 # test = readconfig.test
 
@@ -179,6 +179,7 @@ ALL_ENDPOINTS = [
     "/rac-api/packages/get-package/:package_id",
     "/rac-api/packages/new",
     "/rac-api/get-tools",
+    "/rac-api/get-tools/user",
     "/rac-api/get-tool/:tool_id",
     # "/rac-api/tools/new", #not yet implemented
     "/rac-api/get-data-archives",

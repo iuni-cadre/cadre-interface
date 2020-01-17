@@ -10,7 +10,7 @@ import configparser
 import requests
 import psycopg2
 
-from routefunctions import rac_api, qi_api
+from routefunctions import rac_api, qi_api, tools_api, archive_api, users_api, notebooks_api, packages_api
 
 from library import readconfig
 
@@ -27,8 +27,8 @@ data_config = readconfig.data
 frontend_folder = readconfig.check_for_frontend()
 
 application = app = Flask(__name__, 
-    template_folder=frontend_folder,
-    static_folder=frontend_folder + "/assets"
+    template_folder=str(frontend_folder),
+    static_folder=str(frontend_folder) + "/assets"
     )
 
 CORS(application)
@@ -97,6 +97,11 @@ def fallback(fallback):
 
 app.register_blueprint(rac_api.blueprint)
 app.register_blueprint(qi_api.blueprint)
+app.register_blueprint(tools_api.blueprint)
+app.register_blueprint(users_api.blueprint)
+app.register_blueprint(archive_api.blueprint)
+app.register_blueprint(notebooks_api.blueprint)
+app.register_blueprint(packages_api.blueprint)
 app.register_blueprint(fallback_blueprint)
 
 

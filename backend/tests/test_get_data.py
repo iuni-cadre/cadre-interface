@@ -7,7 +7,7 @@ import sys
 from flask import Flask, render_template, request, json, jsonify
 from pprint import pprint
 from backend import application
-from backend.library import readconfig
+from library import readconfig
 
 # test = readconfig.test
 
