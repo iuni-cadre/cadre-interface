@@ -13,9 +13,12 @@ from library import readconfig
 
 # url = 'http://aa36a4acbbb4311e991df02800e92ef4-1296978337.us-east-2.elb.amazonaws.com/hub/api' # This is the URL of the Jupyter Notebook API
 
-from .conftest import MockPsycopgConnection, MockPsycopgCursor, MockResponse, patch_cursor, patch_user
+from .conftest import MockPsycopgConnection, MockPsycopgCursor, MockResponse, patch_cursor, patch_user, patch_settings
 
-
+headers = {
+        'auth-token': "Some Token",
+        'auth-username': "username"
+    }
 
 def test_get_data_archives_ep_returns_404_on_empty_results(client, mocker):
     '''
@@ -92,3 +95,88 @@ def test_get_data_archives_ep_returns_jsonified_jobs_from_db(client, mocker):
     # pprint(rows);
     assert rv.status_code == 200
     assert rv.get_json() == (rows)
+
+
+
+def test_archive_user_file_requires_params(client, mocker):
+    '''
+    Endpoint requires parameters
+    '''
+
+    # rows = [
+    #     {
+    #        'archive_id': "11234221137",
+    #         's3_location': "/cadre-file-archive/yan30",
+    #         'archive_description': "tar file",
+    #         'archive_name': "ISSIDemoData.tar.gz",
+    #         'archive_created_on': "2019-08-23 17:17:34.196818+00:00"
+    #     }
+    # ]
+
+    # mock_response = MockResponse()
+    # mock_response.set_status_code(200)
+    # mocker.patch("requests.post", return_value=mock_response)
+
+    # mock_connection = MockPsycopgConnection(rows=rows)
+    # mocker.patch("psycopg2.connect", return_value=mock_connection)
+    patch_user(mocker)
+    patch_cursor(mocker)
+
+    json_to_send = {
+        # "file_path": "/some_path/some_file",
+        "archive_name": "My Query Results",
+        "archive_description": "Some Description"
+    }
+    rv = client.post('/rac-api/archive-user-file', headers = headers, content_type='application/json', data=json.dumps(json_to_send))
+    assert rv.status_code == 400
+
+    json_to_send = {
+        "file_path": "/some_path/some_file",
+        # "archive_name": "My Query Results",
+        "archive_description": "Some Description"
+    }
+    rv = client.post('/rac-api/archive-user-file', headers = headers, content_type='application/json', data=json.dumps(json_to_send))
+    assert rv.status_code == 400
+
+    json_to_send = {
+        "file_path": "/some_path/some_file",
+        "archive_name": "My Query Results",
+        # "archive_description": "Some Description"
+    }
+    rv = client.post('/rac-api/archive-user-file', headers = headers, content_type='application/json', data=json.dumps(json_to_send))
+    assert rv.status_code != 400
+
+
+def test_archive_user_file_reads_a_file_from_efs(client, mocker):
+    '''
+    Endpoint requires parameters
+    '''
+
+
+
+    patch_user(mocker)
+    patch_cursor(mocker)
+
+    mocker.patch.dict("library.readconfig.aws", {"efs-path":"/tmp/"})
+
+    json_to_send = {
+        "file_path": "/temp_file.txt",
+        "archive_name": "My Query Results",
+        "archive_description": "Some Description"
+    }
+    rv = client.post('/rac-api/archive-user-file', headers = headers, content_type='application/json', data=json.dumps(json_to_send))
+    assert rv.status_code == 400
+
+    os.mkdir("/tmp/username")
+    tmp_file = open("/tmp/username/temp_file.txt", "a")
+    tmp_file.write("this is a temp file")
+    json_to_send = {
+        "file_path": "/temp_file.txt",
+        "archive_name": "My Query Results",
+        "archive_description": "Some Description"
+    }
+    rv = client.post('/rac-api/archive-user-file', headers = headers, content_type='application/json', data=json.dumps(json_to_send))
+    assert rv.status_code != 400
+
+    os.remove("/tmp/username/temp_file.txt")
+    os.rmdir("/tmp/username")

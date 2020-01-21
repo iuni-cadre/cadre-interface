@@ -139,3 +139,6 @@ def patch_user(mocker, **kwargs):
     # mock_user = user_model.User(user_id=1, token="token")
     # mocker.patch('middleware.api.views.user_model.User.query', user_model.Query())
     # mocker.patch('middleware.api.views.user_model.User.verify_auth_token', return_value=mock_user)
+
+def patch_settings(mocker, **kwargs):
+    mocker.patch("backend.library.readconfig.aws", value={"efs-path":"/tmp"})

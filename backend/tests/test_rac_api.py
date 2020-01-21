@@ -183,7 +183,7 @@ ALL_ENDPOINTS = [
     "/rac-api/get-tool/:tool_id",
     # "/rac-api/tools/new", #not yet implemented
     "/rac-api/get-data-archives",
-    # "/rac-api/archive-user-file", #not yet implemented
+    "/rac-api/archive-user-file", 
     "/rac-api/user-files",
     "/rac-api/new-notebook/<username>",
     "/rac-api/notebook-status/<username>",
