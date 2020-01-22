@@ -13,7 +13,7 @@ from library import readconfig
 
 # url = 'http://aa36a4acbbb4311e991df02800e92ef4-1296978337.us-east-2.elb.amazonaws.com/hub/api' # This is the URL of the Jupyter Notebook API
 
-from .conftest import MockPsycopgConnection, MockPsycopgCursor, MockResponse, patch_cursor, patch_user, patch_settings
+from .conftest import MockPsycopgConnection, MockPsycopgCursor, MockResponse, patch_cursor, patch_user, patch_settings, patch_boto3
 
 headers = {
         'auth-token': "Some Token",
@@ -151,13 +151,10 @@ def test_archive_user_file_reads_a_file_from_efs(client, mocker):
     '''
     Endpoint requires parameters
     '''
-
-
-
     patch_user(mocker)
     patch_cursor(mocker)
-
-    mocker.patch.dict("library.readconfig.aws", {"efs-path":"/tmp/"})
+    patch_settings(mocker)
+    patch_boto3(mocker)
 
     json_to_send = {
         "file_path": "/temp_file.txt",
@@ -167,16 +164,54 @@ def test_archive_user_file_reads_a_file_from_efs(client, mocker):
     rv = client.post('/rac-api/archive-user-file', headers = headers, content_type='application/json', data=json.dumps(json_to_send))
     assert rv.status_code == 400
 
-    os.mkdir("/tmp/username")
-    tmp_file = open("/tmp/username/temp_file.txt", "a")
-    tmp_file.write("this is a temp file")
+    try:
+        os.mkdir("/tmp/username")
+        tmp_file = open("/tmp/username/temp_file.txt", "a")
+        tmp_file.write("this is a temp file")
+    except Exception as err:
+        print(str(err))
+        pass
+
+
     json_to_send = {
         "file_path": "/temp_file.txt",
         "archive_name": "My Query Results",
         "archive_description": "Some Description"
     }
     rv = client.post('/rac-api/archive-user-file', headers = headers, content_type='application/json', data=json.dumps(json_to_send))
-    assert rv.status_code != 400
-
+    
     os.remove("/tmp/username/temp_file.txt")
     os.rmdir("/tmp/username")
+    assert rv.status_code != 400
+
+
+
+def test_archive_user_file_fails_gracefully_on_s3_error(client, mocker):
+    '''
+    Endpoint requires parameters
+    '''
+    patch_user(mocker)
+    patch_cursor(mocker)
+    patch_settings(mocker)
+    patch_boto3(mocker, raise_exception=True)
+    
+    try:
+        os.mkdir("/tmp/username")
+        tmp_file = open("/tmp/username/temp_file.txt", "a")
+        tmp_file.write("this is a temp file")
+    except Exception as err:
+        print(str(err))
+        pass
+
+    json_to_send = {
+        "file_path": "/temp_file.txt",
+        "archive_name": "My Query Results",
+        "archive_description": "Some Description"
+    }
+    rv = client.post('/rac-api/archive-user-file', headers = headers, content_type='application/json', data=json.dumps(json_to_send))
+    
+    os.remove("/tmp/username/temp_file.txt")
+    os.rmdir("/tmp/username")
+
+    assert rv.status_code == 502
+    assert rv.get_json().get("error") == "Couldn't upload file to s3"

@@ -52,9 +52,39 @@ def archive_user_file():
         print(full_file_name)
         try:
             f = open(full_file_name)
+            f.close()
         except IOError:
-            print("Error", "Function did not finish properly")
+            print("Error", "Could not access given file")
             return jsonify({"error": "Could not access given file"}), 400
+
+        #upload file
+
+        archive_uuid = uuid.uuid1()
+        root_bucket_name = 'cadre-archived-data'
+        bucket_location = 'archives/' + str(archive_uuid)
+
+        print(archive_uuid)
+        print(root_bucket_name)
+        print(bucket_location)
+        print(aws_config)
+
+        try:
+            s3_client = boto3.resource('s3',
+                                        aws_access_key_id=aws_config["aws_access_key_id"],
+                                        aws_secret_access_key=aws_config["aws_secret_access_key"],
+                                        region_name=aws_config["region_name"])
+            s3_response = s3_client.meta.client.upload_file(full_file_name, root_bucket_name,
+                                            bucket_location + file_path)
+
+            
+        except Exception as err:
+            print("S3 ERROR: " + str(type(err)))
+            print("S3 ERROR: " + str(err))
+            return jsonify({"error":"Couldn't upload file to s3"}), 502
+
+        # If it reaches this point without throwing an exception, we can
+        #   assume that the file upload succeeded.
+
 
     #     response_json = valid_response.json()
     #     user_id = response_json['user_id']

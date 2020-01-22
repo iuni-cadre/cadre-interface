@@ -2,6 +2,9 @@ import pytest
 from backend import application
 from psycopg2 import extensions
 from contextlib import contextmanager
+from botocore.stub import Stubber
+from botocore.exceptions import ClientError
+import boto3
 
 class MockResponse:
     # Mocks up a response object and lets you set the error code
@@ -92,6 +95,19 @@ class MockPsycopgConnection:
     def set_cursor(self, cursor):
         self.my_cursor = cursor
 
+class MockBoto3:
+    def __init__(self, **kwargs):
+        class MockMeta:
+            def __init__(self, **kwargs):
+                class MockClient:
+                    def __init__(self, **kwargs):
+                        self.raise_exception = kwargs.get("raise_exception", False)
+                        pass
+                    def upload_file(self, Filename='', Bucket='', Key=''):
+                        if self.raise_exception:
+                            raise ClientError({"Error": {"Message": "Intentional Exception from MockBoto3"}}, "upload_file")
+                self.client = MockClient(**kwargs)
+        self.meta = MockMeta(**kwargs)
 
 
 @pytest.fixture(autouse=True)
@@ -101,6 +117,7 @@ def env_setup(monkeypatch):
     """
 
     monkeypatch.setenv('TEST', 'testing-mode')
+
 
 @pytest.fixture
 def client():
@@ -141,4 +158,12 @@ def patch_user(mocker, **kwargs):
     # mocker.patch('middleware.api.views.user_model.User.verify_auth_token', return_value=mock_user)
 
 def patch_settings(mocker, **kwargs):
-    mocker.patch("backend.library.readconfig.aws", value={"efs-path":"/tmp"})
+    mocker.patch.dict("library.readconfig.aws", 
+        {"efs-path":"/tmp/",
+        "aws_access_key_id":"key_id",
+        "aws_secret_access_key":"secret_access_key",
+        "region_name":"east"})
+    
+def patch_boto3(mocker, **kwargs):
+    mocker.patch("boto3.resource", return_value=MockBoto3(**kwargs))
+    pass
