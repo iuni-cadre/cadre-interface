@@ -123,11 +123,11 @@ export default {
             label: "authors_email",
             type: 'single'
         },
-        // {
-        //     field: 'references',
-        //     label: "Citation Network",
-        //     type: 'network'
-        // },
+        {
+            field: 'references',
+            label: "Citation Network",
+            type: 'network'
+        },
         // {
         //     field: 'references',
         //     label: "references",
@@ -149,18 +149,18 @@ export default {
             type: 'single'
         },
         {
-            field: 'journals_name',
-            label: "journals_name",
+            field: 'journal_name',
+            label: "journal_name",
             type: 'single'
         },
         {
-            field: 'journals_abbrev',
-            label: "journals_abbrev",
+            field: 'journal_abbrev',
+            label: "journal_abbrev",
             type: 'single'
         },
         {
-            field: 'journals_iso',
-            label: "journals_iso",
+            field: 'journal_iso',
+            label: "journal_iso",
             type: 'single'
         },
         {
@@ -181,6 +181,11 @@ export default {
         {
             field: 'journal_tsv',
             label: "journal_tsv",
+            type: 'single'
+        },
+        {
+            field: 'reference_count',
+            label: "reference_count",
             type: 'single'
         },
     ],
