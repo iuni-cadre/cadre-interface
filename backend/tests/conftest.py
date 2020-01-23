@@ -43,9 +43,12 @@ class MockPsycopgCursor:
         full_query = query
         x = ()
         for variable in variables:
-            x = x + (extensions.adapt(str(variable)).getquoted().decode('utf-8'),)
+            if type(variable) == str:
+                x = x + (extensions.adapt(str(variable)).getquoted().decode('utf-8'),)
+            else:
+                x = x + (str(variable),)
         full_query = full_query % x
-        print("QUERY TO EXECUTE: " + (full_query.replace('    ', ' ')))
+        # print("QUERY TO EXECUTE: " + (full_query.replace('    ', ' ')))
         #put the query on the list so we can check later if need be
         self.queries.append(full_query)
 

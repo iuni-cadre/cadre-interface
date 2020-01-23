@@ -59,14 +59,14 @@ def archive_user_file():
 
         #upload file
 
-        archive_uuid = uuid.uuid1()
+        archive_uuid = uuid.uuid4()
         root_bucket_name = 'cadre-archived-data'
-        bucket_location = 'archives/' + str(archive_uuid)
+        bucket_location = 'archives/' + str(archive_uuid) + file_path
 
-        print(archive_uuid)
-        print(root_bucket_name)
-        print(bucket_location)
-        print(aws_config)
+        # print(archive_uuid)
+        # print(root_bucket_name)
+        # print(bucket_location)
+        # print(aws_config)
 
         try:
             s3_client = boto3.resource('s3',
@@ -74,7 +74,7 @@ def archive_user_file():
                                         aws_secret_access_key=aws_config["aws_secret_access_key"],
                                         region_name=aws_config["region_name"])
             s3_response = s3_client.meta.client.upload_file(full_file_name, root_bucket_name,
-                                            bucket_location + file_path)
+                                            bucket_location)
 
             
         except Exception as err:
@@ -85,48 +85,62 @@ def archive_user_file():
         # If it reaches this point without throwing an exception, we can
         #   assume that the file upload succeeded.
 
+        #validate checksum
 
-    #     response_json = valid_response.json()
-    #     user_id = response_json['user_id']
-    #     job_id = str(uuid.uuid4())
-    #     tool_id = str(uuid.uuid4())
-    #     request_json['job_id'] = job_id
-    #     request_json['tool_id'] = tool_id
-    #     request_json['username'] = username
-    #     request_json['user_id'] = user_id
-    #     # Send message to tool queue
-    #     sqs_client = boto3.client('sqs',
-    #                               aws_access_key_id=aws_config["aws_access_key_id"],
-    #                               aws_secret_access_key=aws_config["aws_secret_access_key"],
-    #                               region_name=aws_config["region_name"])
+        permissions = ["wos"]
 
-    #     queue_url = aws_config["tool_queue"]
-    #     query_in_string = json.dumps(request_json)
-    #     sqs_response = sqs_client.send_message(
-    #         QueueUrl=queue_url,
-    #         MessageBody=query_in_string,
-    #         MessageGroupId='cadre'
-    #     )
-    #     if 'MessageId' in sqs_response:
-    #         message_id = sqs_response['MessageId']
-    #         # save job information to meta database
-    #         conn = psycopg2.connect(dbname=meta_db_config["database-name"],
-    #                                 user=meta_db_config["database-username"],
-    #                                 password=meta_db_config["database-password"],
-    #                                 host=meta_db_config["database-host"],
-    #                                 port=meta_db_config["database-port"])
-    #         cur = conn.cursor()
-    #         insert_q = "INSERT INTO user_job(job_id, user_id, message_id,job_status, type, started_on) VALUES (%s,%s,%s,%s,%s,clock_timestamp())"
-    #         data = (job_id, user_id, message_id, 'SUBMITTED', 'TOOL')
-    #         cur.execute(insert_q, data)
-    #         conn.commit()
+        try:
 
-    #         return jsonify({'message_id': message_id,
-    #                         'job_id': job_id,
-    #                         'tool_id': tool_id}), 200
-    #     else:
-    #         return jsonify({'error': 'error while publishing to SQS'}, 500)
-    
+            conn = psycopg2.connect(dbname=meta_db_config["database-name"],
+                                    user=meta_db_config["database-username"],
+                                    password=meta_db_config["database-password"],
+                                    host=meta_db_config["database-host"],
+                                    port=meta_db_config["database-port"])
+            cur = conn.cursor()
+
+            query = """INSERT INTO archive 
+                (
+                    archive_id,
+                    s3_location,
+                    description,
+                    name,
+                    permissions,
+                    created_on,
+                    modified_on,
+                    created_by,
+                    modified_by
+                )
+                VALUES
+                (
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    NOW(),
+                    NOW(),
+                    %s,
+                    %s
+                )
+            """
+            
+            data = (archive_uuid, 
+                bucket_location, 
+                archive_description, 
+                archive_name,
+                json.dumps(permissions),
+                1, 
+                1)
+            cur.execute(query, data)
+            conn.commit()
+            return jsonify({"archive_id": archive_uuid}), 200
+        except Exception as err:
+            traceback.print_tb(err.__traceback__)
+            print("Error", "Database error", str(err))
+            return jsonify({"error": "Database Error", "message": str(err)}), 500
+        finally:
+            cur.close()
+            conn.close()
         print("Error", "Function did not finish properly")
         return jsonify({"error": "Function did not finish properly"}), 500
     except Exception as err:
@@ -137,4 +151,5 @@ def archive_user_file():
         # Closing the database connection.
         # cur.close()
         # conn.close()
-        print("The database connection has been closed successfully.")
+        # print("The database connection has been closed successfully.")
+        pass

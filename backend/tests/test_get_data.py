@@ -215,3 +215,93 @@ def test_archive_user_file_fails_gracefully_on_s3_error(client, mocker):
 
     assert rv.status_code == 502
     assert rv.get_json().get("error") == "Couldn't upload file to s3"
+
+
+def test_archive_user_file_insert_into_archive_table(client, mocker):
+    '''
+    Endpoint requires parameters
+    '''
+    patch_user(mocker)
+    mock_cursor, mock_connection = patch_cursor(mocker)
+    patch_settings(mocker)
+    patch_boto3(mocker)
+    mocker.patch("uuid.uuid4", return_value="some_unique_id")
+    
+    try:
+        os.mkdir("/tmp/username")
+        tmp_file = open("/tmp/username/temp_file.txt", "a")
+        tmp_file.write("this is a temp file")
+    except Exception as err:
+        print(str(err))
+        pass
+
+    json_to_send = {
+        "file_path": "/temp_file.txt",
+        "archive_name": "My Query Results",
+        "archive_description": "Some Description"
+    }
+    rv = client.post('/rac-api/archive-user-file', headers = headers, content_type='application/json', data=json.dumps(json_to_send))
+    
+    insert_query = """INSERT INTO archive 
+        (
+            archive_id,
+            s3_location,
+            description,
+            name,
+            permissions,
+            created_on,
+            modified_on,
+            created_by,
+            modified_by
+        )
+        VALUES
+        (
+            'some_unique_id',
+            'archives/some_unique_id/temp_file.txt',
+            'Some Description',
+            'My Query Results',
+            '["wos"]',
+            NOW(),
+            NOW(),
+            1,
+            1
+        )
+    """
+
+    os.remove("/tmp/username/temp_file.txt")
+    os.rmdir("/tmp/username")
+
+    assert len(mock_cursor.queries) == 1
+    assert mock_cursor.queries[0].replace(' ', '').replace('\n', '') == insert_query.replace(' ', '').replace('\n', '')
+
+
+def test_archive_user_file_returns_archive_id_upon_success(client, mocker):
+    '''
+    Endpoint requires parameters
+    '''
+    patch_user(mocker)
+    mock_cursor, mock_connection = patch_cursor(mocker)
+    patch_settings(mocker)
+    patch_boto3(mocker)
+    mocker.patch("uuid.uuid4", return_value="some_unique_id")
+    
+    try:
+        os.mkdir("/tmp/username")
+        tmp_file = open("/tmp/username/temp_file.txt", "a")
+        tmp_file.write("this is a temp file")
+    except Exception as err:
+        print(str(err))
+        pass
+
+    json_to_send = {
+        "file_path": "/temp_file.txt",
+        "archive_name": "My Query Results",
+        "archive_description": "Some Description"
+    }
+    rv = client.post('/rac-api/archive-user-file', headers = headers, content_type='application/json', data=json.dumps(json_to_send))
+    
+    os.remove("/tmp/username/temp_file.txt")
+    os.rmdir("/tmp/username")
+
+    assert rv.status_code == 200
+    assert rv.get_json().get("archive_id") == "some_unique_id"
