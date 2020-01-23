@@ -184,6 +184,7 @@ ALL_ENDPOINTS = [
     # "/rac-api/tools/new", #not yet implemented
     "/rac-api/get-data-archives",
     "/rac-api/archive-user-file", 
+    "/rac-api/archive-user-file/check", 
     "/rac-api/user-files",
     "/rac-api/new-notebook/<username>",
     "/rac-api/notebook-status/<username>",

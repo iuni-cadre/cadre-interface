@@ -31,44 +31,51 @@ def test_calc_checksum():
     """
     check that calc_checksum gets called correctly
     """
-    content = "this is a temp file".encode('utf-8')
-    checksum = hashlib.md5(content).hexdigest()
+    content = u"TEST"
+    checksum = hashlib.md5(content.encode('utf-8')).hexdigest()
 
     try:
         os.mkdir("/tmp/username")
         tmp_file = open("/tmp/username/temp_file.txt", "a")
-        tmp_file.write("this is a temp file")
+        tmp_file.write(content)
+        tmp_file.close()
     except Exception as err:
         print(str(err))
         pass
 
     new_checksum = utilities.calc_checksum("/tmp/username/temp_file.txt")
 
-    assert new_checksum == checksum
     
     os.remove("/tmp/username/temp_file.txt")
     os.rmdir("/tmp/username")
 
+    assert new_checksum == checksum
+    return
 
 
-def test_calc_checksum():
+
+def test_validate_checksum():
     """
     check that validate_checksum works gets called correctly
     """
-    content = "this is a temp file".encode('utf-8')
-    checksum = hashlib.md5(content).hexdigest()
+    content = "this is a temp file"
+    checksum = hashlib.md5(content.encode('utf-8')).hexdigest()
 
     try:
         os.mkdir("/tmp/username")
         tmp_file = open("/tmp/username/temp_file.txt", "a")
-        tmp_file.write("this is a temp file")
+        tmp_file.write(content)
+        tmp_file.close()
     except Exception as err:
         print(str(err))
         pass
 
+
+    new_checksum = utilities.calc_checksum("/tmp/username/temp_file.txt")
     assert utilities.validate_checksum("/tmp/username/temp_file.txt", checksum)
     
     os.remove("/tmp/username/temp_file.txt")
     os.rmdir("/tmp/username")
+    
 
 
