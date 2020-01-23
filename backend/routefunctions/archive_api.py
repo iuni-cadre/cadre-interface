@@ -1,3 +1,4 @@
+import hashlib
 import traceback
 import uuid
 
@@ -22,6 +23,22 @@ aws_config = readconfig.aws
 # @blueprint.route('/rac-api/get-tools/user', methods=['GET'])
 # def get_tools():
 #     pass
+
+
+def validate_checksum(file_full_path, existing_checksum):
+    try:
+        with open(file_full_path, "r", encoding='utf-8') as file_to_check:
+            # read contents of the file
+            data = file_to_check.read()
+            # pipe contents of the file through
+            md5_returned = hashlib.md5(data.encode('utf-8')).hexdigest()
+            if md5_returned == existing_checksum:
+                return True
+            else:
+                return False
+    except (Exception) as error:
+            traceback.print_tb(error.__traceback__)
+            print(error)
 
 
 @blueprint.route("/rac-api/archive-user-file", methods=['POST'])
@@ -85,55 +102,63 @@ def archive_user_file():
         # If it reaches this point without throwing an exception, we can
         #   assume that the file upload succeeded.
 
-        #validate checksum
-
         permissions = ["wos"]
-
+        #validate checksum
         try:
-
             conn = psycopg2.connect(dbname=meta_db_config["database-name"],
                                     user=meta_db_config["database-username"],
                                     password=meta_db_config["database-password"],
                                     host=meta_db_config["database-host"],
                                     port=meta_db_config["database-port"])
             cur = conn.cursor()
+            file_relatvie_path = username + file_path
+            query_result_q = "SELECT id, checksum FROM query_result WHERE efs_path=%s"
+            cur.execute(query_result_q, (file_relatvie_path,))
+            if cur.rowcount > 0:
+                query_result_info = cur.fetchone()
+                query_result_id = query_result_info[0]
+                existing_checksum = query_result_info[1]
+                if not validate_checksum(full_file_name, existing_checksum):
+                    return jsonify({"error": "File checksum has changed. Cadre will not allow archiving modified files.."}), 502
+                query = """INSERT INTO archive 
+                                (
+                                    archive_id,
+                                    query_result_id,
+                                    s3_location,
+                                    description,
+                                    name,
+                                    permissions,
+                                    created_on,
+                                    modified_on,
+                                    created_by,
+                                    modified_by
+                                )
+                                VALUES
+                                (
+                                    %s,
+                                    %s,
+                                    %s,
+                                    %s,
+                                    %s,
+                                    %s,
+                                    NOW(),
+                                    NOW(),
+                                    %s,
+                                    %s
+                                )
+                            """
 
-            query = """INSERT INTO archive 
-                (
-                    archive_id,
-                    s3_location,
-                    description,
-                    name,
-                    permissions,
-                    created_on,
-                    modified_on,
-                    created_by,
-                    modified_by
-                )
-                VALUES
-                (
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    NOW(),
-                    NOW(),
-                    %s,
-                    %s
-                )
-            """
-            
-            data = (archive_uuid, 
-                bucket_location, 
-                archive_description, 
-                archive_name,
-                json.dumps(permissions),
-                1, 
-                1)
-            cur.execute(query, data)
-            conn.commit()
-            return jsonify({"archive_id": archive_uuid}), 200
+                data = (archive_uuid,
+                        query_result_id,
+                        bucket_location,
+                        archive_description,
+                        archive_name,
+                        json.dumps(permissions),
+                        1,
+                        1)
+                cur.execute(query, data)
+                conn.commit()
+                return jsonify({"archive_id": archive_uuid}), 200
         except Exception as err:
             traceback.print_tb(err.__traceback__)
             print("Error", "Database error", str(err))
