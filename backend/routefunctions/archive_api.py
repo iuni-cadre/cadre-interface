@@ -99,9 +99,7 @@ def archive_user_file():
                 WHERE checksum == %s AND created_by == %s
             """
             cur.execute(query_result_q, (query_file_checksum,user_id))
-            print(cur.rowcount)
             if cur.rowcount > 0:
-
                 query_result_info = cur.fetchone()
                 query_result_id = query_result_info[0]
                 data_type = query_result_info[1]
@@ -148,6 +146,8 @@ def archive_user_file():
                 cur.execute(query, data)
                 conn.commit()
                 return jsonify({"archive_id": archive_uuid}), 200
+            else:
+                return jsonify({"error": "Attempting to archive a non-authentic file"}), 403
         except Exception as err:
             traceback.print_tb(err.__traceback__)
             print("Error", "Database error", str(err))
@@ -155,9 +155,8 @@ def archive_user_file():
         finally:
             cur.close()
             conn.close()
-
-        print("Error", "Function did not finish properly")
-        return jsonify({"error": "Function did not finish properly"}), 500
+        print("Error", "Function completely, but incorrectly")
+        return jsonify({"error": "Function completely, but incorrectly"}), 500
     except Exception as err:
         traceback.print_tb(err.__traceback__)
         print("Error", "Unknown problem archiving file")

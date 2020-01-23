@@ -311,3 +311,38 @@ def test_archive_user_file_returns_archive_id_upon_success(client, mocker):
 
     assert rv.status_code == 200
     assert rv.get_json().get("archive_id") == "some_unique_id"
+
+
+
+def test_archive_user_file_fails_gracefully_if_invalid_file(client, mocker):
+    '''
+    Endpoint requires parameters
+    '''
+    patch_user(mocker)
+    mock_cursor, mock_connection = patch_cursor(mocker)
+    patch_settings(mocker)
+    patch_boto3(mocker)
+    mocker.patch("uuid.uuid4", return_value="some_unique_id")
+    mock_cursor.add_row_set([])
+    mock_cursor.add_row_set([[]])
+        
+    try:
+        os.mkdir("/tmp/username")
+        tmp_file = open("/tmp/username/temp_file.txt", "a")
+        tmp_file.write("this is a temp file")
+    except Exception as err:
+        print(str(err))
+        pass
+
+    json_to_send = {
+        "file_path": "/temp_file.txt",
+        "archive_name": "My Query Results",
+        "archive_description": "Some Description"
+    }
+    rv = client.post('/rac-api/archive-user-file', headers = headers, content_type='application/json', data=json.dumps(json_to_send))
+    
+    os.remove("/tmp/username/temp_file.txt")
+    os.rmdir("/tmp/username")
+
+    assert rv.status_code == 403
+    assert rv.get_json().get("error") == "Attempting to archive a non-authentic file"
