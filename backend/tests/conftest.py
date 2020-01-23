@@ -154,7 +154,7 @@ def patch_user(mocker, **kwargs):
     mock_response = MockResponse()
     # if 'status_code' in kwargs:
     mock_response.set_status_code(kwargs.get('status_code', 200))
-    mock_response.set_json(kwargs.get("json", {}))
+    mock_response.set_json(kwargs.get("json", {"user_id": "1"}))
     mocker.patch("requests.post", return_value=mock_response)
     # mock_user = user_model.User(user_id=1, token="token")
     # mocker.patch('middleware.api.views.user_model.User.query', user_model.Query())

@@ -1,4 +1,3 @@
-import hashlib
 import traceback
 import uuid
 
@@ -25,22 +24,6 @@ aws_config = readconfig.aws
 #     pass
 
 
-def validate_checksum(file_full_path, existing_checksum):
-    try:
-        with open(file_full_path, "r", encoding='utf-8') as file_to_check:
-            # read contents of the file
-            data = file_to_check.read()
-            # pipe contents of the file through
-            md5_returned = hashlib.md5(data.encode('utf-8')).hexdigest()
-            if md5_returned == existing_checksum:
-                return True
-            else:
-                return False
-    except (Exception) as error:
-            traceback.print_tb(error.__traceback__)
-            print(error)
-
-
 @blueprint.route("/rac-api/archive-user-file", methods=['POST'])
 def archive_user_file():
     """
@@ -55,6 +38,7 @@ def archive_user_file():
         return valid_response
 
     try:
+        user_id = int(valid_response.get_json().get("user_id", None))
         request_json = request.get_json()
         file_path = request_json.get('file_path', None)
         archive_name = request_json.get('archive_name', None)
@@ -64,9 +48,12 @@ def archive_user_file():
             return jsonify({"error": "Missing parameters"}), 400
 
         efs_path = aws_config["efs-path"]
-        print(efs_path)
-        full_file_name = efs_path + username + file_path
-        print(full_file_name)
+        # print(efs_path)
+        
+        file_relatvie_path = username + file_path
+        full_file_name = efs_path + file_relatvie_path
+        # print(full_file_name)
+
         try:
             f = open(full_file_name)
             f.close()
@@ -74,16 +61,9 @@ def archive_user_file():
             print("Error", "Could not access given file")
             return jsonify({"error": "Could not access given file"}), 400
 
-        #upload file
-
         archive_uuid = uuid.uuid4()
         root_bucket_name = 'cadre-archived-data'
         bucket_location = 'archives/' + str(archive_uuid) + file_path
-
-        # print(archive_uuid)
-        # print(root_bucket_name)
-        # print(bucket_location)
-        # print(aws_config)
 
         try:
             s3_client = boto3.resource('s3',
@@ -102,8 +82,6 @@ def archive_user_file():
         # If it reaches this point without throwing an exception, we can
         #   assume that the file upload succeeded.
 
-        permissions = ["wos"]
-        #validate checksum
         try:
             conn = psycopg2.connect(dbname=meta_db_config["database-name"],
                                     user=meta_db_config["database-username"],
@@ -111,15 +89,25 @@ def archive_user_file():
                                     host=meta_db_config["database-host"],
                                     port=meta_db_config["database-port"])
             cur = conn.cursor()
-            file_relatvie_path = username + file_path
-            query_result_q = "SELECT id, checksum FROM query_result WHERE efs_path=%s"
-            cur.execute(query_result_q, (file_relatvie_path,))
+
+            permissions = {"data_type": "", "other": []}
+
+            query_file_checksum = utilities.calc_checksum(full_file_name)
+
+            query_result_q = """
+                SELECT id, data_type FROM query_result 
+                WHERE checksum == %s AND created_by == %s
+            """
+            cur.execute(query_result_q, (query_file_checksum,user_id))
+            print(cur.rowcount)
             if cur.rowcount > 0:
+
                 query_result_info = cur.fetchone()
                 query_result_id = query_result_info[0]
-                existing_checksum = query_result_info[1]
-                if not validate_checksum(full_file_name, existing_checksum):
-                    return jsonify({"error": "File checksum has changed. Cadre will not allow archiving modified files.."}), 502
+                data_type = query_result_info[1]
+
+                permissions["data_type"] = data_type
+                
                 query = """INSERT INTO archive 
                                 (
                                     archive_id,
@@ -154,8 +142,9 @@ def archive_user_file():
                         archive_description,
                         archive_name,
                         json.dumps(permissions),
-                        1,
-                        1)
+                        user_id,
+                        user_id)
+
                 cur.execute(query, data)
                 conn.commit()
                 return jsonify({"archive_id": archive_uuid}), 200
@@ -166,6 +155,7 @@ def archive_user_file():
         finally:
             cur.close()
             conn.close()
+
         print("Error", "Function did not finish properly")
         return jsonify({"error": "Function did not finish properly"}), 500
     except Exception as err:
@@ -173,8 +163,4 @@ def archive_user_file():
         print("Error", "Unknown problem archiving file")
         return jsonify({"error": "Unknown problem archiving file"}), 500
     finally:
-        # Closing the database connection.
-        # cur.close()
-        # conn.close()
-        # print("The database connection has been closed successfully.")
         pass

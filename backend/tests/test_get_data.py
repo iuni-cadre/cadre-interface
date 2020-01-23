@@ -226,6 +226,8 @@ def test_archive_user_file_insert_into_archive_table(client, mocker):
     patch_settings(mocker)
     patch_boto3(mocker)
     mocker.patch("uuid.uuid4", return_value="some_unique_id")
+    mock_cursor.add_row_set([[1, "wos"]])
+    mock_cursor.add_row_set([[]])
     
     try:
         os.mkdir("/tmp/username")
@@ -245,6 +247,7 @@ def test_archive_user_file_insert_into_archive_table(client, mocker):
     insert_query = """INSERT INTO archive 
         (
             archive_id,
+            query_result_id,
             s3_location,
             description,
             name,
@@ -257,10 +260,11 @@ def test_archive_user_file_insert_into_archive_table(client, mocker):
         VALUES
         (
             'some_unique_id',
+            1,
             'archives/some_unique_id/temp_file.txt',
             'Some Description',
             'My Query Results',
-            '["wos"]',
+            '{"data_type":"wos", "other":[]}',
             NOW(),
             NOW(),
             1,
@@ -270,9 +274,9 @@ def test_archive_user_file_insert_into_archive_table(client, mocker):
 
     os.remove("/tmp/username/temp_file.txt")
     os.rmdir("/tmp/username")
-
-    assert len(mock_cursor.queries) == 1
-    assert mock_cursor.queries[0].replace(' ', '').replace('\n', '') == insert_query.replace(' ', '').replace('\n', '')
+    print(mock_cursor.queries)
+    assert len(mock_cursor.queries) == 2
+    assert mock_cursor.queries[1].replace(' ', '').replace('\n', '') == insert_query.replace(' ', '').replace('\n', '')
 
 
 def test_archive_user_file_returns_archive_id_upon_success(client, mocker):
@@ -284,7 +288,9 @@ def test_archive_user_file_returns_archive_id_upon_success(client, mocker):
     patch_settings(mocker)
     patch_boto3(mocker)
     mocker.patch("uuid.uuid4", return_value="some_unique_id")
-    
+    mock_cursor.add_row_set([[1, "wos"]])
+    mock_cursor.add_row_set([[]])
+        
     try:
         os.mkdir("/tmp/username")
         tmp_file = open("/tmp/username/temp_file.txt", "a")

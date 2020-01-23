@@ -1,5 +1,6 @@
 import pytest
-# import os
+import hashlib
+import os
 # import requests
 # import sys
 
@@ -25,3 +26,49 @@ def test_validate_user_returns_403():
         
         assert status == 401
     pass
+
+def test_calc_checksum():
+    """
+    check that calc_checksum gets called correctly
+    """
+    content = "this is a temp file".encode('utf-8')
+    checksum = hashlib.md5(content).hexdigest()
+
+    try:
+        os.mkdir("/tmp/username")
+        tmp_file = open("/tmp/username/temp_file.txt", "a")
+        tmp_file.write("this is a temp file")
+    except Exception as err:
+        print(str(err))
+        pass
+
+    new_checksum = utilities.calc_checksum("/tmp/username/temp_file.txt")
+
+    assert new_checksum == checksum
+    
+    os.remove("/tmp/username/temp_file.txt")
+    os.rmdir("/tmp/username")
+
+
+
+def test_calc_checksum():
+    """
+    check that validate_checksum works gets called correctly
+    """
+    content = "this is a temp file".encode('utf-8')
+    checksum = hashlib.md5(content).hexdigest()
+
+    try:
+        os.mkdir("/tmp/username")
+        tmp_file = open("/tmp/username/temp_file.txt", "a")
+        tmp_file.write("this is a temp file")
+    except Exception as err:
+        print(str(err))
+        pass
+
+    assert utilities.validate_checksum("/tmp/username/temp_file.txt", checksum)
+    
+    os.remove("/tmp/username/temp_file.txt")
+    os.rmdir("/tmp/username")
+
+
