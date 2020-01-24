@@ -6,6 +6,7 @@
                 class="checkbox-container form-check"
             >
                 <input
+                    v-if="!filesOnly"
                     class="form-check-input"
                     v-model="checked"
                     type="checkbox"
@@ -15,22 +16,24 @@
                 @click="opened = !opened"
                 class="folder-name"
             >
-                <fa
-                    v-if="!opened"
-                    :icon="['fas', 'chevron-right']"
-                />
-                <fa
-                    v-if="opened"
-                    :icon="['fas', 'chevron-down']"
-                />
-                {{name}}
-                <button
+                <span class="chevron">
+                    <fa
+                        v-if="!opened"
+                        :icon="['fas', 'chevron-right']"
+                    />
+                    <fa
+                        v-if="opened"
+                        :icon="['fas', 'chevron-down']"
+                    />
+                </span>
+                <span :class="{'checked':checked}">{{name}}</span>
+                <!-- <button
                     class="btn btn-link"
                     @click.stop.prevent="refreshFolder(item.path)"
                 >
                     <fa :icon="'sync-alt'" />
                     <span>Refresh</span>
-                </button>
+                </button> -->
             </div>
         </div>
 
@@ -45,8 +48,11 @@
                 <folder
                     :item="subitem"
                     :selectedPaths="selectedPaths"
+                    :select-one="selectOne"
+                    :files-only="filesOnly"
                     @refresh="(path) => {refreshFolder(path); }"
                     @checked="(path) => {selectPath(path)}"
+                    @unchecked="(path) => {deselectPath(path)}"
                 />
             </li>
             <li
@@ -56,7 +62,10 @@
                 <file
                     :item="subitem"
                     :selectedPaths="selectedPaths"
+                    :select-one="selectOne"
+                    :files-only="filesOnly"
                     @checked="(path) => {selectPath(path)}"
+                    @unchecked="(path) => {deselectPath(path)}"
                 />
             </li>
         </ul>
@@ -97,7 +106,15 @@ export default {
     },
     props: {
         item: Object,
-        selectedPaths: Array
+        selectedPaths: Array,
+        selectOne: {
+            type: Boolean,
+            default: false
+        },
+        filesOnly: {
+            type: Boolean,
+            default: false
+        }
     },
     components: {
         File,
@@ -109,11 +126,25 @@ export default {
         },
         selectPath: function(path) {
             this.$emit("checked", path);
+        },
+        deselectPath: function(path) {
+            this.$emit("unchecked", path);
         }
     },
     watch: {
         checked: function() {
-            this.selectPath(this.item.path);
+            if (this.checked == true) {
+                this.selectPath(this.item.path);
+            } else {
+                this.deselectPath(this.item.path);
+            }
+        },
+        selectedPaths: function() {
+            if (this.selectedPaths.indexOf(this.item.path) < 0) {
+                this.checked = false;
+            } else {
+                this.checked = true;
+            }
         }
     },
     mounted: function() {
@@ -140,13 +171,19 @@ ul {
     -ms-user-select: none;
     -webkit-user-select: none;
     user-select: none;
+}
 
+.chevron {
+    padding-right: 0.5rem;
 }
 .folder-name-container {
     & > div {
         display: inline-block;
     }
-    
+    .checked {
+        font-weight: bold;
+    }
+
     button {
         display: none;
         max-height: 1rem;

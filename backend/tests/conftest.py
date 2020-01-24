@@ -2,6 +2,9 @@ import pytest
 from backend import application
 from psycopg2 import extensions
 from contextlib import contextmanager
+from botocore.stub import Stubber
+from botocore.exceptions import ClientError
+import boto3
 
 class MockResponse:
     # Mocks up a response object and lets you set the error code
@@ -40,9 +43,12 @@ class MockPsycopgCursor:
         full_query = query
         x = ()
         for variable in variables:
-            x = x + (extensions.adapt(str(variable)).getquoted().decode('utf-8'),)
+            if type(variable) == str:
+                x = x + (extensions.adapt(str(variable)).getquoted().decode('utf-8'),)
+            else:
+                x = x + (str(variable),)
         full_query = full_query % x
-        print("QUERY TO EXECUTE: " + (full_query.replace('    ', ' ')))
+        # print("QUERY TO EXECUTE: " + (full_query.replace('    ', ' ')))
         #put the query on the list so we can check later if need be
         self.queries.append(full_query)
 
@@ -92,6 +98,19 @@ class MockPsycopgConnection:
     def set_cursor(self, cursor):
         self.my_cursor = cursor
 
+class MockBoto3:
+    def __init__(self, **kwargs):
+        class MockMeta:
+            def __init__(self, **kwargs):
+                class MockClient:
+                    def __init__(self, **kwargs):
+                        self.raise_exception = kwargs.get("raise_exception", False)
+                        pass
+                    def upload_file(self, Filename='', Bucket='', Key=''):
+                        if self.raise_exception:
+                            raise ClientError({"Error": {"Message": "Intentional Exception from MockBoto3"}}, "upload_file")
+                self.client = MockClient(**kwargs)
+        self.meta = MockMeta(**kwargs)
 
 
 @pytest.fixture(autouse=True)
@@ -101,6 +120,7 @@ def env_setup(monkeypatch):
     """
 
     monkeypatch.setenv('TEST', 'testing-mode')
+
 
 @pytest.fixture
 def client():
@@ -134,8 +154,19 @@ def patch_user(mocker, **kwargs):
     mock_response = MockResponse()
     # if 'status_code' in kwargs:
     mock_response.set_status_code(kwargs.get('status_code', 200))
-    mock_response.set_json(kwargs.get("json", {}))
+    mock_response.set_json(kwargs.get("json", {"user_id": "1"}))
     mocker.patch("requests.post", return_value=mock_response)
     # mock_user = user_model.User(user_id=1, token="token")
     # mocker.patch('middleware.api.views.user_model.User.query', user_model.Query())
     # mocker.patch('middleware.api.views.user_model.User.verify_auth_token', return_value=mock_user)
+
+def patch_settings(mocker, **kwargs):
+    mocker.patch.dict("library.readconfig.aws", 
+        {"efs-path":"/tmp/",
+        "aws_access_key_id":"key_id",
+        "aws_secret_access_key":"secret_access_key",
+        "region_name":"east"})
+    
+def patch_boto3(mocker, **kwargs):
+    mocker.patch("boto3.resource", return_value=MockBoto3(**kwargs))
+    pass
