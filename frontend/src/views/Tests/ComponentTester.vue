@@ -1,18 +1,19 @@
 <template>
 
     <div class="container my-5">
-        <new-tool-form @startLoading="(key)=>$emit('startLoading',key)" @stopLoading="(key)=>$emit('stopLoading',key)"/>
+        <new-archive-form @startLoading="(key)=>$emit('startLoading',key)" @stopLoading="(key)=>$emit('stopLoading',key)"/>
     </div>
 
 </template>
 
 <script>
 // import FileBrowser from "../../components/Filebrowser/FilebrowserMain";
-import NewToolForm from "../../components/Marketplace/MarketplaceNewToolForm";
+// import NewToolForm from "../../components/Marketplace/MarketplaceNewToolForm";
+import NewArchiveForm from "../../components/Marketplace/MarketplaceNewArchiveForm";
 
 export default {
     components: {
-        NewToolForm
+        NewArchiveForm
     },
     methods: {
         updated: function(){

@@ -9,7 +9,7 @@ import VueAxios from "vue-axios";
 import Config from "../../conf/frontend.config.json";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faCircleNotch, faSpinner, faAtom, faCompactDisc, faExclamationTriangle, faSyncAlt, faTrashAlt, faBars, faHamburger, faChevronRight, faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import { faCircleNotch, faSpinner, faAtom, faCompactDisc, faExclamationTriangle, faSyncAlt, faTrashAlt, faBars, faHamburger, faChevronRight, faChevronDown, faFileCsv } from "@fortawesome/free-solid-svg-icons";
 import { faSquare, faCheckSquare, faCircle, faDotCircle, faFolder, faFolderOpen, faFile } from "@fortawesome/free-regular-svg-icons";
 import { faPython } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
@@ -32,7 +32,9 @@ library.add(faSpinner,
     faFolderOpen,
     faChevronDown,
     faChevronRight,
-    faFile);
+    faFile,
+    faFileCsv
+    );
 
 Vue.component("fa", FontAwesomeIcon);
 

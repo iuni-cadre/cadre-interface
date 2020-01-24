@@ -1,6 +1,7 @@
 <template>
     <div>
         <!-- This is a file browser -->
+        <!-- {{selected_paths}} -->
 
         <div
             v-for="item in file_structure"
@@ -10,9 +11,12 @@
                 :is="item.type"
                 :item="item"
                 :selectedPaths="selected_paths"
+                :select-one="selectOne"
+                :files-only="filesOnly"
                 @error="handleError"
                 @refresh="(path)=>{ refreshFolder(path) }"
                 @checked="(path)=>{ selectPath(path) }"
+                @unchecked="(path)=>{ deselectPath(path) }"
             />
         </div>
         <div v-if="file_structure.length == 0">
@@ -82,7 +86,15 @@ export default {
         }
     },
     props: {
-        value: Array
+        value: Array,
+        selectOne: {
+            type: Boolean,
+            default: false
+        },
+        filesOnly: {
+            type: Boolean,
+            default: false
+        }
     },
     methods: {
         handleError: function(error_message) {
@@ -96,12 +108,35 @@ export default {
             console.debug(path);
         },
         selectPath: function(path) {
-            let path_index = this.selected_paths.indexOf(path);
-            if (path_index < 0) {
-                this.selected_paths.push(path);
-            } else {
-                this.selected_paths.splice(path_index, 1);
+            if(!this.selectOne)
+            {
+                let path_index = this.selected_paths.indexOf(path);
+                if (path_index < 0) {
+                    this.selected_paths.push(path);
+                } else {
+                    // this.selected_paths.splice(path_index, 1);
+                }
             }
+            else
+            {
+                this.$set(this, "selected_paths", [path]);
+            }
+            return this.selected_paths;
+        },
+        deselectPath: function(path) {
+            // if(!this.selectOne)
+            // {
+                let path_index = this.selected_paths.indexOf(path);
+                if (path_index < 0) {
+                    // this.selected_paths.push(path);
+                } else {
+                    this.selected_paths.splice(path_index, 1);
+                }
+            // }
+            // else
+            // {
+            //     // this.$set(this, "selected_paths", [path]);
+            // }
             return this.selected_paths;
         }
     },
