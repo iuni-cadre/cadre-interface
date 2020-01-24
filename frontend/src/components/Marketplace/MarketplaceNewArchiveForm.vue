@@ -15,7 +15,7 @@
                 <small class="ml-1 text-muted">(optional)</small>
                 <textarea
                     v-model="data_to_send.archive_description"
-                    placeholder="e.g. My Archive transforms the given data and returns 2 files."
+                    placeholder="e.g. Authors who publish in Science"
                     class="form-control"
                 ></textarea>
             </div>
@@ -88,48 +88,39 @@ export default {
     },
     methods: {
         submitForm: async function() {
-            console.log(this.data_to_send);
-            // return false;
-
             this.$emit("startLoading", {
                 key: "newArchive",
                 message: "Creating new archive"
             });
 
             let is_valid = await this.validateForm();
-            // // console.debug(this.data_to_send);
-            // if (!is_valid) {
-            //     this.$emit("stopLoading", { key: "newArchive" });
-            // } else {
-            //     // let prom = new Promise((resolve, reject) => {
-            //     //     setTimeout(() => {
-            //     //         console.debug("RESOLVED"), resolve();
-            //     //     }, 5000);
-            //     // });
-            //     // console.debug("TEST");
-            //     let url = this.$cadreConfig.rac_api_prefix + "/archives/new";
-            //     let prom = this.$cadre.axios({
-            //         url: url,
-            //         method: "POST",
-            //         data: this.data_to_send
-            //     });
-            //     prom.then(
-            //         response => {
-            //             this.success = response;
-            //         },
-            //         error => {
-            //             let message =
-            //                 (error &&
-            //                     error.response &&
-            //                     error.response.statusText) ||
-            //                 "Unknown error.";
-            //             console.debug(error);
-            //             this.error_message.push(message);
-            //         }
-            //     ).finally(() => {
-            this.$emit("stopLoading", { key: "newArchive" });
-            //     });
-            // }
+            // console.debug(this.data_to_send);
+            if (!is_valid) {
+                this.$emit("stopLoading", { key: "newArchive" });
+            } else {
+                let url = this.$cadreConfig.rac_api_prefix + "/archives/new";
+                let prom = this.$cadre.axios({
+                    url: url,
+                    method: "POST",
+                    data: this.data_to_send
+                });
+                prom.then(
+                    response => {
+                        this.success = response;
+                    },
+                    error => {
+                        let message =
+                            (error &&
+                                error.response &&
+                                error.response.statusText) ||
+                            "Unknown error.";
+                        console.debug(error);
+                        this.error_message.push(message);
+                    }
+                ).finally(() => {
+                    this.$emit("stopLoading", { key: "newArchive" });
+                });
+            }
         },
         closeSuccessModal: function() {
             this.success = null;
@@ -155,7 +146,8 @@ export default {
                     //verify authenticity of file
                     this.$emit("startLoading", { key: "verifyFile" });
                     let url =
-                        this.$cadreConfig.rac_api_prefix + "archive-user-file/check";
+                        this.$cadreConfig.rac_api_prefix +
+                        "archive-user-file/check";
                     let prom = this.$cadre.axios({
                         url: url,
                         method: "POST",

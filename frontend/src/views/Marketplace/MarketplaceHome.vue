@@ -105,7 +105,7 @@
                             <button
                                 class="btn btn-primary"
                                 @click="show_create_archive_modal = true"
-                            >Create New archive</button>
+                            >Create New Data Archive</button>
                         </div>
                     </div>
                     <!-- <div class="row flex-wrap">
