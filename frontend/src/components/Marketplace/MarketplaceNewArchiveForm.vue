@@ -76,7 +76,7 @@ export default {
             },
             selected_files: [],
             new_archive_endpoint:
-                this.$cadreConfig.rac_api_prefix + "/archives/new",
+                this.$cadreConfig.rac_api_prefix + "/archive-user-file",
             error_message: [],
             success: null
         };
@@ -98,7 +98,7 @@ export default {
             if (!is_valid) {
                 this.$emit("stopLoading", { key: "newArchive" });
             } else {
-                let url = this.$cadreConfig.rac_api_prefix + "/archives/new";
+                let url = this.new_archive_endpoint;
                 let prom = this.$cadre.axios({
                     url: url,
                     method: "POST",
@@ -110,10 +110,19 @@ export default {
                     },
                     error => {
                         let message =
-                            (error &&
+                            (error && 
                                 error.response &&
                                 error.response.statusText) ||
                             "Unknown error.";
+
+                        if(error && error.response && error.response.data && error.response.data.error)
+                        {
+                            message = error.response.data.error;
+                        }
+                        if(error && error.response && error.response.data && error.response.data.message)
+                        {
+                            message += ". " + error.response.data.message;
+                        }
                         console.debug(error);
                         this.error_message.push(message);
                     }
@@ -146,8 +155,8 @@ export default {
                     //verify authenticity of file
                     this.$emit("startLoading", { key: "verifyFile" });
                     let url =
-                        this.$cadreConfig.rac_api_prefix +
-                        "archive-user-file/check";
+                        this.new_archive_endpoint +
+                        "/check";
                     let prom = this.$cadre.axios({
                         url: url,
                         method: "POST",

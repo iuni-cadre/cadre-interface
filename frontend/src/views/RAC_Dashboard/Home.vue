@@ -65,6 +65,11 @@
                 @startLoading="(data)=>{ $emit('startLoading', data); }"
                 @stopLoading="(data)=>{ $emit('stopLoading', data); }"
             ></your-tools>
+            <hr />
+            <your-archives
+                @startLoading="(data)=>{ $emit('startLoading', data); }"
+                @stopLoading="(data)=>{ $emit('stopLoading', data); }"
+            ></your-archives>
         </div>
     </section>
 </template>
@@ -72,6 +77,7 @@
 import Modal from "@/components/Common/CommonModal";
 import RacPackageCard from "@/components/Marketplace/MarketplaceRacPackageCard";
 import YourTools from "@/components/Your/YourTools";
+import YourArchives from "@/components/Your/YourArchives";
 
 const RAC_PACKAGES_TO_SHOW = 3;
 
@@ -118,7 +124,8 @@ export default {
     components: {
         Modal,
         RacPackageCard,
-        YourTools
+        YourTools,
+        YourArchives
     },
     mounted: function() {
         if (this.racpackages.length === 0) {

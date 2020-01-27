@@ -2,15 +2,16 @@
     <div class="flex-fill d-flex mb-3">
         <div class="archive-card card p-3 flex-fill d-flex flex-column justify-content-between">
             <div>
-                <h4 v-text="archive.name">Archive Name</h4>
-                <div
+                <h4 v-text="archive.archive_name">Archive Name</h4>
+                <!-- <div
                     class="small"
                     v-text="`By: ${archive.created_by || 'CADRE Team'}`"
-                ></div>
+                ></div> -->
                 <div
                     class="small"
                     v-text="`Created On: ${new Date(archive.created_on).toUTCString()}`"
                 ></div>
+                <p v-text="archive.archive_description"></p>
             </div>
             <div class="mt-3">
                 <button
