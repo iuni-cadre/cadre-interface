@@ -2,15 +2,16 @@
     <div class="flex-fill d-flex mb-3">
         <div class="ractool-card card p-3 flex-fill d-flex flex-column justify-content-between">
             <div>
-                <h4 v-text="ractool.name">Tool Name</h4>
-                <div
+                <h4 v-text="ractool.tool_name">Tool Name</h4>
+                <!-- <div
                     class="small"
                     v-text="`By: ${ractool.created_by || 'CADRE Team'}`"
-                ></div>
+                ></div> -->
                 <div
                     class="small"
                     v-text="`Created On: ${new Date(ractool.created_on).toUTCString()}`"
                 ></div>
+                <p v-text="ractool.tool_description"></p>
             </div>
             <div class="mt-3">
                 <button
