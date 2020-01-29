@@ -2,7 +2,11 @@
     <div class="container my-5">
         <!-- <new-archive-form @startLoading="(key)=>$emit('startLoading',key)" @stopLoading="(key)=>$emit('stopLoading',key)"/> -->
         {{user_id}}
-        <test-component :rac-tool="tools[0]" @startLoading="(key)=>$emit('startLoading',key)" @stopLoading="(key)=>$emit('stopLoading',key)" ></test-component>
+        <test-component
+            :rac-archive="tools[0]"
+            @startLoading="(key)=>$emit('startLoading',key)"
+            @stopLoading="(key)=>$emit('stopLoading',key)"
+        ></test-component>
     </div>
 </template>
 
@@ -10,19 +14,18 @@
 // import FileBrowser from "../../components/Filebrowser/FilebrowserMain";
 // import NewToolForm from "../../components/Marketplace/MarketplaceNewToolForm";
 // import NewArchiveForm from "../../components/Marketplace/MarketplaceNewArchiveForm";
-import TestComponent from "../../components/Marketplace/MarketplaceRacToolCard";
+import TestComponent from "../../components/Marketplace/MarketplaceArchiveCard";
 
 const TOOLS = [
     {
-        created_on: "2020-01-17T16:55:08.192095+00:00",
-        tool_description: "asdf",
-        tool_id: "2bdaf7fa-1859-4a45-826b-1a998f0e67cc",
-        tool_name: "asdf",
-        tool_script_name: "/ISSI-tutorial/plotgraph.py",
+        archive_description: "",
+        archive_id: "aa8d1876-3007-439d-93bd-4619dc270857",
+        archive_name: "test",
+        created_on: "2020-01-27T21:03:13.358954+00:00",
+        permissions: { data_type: "MAG", other: [] },
         created_by: "1000"
     }
 ];
-
 export default {
     components: {
         // NewArchiveForm
@@ -32,7 +35,9 @@ export default {
         user_id: function() {
             return this.$store.state.user.user_id;
         },
-        tools: function(){return TOOLS}
+        tools: function() {
+            return TOOLS;
+        }
     },
     methods: {
         updated: function() {

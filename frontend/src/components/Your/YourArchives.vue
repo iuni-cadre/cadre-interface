@@ -19,6 +19,7 @@
                     <archive-card
                         @startLoading="(data)=>{ $emit('startLoading', data); }"
                         @stopLoading="(data)=>{ $emit('stopLoading', data); }"
+                        @archiveDeleted="fetchYourArchives()"
                         :rac-archive="archive"
                     ></archive-card>
                 </div>

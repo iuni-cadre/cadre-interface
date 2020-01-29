@@ -68,47 +68,6 @@
             <p>Tool could not be deleted.</p>
         </modal>
 
-        <!-- </div>
-                        </li>
-                    </ol>
-                    <p v-else>
-                        This tool does not require any output paths.
-                    </p>
-                    <div class="d-flex justify-content-end text-right">
-                        <button class="btn btn-outline-primary btn-sm"
-                                @click="addOutputFile"> + Add Additional Filename</button>
-                    </div>
-
-                </div>
-                <div>
-                    <button class="btn btn-lg btn-primary"
-                            @click="runtool">Run tool</button>
-                </div>
-            </div>
-        </modal>-->
-        <!-- <modal v-if="results"
-               @close="results = undefined"
-               modal-style="success"
-               modal-type="success">
-
-            <div>
-                <div>tool has been queued successfully.</div>
-                <div>
-                    Job ID: <b v-text="results.job_id"></b>
-                </div>
-                <button @click.prevent.stop="$router.push({name: 'jobs-list'})"
-                        class="btn btn-primary">Check Job Statuses</button>
-            </div>
-        </modal>
-        <modal v-if="error"
-               @close="error = undefined"
-               modal-style="danger"
-               modal-type="error">
-            <div>
-                <p>There was a problem:</p>
-                <p>{{error.error_message}}</p>
-            </div>
-        </modal>-->
     </div>
 </template>
 
@@ -123,7 +82,6 @@ export default {
             delete_tool_open: false,
             delete_success_open: false,
             delete_error_open: false
-            // output_filenames: [] //[""]
         };
     },
     computed: {
@@ -133,58 +91,7 @@ export default {
         user_id: function(){
             return this.$store.state.user.user_id;
         }
-        // tool: function() {
-        //     let tools = this.$store.getters["ractool/tools"];
-        //     // console.debug(tools);
-        //     return tool_id => {
-        //         if (!tools[tool_id]) {
-        //             console.warn(
-        //                 "Trying to get name of unknown tool " + tool_id
-        //             );
-        //             return {};
-        //         }
-        //         return tools[tool_id] || {};
-        //     };
-        // },
-        // tool_names: function() {
-        //     return this.ractool.tools
-        //         .map(tool => {
-        //             return tool.name;
-        //         })
-        //         .join(", ");
-        // },
-        // tool_descriptions: function() {
-        //     return this.ractool.tools
-        //         .map(tool => {
-        //             return tool.description;
-        //         })
-        //         .join(", ");
-        // },
-        // tool_authors: function() {
-        //     return this.ractool.tools
-        //         .map(tool => {
-        //             return tool.created_by;
-        //         })
-        //         .join(", ");
-        // },
-        // // input_files: function() {
-        // //     return this.ractool.input_files.join(", ");
-        // // },
-        // tool_output_files: function() {
-        //     let output_files = [];
-        //     for (let tool of this.ractool.tools) {
-        //         // let tool = this.tool(tool_id);
-        //         try {
-        //             if (tool) {
-        //                 output_files = [...output_files, ...tool.output_files];
-        //             }
-        //         } catch (err) {
 
-        //         }
-        //     }
-
-        //     return output_files;
-        // }
     },
     props: {
         RacTool: Object
