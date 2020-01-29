@@ -103,7 +103,8 @@ export default {
 
             prom.then(
                 response => {
-                    this.your_tools = response.data;
+                    this.$set(this, "your_tools", response.data);
+                    // this.your_tools = response.data;
                 },
                 error => {
                     console.error(error);

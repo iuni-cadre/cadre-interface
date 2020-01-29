@@ -135,8 +135,8 @@ def get_tools():
         print("The database connection has been closed successfully.")
 
 
-@blueprint.route('/rac-api/delete-tool/<tool_id>', methods=['GET'])
-def delete_tool(tool_id):
+@blueprint.route('/rac-api/tools/delete', methods=['POST'])
+def delete_tool():
     """
     This is a method delete the tool with given id.
 
@@ -164,6 +164,10 @@ def delete_tool(tool_id):
 
     if not user_id:
         return jsonify({"error": "Invalid user"}), 401
+
+
+    tool_id = request.get_json().get("tool_id", None)
+
 
     # This is where we are actually connecting to the database and getting the details of the tools
     conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],

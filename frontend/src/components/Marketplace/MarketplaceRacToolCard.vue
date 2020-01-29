@@ -1,12 +1,15 @@
 <template>
-    <div class="flex-fill d-flex mb-3">
+    <div
+        class="flex-fill d-flex mb-3"
+        v-if="ractool"
+    >
         <div class="ractool-card card p-3 flex-fill d-flex flex-column justify-content-between">
             <div>
                 <h4 v-text="ractool.tool_name">Tool Name</h4>
                 <!-- <div
                     class="small"
                     v-text="`By: ${ractool.created_by || 'CADRE Team'}`"
-                ></div> -->
+                ></div>-->
                 <div
                     class="small"
                     v-text="`Created On: ${new Date(ractool.created_on).toUTCString()}`"
@@ -19,15 +22,52 @@
                     @click="create_package_modal_open = true;"
                 >Create Package</button>
             </div>
+            <div class="mt-3">
+                <!-- <button
+                    class="float-right btn btn-outline-danger"
+                    @click="delete_tool_open = true;"
+                >Delete Tool</button>-->
+                <button
+                    class="float-right btn-link btn text-danger"
+                    @click="delete_tool_open = true;"
+                >Delete Tool</button>
+            </div>
         </div>
         <modal
             v-if="create_package_modal_open"
             @close="create_package_modal_open = false"
         >
-            <div>
-                This feature not yet implemented.
-            </div>
+            <div>This feature not yet implemented.</div>
         </modal>
+        <modal
+            v-if="delete_tool_open"
+            @close="delete_tool_open = false"
+            @ok="deleteTool()"
+            modal-style="danger"
+            modal-type="delete"
+            ok-button-label="Yes, Delete Tool"
+            close-button-label="Cancel"
+        >
+            <p>Are you sure you want to delete this tool?</p>
+        </modal>
+        <modal
+            v-if="delete_success_open"
+            @close="deleteSuccess()"
+            modal-style="success"
+            close-button-label="OK"
+        >
+            <p>Tool was deleted successfully</p>
+        </modal>
+        <modal
+            v-if="delete_error_open"
+            @close="delete_error_open=false"
+            modal-style="danger"
+            modal-type="error"
+            close-button-label="Close"
+        >
+            <p>Tool could not be deleted.</p>
+        </modal>
+
         <!-- </div>
                         </li>
                     </ol>
@@ -79,7 +119,10 @@ export default {
         return {
             results: undefined,
             error: undefined,
-            create_package_modal_open: false
+            create_package_modal_open: false,
+            delete_tool_open: false,
+            delete_success_open: false,
+            delete_error_open: false
             // output_filenames: [] //[""]
         };
     },
@@ -144,6 +187,35 @@ export default {
         RacTool: Object
     },
     methods: {
+        deleteTool: function() {
+            this.$emit("startLoading", "toolDelete");
+            let delete_prom = this.$cadre.axios({
+                url: this.$cadreConfig.rac_api_prefix + "/tools/delete",
+                method: "POST",
+                data: {
+                    tool_id: this.ractool.tool_id
+                }
+            });
+            delete_prom.then(
+                response => {
+                    this.delete_success_open = true;
+                },
+                error => {
+                    console.error(error);
+                    this.delete_error_open = true;
+                }
+            );
+            delete_prom.finally(() => {
+                this.delete_tool_open = false;
+                this.$emit("stopLoading", "toolDelete");
+            });
+
+            this.delete_tool_open = false;
+        },
+        deleteSuccess: function(){
+            this.delete_success_open = false;
+            this.$emit("toolDeleted", this.ractool);
+        }
         // addOutputFile: function() {
         //     this.output_filenames.push("");
         // },
