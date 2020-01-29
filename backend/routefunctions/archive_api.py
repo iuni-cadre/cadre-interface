@@ -338,6 +338,7 @@ def get_user_archives():
                 created_by as created_by
                 FROM archive
                 WHERE created_by = %s
+                AND to_be_deleted <> true
                 ORDER BY {}
                 LIMIT %s
                 OFFSET %s; """.format(actual_order_by)
@@ -352,7 +353,8 @@ def get_user_archives():
                 'archive_description': archives[1],
                 'archive_name': archives[2],
                 'permissions': archives[3],
-                'created_on': archives[4].isoformat()
+                'created_on': archives[4].isoformat(),
+                'created_by': archives[5]
             }
             archive_list.append(archive_json)
         return jsonify(archive_list), 200
@@ -367,8 +369,8 @@ def get_user_archives():
         print("The database connection has been closed successfully.")
 
 
-@blueprint.route('/rac-api/delete-archive/<archive_id>', methods=['GET'])
-def delete_archive(archive_id):
+@blueprint.route('/rac-api/archives/delete', methods=['POST'])
+def delete_archive():
     """
     This is a method delete the archive with given id.
 
@@ -396,6 +398,8 @@ def delete_archive(archive_id):
 
     if not user_id:
         return jsonify({"error": "Invalid user"}), 401
+
+    archive_id = request.get_json().get("archive_id", None)
 
     # This is where we are actually connecting to the database and getting the details of the tools
     conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
