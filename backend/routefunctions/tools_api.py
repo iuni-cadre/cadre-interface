@@ -109,6 +109,7 @@ def get_tools():
                 created_by as created_by
                 FROM tool
                 WHERE created_by = %s
+                AND to_be_deleted <> true
                 ORDER BY {}
                 LIMIT %s
                 OFFSET %s; """.format(actual_order_by)

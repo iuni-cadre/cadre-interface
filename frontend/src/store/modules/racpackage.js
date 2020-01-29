@@ -58,7 +58,7 @@ export default {
                 // return true;
 
                 let axios_prom = Vue.$cadre.axios({
-                    url: Vue.$cadreConfig.rac_api_prefix + "/packages/get-tools",
+                    url: Vue.$cadreConfig.rac_api_prefix + "/get-tools",
                     method: "GET",
                     params: {
                         limit: 50,
