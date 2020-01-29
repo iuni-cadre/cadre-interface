@@ -338,11 +338,10 @@ def get_user_archives():
                 created_by as created_by
                 FROM archive
                 WHERE created_by = %s
-                AND to_be_deleted <> true
+                AND to_be_deleted IS NOT TRUE
                 ORDER BY {}
                 LIMIT %s
                 OFFSET %s; """.format(actual_order_by)
-
         cur.execute(query, (user_id, limit, offset))
         
         archive_info = cur.fetchall()
@@ -357,6 +356,7 @@ def get_user_archives():
                 'created_by': archives[5]
             }
             archive_list.append(archive_json)
+        # print(archive_list)
         return jsonify(archive_list), 200
     except Exception as err:
         traceback.print_tb(err.__traceback__)
@@ -405,12 +405,14 @@ def delete_archive():
     conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
                             password=meta_db_config["database-password"], host=meta_db_config["database-host"],
                             port=meta_db_config["database-port"])
+    conn.autocommit = True
     cur = conn.cursor()
 
     # Here we are getting all the details of the all the different tools from the database
     try:
-        query = """UPDATE archive set to_be_deleted=%s WHERE archive_id=%s"""
-        cur.execute(query, (True,archive_id))
+        query = """UPDATE archive set to_be_deleted = TRUE WHERE archive_id=%s"""
+        cur.execute(query, (archive_id,))
+        
         return jsonify({'Deletion': 'Successful'}), 200
     except Exception:
         return jsonify({"error:", "Problem updating the archive table in the meta database."}), 500
