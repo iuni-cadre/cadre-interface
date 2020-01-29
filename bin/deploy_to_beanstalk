@@ -1,4 +1,18 @@
 #!/bin/bash
+
+echo ""
+echo ""
+echo ""
+echo "   **************** Deploying ********************"
+echo ""
+echo "                ! DO NOT ABORT ! "
+echo "    Aborting this script may corrupt config files"
+echo ""
+echo "   ***********************************************"
+echo ""
+echo ""
+echo ""
+
 # pushd scripts
 exec bin/build_deployment &
 wait
@@ -22,4 +36,24 @@ rm -rf ./bundle
 
 exec eb deploy -v &
 wait
-exec eb status -v 
+exec eb status -v &
+wait
+
+
+echo ""
+echo ""
+echo ""
+echo "   ****************** Notice *********************"
+echo ""
+echo "    Deployment Complete"
+echo "    "
+echo "    If you're deploying a new build, don't "
+echo "    forget to increment the version number. If "
+echo "    you forgot, please update /conf/version.json, "
+echo "    update the git repo, and re-deploy. "
+echo "                                       - BS"
+echo ""
+echo "   ***********************************************"
+echo ""
+echo ""
+echo ""
