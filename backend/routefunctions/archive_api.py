@@ -342,8 +342,6 @@ def get_user_archives():
                 ORDER BY {}
                 LIMIT %s
                 OFFSET %s; """.format(actual_order_by)
-        print(query)
-        print(cur.mogrify(query, (user_id, limit, offset)))
         cur.execute(query, (user_id, limit, offset))
         
         archive_info = cur.fetchall()
@@ -410,8 +408,6 @@ def delete_archive():
     conn.autocommit = True
     cur = conn.cursor()
 
-    print("archive")
-    print(archive_id)
     # Here we are getting all the details of the all the different tools from the database
     try:
         query = """UPDATE archive set to_be_deleted = TRUE WHERE archive_id=%s"""
