@@ -19,6 +19,7 @@
                     <rac-tool-card
                         @startLoading="(data)=>{ $emit('startLoading', data); }"
                         @stopLoading="(data)=>{ $emit('stopLoading', data); }"
+                        @toolDeleted="fetchYourTools()"
                         :rac-tool="ractool"
                     ></rac-tool-card>
                 </div>
