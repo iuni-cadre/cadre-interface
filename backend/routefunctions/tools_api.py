@@ -109,7 +109,7 @@ def get_tools():
                 created_by as created_by
                 FROM tool
                 WHERE created_by = %s
-                AND to_be_deleted <> true
+                AND to_be_deleted IS NOT TRUE
                 ORDER BY {}
                 LIMIT %s
                 OFFSET %s; """.format(actual_order_by)
@@ -176,12 +176,13 @@ def delete_tool():
     conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
                             password=meta_db_config["database-password"], host=meta_db_config["database-host"],
                             port=meta_db_config["database-port"])
+    conn.autocommit = True
     cur = conn.cursor()
 
     # Here we are getting all the details of the all the different tools from the database
     try:
-        query = """UPDATE tool set to_be_deleted=%s WHERE tool_id=%s"""
-        cur.execute(query, (True,tool_id))
+        query = """UPDATE tool set to_be_deleted=TRUE WHERE tool_id=%s"""
+        cur.execute(query, (tool_id,))
         return jsonify({'Deletion': 'Successful'}), 200
     except Exception:
         return jsonify({"error:", "Problem updating the tool table in the meta database."}), 500

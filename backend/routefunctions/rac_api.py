@@ -476,7 +476,7 @@ def get_tools():
                 "created_on as tool_created_on, " \
                 "created_by as created_by " \
                 "FROM tool " \
-                "WHERE to_be_deleted <> true " \
+                "WHERE to_be_deleted IS NOT TRUE " \
                 "ORDER BY {} " \
                 "LIMIT %s " \
                 "OFFSET %s ".format(actual_order_by)

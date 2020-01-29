@@ -27,9 +27,11 @@ export default {
             }
         },
         setTools: function(state, tools) {
+            // console.debug(tools);
             Vue.set(state, "tools", {});
             for (let tool of tools) {
                 // state.tools.push(tool);
+
                 Vue.set(state.tools, tool.tool_id, tool);
             }
         },
@@ -69,7 +71,8 @@ export default {
                 });
                 axios_prom.then(
                     response => {
-                        let tools = response.data.tools;
+                        // console.debug(response.data);
+                        let tools = response.data;
                         commit("setTools", tools);
                         resolve(response);
                     },
