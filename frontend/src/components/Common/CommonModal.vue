@@ -52,7 +52,7 @@
                             <fa
                                 v-if="modalType === 'delete'"
                                 class="mr-2 fa fa-trash"
-                                :icon="['far', 'trash-alt']"
+                                :icon="['fas', 'trash-alt']"
                                 aria-hidden="true"
                             ></fa>
                             {{okButtonLabel}}

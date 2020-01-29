@@ -473,8 +473,10 @@ def get_tools():
                 "description as tool_description, " \
                 "name as tool_name, " \
                 "script_name as tool_script_name, " \
-                "created_on as tool_created_on " \
+                "created_on as tool_created_on, " \
+                "created_by as created_by " \
                 "FROM tool " \
+                "WHERE to_be_deleted <> true " \
                 "ORDER BY {} " \
                 "LIMIT %s " \
                 "OFFSET %s ".format(actual_order_by)
@@ -491,7 +493,8 @@ def get_tools():
                     'tool_description': tools[1],
                     'tool_name': tools[2],
                     'tool_script_name': tools[3],
-                    'created_on': tools[4].isoformat()
+                    'created_on': tools[4].isoformat(),
+                    'created_by': tools[5]
                 }
                 tool_list.append(tool_json)
             # tool_response = json.dumps(tool_list, cls=DateEncoder)

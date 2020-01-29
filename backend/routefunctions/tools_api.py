@@ -105,9 +105,11 @@ def get_tools():
                 description as tool_description,
                 name as tool_name,
                 script_name as tool_script_name,
-                created_on as tool_created_on
+                created_on as tool_created_on,
+                created_by as created_by
                 FROM tool
                 WHERE created_by = %s
+                AND to_be_deleted <> true
                 ORDER BY {}
                 LIMIT %s
                 OFFSET %s; """.format(actual_order_by)
@@ -122,7 +124,8 @@ def get_tools():
                 'tool_description': tools[1],
                 'tool_name': tools[2],
                 'tool_script_name': tools[3],
-                'created_on': tools[4].isoformat()
+                'created_on': tools[4].isoformat(),
+                'created_by': tools[5]
             }
             tool_list.append(tool_json)
         return jsonify(tool_list), 200
@@ -135,8 +138,8 @@ def get_tools():
         print("The database connection has been closed successfully.")
 
 
-@blueprint.route('/rac-api/delete-tool/<tool_id>', methods=['GET'])
-def delete_tool(tool_id):
+@blueprint.route('/rac-api/tools/delete', methods=['POST'])
+def delete_tool():
     """
     This is a method delete the tool with given id.
 
@@ -164,6 +167,10 @@ def delete_tool(tool_id):
 
     if not user_id:
         return jsonify({"error": "Invalid user"}), 401
+
+
+    tool_id = request.get_json().get("tool_id", None)
+
 
     # This is where we are actually connecting to the database and getting the details of the tools
     conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
