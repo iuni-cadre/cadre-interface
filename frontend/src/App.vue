@@ -8,152 +8,224 @@
             <router-link :to="{name: 'home'}">
                 <h1>CADRE</h1>
             </router-link>
-        </header> -->
+        </header>-->
 
         <header id="main-header">
             <nav class="container navbar navbar-expand-lg">
-                <router-link class="navbar-brand"
-                             :to="{name: 'home'}"><img src="@/assets/img/logo-and-type.svg"
-                         alt="CADRE" /><span class="d-none">CADRE</span></router-link>
-                <button class="navbar-toggler"
-                        type="button"
-                        @click="toggleMenu"
-                        data-toggle="collapse"
-                        data-target="#navbarSupportedContent"
-                        aria-controls="navbarSupportedContent"
-                        aria-expanded="false"
-                        aria-label="Toggle navigation">
+                <router-link
+                    class="navbar-brand"
+                    :to="{name: 'home'}"
+                >
+                    <img
+                        src="@/assets/img/logo-and-type.svg"
+                        alt="CADRE"
+                    />
+                    <span class="d-none">CADRE</span>
+                </router-link>
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    @click="toggleMenu"
+                    data-toggle="collapse"
+                    data-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation"
+                >
                     <span class="navbar-toggler-icon">
-                        <fa icon="bars" /></span>
+                        <fa icon="bars" />
+                    </span>
                 </button>
 
-                <div class="collapse navbar-collapse"
-                     :class="{'show': display_menu}"
-                     id="navbarSupportedContent">
+                <div
+                    class="collapse navbar-collapse"
+                    :class="{'show': display_menu}"
+                    id="navbarSupportedContent"
+                >
                     <ul class="navbar-nav mr-auto">
                         <!-- {% for page in pages.children if page.header.main == true %} -->
                         <!-- <li class="nav-item">
                             <a href="{{url(page.url)}}">{{page.title}}</a>
-                        </li> -->
+                        </li>-->
                         <!-- {% endfor %} -->
 
                         <li class="nav-item">
-                            <router-link class="p-3 p-md-0 d-inline-block"
-                                         :to="{name: 'query-builder-builder'}"
-                                         target="">Query Interface</router-link>
+                            <router-link
+                                class="p-3 p-md-0 d-inline-block"
+                                :to="{name: 'query-builder-builder'}"
+                                target
+                            >Query Interface</router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link class="p-3 p-md-0 d-inline-block"
-                                         :to="{name: 'jupyter-hub'}"
-                                         target="">Jupyter Notebook</router-link>
+                            <router-link
+                                class="p-3 p-md-0 d-inline-block"
+                                :to="{name: 'jupyter-hub'}"
+                                target
+                            >Jupyter Notebook</router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link class="p-3 p-md-0 d-inline-block"
-                                         :to="{name: 'rac-marketplace'}"
-                                         target="">Marketplace</router-link>
+                            <router-link
+                                class="p-3 p-md-0 d-inline-block"
+                                :to="{name: 'rac-marketplace'}"
+                                target
+                            >Marketplace</router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link class="p-3 p-md-0 d-inline-block"
-                                         :to="{name: 'jobs-list'}"
-                                         target="">Job Status</router-link>
+                            <router-link
+                                class="p-3 p-md-0 d-inline-block"
+                                :to="{name: 'jobs-list'}"
+                                target
+                            >Job Status</router-link>
                         </li>
                         <!-- <li class="nav-item">
                             <router-link class="p-3 p-md-0 d-inline-block"
                                          :to="{name: 'your-home'}"
                                          target="">Your CADRE</router-link>
-                        </li> -->
-
+                        </li>-->
                     </ul>
 
                     <div v-if="!token">
-                        <a class="btn get-started-button"
-                           :href="login_url"><span class="p-3 p-md-0 d-inline-block">Login</span></a>
+                        <a
+                            class="btn get-started-button"
+                            :href="login_url"
+                        >
+                            <span class="p-3 p-md-0 d-inline-block">Login</span>
+                        </a>
                     </div>
                     <div v-else>
-                        Logged in as <span v-text="decodedUsername"></span>
+                        Logged in as
+                        <span v-text="decodedUsername"></span>
                         &nbsp;
-                        <a class="btn get-started-button"
-                           @click="logout"><span class="p-3 p-md-0 d-inline-block">Logout</span></a>
+                        <a
+                            class="btn get-started-button"
+                            @click="logout"
+                        >
+                            <span class="p-3 p-md-0 d-inline-block">Logout</span>
+                        </a>
                     </div>
-
                 </div>
             </nav>
-
         </header>
 
-        <section v-if="is_under_construction"
-                 class="d-flex justify-content-center construction alert-warning">
+        <section
+            v-if="version.warning"
+            class="d-flex justify-content-center construction alert-warning small p-1"
+        >
             <div>
-                <div class="text-center"><img src="@/assets/under_construction.gif" /></div>
-                <!-- <h1>This interface should not be used for anything.  It will likely not function </h1> -->
-                <br />
-                <b>Work In Progress:&nbsp;</b> This application is currently under development and is not production ready. Design, features, and functionality will likely change prior to release.
+                <div class="text-center" v-if="is_under_construction">
+                    <img src="@/assets/under_construction.gif" />
+                </div>
+                <span v-text="version.warning"></span>
             </div>
         </section>
 
         <!-- <hr /> -->
         <!-- {{$store.getters["user/authToken"]}} -->
-        <router-view v-if="token"
-                     class=""
-                     @startLoading="startLoading"
-                     @stopLoading="stopLoading"
-                     :isLoading="is_loading" />
+        <router-view
+            v-if="token"
+            class
+            @startLoading="startLoading"
+            @stopLoading="stopLoading"
+            :isLoading="is_loading"
+        />
 
         <template v-if="error_message">
             <div class="container pt-3">
-                <div class="alert alert-danger">Error: <span v-text="error_message"></span></div>
+                <div class="alert alert-danger">
+                    Error:
+                    <span v-text="error_message"></span>
+                </div>
             </div>
         </template>
         <template v-if="!token">
             <div class="container pt-3">
                 <div class="alert alert-info">
-                    You are not logged in. You can log in <a class=""
-                       :href="login_url"><span class="">here</span></a>.
+                    You are not logged in. You can log in
+                    <a
+                        class
+                        :href="login_url"
+                    >
+                        <span class>here</span>
+                    </a>.
                 </div>
             </div>
         </template>
 
-        <div v-if="is_loading"
-             id="loading-screen"
-             class="d-flex align-items-center justify-content-center">
+        <div
+            v-if="is_loading"
+            id="loading-screen"
+            class="d-flex align-items-center justify-content-center"
+        >
             <div class="loading-content">
                 <div class="icon">
                     <!-- <fa icon="circle-notch"
-                        spin /> -->
+                    spin />-->
                     <spinner></spinner>
                 </div>
-                <div v-for="(item, index) in loading_queue"
-                     :key="`loading_${index}`"
-                     v-text="item.message"></div>
+                <div
+                    v-for="(item, index) in loading_queue"
+                    :key="`loading_${index}`"
+                    v-text="item.message"
+                ></div>
             </div>
         </div>
 
         <footer id="main-footer">
             <div class="container">
-                <div class="logos d-flex flex-wrap flex-md-nowrap justify-content-between align-items-center">
+                <div
+                    class="logos d-flex flex-wrap flex-md-nowrap justify-content-between align-items-center"
+                >
                     <!-- <div class=""> -->
-                    <a href="https://cadre.iu.edu"
-                       class="cadre-logo"><img src="@/assets/img/cadre-logo.png"
-                             alt="CADRE" /><span class="d-none">CADRE</span></a>
+                    <a
+                        href="https://cadre.iu.edu"
+                        class="cadre-logo"
+                    >
+                        <img
+                            src="@/assets/img/cadre-logo.png"
+                            alt="CADRE"
+                        />
+                        <span class="d-none">CADRE</span>
+                    </a>
 
                     <!-- </div> -->
                     <!-- <div class="">
                         &copy; <a href="https://iuni.iu.edu">Indiana University Network Science Institute</a>
-                    </div> -->
+                    </div>-->
                     <!-- <div class=""> -->
-                    <a href="https://www.btaa.org/"
-                       class="btaa-logo"><img src="@/assets/img/btaa-logo.png"
-                             alt="BTAA" /><span class="d-none">BTAA</span></a>
+                    <a
+                        href="https://www.btaa.org/"
+                        class="btaa-logo"
+                    >
+                        <img
+                            src="@/assets/img/btaa-logo.png"
+                            alt="BTAA"
+                        />
+                        <span class="d-none">BTAA</span>
+                    </a>
                     <!-- </div> -->
                     <!-- <div class=""> -->
-                    <a href="https://libraries.indiana.edu/"
-                       class="libraries-logo"><img src="@/assets/img/iu-libraries-logo.png"
-                             alt="IU Libraries" /><span class="d-none">IU Libraries</span></a>
+                    <a
+                        href="https://libraries.indiana.edu/"
+                        class="libraries-logo"
+                    >
+                        <img
+                            src="@/assets/img/iu-libraries-logo.png"
+                            alt="IU Libraries"
+                        />
+                        <span class="d-none">IU Libraries</span>
+                    </a>
                     <!-- </div> -->
                     <!-- <div class=""> -->
-                    <a href="https://iuni.iu.edu"
-                       class="iuni-logo"><img src="@/assets/img/iuni-logo.png"
-                             alt="IUNI" /><span class="d-none">IUNI</span></a>
+                    <a
+                        href="https://iuni.iu.edu"
+                        class="iuni-logo"
+                    >
+                        <img
+                            src="@/assets/img/iuni-logo.png"
+                            alt="IUNI"
+                        />
+                        <span class="d-none">IUNI</span>
+                    </a>
                     <!-- </div> -->
 
                     <!-- {% for page in pages.children if page.header.main == true %}
@@ -179,7 +251,7 @@
                     {{ mitem.text }}
                 </a>
             </li>
-        {% endfor %} #} -->
+                    {% endfor %} #}-->
 
                     <!-- {# </div>
             <div class="col">
@@ -190,9 +262,11 @@
             </div>
             <div class="col">
                 <strong>Resources</strong>
-            </div> #} -->
+                    </div> #}-->
                 </div>
-
+                <div class="mt-5 text-center small text-muted">
+                    CADRE Big Data Gateway Version {{version.number}}
+                </div>
             </div>
         </footer>
     </div>
@@ -216,6 +290,9 @@ export default {
         };
     },
     computed: {
+        version: function() {
+            return this.$version;
+        },
         ...mapGetters("user", ["authToken", "decodedUsername", "roles"]),
         token: function() {
             return this.authToken;
@@ -394,8 +471,7 @@ export default {
     }
 }
 
-header#main-header .nav-item
-{
+header#main-header .nav-item {
     // font-size: .875rem;
 }
 

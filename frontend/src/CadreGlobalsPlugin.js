@@ -2,6 +2,7 @@
 
 // import $axios from "axios";
 import $config from "../../conf/frontend.config.json";
+import Version from "../../conf/version.json";
 // import CryptoJS from "crypto-js";
 
 import Base32 from "hi-base32";
@@ -105,6 +106,11 @@ export default {
         })();
 
         Vue.$cadreConfig = Vue.prototype.$cadreConfig;
+
+        Vue.prototype.$version = (function() {
+            return Version;
+        })();
+        Vue.$version = Vue.prototype.$version;
     },
     cloneObject: function(object) {
         if (object) {
