@@ -45,7 +45,8 @@ def test_get_tools_ep_does_not_fail_with_successful_query(client, mocker):
             "tool_description": "some tool description",
             "tool_name": "tool name",
             "tool_script_name": "script_name.py",
-            "created_on": global_now.isoformat()
+            "created_on": global_now.isoformat(),
+            "created_by": 1000
             
         },
         {
@@ -53,7 +54,8 @@ def test_get_tools_ep_does_not_fail_with_successful_query(client, mocker):
             "tool_description": "some tool description 2",
             "tool_name": "tool name 2",
             "tool_script_name": "script_name2.py",
-            "created_on": global_now.isoformat()
+            "created_on": global_now.isoformat(),
+            "created_by": 1000
         }
     ]
 
@@ -178,7 +180,8 @@ def test_get_tools_user_ep_returns_expected_result(client, mocker):
             "tool_description": "some tool description",
             "tool_name": "tool name",
             "tool_script_name": "script_name.py",
-            "created_on": global_now.isoformat()
+            "created_on": global_now.isoformat(),
+            "created_by": 1000
             
         },
         {
@@ -186,7 +189,8 @@ def test_get_tools_user_ep_returns_expected_result(client, mocker):
             "tool_description": "some tool description 2",
             "tool_name": "tool name 2",
             "tool_script_name": "script_name2.py",
-            "created_on": global_now.isoformat()
+            "created_on": global_now.isoformat(),
+            "created_by": 1000
         }
     ]
 
@@ -247,7 +251,8 @@ sample_rows = [
         "some tool description",
         "tool name",
         "script_name.py",
-        global_now
+        global_now,
+        1000
         
     ],
     [
@@ -255,7 +260,8 @@ sample_rows = [
         "some tool description 2",
         "tool name 2",
         "script_name2.py",
-        global_now
+        global_now,
+        1000
         
     ]
 ]

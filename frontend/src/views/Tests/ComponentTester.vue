@@ -18,7 +18,8 @@ const TOOLS = [
         tool_description: "asdf",
         tool_id: "2bdaf7fa-1859-4a45-826b-1a998f0e67cc",
         tool_name: "asdf",
-        tool_script_name: "/ISSI-tutorial/plotgraph.py"
+        tool_script_name: "/ISSI-tutorial/plotgraph.py",
+        created_by: "1000"
     }
 ];
 

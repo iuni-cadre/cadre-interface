@@ -22,7 +22,7 @@
                     @click="create_package_modal_open = true;"
                 >Create Package</button>
             </div>
-            <div class="mt-3">
+            <div class="mt-3" v-if="ractool.created_by == user_id">
                 <!-- <button
                     class="float-right btn btn-outline-danger"
                     @click="delete_tool_open = true;"
@@ -129,6 +129,9 @@ export default {
     computed: {
         ractool: function() {
             return this.RacTool;
+        },
+        user_id: function(){
+            return this.$store.state.user.user_id;
         }
         // tool: function() {
         //     let tools = this.$store.getters["ractool/tools"];
@@ -188,6 +191,10 @@ export default {
     },
     methods: {
         deleteTool: function() {
+            if( ractool.created_by != user_id )
+            {
+                return false;
+            }
             this.$emit("startLoading", "toolDelete");
             let delete_prom = this.$cadre.axios({
                 url: this.$cadreConfig.rac_api_prefix + "/tools/delete",
