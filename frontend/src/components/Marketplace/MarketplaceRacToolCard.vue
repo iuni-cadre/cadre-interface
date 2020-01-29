@@ -191,7 +191,7 @@ export default {
     },
     methods: {
         deleteTool: function() {
-            if( ractool.created_by != user_id )
+            if( this.ractool.created_by != this.user_id )
             {
                 return false;
             }
