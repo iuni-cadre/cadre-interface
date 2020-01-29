@@ -356,7 +356,7 @@ def get_user_archives():
                 'created_by': archives[5]
             }
             archive_list.append(archive_json)
-        print(archive_list)
+        # print(archive_list)
         return jsonify(archive_list), 200
     except Exception as err:
         traceback.print_tb(err.__traceback__)
