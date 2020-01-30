@@ -618,7 +618,7 @@ def create_packages():
             or tools is None or input_file_archive_ids is None:
             raise AttributeError
 
-        response_json = valid_response.get_json()
+        response_json = valid_response.json()
         user_id = response_json['user_id']
 
         # create database connection
