@@ -3,8 +3,6 @@
         <!-- <new-archive-form @startLoading="(key)=>$emit('startLoading',key)" @stopLoading="(key)=>$emit('stopLoading',key)"/> -->
         {{user_id}}
         <test-component
-            :existing-tools="tools"
-            :existing-archives="archives"
             @startLoading="(key)=>$emit('startLoading',key)"
             @stopLoading="(key)=>$emit('stopLoading',key)"
         ></test-component>
@@ -19,9 +17,9 @@ import TestComponent from "../../components/Marketplace/MarketplaceNewPackageFor
 
 const TOOLS = [
     {
-        archive_description: "",
-        archive_id: "aa8d1876-3007-439d-93bd-4619dc270857",
-        archive_name: "test",
+        tool_description: "",
+        tool_id: "aa8d1876-3007-439d-93bd-4619dc270857",
+        tool_name: "test",
         created_on: "2020-01-27T21:03:13.358954+00:00",
         permissions: { data_type: "MAG", other: [] },
         created_by: "1000"
