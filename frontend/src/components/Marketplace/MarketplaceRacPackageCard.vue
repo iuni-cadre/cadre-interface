@@ -3,120 +3,182 @@
         <div class="racpackage-card card p-3 flex-fill d-flex flex-column justify-content-between">
             <div>
                 <h4 v-text="racpackage.name">Package Name</h4>
-                <div class="small"
-                     v-text="`By: ${racpackage.created_by || 'CADRE Team'}`"></div>
-                <div class="small"
-                     v-text="`Created On: ${new Date(racpackage.created_on).toUTCString()}`"></div>
+                <div
+                    class="small"
+                    v-text="`By: ${racpackage.created_by || 'CADRE Team'}`"
+                ></div>
+                <div
+                    class="small"
+                    v-text="`Created On: ${new Date(racpackage.created_on).toUTCString()}`"
+                ></div>
                 <div class="racpackage-body row mt-3">
                     <div class="racpackage-info col jusify-content-between">
                         <dl>
-                            <dt class="mr-1">Tool: </dt>
-                            <dd class="ml-1 "
-                                v-text="tool_names"></dd>
+                            <dt class="mr-1">Tool:</dt>
+                            <dd
+                                class="ml-1"
+                                v-text="tool_names"
+                            ></dd>
 
-                            <dt class="mr-1">Input Data: </dt>
-                            <dd class="ml-1 "
-                                v-text="input_files || 'No Input Data Required'"></dd>
-
+                            <dt class="mr-1">Input Data Sets:</dt>
+                            <dd
+                                class="ml-1"
+                                v-text="input_files || 'No Input Data Required'"
+                            ></dd>
                         </dl>
-
                     </div>
                     <!-- <div class="col">
-                </div> -->
+                    </div>-->
                 </div>
             </div>
 
-            <button class=" float-right btn-lg btn btn-primary"
-                    @click="show_run_modal = true">Run</button>
+            <button
+                class="float-right btn-lg btn btn-primary"
+                @click="show_run_modal = true"
+            >Run</button>
+
+            <div class="mt-3">
+                <button
+                    class="float-right btn btn-primary"
+                    @click="create_package_modal_open = true;"
+                >Clone Package</button>
+            </div>
         </div>
-        <modal v-if="show_run_modal"
-               @close="show_run_modal = false">
+        <modal
+            v-if="show_run_modal"
+            @close="show_run_modal = false"
+        >
             <div class="run-modal-body">
                 <!-- <pre v-text="racpackage"></pre> -->
                 <div class="card mb-3">
                     <div>
-                        Input Files: <strong v-text="input_files ||  'No Input Data Required'"></strong>
+                        Input Files:
+                        <strong v-text="input_files ||  'No Input Data Required'"></strong>
                     </div>
                 </div>
                 <div class="card mb-3">
-                    <div>Tool: <strong v-text="tool_names"></strong></div>
-                    <small>created by <span v-text="tool_authors"></span></small>
-                    <div><span v-text="tool_descriptions"></span></div>
-
+                    <div>
+                        Tool:
+                        <strong v-text="tool_names"></strong>
+                    </div>
+                    <small>
+                        created by
+                        <span v-text="tool_authors"></span>
+                    </small>
+                    <div>
+                        <span v-text="tool_descriptions"></span>
+                    </div>
                 </div>
                 <div class="form-group card">
                     <label>Output Paths</label>
 
-                    <ol v-if="tool_output_files.length > 0"
-                        class="pl-3">
-                        <li class="mb-1"
+                    <ol
+                        v-if="tool_output_files.length > 0"
+                        class="pl-3"
+                    >
+                        <li
+                            class="mb-1"
                             v-for="(filename, index) in tool_output_files"
-                            :key="`filename_${index}`">
-
+                            :key="`filename_${index}`"
+                        >
                             <div class="input-group">
-
-                                <input type="text"
-                                       placeholder=""
-                                       class="form-control"
-                                       v-model="output_filenames[index]" />
+                                <input
+                                    type="text"
+                                    placeholder
+                                    class="form-control"
+                                    v-model="output_filenames[index]"
+                                />
                                 <!-- <div class="input-group-append">
                                 <button class="btn btn-outline-danger not-round"
                                         @click="removeOutputFile(index)">X</button>
-                            </div> -->
+                                </div>-->
                             </div>
                         </li>
                     </ol>
-                    <p v-else>
-                        This package does not require any output paths.
-                    </p>
+                    <p v-else>This package does not require any output paths.</p>
                     <!-- <div class="d-flex justify-content-end text-right">
                         <button class="btn btn-outline-primary btn-sm"
                                 @click="addOutputFile"> + Add Additional Filename</button>
-                    </div> -->
-
+                    </div>-->
                 </div>
                 <div>
-                    <button class="btn btn-lg btn-primary"
-                            @click="runPackage">Run Package</button>
+                    <button
+                        class="btn btn-lg btn-primary"
+                        @click="runPackage"
+                    >Run Package</button>
                 </div>
             </div>
         </modal>
-        <modal v-if="results"
-               @close="results = undefined"
-               modal-style="success"
-               modal-type="success">
-
+        <modal
+            v-if="results"
+            @close="results = undefined"
+            modal-style="success"
+            modal-type="success"
+        >
             <div>
                 <div>Package has been queued successfully.</div>
                 <div>
-                    Job ID: <b v-text="results.job_id"></b>
+                    Job ID:
+                    <b v-text="results.job_id"></b>
                 </div>
-                <button @click.prevent.stop="$router.push({name: 'jobs-list'})"
-                        class="btn btn-primary">Check Job Statuses</button>
+                <button
+                    @click.prevent.stop="$router.push({name: 'jobs-list'})"
+                    class="btn btn-primary"
+                >Check Job Statuses</button>
             </div>
         </modal>
-        <modal v-if="error"
-               @close="error = undefined"
-               modal-style="danger"
-               modal-type="error">
+        <modal
+            v-if="error"
+            @close="error = undefined"
+            modal-style="danger"
+            modal-type="error"
+        >
             <div>
                 <p>There was a problem:</p>
                 <p>{{error.error_message}}</p>
             </div>
         </modal>
-    </div>
 
+        <modal
+            @close="confirm_package_create_modal_close = true"
+            close-button-label="Cancel"
+            v-if="create_package_modal_open"
+            modal-width="60%"
+            modal-title="Create New Package"
+        >
+            <new-package-form
+                :tool-ids="tool_ids"
+                :archive-ids="archive_ids"
+                @packageCreated="create_package_modal_open = false;"
+                @startLoading="(key)=>$emit('startLoading',key)"
+                @stopLoading="(key)=>$emit('stopLoading',key)"
+            ></new-package-form>
+        </modal>
+        <modal
+            @ok="create_package_modal_open = false; confirm_package_create_modal_close = false;"
+            @close="confirm_package_create_modal_close = false"
+            close-button-label="No"
+            ok-button-label="Yes"
+            :ok-in-footer="true"
+            v-if="confirm_package_create_modal_close"
+        >Are you sure you want to close this window?</modal>
+    </div>
 </template>
 
 <script>
 import Modal from "@/components/Common/CommonModal.vue";
+import NewPackageForm from "@/components/Marketplace/MarketplaceNewPackageForm";
+
 export default {
     data: function() {
         return {
             results: undefined,
             error: undefined,
             show_run_modal: false,
-            output_filenames: [] //[""]
+            output_filenames: [], //[""]
+            create_package_modal_open: false,
+            create_package_modal_open: false,
+            confirm_package_create_modal_close: false
         };
     },
     computed: {
@@ -143,6 +205,19 @@ export default {
                 })
                 .join(", ");
         },
+        tool_ids: function() {
+            return this.racpackage.tools
+                .map(tool => {
+                    return tool.tool_id;
+                })
+        },
+        archive_ids: function() {
+            // return this.racpackage.archives
+            //     .map(archive => {
+            //         return archive.archive_id;
+            //     })
+            return this.racpackage.archive_ids || [];
+        },
         tool_descriptions: function() {
             return this.racpackage.tools
                 .map(tool => {
@@ -168,9 +243,7 @@ export default {
                     if (tool) {
                         output_files = [...output_files, ...tool.output_files];
                     }
-                } catch (err) {
-
-                }
+                } catch (err) {}
             }
 
             return output_files;
@@ -219,7 +292,10 @@ export default {
 
         runSuccess: function(response) {
             this.results = {
-                job_id: response.job_id || (response[0] && response[0].job_id) || "Unknown",
+                job_id:
+                    response.job_id ||
+                    (response[0] && response[0].job_id) ||
+                    "Unknown",
                 success_message: "Package is running."
             };
             console.debug(this.results);
@@ -252,7 +328,8 @@ export default {
         this.initializeOutputFilenames();
     },
     components: {
-        Modal
+        Modal,
+        NewPackageForm
     }
 };
 </script>

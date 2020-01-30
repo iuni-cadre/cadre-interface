@@ -326,7 +326,8 @@ def get_packages():
                 "max(tool.description) as tool_description, " \
                 "max(tool.name) as tool_name, " \
                 "max(tool.script_name) as tool_script_name, " \
-                "array_agg(archive.name) as input_files " \
+                "array_agg(archive.name) as input_files, " \
+                "array_agg(archive.archive_id) as archive_ids " \
                 "FROM package " \
                 "JOIN archive ON (package.archive_id = archive.archive_id) " \
                 "JOIN tool ON (package.tool_id = tool.tool_id) " \
@@ -356,6 +357,7 @@ def get_packages():
                 tool_name = package[9]
                 tool_script_name = package[10]
                 input_files = package[11]
+                archive_ids = package[12]
                 
                 #get the existing item on the dict or create an empty one
                 p = packages_dict.get(package_id, {})
@@ -368,6 +370,7 @@ def get_packages():
                 p['created_on'] = created_on
                 p['created_by'] = created_by
                 p['input_files'] = input_files
+                p['archive_ids'] = archive_ids
 
                 # get the tools or default to []
                 p['tools'] = p.get('tools', [])
