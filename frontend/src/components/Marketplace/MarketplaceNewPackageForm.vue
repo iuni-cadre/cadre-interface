@@ -91,7 +91,7 @@
             </div>
 
             <div class="form-group">
-                <button class="btn btn-primary">Create New Tool</button>
+                <button class="btn btn-primary">Create New Package</button>
             </div>
             <!-- {{data_to_send}} -->
         </form>
@@ -340,9 +340,13 @@ export default {
     },
     mounted: function() {
         this.getArchivesAndTools();
-        if(this.toolIds.length > 0)
+        if(this.toolIds && this.toolIds.length > 0)
         {
-            this.$set(this.data_to_send, "tools",this.toolIds);
+            this.$set(this.data_to_send, "tools", this.toolIds);
+        }
+        if(this.archiveIds && this.archiveIds.length > 0)
+        {
+            this.$set(this.data_to_send, "archives", this.archiveIds);
         }
     }
 };
