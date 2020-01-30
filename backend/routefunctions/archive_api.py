@@ -423,7 +423,7 @@ def delete_archive():
         print("The database connection has been closed successfully.")
 
 
-@blueprint.route('/rac-api/get-archives/user', methods=['GET'])
+@blueprint.route('/rac-api/get-archives', methods=['GET'])
 def get_archives():
     """
     This is a method which returns the details of all the archives for the user.
