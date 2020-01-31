@@ -139,9 +139,10 @@ def archive_user_file():
                                 )
                             """
 
+                s3_full_path = '/' + root_bucket_name + '/' + bucket_location
                 data = (str(archive_uuid),
                         query_result_id,
-                        bucket_location,
+                        s3_full_path,
                         archive_description,
                         archive_name,
                         json.dumps(permissions),
