@@ -4,6 +4,12 @@
             <div>
                 <h4 v-text="racpackage.name">Package Name</h4>
                 <div
+                    v-if="racpackage.created_by == user_id"
+                    class="small"
+                    v-text="`By: You`"
+                ></div>
+                <div
+                    v-else
                     class="small"
                     v-text="`By: ${racpackage.created_by || 'CADRE Team'}`"
                 ></div>
@@ -25,17 +31,30 @@
                                 class="ml-1"
                                 v-text="input_files || 'No Input Data Required'"
                             ></dd>
+                            <dt class="mr-1">Source Set{{datasets.length == 1?"":"s"}}:</dt>
+                            <dd
+                                class="ml-1"
+                                v-text="datasets_names.join(',')"
+                            ></dd>
                         </dl>
                     </div>
                     <!-- <div class="col">
                     </div>-->
                 </div>
             </div>
-
             <button
+                v-if="can_access_all_sets"
                 class="float-right btn-lg btn btn-primary"
                 @click="show_run_modal = true"
             >Run</button>
+            <button
+                v-else
+                class="float-right btn-lg btn btn-primary disabled"
+                disabled
+            >Run</button>
+            <div v-if="!can_access_all_sets">
+                <small>This package requires data from a source that you don't have access to.</small>
+            </div>
 
             <div class="mt-3">
                 <button
@@ -52,7 +71,7 @@
                 <!-- <pre v-text="racpackage"></pre> -->
                 <div class="card mb-3">
                     <div>
-                        Input Files:
+                        Input Data Sets:
                         <strong v-text="input_files ||  'No Input Data Required'"></strong>
                     </div>
                 </div>
@@ -61,45 +80,13 @@
                         Tool:
                         <strong v-text="tool_names"></strong>
                     </div>
-                    <small>
+                    <!-- <small>
                         created by
                         <span v-text="tool_authors"></span>
-                    </small>
+                    </small>-->
                     <div>
                         <span v-text="tool_descriptions"></span>
                     </div>
-                </div>
-                <div class="form-group card">
-                    <label>Output Paths</label>
-
-                    <ol
-                        v-if="tool_output_files.length > 0"
-                        class="pl-3"
-                    >
-                        <li
-                            class="mb-1"
-                            v-for="(filename, index) in tool_output_files"
-                            :key="`filename_${index}`"
-                        >
-                            <div class="input-group">
-                                <input
-                                    type="text"
-                                    placeholder
-                                    class="form-control"
-                                    v-model="output_filenames[index]"
-                                />
-                                <!-- <div class="input-group-append">
-                                <button class="btn btn-outline-danger not-round"
-                                        @click="removeOutputFile(index)">X</button>
-                                </div>-->
-                            </div>
-                        </li>
-                    </ol>
-                    <p v-else>This package does not require any output paths.</p>
-                    <!-- <div class="d-flex justify-content-end text-right">
-                        <button class="btn btn-outline-primary btn-sm"
-                                @click="addOutputFile"> + Add Additional Filename</button>
-                    </div>-->
                 </div>
                 <div>
                     <button
@@ -169,6 +156,8 @@
 import Modal from "@/components/Common/CommonModal.vue";
 import NewPackageForm from "@/components/Marketplace/MarketplaceNewPackageForm";
 
+import Datasets from "../../datasets";
+
 export default {
     data: function() {
         return {
@@ -182,8 +171,63 @@ export default {
         };
     },
     computed: {
+        datasets_names: function() {
+            let names = [];
+            for (let dataset of this.datasets) {
+                names.push(
+                    (Datasets[dataset] && Datasets[dataset].name) || "Unknown"
+                );
+            }
+            return names;
+        },
+        datasets: function() {
+            let datasets = new Set();
+            for (let perm of this.racpackage.permissions) {
+                if (!perm || !perm.data_type) {
+                    datasets.add("unknown");
+                    continue;
+                }
+                let name = perm.data_type;
+                datasets.add(name.toLowerCase());
+            }
+            return [...datasets];
+        },
+        can_access_dataset: function() {
+            let user_roles = this.$store.getters["user/roles"];
+            return function(dataset_id) {
+                let allow = false;
+                let dataset_roles =
+                    Datasets[dataset_id] && Datasets[dataset_id].allowed_roles;
+                //if it's not a defined dataset, you can't run it.
+                if (!dataset_roles) {
+                    return false;
+                }
+
+                //short circuit... if dataset has no allowed roles, it's open for all
+                if (dataset_roles.length == 0) {
+                    return true;
+                }
+                //check all my roles.  If at least one of my roles is allowed for this data set, return true
+                for (let role of user_roles) {
+                    if (dataset_roles.indexOf(role) > -1) {
+                        return true;
+                    }
+                }
+            };
+        },
+        can_access_all_sets: function() {
+            for (let set of this.datasets) {
+                if (!this.can_access_dataset(set)) {
+                    return false;
+                }
+            }
+            return true;
+        },
         racpackage: function() {
             return this.RacPackage;
+        },
+        user_id: function() {
+            return this.$store.state.user.user_id;
         },
         // tool: function() {
         //     let packages = this.$store.getters["racpackage/tools"];
@@ -206,10 +250,9 @@ export default {
                 .join(", ");
         },
         tool_ids: function() {
-            return this.racpackage.tools
-                .map(tool => {
-                    return tool.tool_id;
-                })
+            return this.racpackage.tools.map(tool => {
+                return tool.tool_id;
+            });
         },
         archive_ids: function() {
             // return this.racpackage.archives
@@ -260,17 +303,25 @@ export default {
             this.output_filenames.splice(index, 1);
         },
         runPackage: function() {
-            for (let filename of this.output_filenames) {
-                if (filename.trim() == "") {
-                    this.error = {
-                        error_message: "Output path is empty."
-                    };
-                    return false;
-                }
-            }
-            if (this.output_filenames.length != this.tool_output_files.length) {
+            // for (let filename of this.output_filenames) {
+            //     if (filename.trim() == "") {
+            //         this.error = {
+            //             error_message: "Output path is empty."
+            //         };
+            //         return false;
+            //     }
+            // }
+            // if (this.output_filenames.length != this.tool_output_files.length) {
+            //     this.error = {
+            //         error_message: "Must specify the correct number of paths."
+            //     };
+            //     return false;
+            // }
+
+            if (!this.can_access_all_sets) {
                 this.error = {
-                    error_message: "Must specify the correct number of paths."
+                    error_message:
+                        "Your account doesn't have permission to use the source dataset of this package."
                 };
                 return false;
             }

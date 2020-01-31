@@ -281,6 +281,13 @@ def get_packages():
     if validate_token_response.status_code is not 200:
         return jsonify({"error": "Invalid Token"}), 403
 
+    validate_response_json = None
+    try:
+        validate_response_json = validate_token_response.get_json()
+    except:
+        validate_response_json = validate_token_response.json()
+    user_id = validate_response_json.get("user_id", None)
+
     # Validating the Request here
     try:
         limit_value = int(limit)
@@ -314,31 +321,33 @@ def get_packages():
     # Only use string interpolation for Order By clause (using our sanitized actual_or_by)
     # User psycopg2's substitution for other parameters to prevent other sql injection (limit, offset)
     try:
-        query = "SELECT " \
-                "max(package.package_id) as package_id, " \
-                "max(package.type) as type, " \
-                "max(package.description) as description, " \
-                "max(package.name) as name, " \
-                "max(package.doi) as doi, " \
-                "max(package.created_on) as created_on, " \
-                "max(package.created_by) as created_by, " \
-                "max(tool.tool_id) as tool_id, " \
-                "max(tool.description) as tool_description, " \
-                "max(tool.name) as tool_name, " \
-                "max(tool.script_name) as tool_script_name, " \
-                "array_agg(archive.name) as input_files, " \
-                "array_agg(archive.archive_id) as archive_ids " \
-                "FROM package " \
-                "JOIN archive ON (package.archive_id = archive.archive_id) " \
-                "JOIN tool ON (package.tool_id = tool.tool_id) " \
-                "GROUP BY package.package_id " \
-                "ORDER BY {} " \
-                "LIMIT %s " \
-                "OFFSET %s ".format(actual_order_by)
-
-        cur.execute(query, (limit, offset))
+        query = """SELECT 
+                    max(package.package_id) as package_id, 
+                    max(package.type) as type, 
+                    max(package.description) as description, 
+                    max(package.name) as name, 
+                    max(package.doi) as doi, 
+                    max(package.created_on) as created_on, 
+                    max(package.created_by) as created_by, 
+                    max(tool.tool_id) as tool_id, 
+                    max(tool.description) as tool_description, 
+                    max(tool.name) as tool_name, 
+                    max(tool.script_name) as tool_script_name, 
+                    array_agg(archive.name) as input_files, 
+                    array_agg(archive.archive_id) as archive_ids, 
+                    array_agg(archive.permissions) as permissions 
+                FROM package 
+                    JOIN archive ON (package.archive_id = archive.archive_id) 
+                    JOIN tool ON (package.tool_id = tool.tool_id) 
+                WHERE package.to_be_deleted IS NOT TRUE AND (package.published IS TRUE OR package.created_by = %s)
+                GROUP BY package.package_id 
+                ORDER BY {} 
+                LIMIT %s 
+                OFFSET %s """.format(actual_order_by)
+        print(str(cur.mogrify(query, (user_id, limit, offset))))
+        cur.execute(query, (user_id, limit, offset))
         if cur.rowcount == 0:
-            return jsonify({"error": "Query returns zero results."}), 404
+            return jsonify([]), 200
         elif cur.rowcount > 0:
             packages = cur.fetchall()
             packages_dict = {}
@@ -358,6 +367,7 @@ def get_packages():
                 tool_script_name = package[10]
                 input_files = package[11]
                 archive_ids = package[12]
+                permissions = package[13]
                 
                 #get the existing item on the dict or create an empty one
                 p = packages_dict.get(package_id, {})
@@ -371,6 +381,7 @@ def get_packages():
                 p['created_by'] = created_by
                 p['input_files'] = input_files
                 p['archive_ids'] = archive_ids
+                p['permissions'] = permissions
 
                 # get the tools or default to []
                 p['tools'] = p.get('tools', [])
@@ -389,7 +400,7 @@ def get_packages():
             return jsonify(list(packages_dict.values())), 200
     except Exception as e:
         print("There was an error: ", str(e))  # Sends the error to the log
-        return jsonify({"error:": "Problem querying the package table or the archive table or the tools table in the meta database.", "details": str(e)}), 500
+        return jsonify({"error": "Problem querying the package table or the archive table or the tools table in the meta database.", "details": str(e)}), 500
 
     finally:
         cur.close()
@@ -613,8 +624,10 @@ def create_packages():
         package_name = request_json.get('name', None)
         package_description = request_json.get('description', None)
         tools = request_json.get('tools', None)
-        input_file_archive_ids = request_json.get('input_files', None)
-        output_files = request_json.get('output_files', None)
+        tool_id = tools[0]
+        input_file_archive_ids = request_json.get('archives', None)
+        # input_file_archive_ids = request_json.get('input_files', None)
+        # output_files = request_json.get('output_files', None)
         package_type = request_json.get('type', None)
         if package_name is None or package_description is None \
             or package_type is None \
@@ -632,9 +645,15 @@ def create_packages():
                                 port=meta_db_config["database-port"])
         cur = conn.cursor()
         package_id = str(uuid.uuid4())
-        insert_q = "INSERT INTO package(package_id,type,description,name,created_on, created_by) VALUES (%s,%s,%s,%s,NOW(),%s)"
-        data = (package_id,package_type, package_description, package_name, user_id)
-        cur.execute(insert_q, data)
+        insert_q = """INSERT INTO package
+            (package_id,type,description,name,created_on, created_by, archive_id, tool_id) 
+            VALUES 
+            (%s,%s,%s,%s,NOW(),%s, %s, %s)"""
+        
+        for archive_id in input_file_archive_ids:
+            data = (package_id,package_type, package_description, package_name, user_id, archive_id, tool_id)
+            cur.execute(insert_q, data)
+        
         conn.commit()
         print("Data inserted in the package table successfully.")
         # get tool info from db

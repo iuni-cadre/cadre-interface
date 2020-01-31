@@ -133,7 +133,8 @@ export default {
                 name: "",
                 description: "",
                 archives: [],
-                tools: [""]
+                tools: [""],
+                type: "user_defined"
             },
             available_archives: [],
             available_tools: [],
