@@ -112,7 +112,10 @@
             class="d-flex justify-content-center construction alert-warning small p-1"
         >
             <div>
-                <div class="text-center" v-if="is_under_construction">
+                <div
+                    class="text-center"
+                    v-if="is_under_construction"
+                >
                     <img src="@/assets/under_construction.gif" />
                 </div>
                 <span v-text="version.warning"></span>
@@ -264,11 +267,14 @@
                 <strong>Resources</strong>
                     </div> #}-->
                 </div>
-                <div class="mt-5 text-center small text-muted">
-                    CADRE Big Data Gateway Version {{version.number}}
-                </div>
+                <div
+                    class="mt-5 text-center small text-muted"
+                >CADRE Big Data Gateway Version {{version.number}}</div>
             </div>
         </footer>
+        <div class="feedback-link">
+            <a href="https://iuni.iu.edu/resources/cadre/user-stories" target="_blank" class="btn btn-primary">Send Feedback</a>
+        </div>
     </div>
 </template>
 <script>
@@ -508,6 +514,22 @@ header#main-header .nav-item {
     .logos img {
         // border: solid blue 1px;
         max-width: 100%;
+    }
+}
+
+.feedback-link
+{
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    opacity: 0.5;
+
+    &:hover {
+        opacity: 1;
+    }
+
+    a {
+        text-decoration: none;
     }
 }
 </style>

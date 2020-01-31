@@ -80,6 +80,7 @@ export default {
                 }
 
                 request = {
+                    job_name: payload.job_name,
                     filters: query_array,
                     output: fields,
                     dataset: dataset
