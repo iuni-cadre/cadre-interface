@@ -32,12 +32,31 @@
                 >Delete Archive</button>
             </div>
         </div>
+
         <modal
+            @close="confirm_package_create_modal_close = true"
+            close-button-label="Cancel"
             v-if="create_package_modal_open"
-            @close="create_package_modal_open = false"
+            modal-width="60%"
+            modal-title="Create New Package"
         >
-            <div>This feature not yet implemented.</div>
+            <new-package-form
+                :archive-ids="[archive.archive_id]"
+                @packageCreated="create_package_modal_open = false;"
+                @startLoading="(key)=>$emit('startLoading',key)"
+                @stopLoading="(key)=>$emit('stopLoading',key)"
+            ></new-package-form>
         </modal>
+        
+        <modal
+            @ok="create_package_modal_open = false; confirm_package_create_modal_close = false;"
+            @close="confirm_package_create_modal_close = false"
+            close-button-label="No"
+            ok-button-label="Yes"
+            :ok-in-footer="true"
+            v-if="confirm_package_create_modal_close"
+        >Are you sure you want to close this window?</modal>
+
         <modal
             v-if="delete_archive_open"
             @close="delete_archive_open = false"
@@ -66,12 +85,12 @@
         >
             <p>Archive could not be deleted.</p>
         </modal>
-
     </div>
 </template>
 
 <script>
 import Modal from "@/components/Common/CommonModal.vue";
+import NewPackageForm from "@/components/Marketplace/MarketplaceNewPackageForm";
 export default {
     data: function() {
         return {
@@ -80,25 +99,25 @@ export default {
             create_package_modal_open: false,
             delete_archive_open: false,
             delete_success_open: false,
-            delete_error_open: false
+            delete_error_open: false,
+
+            confirm_package_create_modal_close: false
         };
     },
     computed: {
         archive: function() {
             return this.RacArchive;
         },
-        user_id: function(){
+        user_id: function() {
             return this.$store.state.user.user_id;
         }
-
     },
     props: {
         RacArchive: Object
     },
     methods: {
         deleteArchive: function() {
-            if( this.archive.created_by != this.user_id )
-            {
+            if (this.archive.created_by != this.user_id) {
                 return false;
             }
             this.$emit("startLoading", "archiveDelete");
@@ -125,7 +144,7 @@ export default {
 
             this.delete_archive_open = false;
         },
-        deleteSuccess: function(){
+        deleteSuccess: function() {
             this.delete_success_open = false;
             this.$emit("archiveDeleted", this.archive);
         }
@@ -139,7 +158,8 @@ export default {
         // this.initializeOutputFilenames();
     },
     components: {
-        Modal
+        Modal,
+        NewPackageForm
     }
 };
 </script>

@@ -3,7 +3,6 @@
         <!-- <new-archive-form @startLoading="(key)=>$emit('startLoading',key)" @stopLoading="(key)=>$emit('stopLoading',key)"/> -->
         {{user_id}}
         <test-component
-            :rac-archive="tools[0]"
             @startLoading="(key)=>$emit('startLoading',key)"
             @stopLoading="(key)=>$emit('stopLoading',key)"
         ></test-component>
@@ -14,17 +13,43 @@
 // import FileBrowser from "../../components/Filebrowser/FilebrowserMain";
 // import NewToolForm from "../../components/Marketplace/MarketplaceNewToolForm";
 // import NewArchiveForm from "../../components/Marketplace/MarketplaceNewArchiveForm";
-import TestComponent from "../../components/Marketplace/MarketplaceArchiveCard";
+import TestComponent from "../../components/Marketplace/MarketplaceNewPackageForm";
 
 const TOOLS = [
     {
-        archive_description: "",
-        archive_id: "aa8d1876-3007-439d-93bd-4619dc270857",
-        archive_name: "test",
+        tool_description: "",
+        tool_id: "aa8d1876-3007-439d-93bd-4619dc270857",
+        tool_name: "test",
         created_on: "2020-01-27T21:03:13.358954+00:00",
         permissions: { data_type: "MAG", other: [] },
         created_by: "1000"
     }
+];
+const ARCHIVES = [
+    {
+        archive_description: "",
+        archive_id: "1",
+        archive_name: "test1",
+        created_on: "2020-01-27T21:03:13.358954+00:00",
+        permissions: { data_type: "MAG", other: [] },
+        created_by: "1000"
+    },
+    {
+        archive_description: "",
+        archive_id: "2",
+        archive_name: "test2",
+        created_on: "2020-01-27T21:03:13.358954+00:00",
+        permissions: { data_type: "MAG", other: [] },
+        created_by: "1000"
+    },
+    {
+        archive_description: "",
+        archive_id: "3",
+        archive_name: "test3",
+        created_on: "2020-01-27T21:03:13.358954+00:00",
+        permissions: { data_type: "MAG", other: [] },
+        created_by: "1000"
+    },
 ];
 export default {
     components: {
@@ -37,6 +62,9 @@ export default {
         },
         tools: function() {
             return TOOLS;
+        },
+        archives: function() {
+            return ARCHIVES;
         }
     },
     methods: {

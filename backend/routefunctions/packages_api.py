@@ -23,8 +23,8 @@ aws_config = readconfig.aws
 # def get_tools():
 #     pass
 
-@blueprint.route('/rac-api/delete-package/<package_id>', methods=['GET'])
-def delete_package(package_id):
+@blueprint.route('/rac-api/packages/delete', methods=['POST'])
+def delete_package():
     """
     This is a method delete the package with given id.
 
@@ -53,16 +53,19 @@ def delete_package(package_id):
     if not user_id:
         return jsonify({"error": "Invalid user"}), 401
 
+    package_id = request.get_json().get("package_id", None)
+
     # This is where we are actually connecting to the database and getting the details of the tools
     conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
                             password=meta_db_config["database-password"], host=meta_db_config["database-host"],
                             port=meta_db_config["database-port"])
+    conn.autocommit = True
     cur = conn.cursor()
 
     # Here we are getting all the details of the all the different tools from the database
     try:
-        query = """UPDATE package set to_be_deleted=%s WHERE package_id=%s"""
-        cur.execute(query, (True, package_id))
+        query = """UPDATE package set to_be_deleted=TRUE WHERE package_id=%s"""
+        cur.execute(query, (package_id,))
         return jsonify({'Deletion': 'Successful'}), 200
     except Exception:
         return jsonify({"error:", "Problem updating the package table in the meta database."}), 500

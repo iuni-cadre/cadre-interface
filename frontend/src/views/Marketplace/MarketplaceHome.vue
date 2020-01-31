@@ -3,14 +3,15 @@
         <section>
             <div class="container">
                 <h2>Marketplace</h2>
-<!-- 
+                <!-- 
 ########     ###     ######  ##    ##    ###     ######   ########  ######  
 ##     ##   ## ##   ##    ## ##   ##    ## ##   ##    ##  ##       ##    ## 
 ##     ##  ##   ##  ##       ##  ##    ##   ##  ##        ##       ##       
 ########  ##     ## ##       #####    ##     ## ##   #### ######    ######  
 ##        ######### ##       ##  ##   ######### ##    ##  ##             ## 
 ##        ##     ## ##    ## ##   ##  ##     ## ##    ##  ##       ##    ## 
-##        ##     ##  ######  ##    ## ##     ##  ######   ########  ######   -->
+##        ##     ##  ######  ##    ## ##     ##  ######   ########  ######
+                -->
 
                 <hr />
 
@@ -27,18 +28,20 @@
                                 @startLoading="(data)=>{ $emit('startLoading', data); }"
                                 @stopLoading="(data)=>{ $emit('stopLoading', data); }"
                                 :rac-package="racpackage"
+                                @packageDeleted="getPackages()"
                             ></rac-package-card>
                         </div>
                     </div>
                 </div>
-<!-- 
+                <!-- 
 ########  #######   #######  ##        ######  
    ##    ##     ## ##     ## ##       ##    ## 
    ##    ##     ## ##     ## ##       ##       
    ##    ##     ## ##     ## ##        ######  
    ##    ##     ## ##     ## ##             ## 
    ##    ##     ## ##     ## ##       ##    ## 
-   ##     #######   #######  ########  ######   -->
+   ##     #######   #######  ########  ######
+                -->
 
                 <hr />
 
@@ -73,9 +76,7 @@
                     modal-width="60%"
                     modal-title="Create New Tool"
                 >
-                    <new-tool-form
-                        @toolCreated="show_create_tool_modal = false;"
-                    ></new-tool-form>
+                    <new-tool-form @toolCreated="show_create_tool_modal = false;"></new-tool-form>
                 </modal>
                 <modal
                     @ok="show_create_tool_modal = false; confirm_tool_create_modal_close = false;"
@@ -86,8 +87,7 @@
                     v-if="confirm_tool_create_modal_close"
                 >Are you sure you want to close this window?</modal>
 
-
-<!-- 
+                <!-- 
    ###    ########   ######  ##     ## #### ##     ## ########  ######  
   ## ##   ##     ## ##    ## ##     ##  ##  ##     ## ##       ##    ## 
  ##   ##  ##     ## ##       ##     ##  ##  ##     ## ##       ##       
@@ -95,7 +95,7 @@
 ######### ##   ##   ##       ##     ##  ##   ##   ##  ##             ## 
 ##     ## ##    ##  ##    ## ##     ##  ##    ## ##   ##       ##    ## 
 ##     ## ##     ##  ######  ##     ## ####    ###    ########  ######  
-                 -->
+                -->
                 <hr />
 
                 <div class="archives-container">
@@ -108,19 +108,20 @@
                             >Create New Data Archive</button>
                         </div>
                     </div>
-                    <!-- <div class="row flex-wrap">
+                    <div class="row flex-wrap">
                         <div
-                            v-for="(racarchive, index) in racarchives"
+                            v-for="(racarchive, index) in available_archives"
                             :key="`racarchive_card_${index}`"
                             class="col-md-4 d-flex"
                         >
-                            <rac-archive-card
+                            <archive-card
                                 @startLoading="(data)=>{ $emit('startLoading', data); }"
                                 @stopLoading="(data)=>{ $emit('stopLoading', data); }"
                                 :rac-archive="racarchive"
-                            ></rac-archive-card>
+                                @archiveDeleted="fetchYourArchives()"
+                            ></archive-card>
                         </div>
-                    </div> -->
+                    </div>
                 </div>
                 <modal
                     @close="confirm_archive_create_modal_close = true"
@@ -129,9 +130,7 @@
                     modal-width="60%"
                     modal-title="Create New archive"
                 >
-                    <new-archive-form
-                        @archiveCreated="show_create_archive_modal = false;"
-                    ></new-archive-form>
+                    <new-archive-form @archiveCreated="show_create_archive_modal = false;"></new-archive-form>
                 </modal>
                 <modal
                     @ok="show_create_archive_modal = false; confirm_archive_create_modal_close = false;"
@@ -165,7 +164,14 @@ export default {
             show_create_tool_modal: false,
             confirm_tool_create_modal_close: false,
             show_create_archive_modal: false,
-            confirm_archive_create_modal_close: false
+            confirm_archive_create_modal_close: false,
+
+            available_tools: [],
+            available_archives: [],
+
+            get_archives_endpoint:
+                this.$cadreConfig.rac_api_prefix + "/get-archives",
+            get_tools_endpoint: this.$cadreConfig.rac_api_prefix + "/get-tools"
         };
     },
     computed: {
@@ -189,10 +195,87 @@ export default {
         // openCreateToolModal: function(){
         //     this.show_create_tool_modal = true;
         // }
-    },
-    mounted: function() {
-        //start loading
-        if (this.racpackages.length === 0) {
+        getArchives: function() {
+            let prom = new Promise((resolve, reject) => {
+                if (this.existingTools && this.existingTools.length > 0) {
+                    this.$set(
+                        this,
+                        "available_archives",
+                        this.existingArchives
+                    );
+                    resolve();
+                } else {
+                    //do ajax
+                    // reject({ error: "Test promise." });
+                    let axios_prom = this.$cadre.axios({
+                        url: this.get_archives_endpoint,
+                        method: "GET"
+                    });
+                    axios_prom.then(
+                        response => {
+                            let archives = response.data;
+                            this.$set(this, "available_archives", archives);
+                            resolve(response);
+                        },
+                        error => {
+                            this.error_message.push(
+                                "Could not fetch the list of data sets."
+                            );
+                            reject(error);
+                        }
+                    );
+                }
+            });
+            return prom;
+        },
+        getTools: function() {
+            let prom = new Promise((resolve, reject) => {
+                if (this.existingTools && this.existingTools.length > 0) {
+                    this.$set(this, "available_tools", this.existingTools);
+                    resolve();
+                } else {
+                    let axios_prom = this.$cadre.axios({
+                        url: this.get_tools_endpoint,
+                        method: "GET"
+                    });
+                    axios_prom.then(
+                        response => {
+                            let tools = response.data;
+                            this.$set(this, "available_tools", tools);
+                            resolve(response);
+                        },
+                        error => {
+                            this.error_message.push(
+                                "Could not fetch the list of tools."
+                            );
+                            reject(error);
+                        }
+                    );
+                }
+            });
+            return prom;
+        },
+        getArchivesAndTools: function() {
+            this.$emit("startLoading", "getPackageOptions");
+            let proms = [];
+            proms.push(this.getArchives());
+            proms.push(this.getTools());
+
+            let prom = Promise.all(proms);
+            prom.then(
+                responses => {
+                    console.debug(responses);
+                },
+                errors => {
+                    console.error(errors);
+                }
+            );
+            prom.finally(() => {
+                this.$emit("stopLoading", "getPackageOptions");
+            });
+            return prom;
+        },
+        getPackages: function() {
             this.$emit("startLoading", { key: "get_packages", message: "" });
             let get_packages_prom = this.$store.dispatch(
                 "racpackage/getPackages"
@@ -203,6 +286,14 @@ export default {
                 this.$emit("stopLoading", { key: "get_packages" });
             });
         }
+    },
+    mounted: function() {
+        //start loading
+        if (this.racpackages.length === 0) {
+            this.getPackages();
+        }
+
+        this.getArchives();
     }
 };
 </script>
