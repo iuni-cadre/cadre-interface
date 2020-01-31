@@ -18,6 +18,7 @@
                     <table class="table mt-3">
                         <tr>
                             <th>Job ID</th>
+                            <th>Name</th>
                             <th>Status</th>
                             <th>Type</th>
                             <th>Started</th>
@@ -34,6 +35,7 @@
                             :key="job.job_id">
 
                             <td v-text="job.job_id">Job Id</td>
+                            <td v-text="job.job_name">Job Name</td>
                             <td v-text="job.status">Status</td>
                             <td v-text="job.type">Type</td>
                             <td v-text="job.start.toLocaleString()">Started</td>
@@ -42,7 +44,7 @@
                        v-text="job[2]"></a></td> -->
                         </tr>
                         <tr v-if="jobs.length === 0">
-                            <td colspan="3">No jobs could be found</td>
+                            <td colspan="6">No jobs could be found</td>
                         </tr>
                     </table>
                 </div>
@@ -137,7 +139,8 @@ export default {
                                 job[6].substr(1).toLowerCase(),
                             start: new Date(job[4]),
                             update: job[5] ? new Date(job[5]) : new Date(),
-                            run_time: this.getRunTime(job)
+                            run_time: this.getRunTime(job),
+                            job_name: job[8]
                         });
                     }
 
