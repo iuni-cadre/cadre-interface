@@ -62,6 +62,20 @@
                     @click="create_package_modal_open = true;"
                 >Clone Package</button>
             </div>
+            
+            <div
+                class="mt-3"
+                v-if="racpackage.created_by == user_id"
+            >
+                <!-- <button
+                    class="float-right btn btn-outline-danger"
+                    @click="delete_tool_open = true;"
+                >Delete Tool</button>-->
+                <button
+                    class="float-right btn-link btn text-danger"
+                    @click="delete_package_open = true;"
+                >Delete Package</button>
+            </div>
         </div>
         <modal
             v-if="show_run_modal"
@@ -149,6 +163,37 @@
             :ok-in-footer="true"
             v-if="confirm_package_create_modal_close"
         >Are you sure you want to close this window?</modal>
+
+        <modal
+            v-if="delete_package_open"
+            @close="delete_package_open = false"
+            @ok="deletePackage()"
+            modal-style="danger"
+            modal-type="delete"
+            ok-button-label="Yes, Delete Package"
+            close-button-label="Cancel"
+        >
+            <p>Are you sure you want to delete this Package?</p>
+        </modal>
+        <modal
+            v-if="delete_success_open"
+            @close="deleteSuccess()"
+            modal-style="success"
+            close-button-label="OK"
+        >
+            <p>Package was deleted successfully</p>
+        </modal>
+        <modal
+            v-if="delete_error_open"
+            @close="delete_error_open=false"
+            modal-style="danger"
+            modal-type="error"
+            close-button-label="Close"
+        >
+            <p>Package could not be deleted.</p>
+        </modal>
+
+        
     </div>
 </template>
 
@@ -167,7 +212,12 @@ export default {
             output_filenames: [], //[""]
             create_package_modal_open: false,
             create_package_modal_open: false,
-            confirm_package_create_modal_close: false
+            confirm_package_create_modal_close: false,
+
+            
+            delete_package_open: false,
+            delete_success_open: false,
+            delete_error_open: false,
         };
     },
     computed: {
@@ -296,12 +346,44 @@ export default {
         RacPackage: Object
     },
     methods: {
-        addOutputFile: function() {
-            this.output_filenames.push("");
+        deletePackage: function() {
+            if (this.racpackage.created_by != this.user_id) {
+                return false;
+            }
+            this.$emit("startLoading", "packageDelete");
+            let delete_prom = this.$cadre.axios({
+                url: this.$cadreConfig.rac_api_prefix + "/packages/delete",
+                method: "POST",
+                data: {
+                    package_id: this.racpackage.package_id
+                }
+            });
+            delete_prom.then(
+                response => {
+                    this.delete_success_open = true;
+                },
+                error => {
+                    console.error(error);
+                    this.delete_error_open = true;
+                }
+            );
+            delete_prom.finally(() => {
+                this.delete_package_open = false;
+                this.$emit("stopLoading", "packageDelete");
+            });
+
+            this.delete_package_open = false;
         },
-        removeOutputFile: function(index) {
-            this.output_filenames.splice(index, 1);
+        deleteSuccess: function() {
+            this.delete_success_open = false;
+            this.$emit("packageDeleted", this.racpackage);
         },
+        // addOutputFile: function() {
+        //     this.output_filenames.push("");
+        // },
+        // removeOutputFile: function(index) {
+        //     this.output_filenames.splice(index, 1);
+        // },
         runPackage: function() {
             // for (let filename of this.output_filenames) {
             //     if (filename.trim() == "") {

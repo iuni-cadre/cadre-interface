@@ -10,7 +10,8 @@
 ########  ##     ## ##       #####    ##     ## ##   #### ######    ######  
 ##        ######### ##       ##  ##   ######### ##    ##  ##             ## 
 ##        ##     ## ##    ## ##   ##  ##     ## ##    ##  ##       ##    ## 
-                ##        ##     ##  ######  ##    ## ##     ##  ######   ########  ######-->
+##        ##     ##  ######  ##    ## ##     ##  ######   ########  ######
+                -->
 
                 <hr />
 
@@ -27,6 +28,7 @@
                                 @startLoading="(data)=>{ $emit('startLoading', data); }"
                                 @stopLoading="(data)=>{ $emit('stopLoading', data); }"
                                 :rac-package="racpackage"
+                                @packageDeleted="getPackages()"
                             ></rac-package-card>
                         </div>
                     </div>
@@ -38,7 +40,8 @@
    ##    ##     ## ##     ## ##        ######  
    ##    ##     ## ##     ## ##             ## 
    ##    ##     ## ##     ## ##       ##    ## 
-                ##     #######   #######  ########  ######-->
+   ##     #######   #######  ########  ######
+                -->
 
                 <hr />
 
@@ -115,6 +118,7 @@
                                 @startLoading="(data)=>{ $emit('startLoading', data); }"
                                 @stopLoading="(data)=>{ $emit('stopLoading', data); }"
                                 :rac-archive="racarchive"
+                                @archiveDeleted="fetchYourArchives()"
                             ></archive-card>
                         </div>
                     </div>
@@ -270,11 +274,8 @@ export default {
                 this.$emit("stopLoading", "getPackageOptions");
             });
             return prom;
-        }
-    },
-    mounted: function() {
-        //start loading
-        if (this.racpackages.length === 0) {
+        },
+        getPackages: function() {
             this.$emit("startLoading", { key: "get_packages", message: "" });
             let get_packages_prom = this.$store.dispatch(
                 "racpackage/getPackages"
@@ -284,6 +285,12 @@ export default {
                 //stop loading
                 this.$emit("stopLoading", { key: "get_packages" });
             });
+        }
+    },
+    mounted: function() {
+        //start loading
+        if (this.racpackages.length === 0) {
+            this.getPackages();
         }
 
         this.getArchives();

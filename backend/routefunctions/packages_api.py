@@ -65,7 +65,7 @@ def delete_package():
     # Here we are getting all the details of the all the different tools from the database
     try:
         query = """UPDATE package set to_be_deleted=TRUE WHERE package_id=%s"""
-        cur.execute(query, (True, package_id))
+        cur.execute(query, (package_id,))
         return jsonify({'Deletion': 'Successful'}), 200
     except Exception:
         return jsonify({"error:", "Problem updating the package table in the meta database."}), 500
