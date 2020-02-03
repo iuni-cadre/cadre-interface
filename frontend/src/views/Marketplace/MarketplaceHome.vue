@@ -180,6 +180,9 @@ export default {
         },
         ractools: function() {
             return this.$store.getters["racpackage/tools"];
+        },
+        package_refresh: function(){
+            return this.$store.state.racpackage.package_refresh;
         }
     },
     components: {
@@ -285,6 +288,12 @@ export default {
                 //stop loading
                 this.$emit("stopLoading", { key: "get_packages" });
             });
+        }
+    },
+    watch: {
+        package_refresh: function(){
+            this.getPackages();
+            console.debug("refresh" );
         }
     },
     mounted: function() {

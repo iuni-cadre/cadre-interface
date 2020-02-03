@@ -6,7 +6,8 @@ export default {
         search_query: "",
         packages: [],
         tools: {},
-        my_jobs: []
+        my_jobs: [],
+        refresh_packages: ""
     },
     getters: {
         packages: function(state) {
@@ -41,6 +42,10 @@ export default {
                 state.my_jobs.push(job);
                 // Vue.set(state.my_jobs, tool.tool_id, tool);
             }
+        },
+        refreshPackages: function(state) {
+            Vue.set(state, "refresh_packages", new Date());
+            console.debug("TEST");
         }
     },
 //     //    ###     ######  ######## ####  #######  ##    ##  ######

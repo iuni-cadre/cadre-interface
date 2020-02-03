@@ -77,7 +77,7 @@ def delete_package():
 
 
 
-@blueprint.route('/rac-api/packages/get-packages/user', methods=['GET'])
+@blueprint.route('/rac-api/get-packages/user', methods=['GET'])
 def get_packages_user():
     """
     This is a method which returns the details of all the packages

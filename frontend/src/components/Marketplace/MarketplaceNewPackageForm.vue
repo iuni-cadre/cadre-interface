@@ -284,6 +284,7 @@ export default {
                 prom.then(
                     response => {
                         this.success = response;
+                        this.$store.commit("racpackage/refreshPackages");
                     },
                     error => {
                         let message =
