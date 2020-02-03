@@ -361,6 +361,7 @@ export default {
             delete_prom.then(
                 response => {
                     this.delete_success_open = true;
+                    this.$store.commit("racpackage/refreshPackages");
                 },
                 error => {
                     console.error(error);

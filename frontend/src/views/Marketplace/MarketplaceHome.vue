@@ -118,7 +118,7 @@
                                 @startLoading="(data)=>{ $emit('startLoading', data); }"
                                 @stopLoading="(data)=>{ $emit('stopLoading', data); }"
                                 :rac-archive="racarchive"
-                                @archiveDeleted="fetchYourArchives()"
+                                @archiveDeleted="getArchives()"
                             ></archive-card>
                         </div>
                     </div>
@@ -181,8 +181,11 @@ export default {
         ractools: function() {
             return this.$store.getters["racpackage/tools"];
         },
-        package_refresh: function(){
-            return this.$store.state.racpackage.package_refresh;
+        refresh_packages: function(){
+            return this.$store.state.racpackage.refresh_packages;
+        },
+        refresh_tools: function(){
+            return this.$store.state.racpackage.refresh_tools;
         }
     },
     components: {
@@ -291,7 +294,11 @@ export default {
         }
     },
     watch: {
-        package_refresh: function(){
+        refresh_packages: function(){
+            this.getPackages();
+            console.debug("refresh" );
+        },
+        refresh_tools: function(){
             this.getPackages();
             console.debug("refresh" );
         }

@@ -7,9 +7,16 @@ export default {
         packages: [],
         tools: {},
         my_jobs: [],
-        refresh_packages: ""
+        refresh_packages: 2,
+        refresh_tools: 2
     },
     getters: {
+        refresh_packages: function(state){
+            return state.refresh_packages;
+        },
+        refresh_tools: function(state){
+            return state.refresh_tools;
+        },
         packages: function(state) {
             return state.packages;
         },
@@ -44,8 +51,10 @@ export default {
             }
         },
         refreshPackages: function(state) {
-            Vue.set(state, "refresh_packages", new Date());
-            console.debug("TEST");
+            Vue.set(state, "refresh_packages", state.refresh_packages + 1);
+        },
+        refreshTools: function(state) {
+            Vue.set(state, "refresh_tools", state.refresh_tools + 1);
         }
     },
 //     //    ###     ######  ######## ####  #######  ##    ##  ######

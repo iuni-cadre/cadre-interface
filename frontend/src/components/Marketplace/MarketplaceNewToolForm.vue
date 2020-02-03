@@ -15,7 +15,7 @@
                 />
             </div>
             <div class="form-group">
-                <label>Description</label>
+                <label>Description <small class="text-muted">(optional)</small></label>
                 <textarea
                     v-model="data_to_send.description"
                     placeholder="e.g. My Tool transforms the given data and returns 2 files."
@@ -158,6 +158,7 @@ export default {
                 prom.then(
                     response => {
                         this.success = response;
+                        this.$store.commit("racpackage/refreshTools");
                     },
                     error => {
                         let message =
@@ -183,9 +184,9 @@ export default {
             if (this.data_to_send.name.trim() == "") {
                 errors.push("Name is a required field.");
             }
-            if (this.data_to_send.description.trim() == "") {
-                errors.push("Description is a required field.");
-            }
+            // if (this.data_to_send.description.trim() == "") {
+            //     errors.push("Description is a required field.");
+            // }
             if (this.data_to_send.file_paths.length <= 0) {
                 errors.push("Must include at least one file.");
             }

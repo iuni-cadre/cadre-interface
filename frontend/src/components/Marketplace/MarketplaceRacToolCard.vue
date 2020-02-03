@@ -136,6 +136,7 @@ export default {
             delete_prom.then(
                 response => {
                     this.delete_success_open = true;
+                    this.$store.commit("racpackage/refreshTools");
                 },
                 error => {
                     console.error(error);
