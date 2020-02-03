@@ -81,7 +81,10 @@
             </div>
 
             <div class="form-group">
-                <label>Package Description  <small class="text-muted">(optional)</small></label>
+                <label>
+                    Package Description
+                    <small class="text-muted">(optional)</small>
+                </label>
                 <textarea
                     type="text"
                     placeholder="Uses input files and generates output files"
@@ -136,6 +139,7 @@ export default {
                 tools: [""],
                 type: "user_defined"
             },
+            files_to_archive: [],
             available_archives: [],
             available_tools: [],
             new_package_endpoint:
@@ -191,7 +195,9 @@ export default {
                             resolve(response);
                         },
                         error => {
-                            this.error_message.push("Could not fetch the list of data sets.");
+                            this.error_message.push(
+                                "Could not fetch the list of data sets."
+                            );
                             reject(error);
                         }
                     );
@@ -216,7 +222,9 @@ export default {
                             resolve(response);
                         },
                         error => {
-                            this.error_message.push("Could not fetch the list of tools.");
+                            this.error_message.push(
+                                "Could not fetch the list of tools."
+                            );
                             reject(error);
                         }
                     );
@@ -338,16 +346,55 @@ export default {
             } else {
                 return true;
             }
+        },
+        addArchive: function() {
+            return new Promise((resolve, reject) => {});
+        },
+        validateArchive: function(file_path) {
+            return new Promise((resolve, reject) => {
+                if (this.selected_files.length <= 0) {
+                    errors.push("Must choose a file.");
+                    this.$set(this, "error_message", errors);
+                    this.$emit("stopLoading", { key: "verifyFile" });
+                    resolve(false);
+                } else {
+                    //verify authenticity of file
+                    this.$emit("startLoading", { key: "verifyFile" });
+                    let url = this.new_archive_endpoint + "/check";
+                    let prom = this.$cadre.axios({
+                        url: url,
+                        method: "POST",
+                        data: {
+                            file_path: file_path
+                        }
+                    });
+                    prom.then(
+                        response => {},
+                        error => {
+                            errors.push(
+                                "Chosen file could not be verified as a CADRE result file.  Only results from the query builder can be archived."
+                            );
+                        }
+                    ).finally(() => {
+                        this.$set(this, "error_message", errors);
+                        this.$emit("stopLoading", { key: "verifyFile" });
+                        if (errors.length > 0) {
+                            // console.debug("Form not valid.");
+                            resolve(false);
+                        } else {
+                            resolve(true);
+                        }
+                    });
+                }
+            });
         }
     },
     mounted: function() {
         this.getArchivesAndTools();
-        if(this.toolIds && this.toolIds.length > 0)
-        {
+        if (this.toolIds && this.toolIds.length > 0) {
             this.$set(this.data_to_send, "tools", this.toolIds);
         }
-        if(this.archiveIds && this.archiveIds.length > 0)
-        {
+        if (this.archiveIds && this.archiveIds.length > 0) {
             this.$set(this.data_to_send, "archives", this.archiveIds);
         }
     }

@@ -15,7 +15,10 @@
                 />
             </div>
             <div class="form-group">
-                <label>Description <small class="text-muted">(optional)</small></label>
+                <label>
+                    Description
+                    <small class="text-muted">(optional)</small>
+                </label>
                 <textarea
                     v-model="data_to_send.description"
                     placeholder="e.g. My Tool transforms the given data and returns 2 files."
