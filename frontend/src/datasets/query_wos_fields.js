@@ -192,7 +192,7 @@ export default {
     input: {
         year: "Year",
         authors_full_name: "Author",
-        journals_name: "Journal Name",
+        journal_name: "Journal Name",
         title: "Title"
     },
     default: [
