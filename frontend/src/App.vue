@@ -132,7 +132,7 @@
             :isLoading="is_loading"
         />
 
-        <template v-if="error_message">
+        <template v-if="error_message && token">
             <div class="container pt-3">
                 <div class="alert alert-danger">
                     Error:
@@ -140,6 +140,7 @@
                 </div>
             </div>
         </template>
+
         <template v-if="!token">
             <div class="container pt-3">
                 <div class="alert alert-info">
@@ -151,6 +152,18 @@
                         <span class>here</span>
                     </a>.
                 </div>
+            </div>
+            <div class="container">
+                <p>
+                    The Collaborative Archive &amp; Data Research
+                    Environment is a science gateway to standardized text-
+                    and data-mining services for large datasets—with reproducbility
+                    and collaboration in mind. All in a cloud-based platform.
+                </p>
+                <p>
+                    For more information about CADRE, visit
+                    <a href="https://cadre.iu.edu/" target="_blank">the CADRE home page</a>.
+                </p>
             </div>
         </template>
 
@@ -273,7 +286,11 @@
             </div>
         </footer>
         <div class="feedback-link">
-            <a href="https://iuni.iu.edu/resources/cadre/user-stories" target="_blank" class="btn btn-primary">Send Feedback</a>
+            <a
+                href="https://iuni.iu.edu/resources/cadre/user-stories"
+                target="_blank"
+                class="btn btn-primary"
+            >Send Feedback</a>
         </div>
     </div>
 </template>
@@ -517,8 +534,7 @@ header#main-header .nav-item {
     }
 }
 
-.feedback-link
-{
+.feedback-link {
     position: fixed;
     right: 1rem;
     bottom: 1rem;

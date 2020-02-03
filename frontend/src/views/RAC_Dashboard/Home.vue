@@ -61,6 +61,12 @@
             {{jupyter_full_url}}
             </div>-->
             <hr />
+            
+            <your-packages
+                @startLoading="(data)=>{ $emit('startLoading', data); }"
+                @stopLoading="(data)=>{ $emit('stopLoading', data); }"
+            ></your-packages>
+            <hr />
             <your-tools
                 @startLoading="(data)=>{ $emit('startLoading', data); }"
                 @stopLoading="(data)=>{ $emit('stopLoading', data); }"
@@ -78,6 +84,7 @@ import Modal from "@/components/Common/CommonModal";
 import RacPackageCard from "@/components/Marketplace/MarketplaceRacPackageCard";
 import YourTools from "@/components/Your/YourTools";
 import YourArchives from "@/components/Your/YourArchives";
+import YourPackages from "@/components/Your/YourPackages";
 
 const RAC_PACKAGES_TO_SHOW = 3;
 
@@ -125,7 +132,8 @@ export default {
         Modal,
         RacPackageCard,
         YourTools,
-        YourArchives
+        YourArchives,
+        YourPackages
     },
     mounted: function() {
         if (this.racpackages.length === 0) {

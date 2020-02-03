@@ -6,9 +6,17 @@ export default {
         search_query: "",
         packages: [],
         tools: {},
-        my_jobs: []
+        my_jobs: [],
+        refresh_packages: 2,
+        refresh_tools: 2
     },
     getters: {
+        refresh_packages: function(state){
+            return state.refresh_packages;
+        },
+        refresh_tools: function(state){
+            return state.refresh_tools;
+        },
         packages: function(state) {
             return state.packages;
         },
@@ -41,6 +49,12 @@ export default {
                 state.my_jobs.push(job);
                 // Vue.set(state.my_jobs, tool.tool_id, tool);
             }
+        },
+        refreshPackages: function(state) {
+            Vue.set(state, "refresh_packages", state.refresh_packages + 1);
+        },
+        refreshTools: function(state) {
+            Vue.set(state, "refresh_tools", state.refresh_tools + 1);
         }
     },
 //     //    ###     ######  ######## ####  #######  ##    ##  ######

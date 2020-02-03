@@ -81,7 +81,7 @@
             </div>
 
             <div class="form-group">
-                <label>Package Description</label>
+                <label>Package Description  <small class="text-muted">(optional)</small></label>
                 <textarea
                     type="text"
                     placeholder="Uses input files and generates output files"
@@ -284,6 +284,7 @@ export default {
                 prom.then(
                     response => {
                         this.success = response;
+                        this.$store.commit("racpackage/refreshPackages");
                     },
                     error => {
                         let message =
@@ -323,9 +324,9 @@ export default {
             if (this.data_to_send.tools[0].trim() == "") {
                 errors.push("You must select a tool.");
             }
-            if (this.data_to_send.description.trim() == "") {
-                errors.push("Description is a required field.");
-            }
+            // if (this.data_to_send.description.trim() == "") {
+            //     errors.push("Description is a required field.");
+            // }
             if (this.data_to_send.archives.length <= 0) {
                 errors.push("Must include at least one file.");
             }
