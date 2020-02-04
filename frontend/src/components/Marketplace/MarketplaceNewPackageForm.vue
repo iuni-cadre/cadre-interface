@@ -1,134 +1,175 @@
 <template>
     <div style="width: 100%;">
-        <form @submit.stop.prevent="submitForm">
-            <div class="form-group">
-                <label>Package Name</label>
-                <input
-                    type="text"
-                    placeholder="New Package Name"
-                    class="form-control"
-                    v-model="data_to_send.name"
-                />
-            </div>
-            <!-- {{data_to_send.archives}} -->
-            <!-- {{available_archives}} -->
-            <div class="form-group">
-                <label>Data Sets</label>
-                <div
-                    class="mb-2"
-                    v-for="(archive_id, index) in data_to_send.archives"
-                    :key="`archive_to_send_${index}`"
-                >
-                    <div class="input-group">
-                        <span class="input-group-prepend input-group-text">{{index + 1}}</span>
-                        <select
+        <div class="row">
+            <div class="col-8">
+                <form @submit.stop.prevent="submitForm">
+                    <div class="form-group">
+                        <label>Package Name</label>
+                        <input
+                            type="text"
+                            placeholder="New Package Name"
                             class="form-control"
-                            v-model="data_to_send.archives[index]"
-                        >
-                            <option :value="''">Select a Data Set</option>
-                            <option
-                                v-for="available_archive in available_archives"
-                                :key="`${available_archive.archive_id}-${index}`"
-                                v-text="available_archive.archive_name"
-                                :value="available_archive.archive_id"
-                            ></option>
-                        </select>
-                        <div class="input-group-append">
+                            v-model="data_to_send.name"
+                        />
+                    </div>
+                    <!-- {{data_to_send.archives}} -->
+                    <!-- {{available_archives}} -->
+                    <div class="form-group">
+                        <label>
+                            Input Data Archives
                             <button
-                                @click.stop.prevent="()=>{removeArchiveId(index)}"
-                                class="btn btn-outline-danger not-round"
-                            >X</button>
+                                @click.stop.prevent="show_create_archive_modal = true"
+                                class="btn btn-link"
+                            >Click Here to archive a new data file.</button>
+                        </label>
+                        <div
+                            class="mb-2"
+                            v-for="(archive_id, index) in data_to_send.archives"
+                            :key="`archive_to_send_${index}`"
+                        >
+                            <div class="input-group">
+                                <span class="input-group-prepend input-group-text">{{index + 1}}</span>
+                                <select
+                                    class="form-control"
+                                    v-model="data_to_send.archives[index]"
+                                >
+                                    <option :value="''">Select a Data Set</option>
+                                    <option
+                                        v-for="available_archive in available_archives"
+                                        :key="`${available_archive.archive_id}-${index}`"
+                                        v-text="available_archive.archive_name"
+                                        :value="available_archive.archive_id"
+                                    ></option>
+                                </select>
+                                <div class="input-group-append">
+                                    <button
+                                        @click.stop.prevent="()=>{removeArchiveId(index)}"
+                                        class="btn btn-outline-danger not-round"
+                                    >X</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <select
+                                class="form-control"
+                                @input="selectNewArchiveId"
+                                :value="0"
+                            >
+                                <option
+                                    :value="0"
+                                    disabled
+                                >Select a Data Set to add</option>
+                                <option
+                                    v-for="available_archive in available_archives"
+                                    :key="`${available_archive.archive_id}-New`"
+                                    v-text="available_archive.archive_name"
+                                    :value="available_archive.archive_id"
+                                ></option>
+                            </select>
                         </div>
                     </div>
-                </div>
-                <div>
-                    <select
-                        class="form-control"
-                        @input="selectNewArchiveId"
-                        :value="0"
-                    >
-                        <option
-                            :value="0"
-                            disabled
-                        >Select a Data Set to add</option>
-                        <option
-                            v-for="available_archive in available_archives"
-                            :key="`${available_archive.archive_id}-New`"
-                            v-text="available_archive.archive_name"
-                            :value="available_archive.archive_id"
-                        ></option>
-                    </select>
-                </div>
-            </div>
 
-            <div class="form-group">
-                <label>Tool to Run</label>
-                <select
-                    class="form-control"
-                    v-model="data_to_send.tools[0]"
+                    <div class="form-group">
+                        <label>Tool to Run</label>
+                        <select
+                            class="form-control"
+                            v-model="data_to_send.tools[0]"
+                        >
+                            <option
+                                value
+                                disabled
+                            >Select a tool</option>
+                            <option
+                                v-for="tool in available_tools"
+                                :key="tool.tool_id"
+                                v-text="tool.tool_name"
+                                :value="tool.tool_id"
+                            ></option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            Package Description
+                            <small class="text-muted">(optional)</small>
+                        </label>
+                        <textarea
+                            type="text"
+                            placeholder="Uses input files and generates output files"
+                            class="form-control"
+                            v-model="data_to_send.description"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <button class="btn btn-primary">Create New Package</button>
+                    </div>
+                    <!-- {{data_to_send}} -->
+                </form>
+                <modal
+                    v-if="error_message.length > 0"
+                    @close="error_message=[]"
+                    modalStyle="danger"
                 >
-                    <option
-                        value
-                        disabled
-                    >Select a tool</option>
-                    <option
-                        v-for="tool in available_tools"
-                        :key="tool.tool_id"
-                        v-text="tool.tool_name"
-                        :value="tool.tool_id"
-                    ></option>
-                </select>
-            </div>
+                    <div>
+                        <p>There was a problem with your submission.</p>
+                        <ul>
+                            <li
+                                v-for="(message, index) in error_message"
+                                :key="`error_message_${index}`"
+                                v-text="message"
+                            ></li>
+                        </ul>
+                    </div>
+                </modal>
+                <modal
+                    v-if="success"
+                    @close="closeSuccessModal"
+                    modalStyle="success"
+                >
+                    <div>
+                        <p>Your package has been created.</p>
+                    </div>
+                </modal>
 
-            <div class="form-group">
-                <label>
-                    Package Description
-                    <small class="text-muted">(optional)</small>
-                </label>
-                <textarea
-                    type="text"
-                    placeholder="Uses input files and generates output files"
-                    class="form-control"
-                    v-model="data_to_send.description"
-                ></textarea>
+                <modal
+                    @close="confirm_archive_create_modal_close = true"
+                    close-button-label="Cancel"
+                    v-if="show_create_archive_modal"
+                    modal-width="60%"
+                    modal-title="Create New Archive"
+                >
+                    <new-archive-form
+                        :default-name="new_archive_name"
+                        @archiveCreated="archiveCreatedCallback"
+                    ></new-archive-form>
+                </modal>
+                <modal
+                    @ok="show_create_archive_modal = false; confirm_archive_create_modal_close = false;"
+                    @close="confirm_archive_create_modal_close = false"
+                    close-button-label="No"
+                    ok-button-label="Yes"
+                    :ok-in-footer="true"
+                    v-if="confirm_archive_create_modal_close"
+                >Are you sure you want to close this window?</modal>
             </div>
-
-            <div class="form-group">
-                <button class="btn btn-primary">Create New Package</button>
+            <div class="col-4">
+                <p>
+                    A
+                    <b>Package</b> is a combination of a tool (typically a small python script) and one or more archived
+                    data files that are saved together. Because packages are run in a controlled environment,
+                    the results are reproducible and should be identical every time the package is run.
+                </p>
             </div>
-            <!-- {{data_to_send}} -->
-        </form>
-        <modal
-            v-if="error_message.length > 0"
-            @close="error_message=[]"
-            modalStyle="danger"
-        >
-            <div>
-                <p>There was a problem with your submission.</p>
-                <ul>
-                    <li
-                        v-for="(message, index) in error_message"
-                        :key="`error_message_${index}`"
-                        v-text="message"
-                    ></li>
-                </ul>
-            </div>
-        </modal>
-        <modal
-            v-if="success"
-            @close="closeSuccessModal"
-            modalStyle="success"
-        >
-            <div>
-                <p>Your package has been created.</p>
-            </div>
-        </modal>
+        </div>
     </div>
 </template>
 
 <script>
 import FileBrowser from "../../components/Filebrowser/FilebrowserMain";
 import Modal from "../../components/Common/CommonModal";
+import NewArchiveForm from "@/components/Marketplace/MarketplaceNewArchiveForm";
+
 export default {
     data: function() {
         return {
@@ -148,10 +189,22 @@ export default {
                 this.$cadreConfig.rac_api_prefix + "/get-archives",
             get_tools_endpoint: this.$cadreConfig.rac_api_prefix + "/get-tools",
             error_message: [],
-            success: null
+            success: null,
+
+            show_create_modal: false,
+            show_create_archive_modal: false,
+            confirm_archive_create_modal_close: false
         };
     },
-    computed: {},
+    computed: {
+        new_archive_name: function() {
+            let name =
+                this.data_to_send.name +
+                " Archive " +
+                (this.data_to_send.archives.length + 1);
+            return name;
+        }
+    },
     props: {
         archiveIds: Array,
         toolIds: Array,
@@ -169,9 +222,17 @@ export default {
         } //of objects
     },
     components: {
-        Modal
+        Modal,
+        NewArchiveForm
     },
     methods: {
+        archiveCreatedCallback: function(archive_id) {
+            this.show_create_archive_modal = false;
+            // console.debug(archive_id);
+            this.getArchives().then(response => {
+                this.data_to_send.archives.push(archive_id);
+            });
+        },
         getArchives: function() {
             let prom = new Promise((resolve, reject) => {
                 if (this.existingTools.length > 0) {
