@@ -81,6 +81,9 @@ export default {
             success: null
         };
     },
+    props: {
+        defaultName: {type: String, default: ""}
+    },
     computed: {},
     components: {
         FileBrowser,
@@ -132,8 +135,8 @@ export default {
             }
         },
         closeSuccessModal: function() {
+            this.$emit("archiveCreated", this.success.data.archive_id);
             this.success = null;
-            this.$emit("archiveCreated");
         },
         validateForm: async function() {
             let errors = [];
@@ -189,10 +192,17 @@ export default {
         },
         "data_to_send.file_path": function() {
             this.$set(this, "selected_files", [this.data_to_send.file_path]);
+        },
+        defaultName: function(){
+            this.data_to_send.archive_name = this.defaultName;
         }
     },
     mounted: function() {
         // this.data_to_send.environment = "python";
+        if(this.defaultName)
+        {
+            this.data_to_send.archive_name = this.defaultName;
+        }
     }
 };
 </script>

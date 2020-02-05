@@ -52,6 +52,13 @@
                         <li class="nav-item">
                             <router-link
                                 class="p-3 p-md-0 d-inline-block"
+                                :to="{name: 'home'}"
+                                target
+                            >Dashboard</router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link
+                                class="p-3 p-md-0 d-inline-block"
                                 :to="{name: 'query-builder-builder'}"
                                 target
                             >Query Interface</router-link>
@@ -61,7 +68,7 @@
                                 class="p-3 p-md-0 d-inline-block"
                                 :to="{name: 'jupyter-hub'}"
                                 target
-                            >Jupyter Notebook</router-link>
+                            >Notebook</router-link>
                         </li>
                         <li class="nav-item">
                             <router-link
@@ -75,7 +82,7 @@
                                 class="p-3 p-md-0 d-inline-block"
                                 :to="{name: 'jobs-list'}"
                                 target
-                            >Job Status</router-link>
+                            >Jobs</router-link>
                         </li>
                         <!-- <li class="nav-item">
                             <router-link class="p-3 p-md-0 d-inline-block"
