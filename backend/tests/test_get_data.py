@@ -3,6 +3,7 @@ import pytest
 import os
 import requests
 import sys
+import datetime
 
 from flask import Flask, render_template, request, json, jsonify
 from pprint import pprint
@@ -417,3 +418,142 @@ def test_archive_user_file_check_200_and_permissions(client, mocker):
     assert rv.status_code == 200
     assert rv.get_json().get("data_type") == "wos"
 
+
+
+
+      ## ##     ##  ######  ######## ########  
+     ##  ##     ## ##    ## ##       ##     ## 
+    ##   ##     ## ##       ##       ##     ## 
+   ##    ##     ##  ######  ######   ########  
+  ##     ##     ##       ## ##       ##   ##   
+ ##      ##     ## ##    ## ##       ##    ##  
+##        #######   ######  ######## ##     ## 
+
+
+def test_get_archives_user_exists(client):
+    """
+    End point doesn't blow up when we send parameters
+    """
+
+    rv = client.get('/rac-api/get-archives/user', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    response_json = rv.get_json()
+    assert rv.status_code != 404
+    if response_json:
+        assert response_json["error"] != "Unknown endpoint."
+
+
+def test_get_archives_user_ep_accepts_params(client):
+    """
+    End point doesn't blow up when we send parameters
+    """
+
+    rv = client.get('/rac-api/get-archives/user?limit=50&page=1&order=name&search=', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    assert rv.status_code != 500
+
+
+
+def test_get_archives_user_ep_returns_expected_result(client, mocker):
+    '''
+    Uses psycopg mock to mock DB call
+    '''
+
+    rows = sample_rows
+    patch_user(mocker, json={"user_id": 1, "roles": []})
+    patch_cursor(mocker, rows)
+
+    expected_result = [
+        {
+            "archive_id": "123456",
+            "archive_description": "some archive description",
+            "archive_name": "archive name",
+            "permissions": {"data_type": "wos", "other": []},
+            "created_on": global_now.isoformat(),
+            "created_by": 1000
+            
+        },
+        {
+            "archive_id": "123456",
+            "archive_description": "some archive description 2",
+            "archive_name": "archive name 2",
+            "permissions": {"data_type": "wos", "other": []},
+            "created_on": global_now.isoformat(),
+            "created_by": 1000
+        }
+    ]
+
+
+    rv = client.get('/rac-api/get-archives/user', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+    # pprint(rv.get_json())
+    assert rv.status_code == 200
+    assert rv.get_json() == expected_result
+
+
+def test_get_archives_user_ep_fails_on_db_exception(client, mocker):
+    '''
+    Uses psycopg mock to mock DB call with exception
+    '''
+
+    # mock_response = MockResponse()
+    # mock_response.set_status_code(200)
+    # mock_response.set_json({
+    #     "archive_id": "11234221128",
+    #     "archive_description": "Data for the ISSI tutorial",
+    #     "archive_name": "issi_data",
+    #     "archive_script_name": "issi_tutorial.py",
+    #     "created_on": "2019-08-23T16:01:33.935043+00:00"
+    # })
+    # mocker.patch("requests.post", return_value=mock_response)
+    mock_connection = MockPsycopgConnection(raise_exception=True)  # raise exception
+    mocker.patch("psycopg2.connect", return_value=mock_connection)
+
+    patch_user(mocker, json={"user_id": 1, "roles": []})
+
+    rv = client.get('/rac-api/get-archives/user', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    assert rv.status_code == 500
+
+
+
+ ######     ###    ##     ## ########  ##       ########    ########     ###    ########    ###    
+##    ##   ## ##   ###   ### ##     ## ##       ##          ##     ##   ## ##      ##      ## ##   
+##        ##   ##  #### #### ##     ## ##       ##          ##     ##  ##   ##     ##     ##   ##  
+ ######  ##     ## ## ### ## ########  ##       ######      ##     ## ##     ##    ##    ##     ## 
+      ## ######### ##     ## ##        ##       ##          ##     ## #########    ##    ######### 
+##    ## ##     ## ##     ## ##        ##       ##          ##     ## ##     ##    ##    ##     ## 
+ ######  ##     ## ##     ## ##        ######## ########    ########  ##     ##    ##    ##     ## 
+
+global_now = datetime.datetime.now()
+sample_rows = [
+    [
+        "123456",
+        "some archive description",
+        "archive name",
+        {"data_type": "wos", "other": []},
+        global_now,
+        1000
+        
+    ],
+    [
+        "123456",
+        "some archive description 2",
+        "archive name 2",
+        {"data_type": "wos", "other": []},
+        global_now,
+        1000
+        
+    ]
+]
