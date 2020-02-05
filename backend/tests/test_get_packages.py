@@ -278,6 +278,7 @@ sample_rows = [
         'tool_desc1', #tool_description, 
         'tool_name1', #tool_name, 
         'tool_script.py', #tool_script_name, 
+        ['archive_1 name', 'archive_2 name'], #input_files 
         ['archive_1', 'archive_2'], #input_files 
         [
             {"data_type": "wos", "other":[]},
@@ -296,6 +297,7 @@ sample_rows = [
         'tool_desc2', #tool_description, 
         'tool_name2', #tool_name, 
         'tool_script2.py', #tool_script_name, 
+        ['archive_1 name', 'archive_2 name'], #input_files 
         ['archive_1', 'archive_2'], #input_files 
         [
             {"data_type": "wos", "other":[]},

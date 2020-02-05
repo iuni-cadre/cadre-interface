@@ -360,6 +360,7 @@ def get_packages():
             packages_dict = {}
             
             for package in packages:
+                print(package)
                 #pull apart the row:
                 package_id = package[0]
                 p_type = package[1]
