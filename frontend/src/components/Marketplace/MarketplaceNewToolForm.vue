@@ -188,11 +188,13 @@ export default {
 
             let actual_to_send = this.$cadre.cloneObject(this.data_to_send);
 
-            let commands = actual_to_send.install_commands.split("\n").join(",").split(",");
-            if (this.requirements_path) {
-                commands.splice(0, 0, ["pip install -r " + this.requirements_path]);
-            }
-            actual_to_send.install_commands = commands.join(",");
+            // let commands = actual_to_send.install_commands.split("\n").join(",").split(",");
+            // if (this.requirements_path) {
+            //     commands.splice(0, 0, ["pip install -r " + this.requirements_path]);
+            // }
+            // actual_to_send.install_commands = commands.join(",");
+
+            actual_to_send.requirements_path = this.requirements_path;
 
             let is_valid = this.validateForm(actual_to_send);
             // console.debug(this.data_to_send);
