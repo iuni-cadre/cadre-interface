@@ -444,13 +444,24 @@ def get_tools():
         'auth-token': auth_token,
         'Content-Type': 'application/json'
     }
-    validate_token_response = requests.post(auth_config["verify-token-endpoint"],
-                                            data=json.dumps(validate_token_args),
-                                            headers=headers,
-                                            verify=False)
-    if validate_token_response.status_code is not 200:
-        print(validate_token_response)
-        return jsonify({"error": "Invalid Token"}), 403
+    # validate_token_response = requests.post(auth_config["verify-token-endpoint"],
+    #                                         data=json.dumps(validate_token_args),
+    #                                         headers=headers,
+    #                                         verify=False)
+    # if validate_token_response.status_code is not 200:
+    #     print(validate_token_response)
+    #     return jsonify({"error": "Invalid Token"}), 403
+
+    is_valid, valid_response = validate_user(headers=request.headers)
+    if is_valid != True:
+        return valid_response
+
+    try:
+        validate_response_json = valid_response.get_json()
+    except:
+        validate_response_json = valid_response.json()
+
+    user_id = validate_response_json.get("user_id", None)
 
     # Validating the Request here
     try:
@@ -498,14 +509,14 @@ def get_tools():
                 "created_on as tool_created_on, " \
                 "created_by as created_by " \
                 "FROM tool " \
-                "WHERE to_be_deleted IS NOT TRUE " \
+                "WHERE to_be_deleted IS NOT TRUE AND (published IS TRUE OR created_by = %s) " \
                 "ORDER BY {} " \
                 "LIMIT %s " \
                 "OFFSET %s ".format(actual_order_by)
 
-        cur.execute(query, (limit, offset))
+        cur.execute(query, (user_id, limit, offset))
         if cur.rowcount == 0:
-            return jsonify({"error:", "Query returns zero results."}), 404
+            return jsonify({"error": "Query returns zero results."}), 404
         if cur.rowcount > 0:
             tool_info = cur.fetchall()
             tool_list = []
@@ -523,7 +534,7 @@ def get_tools():
             # print(tool_response)
             return jsonify(tool_list), 200
     except Exception:
-        return jsonify({"error:", "Problem querying the tools table in the meta database."}), 500
+        return jsonify({"error": "Problem querying the tools table in the meta database."}), 500
     finally:
         # Closing the database connection.
         cur.close()
