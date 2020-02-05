@@ -131,80 +131,96 @@ def test_get_packages_ep_returns_jsonified_jobs_from_db(client, mocker):
     assert rv.get_json() == (expected_output)
 
 
-# def test_packages_new_fails_if_missing_params(client, mocker):
-#     headers = {
-#         'auth-token': "Some Token",
-#         'auth-username': "Some Username"
-#     }
-#     patch_user(mocker)
-#     rv = client.post('/rac-api/packages/new', headers=headers) 
-#     assert rv.status_code == 400
-
-#     rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
-#         "name": "somename",
-#         "description": "fake_data",
-#         "tools": "fake_data",
-#         "input_files": "fake.csv",
-#         "archive_id": "1234",
-#         "type": "sometype"
-#     })) 
-#     assert rv.status_code != 400
-
-#     rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
-#         # "name": "somename",
-#         "description": "fake_data",
-#         "tools": "fake_data",
-#         "input_files": "fake.csv",
-#         "archive_id": "1234",
-#         "type": "sometype"
-#     })) 
-#     assert rv.status_code == 400
+def test_packages_new_fails_if_missing_params(client, mocker):
+    headers = {
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    }
+    patch_user(mocker, json={"user_id":"FAKEUSERID"})
+    mock_cursor, mock_connection = patch_cursor(mocker, [[]])
     
-#     rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
-#         "name": "somename",
-#         # "description": "fake_data",
-#         "tools": "fake_data",
-#         "input_files": "fake.csv",
-#         "archive_id": "1234",
-#         "type": "sometype"
-#     })) 
-#     assert rv.status_code == 400
-#     rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
-#         "name": "somename",
-#         "description": "fake_data",
-#         # "tools": "fake_data",
-#         "input_files": "fake.csv",
-#         "archive_id": "1234",
-#         "type": "sometype"
-#     })) 
-#     assert rv.status_code == 400
-#     rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
-#         "name": "somename",
-#         "description": "fake_data",
-#         "tools": "fake_data",
-#         # "input_files": "fake.csv",
-#         "archive_id": "1234",
-#         "type": "sometype"
-#     })) 
-#     assert rv.status_code == 400
-#     rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
-#         "name": "somename",
-#         "description": "fake_data",
-#         "tools": "fake_data",
-#         "input_files": "fake.csv",
-#         # "archive_id": "1234",
-#         "type": "sometype"
-#     })) 
-#     assert rv.status_code == 400
-#     rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
-#         "name": "somename",
-#         "description": "fake_data",
-#         "tools": "fake_data",
-#         "input_files": "fake.csv",
-#         "archive_id": "1234",
-#         # "type": "sometype"
-#     })) 
-#     assert rv.status_code == 400
+    rv = client.post('/rac-api/packages/new', headers=headers) 
+    assert rv.status_code == 400
+
+    rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
+        "name": "somename",
+        "description": "fake_data",
+        "tools": [{"tool_id": "string_3"}],
+        "archives": ["archive_1", "archive_2"],
+        "type": "sometype"
+    })) 
+    assert rv.status_code != 400
+
+    rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
+        # "name": "somename",
+        "description": "fake_data",
+        "tools": [{"tool_id": "string_3"}],
+        "archives": ["archive_1", "archive_2"],
+        "type": "sometype"
+    })) 
+    assert rv.status_code == 400
+    
+    rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
+        "name": "somename",
+        # "description": "fake_data",
+        "tools": [{"tool_id": "string_3"}],
+        "archives": ["archive_1", "archive_2"],
+        "type": "sometype"
+    })) 
+    assert rv.status_code == 400
+    rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
+        "name": "somename",
+        "description": "fake_data",
+        # "tools": [{"tool_id": "string_3"}],
+        "archives": ["archive_1", "archive_2"],
+        "type": "sometype"
+    })) 
+    assert rv.status_code == 400
+    rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
+        "name": "somename",
+        "description": "fake_data",
+        "tools": [{"tool_id": "string_3"}],
+        # "archives": ["archive_1", "archive_2"],
+        "type": "sometype"
+    })) 
+    assert rv.status_code == 400
+    rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
+        "name": "somename",
+        "description": "fake_data",
+        "tools": [{"tool_id": "string_3"}],
+        "input_files": "fake.csv",
+        # "archive_id": "1234",
+        "type": "sometype"
+    })) 
+    assert rv.status_code == 400
+    rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
+        "name": "somename",
+        "description": "fake_data",
+        "tools": [{"tool_id": "string_3"}],
+        "input_files": "fake.csv",
+        "archives": ["archive_1", "archive_2"],
+        # "type": "sometype"
+    })) 
+    assert rv.status_code == 400
+    rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
+        "name": "somename",
+        "description": "fake_data",
+        "tools": [],
+        "input_files": "fake.csv",
+        "archives": ["archive_1", "archive_2"],
+        "type": "sometype"
+    })) 
+    assert rv.status_code == 400
+    rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
+        "name": "somename",
+        "description": "fake_data",
+        "tools": [{"tool_id": "string_3"}],
+        "input_files": "fake.csv",
+        "archives": [],
+        "type": "sometype"
+    })) 
+    assert rv.status_code == 400
+
 
 def test_packages_new_sends_correct_user_id(client, mocker):
     patch_user(mocker, json={"user_id":"FAKEUSERID"})
@@ -217,13 +233,14 @@ def test_packages_new_sends_correct_user_id(client, mocker):
     rv = client.post('/rac-api/packages/new', headers=headers, content_type='application/json', data=json.dumps({
         "name": "string_1",
         "description": "string_2",
-        "tools": "string_3",
-        "input_files": "string_4",
-        "archive_id": "string_5",
+        "tools": [{"tool_id": "string_3"}],
+        "archives": ["archive_1", "archive_2"],
         "type": "string_6"
     })) 
 
     #query index 0 should be the index query
+    pprint(rv.data)
+    pprint(mock_cursor.queries)
     assert mock_cursor.queries[0].count('FAKEUSERID') > 0
     assert mock_cursor.queries[0].count('uuid_test') > 0
     assert mock_cursor.queries[0].count('string_1') > 0

@@ -624,7 +624,6 @@ def create_packages():
         package_name = request_json.get('name', None)
         package_description = request_json.get('description', None)
         tools = request_json.get('tools', None)
-        tool_id = tools[0]
         input_file_archive_ids = request_json.get('archives', None)
         # input_file_archive_ids = request_json.get('input_files', None)
         # output_files = request_json.get('output_files', None)
@@ -633,6 +632,14 @@ def create_packages():
             or package_type is None \
             or tools is None or input_file_archive_ids is None:
             raise AttributeError
+
+        if len(input_file_archive_ids) <= 0:
+            raise AttributeError
+        if len(tools) <= 0:
+            raise AttributeError
+
+        
+        tool_id = tools[0]
 
         response_json = valid_response.json()
         user_id = response_json['user_id']
@@ -644,71 +651,74 @@ def create_packages():
                                 host=meta_db_config["database-host"],
                                 port=meta_db_config["database-port"])
         cur = conn.cursor()
-        package_id = str(uuid.uuid4())
-        insert_q = """INSERT INTO package
-            (package_id,type,description,name,created_on, created_by, archive_id, tool_id) 
-            VALUES 
-            (%s,%s,%s,%s,NOW(),%s, %s, %s)"""
-        
-        for archive_id in input_file_archive_ids:
-            data = (package_id,package_type, package_description, package_name, user_id, archive_id, tool_id)
-            cur.execute(insert_q, data)
-        
-        conn.commit()
-        print("Data inserted in the package table successfully.")
-        # get tool info from db
-        tools_info = []
-        archives_info = []
-        for tool_id in tools:
-            tool_q = "SELECT tool_id, name, description, script_name, created_on FROM tool where tool_id=%s"
-            cur.execute(tool_q, (tool_id,))
+        try:
+            package_id = str(uuid.uuid4())
+            insert_q = """INSERT INTO package
+                (package_id,type,description,name,created_on, created_by, archive_id, tool_id) 
+                VALUES 
+                (%s,%s,%s,%s,NOW(),%s, %s, %s)"""
+            
+            for archive_id in input_file_archive_ids:
+                data = (package_id,package_type, package_description, package_name, user_id, archive_id, tool_id)
+                cur.execute(insert_q, data)
+            
+            conn.commit()
+            print("Data inserted in the package table successfully.")
+            # get tool info from db
+            tools_info = []
+            archives_info = []
+            for tool_id in tools:
+                tool_q = "SELECT tool_id, name, description, script_name, created_on FROM tool where tool_id=%s"
+                cur.execute(tool_q, (tool_id,))
+                if cur.rowcount > 0:
+                    tool_info = cur.fetchone()
+                    tool_json = {
+                        'tool_id': tool_info[0],
+                        'name': tool_info[1],
+                        'author': username,
+                        'description': tool_info[2],
+                        'entrypoint': tool_info[3],
+                        'created_on': tool_info[4]
+                    }
+                    tools_info.append(tool_json)
+            # get archive info from db
+            for archive_id in input_file_archive_ids:
+                archive_q = "SELECT name, description FROM archive where archive_id=%s"
+                cur.execute(archive_q, (archive_id,))
+                if cur.rowcount > 0:
+                    archive_info = cur.fetchone()
+                    archive_json = {
+                        'name': archive_info[0],
+                        'description': archive_info[1]
+                    }
+                    archives_info.append(archive_json)
+            package_q = "SELECT package_id, name, type, description, created_on FROM package WHERE package_id=%s"
+            cur.execute(package_q, (package_id,))
             if cur.rowcount > 0:
-                tool_info = cur.fetchone()
-                tool_json = {
-                    'tool_id': tool_info[0],
-                    'name': tool_info[1],
-                    'author': username,
-                    'description': tool_info[2],
-                    'entrypoint': tool_info[3],
-                    'created_on': tool_info[4]
+                package_info = cur.fetchone()
+                package_json = {
+                    'package_id': package_info[0],
+                    'name': package_info[1],
+                    'type': package_info[2],
+                    'description': package_info[3],
+                    'created_on': package_info[4],
+                    'tools': tools_info,
+                    'input_files': archives_info
                 }
-                tools_info.append(tool_json)
-        # get archive info from db
-        for archive_id in input_file_archive_ids:
-            archive_q = "SELECT name, description FROM archive where archive_id=%s"
-            cur.execute(archive_q, (archive_id,))
-            if cur.rowcount > 0:
-                archive_info = cur.fetchone()
-                archive_json = {
-                    'name': archive_info[0],
-                    'description': archive_info[1]
-                }
-                archives_info.append(archive_json)
-        package_q = "SELECT package_id, name, type, description, created_on FROM package WHERE package_id=%s"
-        cur.execute(package_q, (package_id,))
-        if cur.rowcount > 0:
-            package_info = cur.fetchone()
-            package_json = {
-                'package_id': package_info[0],
-                'name': package_info[1],
-                'type': package_info[2],
-                'description': package_info[3],
-                'created_on': package_info[4],
-                'tools': tools_info,
-                'input_files': archives_info
-            }
-            package_response = json.dumps(package_json, cls=DateEncoder)
-            return jsonify(json.loads(package_response), 200)
+                package_response = json.dumps(package_json, cls=DateEncoder)
+                return jsonify(json.loads(package_response), 200)
+        except Exception as err:
+            print(err)
+            return jsonify({"error": "Problem querying database while inserting the data in the archive table."}), 500
+        finally:
+            cur.close()
+            conn.close()
+            # print("The database connection has been closed successfully.")
     except AttributeError as err:
         # raise err
         return jsonify({"error": "Missing Paramters"}), 400
     except Exception:
-        return jsonify({"error:", "Problem querying database while inserting the data in the archive table."}), 500
-    finally:
-        # Closing the database connection.
-        cur.close()
-        conn.close()
-        print("The database connection has been closed successfully.")
+        return jsonify({"error": "Unknown Error"}), 500
 
 
 @blueprint.route('/rac-api/user-files', methods=['GET'])

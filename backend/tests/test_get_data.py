@@ -264,7 +264,7 @@ def test_archive_user_file_insert_into_archive_table(client, mocker):
         (
             'some_unique_id',
             1,
-            'archives/some_unique_id/temp_file.txt',
+            '/cadre-file-archive/archives/some_unique_id/temp_file.txt',
             'Some Description',
             'My Query Results',
             '{"data_type":"wos", "other":[]}',
