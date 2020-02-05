@@ -44,6 +44,7 @@
                     v-model="data_to_send.entrypoint"
                 >
                     <option
+                        v-if="entrypoint_options.length == 0"
                         value
                         disabled
                     >Choose an entrypoint file</option>
@@ -55,13 +56,37 @@
                     ></option>
                 </select>
             </div>
+
+            <div class="form-group">
+                <label>Requirements File</label>
+                <small class="ml-1 text-muted">(optional; installed using pip install -r)</small>
+                <!-- <input
+                    v-model="data_to_send.entrypoint"
+                    type="text"
+                    class="form-control"
+                    placeholder="e.g. /directory/start.py"
+                />-->
+                <select
+                    class="form-control"
+                    v-model="requirements_path"
+                >
+                    <option :value="''">Choose a requirements file (optional)</option>
+                    <option
+                        v-for="path in requirements_options"
+                        :key="path"
+                        v-text="path"
+                        :value="path"
+                    ></option>
+                </select>
+            </div>
+
             <div class="form-group">
                 <label>Installation Commands</label>
                 <small class="ml-1 text-muted">(optional)</small>
                 <textarea
                     v-model="data_to_send.install_commands"
                     class="form-control"
-                    placeholder="e.g. pip install -r tool_dir/requirements.txt"
+                    placeholder="e.g. apt-get install fortune"
                 ></textarea>
             </div>
             <div class="form-group">
@@ -116,19 +141,38 @@ export default {
                 environment: ""
             },
             new_tool_endpoint: this.$cadreConfig.rac_api_prefix + "/tools/new",
+            requirements_path: "",
             error_message: [],
             success: null
         };
     },
     computed: {
         entrypoint_options: function() {
-            return this.data_to_send.file_paths.filter(path => {
+            let options = this.data_to_send.file_paths.filter(path => {
                 if (path.slice(-3) == ".py") {
                     return true;
                 } else {
                     return false;
                 }
             });
+            if (options.length == 1) {
+                this.data_to_send.entrypoint = options[0];
+            }
+            if (options.indexOf(this.data_to_send.entrypoint) < 0) {
+                this.data_to_send.entrypoint = "";
+            }
+            return options;
+        },
+        requirements_options: function() {
+            let options = this.data_to_send.file_paths.filter(path => {
+                if (path.slice(-4) == ".txt") {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+
+            return options;
         }
     },
     components: {
@@ -141,7 +185,16 @@ export default {
                 key: "newTool",
                 message: "Creating new tool"
             });
-            let is_valid = this.validateForm();
+
+            let actual_to_send = this.$cadre.cloneObject(this.data_to_send);
+
+            let commands = actual_to_send.install_commands.split("\n").join(",").split(",");
+            if (this.requirements_path) {
+                commands.splice(0, 0, ["pip install -r " + this.requirements_path]);
+            }
+            actual_to_send.install_commands = commands.join(",");
+
+            let is_valid = this.validateForm(actual_to_send);
             // console.debug(this.data_to_send);
             if (!is_valid) {
                 this.$emit("stopLoading", { key: "newTool" });
@@ -152,11 +205,12 @@ export default {
                 //     }, 5000);
                 // });
                 // console.debug("TEST");
+
                 let url = this.$cadreConfig.rac_api_prefix + "/tools/new";
                 let prom = this.$cadre.axios({
                     url: url,
                     method: "POST",
-                    data: this.data_to_send
+                    data: actual_to_send
                 });
                 prom.then(
                     response => {
