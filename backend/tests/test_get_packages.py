@@ -110,7 +110,9 @@ def test_get_packages_ep_returns_jsonified_jobs_from_db(client, mocker):
                     # 'tool_script_name': packages[10]
                 }
             ],
-            'input_files': 'input1.csv,input2.csv'
+            'archive_ids': ["archive_1", "archive_2"],
+            'input_files': ["archive_1 name", "archive_2 name"],
+            'permissions': [{"data_type": "wos", "other": []}, {"data_type": "wos", "other": []}]
         }
     ]
 
