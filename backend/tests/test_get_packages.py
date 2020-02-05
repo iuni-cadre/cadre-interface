@@ -114,9 +114,11 @@ def test_get_packages_ep_returns_jsonified_jobs_from_db(client, mocker):
         }
     ]
 
-    mock_response = MockResponse()
-    mock_response.set_status_code(200)
-    mocker.patch("requests.post", return_value=mock_response)
+
+    patch_user(mocker, json={"user_id":"FAKEUSERID"})
+    # mock_response = MockResponse()
+    # mock_response.set_status_code(200)
+    # mocker.patch("requests.post", return_value=mock_response)
 
     mock_connection = MockPsycopgConnection(rows=rows)
     mocker.patch("psycopg2.connect", return_value=mock_connection)
@@ -246,6 +248,14 @@ def test_packages_new_sends_correct_user_id(client, mocker):
     assert mock_cursor.queries[0].count('string_1') > 0
     assert mock_cursor.queries[0].count('string_2') > 0
     assert mock_cursor.queries[0].count('string_6') > 0
+    assert mock_cursor.queries[0].count('archive_1') > 0
+    assert mock_cursor.queries[0].count('FAKEUSERID') > 0
+
+    assert mock_cursor.queries[1].count('uuid_test') > 0
+    assert mock_cursor.queries[1].count('string_1') > 0
+    assert mock_cursor.queries[1].count('string_2') > 0
+    assert mock_cursor.queries[1].count('string_6') > 0
+    assert mock_cursor.queries[1].count('archive_2') > 0
 
  ######     ###    ##     ## ########  ##       ########    ########     ###    ########    ###    
 ##    ##   ## ##   ###   ### ##     ## ##       ##          ##     ##   ## ##      ##      ## ##   
@@ -268,7 +278,11 @@ sample_rows = [
         'tool_desc1', #tool_description, 
         'tool_name1', #tool_name, 
         'tool_script.py', #tool_script_name, 
-        'input1.csv,input2.csv'#input_files 
+        ['archive_1', 'archive_2'], #input_files 
+        [
+            {"data_type": "wos", "other":[]},
+            {"data_type": "wos", "other":[]},
+        ]
     ],
     [
         '1234567890', #package_id, 
@@ -282,6 +296,10 @@ sample_rows = [
         'tool_desc2', #tool_description, 
         'tool_name2', #tool_name, 
         'tool_script2.py', #tool_script_name, 
-        'input1.csv,input2.csv'#input_files 
+        ['archive_1', 'archive_2'], #input_files 
+        [
+            {"data_type": "wos", "other":[]},
+            {"data_type": "wos", "other":[]},
+        ]
     ]
 ]

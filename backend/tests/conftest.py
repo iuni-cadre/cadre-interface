@@ -38,8 +38,7 @@ class MockPsycopgCursor:
         self.current_index = 0
     def close(self):
         return True
-    def execute(self, query, variables):
-        #mogrify the query and the variables
+    def mogrify(self, query, variables):
         full_query = query
         x = ()
         for variable in variables:
@@ -48,6 +47,11 @@ class MockPsycopgCursor:
             else:
                 x = x + (str(variable),)
         full_query = full_query % x
+        return full_query
+        
+    def execute(self, query, variables):
+        #mogrify the query and the variables
+        full_query = self.mogrify(query, variables)
         # print("QUERY TO EXECUTE: " + (full_query.replace('    ', ' ')))
         #put the query on the list so we can check later if need be
         self.queries.append(full_query)

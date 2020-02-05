@@ -267,25 +267,32 @@ def get_packages():
     if auth_token is None or username is None:
         return jsonify({"error": "auth headers are missing"}), 401
 
-    validate_token_args = {
-        'username': username
-    }
-    headers = {
-        'auth-token': auth_token,
-        'Content-Type': 'application/json'
-    }
-    validate_token_response = requests.post(auth_config["verify-token-endpoint"],
-                                            data=json.dumps(validate_token_args),
-                                            headers=headers,
-                                            verify=False)
-    if validate_token_response.status_code is not 200:
-        return jsonify({"error": "Invalid Token"}), 403
+    # validate_token_args = {
+    #     'username': username
+    # }
+    # headers = {
+    #     'auth-token': auth_token,
+    #     'Content-Type': 'application/json'
+    # }
+    # validate_token_response = requests.post(auth_config["verify-token-endpoint"],
+    #                                         data=json.dumps(validate_token_args),
+    #                                         headers=headers,
+    #                                         verify=False)
+    # if validate_token_response.status_code is not 200:
+    #     return jsonify({"error": "Invalid Token"}), 403
 
-    validate_response_json = None
+    # validate_response_json = None
+
+
+    is_valid, valid_response = validate_user(headers=request.headers)
+    if is_valid != True:
+        return valid_response
+
     try:
-        validate_response_json = validate_token_response.get_json()
+        validate_response_json = valid_response.get_json()
     except:
-        validate_response_json = validate_token_response.json()
+        validate_response_json = valid_response.json()
+
     user_id = validate_response_json.get("user_id", None)
 
     # Validating the Request here
@@ -344,7 +351,7 @@ def get_packages():
                 ORDER BY {} 
                 LIMIT %s 
                 OFFSET %s """.format(actual_order_by)
-        print(str(cur.mogrify(query, (user_id, limit, offset))))
+        # print(str(cur.mogrify(query, (user_id, limit, offset))))
         cur.execute(query, (user_id, limit, offset))
         if cur.rowcount == 0:
             return jsonify([]), 200
