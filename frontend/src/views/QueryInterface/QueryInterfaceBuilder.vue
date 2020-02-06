@@ -128,8 +128,8 @@
                                 class="ml-3 d-flex align-items-center network-query-degrees"
                                 :class="{
                                         'text-muted disabled': selected_fields.indexOf(field.field) == -1,
-                                        }" -->
-                            >
+                                        }"
+                            > -->
                                 <!-- <span>Degrees:</span>
                                 <span
                                     v-for="degree in [1, 2]"
