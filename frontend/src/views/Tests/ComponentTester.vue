@@ -11,9 +11,9 @@
 
 <script>
 // import FileBrowser from "../../components/Filebrowser/FilebrowserMain";
-// import NewToolForm from "../../components/Marketplace/MarketplaceNewToolForm";
+import TestComponent from "../../components/Marketplace/MarketplaceNewToolForm";
 // import NewArchiveForm from "../../components/Marketplace/MarketplaceNewArchiveForm";
-import TestComponent from "../../components/Marketplace/MarketplaceNewPackageForm";
+// import TestComponent from "../../components/Marketplace/MarketplaceNewPackageForm";
 
 const TOOLS = [
     {
@@ -113,6 +113,10 @@ export default {
             {
                 path: "/query-results/packages",
                 type: "folder"
+            },
+            {
+                path: "/query-results/reqs.txt",
+                type: "file"
             }
         ];
 
