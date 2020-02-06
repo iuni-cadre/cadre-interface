@@ -124,13 +124,13 @@
                                     v-text="field.label"
                                 ></strong>
                             </label>
-                            <div
+                            <!-- <div
                                 class="ml-3 d-flex align-items-center network-query-degrees"
                                 :class="{
                                         'text-muted disabled': selected_fields.indexOf(field.field) == -1,
-                                        }"
+                                        }" -->
                             >
-                                <span>Degrees:</span>
+                                <!-- <span>Degrees:</span>
                                 <span
                                     v-for="degree in [1, 2]"
                                     :key="`${field.field}_degree_${degree}`"
@@ -153,7 +153,7 @@
                                             :value="degree"
                                         />
                                         <span v-text="degree"></span>
-                                    </label>
+                                    </label> -->
                                     <!-- <label class="btn ml-3 mb-0"
                                            :class="{
                                                     'disabled': selected_fields.indexOf(field.field) == -1,
@@ -168,8 +168,8 @@
                                                :value="degree" />
                                         <span v-text="degree"></span>
                                     </label>-->
-                                </span>
-                            </div>
+                                <!-- </span> -->
+                            <!-- </div> -->
                         </div>
                     </div>
 
@@ -637,8 +637,8 @@ export default {
                 };
                 //if the output is a network type, there should be a degree associated with it.
                 if (field.type == "network") {
-                    field_to_add.degree =
-                        this.network_field_degrees[field.field] || 1;
+                    field_to_add.degree = 1;
+                        // this.network_field_degrees[field.field] || 1;
                 }
                 output_fields.push(field_to_add);
             }
