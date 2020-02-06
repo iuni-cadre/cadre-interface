@@ -539,8 +539,26 @@ export default {
 
             if (confirmed) {
                 console.error("Here we go...");
+
+                //find year
+                var year_index = -1;
+                for(var i in this.queries)
+                {
+                    if(this.queries[i].field == "year")
+                    {
+                        year_index = i;
+                    }
+                }
+
                 for (let i = 0; i < 80; i++) {
                     console.warn("Sending query " + i);
+
+                    //change year
+                    if(year_index >= 0)
+                    {
+                        this.queries[year_index].value --;
+                    }
+
                     this.sendQuery(true);
                 }
                 console.error("You monster...");
@@ -598,6 +616,7 @@ export default {
                 if (!this.queries[index].field || !this.queries[index].value) {
                     this.query_errors[index] = "Filter is empty";
                 }
+                this.queries[index].value = this.queries[index].value + "";
             }
 
             //error message and exit if errors
