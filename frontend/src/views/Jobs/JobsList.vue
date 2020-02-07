@@ -8,7 +8,7 @@
                         class="btn btn-primary"
                         target="_blank"
                         :to="{name: 'jupyter-hub'}"
-                    >Go To Jupyter Notebook</router-link>
+                    >Go To Jupyter Notebook To View Results</router-link>
 
                     <button
                         class="btn btn-primary"
