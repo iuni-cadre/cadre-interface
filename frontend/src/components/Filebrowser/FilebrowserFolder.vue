@@ -147,14 +147,17 @@ export default {
             }
         },
         opened: function(){
-            let filesystem_prom = this.$store.dispatch("filesystem/getFiles", {path: this.item.path});
-            filesystem_prom.then(
-                resp => {},
-                err => {
-                    console.error(err);
-                    this.handleError("Could not fetch user file listing.");
-                }
-            );
+            if(this.opened)
+            {
+                let filesystem_prom = this.$store.dispatch("filesystem/getFiles", {path: this.item.path});
+                filesystem_prom.then(
+                    resp => {},
+                    err => {
+                        console.error(err);
+                        this.handleError("Could not fetch user file listing.");
+                    }
+                );
+            }
         }
     },
     mounted: function() {

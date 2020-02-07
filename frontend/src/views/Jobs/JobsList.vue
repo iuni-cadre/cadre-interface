@@ -4,13 +4,18 @@
         <section>
             <div class="container">
                 <div class="m-3 d-flex justify-content-between">
-                    <router-link class="btn btn-primary"
-                                 target="_blank"
-                                 :to="{name: 'jupyter-hub'}">Go To Jupyter Notebook</router-link>
+                    <router-link
+                        class="btn btn-primary"
+                        target="_blank"
+                        :to="{name: 'jupyter-hub'}"
+                    >Go To Jupyter Notebook</router-link>
 
-
-                    <button class="btn btn-primary"
-                                 @click.stop.prevent="getJobs"><fa icon="sync-alt" /> &nbsp;Refresh Status</button>
+                    <button
+                        class="btn btn-primary"
+                        @click.stop.prevent="getJobs"
+                    >
+                        <fa icon="sync-alt" />&nbsp;Refresh Status
+                    </button>
                 </div>
 
                 <div class="card">
@@ -25,28 +30,35 @@
                             <th>Run Time</th>
                             <!-- <th>S3 Bucket</th> -->
                         </tr>
-                        <tr v-for="job in jobs_sorted"
+                        <tr
+                            v-for="job in jobs_sorted"
                             :class="{
                                 'table-success': job.status == 'Completed',
                                 'table-info': job.run_time <= (1000 * 60 * 10) && job.status == 'Running',
                                 'table-danger': job.status == 'Failed',
                                 'table-warning': (job.status == 'Running' || job.status == 'Submitted') && job.run_time > (1000 * 60 * 10),
                                 }"
-                            :key="job.job_id">
-
+                            :key="job.job_id"
+                        >
                             <td v-text="job.job_id">Job Id</td>
                             <td v-text="job.job_name">Job Name</td>
                             <td v-text="job.status">Status</td>
                             <td v-text="job.type">Type</td>
                             <td v-text="job.start.toLocaleString()">Started</td>
-                            <td v-text="(job.run_time/1000) + ' second' + ((job.run_time/100) !== 1?'s':'')"></td>
+                            <td
+                                v-text="(job.run_time/1000) + ' second' + ((job.run_time/100) !== 1?'s':'')"
+                            ></td>
                             <!-- <td><a :href="job[2]"
-                       v-text="job[2]"></a></td> -->
+                            v-text="job[2]"></a></td>-->
                         </tr>
                         <tr v-if="jobs.length === 0">
                             <td colspan="6">No jobs could be found</td>
                         </tr>
                     </table>
+                    <div>
+                        <button class="btn btn-primary" v-if="page > 0">Prev</button>
+                        <button class="btn btn-primary" v-if="page < total_pages">Next</button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -61,23 +73,32 @@ export default {
     data: function() {
         return {
             jobs: [],
-            refresh_timeout: 0
+            refresh_timeout: 0,
+            page: 0,
+            number_per_page: 25
         };
     },
     computed: {
         jobs_sorted: function() {
             let sorted = this.jobs.sort((job_a, job_b) => {
-                if(job_a.update < job_b.update)
-                {
+                if (job_a.update < job_b.update) {
                     return 1;
-                }
-                else
-                {
+                } else {
                     return -1;
                 }
             });
-
+            let sliced = sorted.slice(
+                this.starting_index,
+                this.starting_index + this.number_per_page
+            );
             return sorted;
+        },
+        starting_index: function() {
+            return this.page_number * this.number_per_page;
+        },
+        total_pages: function(){
+            let pages = Math.ceil(this.jobs.length / this.number_per_page);
+            return pages;
         }
     },
     methods: {
@@ -113,7 +134,6 @@ export default {
             //     });
             // }
             // return false;
-
 
             clearTimeout(this.refresh_timeout);
             this.refresh_timeout = 0;
