@@ -57,7 +57,7 @@
                     </table>
                     <div>
                         <button class="btn btn-primary" v-if="page > 0">Prev</button>
-                        <button class="btn btn-primary" v-if="page < total_pages">Next</button>
+                        <button class="btn btn-primary" v-if="page + 1 < total_pages">Next</button>
                     </div>
                 </div>
             </div>

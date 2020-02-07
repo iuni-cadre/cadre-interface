@@ -130,7 +130,7 @@
                     modal-width="60%"
                     modal-title="Create New archive"
                 >
-                    <new-archive-form @archiveCreated="show_create_archive_modal = false;"></new-archive-form>
+                    <new-archive-form @archiveCreated="show_create_archive_modal = false; getArchives();"></new-archive-form>
                 </modal>
                 <modal
                     @ok="show_create_archive_modal = false; confirm_archive_create_modal_close = false;"
