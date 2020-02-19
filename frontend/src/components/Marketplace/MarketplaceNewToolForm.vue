@@ -91,7 +91,15 @@
             </div>
             <div class="form-group">
                 <button class="btn btn-primary">Create New Tool</button>
+
+                <button
+                    v-if="allow_overload"
+                    @click.stop.prevent="overloadDatabase(true)"
+                    class="btn btn-danger btn-lg float-right"
+                    type="button"
+                >&#x1F47F; Overload CADRE &#x1F47F;</button>
             </div>
+
             <!-- {{data_to_send}} -->
         </form>
         <modal
@@ -147,6 +155,9 @@ export default {
         };
     },
     computed: {
+        allow_overload: function() {
+            return this.$cadreConfig.allow_overload || false;
+        },
         entrypoint_options: function() {
             let options = this.data_to_send.file_paths.filter(path => {
                 if (path.slice(-3) == ".py") {
@@ -266,6 +277,37 @@ export default {
             } else {
                 return true;
             }
+        },
+        overloadDatabase: function() {
+            if (!this.allow_overload) {
+                console.error(
+                    "What in the everloving hell do you think you're doing!?"
+                );
+                return false;
+            } else {
+                console.error(
+                    "You're about to cause major havok and overload CADRE."
+                );
+            }
+
+            let confirmed = confirm(
+                "Are you absolutely sure you want to set CADRE on fire?"
+            );
+
+            if (confirmed) {
+                confirmed = confirm("Last chance to cancel... ");
+            }
+
+            if (confirmed) {
+                console.error("Here we go...");
+                for (let i = 0; i < 80; i++) {
+                    console.warn("Sending query " + i);
+                    this.submitForm();
+                }
+                console.error("You monster...");
+            }
+
+            return false;
         }
     },
     mounted: function() {
