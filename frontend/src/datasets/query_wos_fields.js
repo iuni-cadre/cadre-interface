@@ -125,7 +125,7 @@ export default {
         },
         {
             field: 'references',
-            label: "Citation Network",
+            label: "First Degree Citation Network",
             type: 'network'
         },
         // {

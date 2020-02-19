@@ -107,6 +107,13 @@
                         class="btn btn-lg btn-primary"
                         @click="runPackage"
                     >Run Package</button>
+                    
+                <button
+                    v-if="allow_overload"
+                    @click.stop.prevent="overloadDatabase(true)"
+                    class="btn btn-danger btn-lg float-right"
+                    type="button"
+                >&#x1F47F; Overload CADRE &#x1F47F;</button>
                 </div>
             </div>
         </modal>
@@ -221,6 +228,9 @@ export default {
         };
     },
     computed: {
+        allow_overload: function() {
+            return this.$cadreConfig.allow_overload || false;
+        },
         datasets_names: function() {
             let names = [];
             for (let dataset of this.datasets) {
@@ -451,6 +461,37 @@ export default {
             for (let i = 0; i < this.tool_output_files.length; i++) {
                 this.output_filenames.push(this.tool_output_files[i]);
             }
+        },
+        overloadDatabase: function() {
+            if (!this.allow_overload) {
+                console.error(
+                    "What in the everloving hell do you think you're doing!?"
+                );
+                return false;
+            } else {
+                console.error(
+                    "You're about to cause major havok and overload CADRE."
+                );
+            }
+
+            let confirmed = confirm(
+                "Are you absolutely sure you want to set CADRE on fire?"
+            );
+
+            if (confirmed) {
+                confirmed = confirm("Last chance to cancel... ");
+            }
+
+            if (confirmed) {
+                console.error("Here we go...");
+                for (let i = 0; i < 80; i++) {
+                    console.warn("Sending query " + i);
+                    this.runPackage();
+                }
+                console.error("You monster...");
+            }
+
+            return false;
         }
     },
     watch: {

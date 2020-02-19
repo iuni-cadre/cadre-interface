@@ -792,15 +792,40 @@ def get_user_files():
         efs_path = aws_config["efs-path"]
         directory_path = efs_path + username + path
         file_info = []
-        for root, dirs, files in os.walk(directory_path):
-            _root = root.replace(directory_path, '', 1)
-            # if _root.count(os.sep) < level: #removing level restriction for now
-            for file_name in files:
-                path_from_home = os.path.join(root, file_name).replace(directory_path, '', 1)
-                file_info.append({'path': '{}'.format(path_from_home), 'type': 'file'})
-            for directory_name in dirs:
-                path_from_home = os.path.join(root, directory_name).replace(directory_path, '', 1)
-                file_info.append({'path': '{}'.format(path_from_home), 'type': 'folder'})
+
+        if path is not "/":
+            path = path + "/"
+
+        # print(efs_path)
+        # print(username)
+        # print(path)
+        # print(directory_path)
+
+        try:
+            for item in os.listdir(directory_path):
+                # print(item)
+                if os.path.isfile(os.path.join(directory_path, item)):
+                    path_from_home = path +  item #os.path.join(root, item).replace(directory_path, '', 1)
+                    file_info.append({'path': '{}'.format(path_from_home), 'type': 'file'})
+                else:
+                    
+                    path_from_home = path +  item #os.path.join(root, item).replace(directory_path, '', 1)
+                    file_info.append({'path': '{}'.format(path_from_home), 'type': 'folder'})
+        except PermissionError as err:
+            return jsonify({"error": "Permission Denied.", "message": str(err)}), 403
+
+
+        # for root, dirs, files in os.walk(directory_path):
+        #     _root = root.replace(directory_path, '', 1)
+        #     # if _root.count(os.sep) < level: #removing level restriction for now
+        #     for file_name in files:
+        #         path_from_home = os.path.join(root, file_name).replace(directory_path, '', 1)
+        #         file_info.append({'path': '{}'.format(path_from_home), 'type': 'file'})
+        #     for directory_name in dirs:
+        #         path_from_home = os.path.join(root, directory_name).replace(directory_path, '', 1)
+        #         file_info.append({'path': '{}'.format(path_from_home), 'type': 'folder'})
+
+
         # Here we are printing the value of the list
         # for x in range(len(file_info)):
         #     print(file_info[x])

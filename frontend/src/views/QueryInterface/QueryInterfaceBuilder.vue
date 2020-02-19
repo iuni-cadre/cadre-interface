@@ -124,13 +124,13 @@
                                     v-text="field.label"
                                 ></strong>
                             </label>
-                            <div
+                            <!-- <div
                                 class="ml-3 d-flex align-items-center network-query-degrees"
                                 :class="{
                                         'text-muted disabled': selected_fields.indexOf(field.field) == -1,
                                         }"
-                            >
-                                <span>Degrees:</span>
+                            > -->
+                                <!-- <span>Degrees:</span>
                                 <span
                                     v-for="degree in [1, 2]"
                                     :key="`${field.field}_degree_${degree}`"
@@ -153,7 +153,7 @@
                                             :value="degree"
                                         />
                                         <span v-text="degree"></span>
-                                    </label>
+                                    </label> -->
                                     <!-- <label class="btn ml-3 mb-0"
                                            :class="{
                                                     'disabled': selected_fields.indexOf(field.field) == -1,
@@ -168,8 +168,8 @@
                                                :value="degree" />
                                         <span v-text="degree"></span>
                                     </label>-->
-                                </span>
-                            </div>
+                                <!-- </span> -->
+                            <!-- </div> -->
                         </div>
                     </div>
 
@@ -539,8 +539,26 @@ export default {
 
             if (confirmed) {
                 console.error("Here we go...");
+
+                //find year
+                var year_index = -1;
+                for(var i in this.queries)
+                {
+                    if(this.queries[i].field == "year")
+                    {
+                        year_index = i;
+                    }
+                }
+
                 for (let i = 0; i < 80; i++) {
                     console.warn("Sending query " + i);
+
+                    //change year
+                    if(year_index >= 0)
+                    {
+                        this.queries[year_index].value --;
+                    }
+
                     this.sendQuery(true);
                 }
                 console.error("You monster...");
@@ -598,6 +616,7 @@ export default {
                 if (!this.queries[index].field || !this.queries[index].value) {
                     this.query_errors[index] = "Filter is empty";
                 }
+                this.queries[index].value = this.queries[index].value + "";
             }
 
             //error message and exit if errors
@@ -637,8 +656,8 @@ export default {
                 };
                 //if the output is a network type, there should be a degree associated with it.
                 if (field.type == "network") {
-                    field_to_add.degree =
-                        this.network_field_degrees[field.field] || 1;
+                    field_to_add.degree = 1;
+                        // this.network_field_degrees[field.field] || 1;
                 }
                 output_fields.push(field_to_add);
             }

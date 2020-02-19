@@ -156,7 +156,7 @@ export default {
         }
     },
     mounted: function() {
-        let filesystem_prom = this.$store.dispatch("filesystem/getFiles");
+        let filesystem_prom = this.$store.dispatch("filesystem/getFiles", {path: "/"});
         filesystem_prom.then(
             resp => {},
             err => {

@@ -11,7 +11,8 @@
 
 <script>
 // import FileBrowser from "../../components/Filebrowser/FilebrowserMain";
-import TestComponent from "../../components/Marketplace/MarketplaceNewToolForm";
+import TestComponent from "../../views/Jobs/JobsList";
+// import TestComponent from "../../components/Marketplace/MarketplaceNewToolForm";
 // import NewArchiveForm from "../../components/Marketplace/MarketplaceNewArchiveForm";
 // import TestComponent from "../../components/Marketplace/MarketplaceNewPackageForm";
 

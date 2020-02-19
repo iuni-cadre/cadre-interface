@@ -564,7 +564,7 @@ def get_archives():
             archive_list.append(archive_json)
         return jsonify(archive_list), 200
     except Exception:
-        return jsonify({"error:", "Problem querying the archives table in the meta database."}), 500
+        return jsonify({"error": "Problem querying the archives table in the meta database."}), 500
     finally:
         # Closing the database connection.
         cur.close()
