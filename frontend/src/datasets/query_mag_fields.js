@@ -154,7 +154,7 @@ export default {
         {
             field: "citations",
             type: "network",
-            label: "Citation Network"
+            label: "First Degree Citation Network"
         },
 
     ],
