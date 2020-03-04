@@ -63,8 +63,11 @@ def index():
     '''
     template renders frontend
     '''
-
-    return render_template("/index.html")
+# GoogleAnalyticsID
+# GoogleAnalyticsOn
+    gid = config['GoogleAnalyticsID'] or 'none'
+    gon = config['GoogleAnlyticsOn'] or False
+    return render_template("/index.html", GoogleAnalyticsID=gid, GoogleAnalyticsOn=gon)
 
 
 @fallback_blueprint.route("/<path:fallback>")
@@ -72,8 +75,9 @@ def fallback(fallback):
     '''
     template renders frontend
     '''
-
-    return render_template("/index.html")
+    gid = config['GoogleAnalyticsID'] or 'none'
+    gon = config['GoogleAnlyticsOn'] or False
+    return render_template("/index.html", GoogleAnalyticsID=gid, GoogleAnalyticsOn=gon)
 
 
 

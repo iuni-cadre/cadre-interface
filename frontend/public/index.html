@@ -16,18 +16,22 @@
         href="<%= BASE_URL %>favicon.ico"
     >
     <title>CADRE RAC</title>
+    <!-- {% if GoogleAnalyticsOn %} -->
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script
         async
-        src="https://www.googletagmanager.com/gtag/js?id=UA-146561272-2"
+        src="https://www.googletagmanager.com/gtag/js?id={{ GoogleAnalyticsID }}"
     ></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
 
-        gtag('config', 'UA-146561272-2');
+        gtag('config', '{{ GoogleAnalyticsID }}');
     </script>
+    <!-- {% else %} -->
+        <!-- Google Analytics turned off -->
+    <!-- {% endif %} -->
 
 </head>
 
