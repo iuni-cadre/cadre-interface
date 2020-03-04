@@ -65,8 +65,8 @@ def index():
     '''
 # GoogleAnalyticsID
 # GoogleAnalyticsOn
-    gid = config['GoogleAnalyticsID'] or 'none'
-    gon = config['GoogleAnlyticsOn'] or False
+    gid = config.get('GoogleAnalyticsID', "none") or 'none'
+    gon = config.get('GoogleAnalyticsOn', False) or False
     return render_template("/index.html", GoogleAnalyticsID=gid, GoogleAnalyticsOn=gon)
 
 
@@ -75,8 +75,8 @@ def fallback(fallback):
     '''
     template renders frontend
     '''
-    gid = config['GoogleAnalyticsID'] or 'none'
-    gon = config['GoogleAnlyticsOn'] or False
+    gid = config.get('GoogleAnalyticsID', "none") or 'none'
+    gon = config.get('GoogleAnalyticsOn', False) or False
     return render_template("/index.html", GoogleAnalyticsID=gid, GoogleAnalyticsOn=gon)
 
 
