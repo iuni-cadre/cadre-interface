@@ -1,17 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    <meta
+        http-equiv="X-UA-Compatible"
+        content="IE=edge"
+    >
+    <meta
+        name="viewport"
+        content="width=device-width,initial-scale=1.0"
+    >
+    <link
+        rel="icon"
+        href="<%= BASE_URL %>favicon.ico"
+    >
     <title>CADRE RAC</title>
-  </head>
-  <body>
+    <!-- {% if GoogleAnalyticsOn %} -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script
+        async
+        src="https://www.googletagmanager.com/gtag/js?id={{ GoogleAnalyticsID }}"
+    ></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', '{{ GoogleAnalyticsID }}');
+    </script>
+    <!-- {% else %} -->
+        <!-- Google Analytics turned off -->
+    <!-- {% endif %} -->
+
+</head>
+
+<body>
     <noscript>
-      <strong>We're sorry but CADRE RAC doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+        <p><strong>We're sorry but the CADRE Gateway doesn't work properly without JavaScript enabled. Please enable it
+                to continue.
+            </strong></p>
+        <p>For more information about CADRE, please visit <a href="https://cadre.iu.edu">the CADRE website</a>.</p>
+
     </noscript>
     <div id="app"></div>
     <!-- built files will be auto injected -->
-  </body>
+</body>
+
 </html>
