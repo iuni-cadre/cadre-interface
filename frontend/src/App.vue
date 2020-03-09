@@ -169,7 +169,10 @@
                 </p>
                 <p>
                     For more information about CADRE, visit
-                    <a href="https://cadre.iu.edu/" target="_blank">the CADRE home page</a>.
+                    <a
+                        href="https://cadre.iu.edu/"
+                        target="_blank"
+                    >the CADRE home page</a>.
                 </p>
             </div>
         </template>
@@ -356,34 +359,64 @@ export default {
                 this.$set(this.loading_queue, key, {
                     interval: 0,
                     timer: 0,
+                    cooldown_timeout: 0,
                     message: ""
                 });
                 this.loading_queue[key].interval = setInterval(() => {
+                    /*
+                        we need to keep track of how long this key has been
+                        loading so we can show the spinner for at least a minimum
+                        amount of time.
+                    */
                     this.loading_queue[key].timer += 100;
                 }, 100);
+            } else {
+                /* 
+                    Handles a race condition if we add the key again during the "cooldown" time,
+                    we need to cancel the old cooldown timer so that 
+                    it doesn't cancel the NEW instance when it thinks it's
+                    canceling the old instance.  So just cancel the cooldown
+                    and keep going.
+                */
+                clearTimeout(this.loading_queue[key].cooldown_timeout);
             }
             this.loading_queue[key].message = message || "";
         },
         removeFromLoadingQueue: function(key) {
             if (this.loading_queue[key] !== undefined) {
-                this.loading_queue[key].timer = setTimeout(() => {
+                /*
+                    we want to make sure that the spinner is shown for at least half a second
+                    for UX purposes.  So it's not just a flash and people can't see it.
+                    If the given key has been loading for more than the minimum time, just go 
+                    ahead and call the callback.  Otherwise, we need to keep spinning for the 
+                    min load time minus the time it's already been spinning during the actual
+                    loading.
+                */
+                let cooldown_time = Math.max(
+                    this.min_loading_time - this.loading_queue[key].timer,
+                    1
+                );
+                /*
+                    After the given cooldown time cancel the time tracking interval,
+                    the cooldown timeout, and remove the key from the loading queue.
+                */
+                this.loading_queue[key].cooldown_timeout = setTimeout(() => {
                     if (this.loading_queue[key]) {
                         clearInterval(this.loading_queue[key].interval);
-                        clearTimeout(this.loading_queue[key].timer);
+                        clearTimeout(this.loading_queue[key].cooldown_timeout);
                         this.$delete(this.loading_queue, key);
                     } else {
                         console.warn(
                             `Loading queue key "${key}" was not found.`
                         );
                     }
-                }, this.min_loading_time - this.loading_queue[key].timer);
+                }, cooldown_time);
             }
         },
         validate: function() {
             // setTimeout(() => {
             //     this.removeFromLoadingQueue("initialize");
             // }, 2);
-
             this.$store.commit("user/initializeToken");
             let validate_prom = null;
             // console.debug(this.$route.query);
@@ -397,28 +430,31 @@ export default {
                     query: {}
                 });
                 // console.debug(token, jupyter_token);
-                validate_prom = this.$store.dispatch("user/validateToken", {
-                    token: token,
-                    username: username,
-                    j_token: jupyter_token
-                });
+                validate_prom = this.$store
+                    .dispatch("user/validateToken", {
+                        token: token,
+                        username: username,
+                        j_token: jupyter_token
+                    });
             } else {
-                validate_prom = this.$store.dispatch("user/validateToken");
+                validate_prom = this.$store
+                    .dispatch("user/validateToken");
             }
 
             validate_prom.then(
                 result => {
                     // console.info("Token valid.");
                     // console.debug(this.token);
-                    this.removeFromLoadingQueue("initialize");
+                    // this.removeFromLoadingQueue("initialize");
                     this.$store.dispatch("user/beatHeart");
                 },
                 error => {
-                    this.removeFromLoadingQueue("initialize");
+                    // this.removeFromLoadingQueue("initialize");
                     this.error_message = "Unauthorized";
                     console.error("Could not validate token.", error);
                 }
             );
+            return validate_prom;
         },
 
         logout: function() {
@@ -441,9 +477,14 @@ export default {
         }
     },
     mounted: function() {
+        // console.debug("mounted");
         // this.addToLoadingQueue("test");
+        console.debug("adding initialize to queue");
         this.addToLoadingQueue("initialize");
-        this.validate();
+        this.validate().finally(() => {
+            console.debug("removing initialize from queue")
+            this.removeFromLoadingQueue("initialize");
+        });
 
         // let encoded = Base32.encode('this is a test');
         // console.debug(encoded);
