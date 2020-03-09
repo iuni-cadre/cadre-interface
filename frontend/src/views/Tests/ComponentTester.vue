@@ -10,8 +10,8 @@
 </template>
 
 <script>
-// import FileBrowser from "../../components/Filebrowser/FilebrowserMain";
-import TestComponent from "../../views/Jobs/JobsList";
+import TestComponent from "../../components/Filebrowser/FilebrowserMain";
+// import TestComponent from "../../views/Jobs/JobsList";
 // import TestComponent from "../../components/Marketplace/MarketplaceNewToolForm";
 // import NewArchiveForm from "../../components/Marketplace/MarketplaceNewArchiveForm";
 // import TestComponent from "../../components/Marketplace/MarketplaceNewPackageForm";
@@ -76,7 +76,7 @@ export default {
     mounted: function() {
         let sample_part1 = [
             {
-                path: "/packages",
+                path: "/.packages",
                 type: "folder"
             },
             {
@@ -84,12 +84,12 @@ export default {
                 type: "folder"
             },
             {
-                path: "/query-results/JOBID1234.csv",
+                path: "/query-results/.JOBID1234.csv",
                 type: "file",
                 download_url: "https://xxxxxxxxxxx" //S3 bucket path or custom proxy url for downloading... however we decide to implement downloads
             },
             {
-                path: "/query-results/JOBID2345.csv",
+                path: "/query-results/.JOBID2345.csv",
                 type: "file",
                 download_url: "https://xxxxxxxxxxx" //S3 bucket path or custom proxy url for downloading... however we decide to implement downloads
             },
