@@ -81,7 +81,8 @@ export default {
     data: function() {
         return {
             opened: false,
-            checked: this.selectedPaths.indexOf(this.item.path) >= 0
+            checked: this.selectedPaths.indexOf(this.item.path) >= 0,
+            show_hidden: false
         };
     },
     computed: {
@@ -92,12 +93,12 @@ export default {
         },
         child_files: function() {
             return this.item.children.filter(item => {
-                return item.type === "file";
+                return item.type === "file" && (this.show_hidden || item.path.split("/").pop()[0] != ".");
             });
         },
         child_folders: function() {
             return this.item.children.filter(item => {
-                return item.type === "folder";
+                return item.type === "folder" && (this.show_hidden || item.path.split("/").pop()[0] != ".");
             });
         },
         is_root: function() {
