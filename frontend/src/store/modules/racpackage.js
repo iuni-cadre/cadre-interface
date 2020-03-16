@@ -68,10 +68,10 @@ export default {
         getTools: function({ commit }) {
             return new Promise((resolve, reject) => {
                 //FOR TESTING
-                console.debug(TEST_RAC_TOOLS);
-                commit("setTools", TEST_RAC_TOOLS);
-                resolve({ status: 200, data: { message: "Test Tools" } });
-                return true;
+                // console.debug(TEST_RAC_TOOLS);
+                // commit("setTools", TEST_RAC_TOOLS);
+                // resolve({ status: 200, data: { message: "Test Tools" } });
+                // return true;
 
                 let axios_prom = Vue.$cadre.axios({
                     url: Vue.$cadreConfig.rac_api_prefix + "/get-tools",
@@ -98,10 +98,10 @@ export default {
         },
         getMyJobs: function({ commit }) {
             return new Promise((resolve, reject) => {
-                //FOR TESTING
-                commit("setMyJobs", TEST_RAC_JOBS);
-                resolve({ status: 200, data: { message: "Test JOBS" } });
-                return true;
+                // //FOR TESTING
+                // commit("setMyJobs", TEST_RAC_JOBS);
+                // resolve({ status: 200, data: { message: "Test JOBS" } });
+                // return true;
 
                 let axios_prom = Vue.$cadre.axios({
                     url: Vue.$cadreConfig.rac_api_prefix + "/packages/get-jobs",
@@ -127,9 +127,9 @@ export default {
         getPackages: function({ commit }) {
             return new Promise((resolve, reject) => {
                 //FOR TESTING
-                commit("setPackages", TEST_RAC_PACKAGES);
-                resolve({ status: 200, data: { message: "Test Packages" } });
-                return true;
+                // commit("setPackages", TEST_RAC_PACKAGES);
+                // resolve({ status: 200, data: { message: "Test Packages" } });
+                // return true;
 
                 let axios_prom = Vue.$cadre.axios({
                     url: Vue.$cadreConfig.rac_api_prefix + "/packages/get-packages",
@@ -252,6 +252,7 @@ const TEST_RAC_ARCHIVES=[
     }
 ]
 
+//uncomment FOR TESTING lines 130+ to use test packages
 const TEST_RAC_PACKAGES=[
     {
         package_id: '1234567890',
@@ -260,6 +261,35 @@ const TEST_RAC_PACKAGES=[
         name: 'package_name',
         doi: 'doi_number',
         published:'FALSE',
+        //created_on: now.isoformat(),
+        created_by: '1000', 
+        tools: [
+            {
+                tool_id: 'tool_1',
+                description: 'tool_desc1',
+                name: 'tool_name1',
+                tool_script_name: 'tool_script.py',
+                //tool_script_name: packages[10]
+            },
+            {
+                tool_id: 'tool_2',
+                description: 'tool_desc2',
+                name: 'tool_name2',
+                tool_script_name: 'tool_script2.py',
+                //tool_script_name: packages[10]
+            }
+        ],
+        'archive_ids': ["archive_1", "archive_2"],
+        'input_files': ["archive_1 name", "archive_2 name"],
+        'permissions': [{"data_type": "wos", "other": []}, {"data_type": "wos", "other": []}]
+    },
+    {
+        package_id: '1234567890',
+        type: 'type',
+        description: 'some description',
+        name: 'package_name_published',
+        doi: 'doi_number',
+        published:'TRUE',
         //created_on: now.isoformat(),
         created_by: '1000', 
         tools: [

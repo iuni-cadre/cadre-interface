@@ -63,7 +63,7 @@
                 >Clone Package</button>
 
                 <button
-                    v-if="racpackage.created_by == user_id"
+                    v-if="racpackage.created_by == user_id && racpackage.published == 'FALSE'"
                     class="float-left btn btn-primary"
                     @click="publish_package_open = true;"
                 >Publish Package</button>                
@@ -211,7 +211,6 @@
             @ok="publishPackage()"
             :ok-in-footer="true"
             modal-style="success"
-            modal-type="publish"
             ok-button-label="Yes, Publish Package"
             close-button-label="Cancel"
         >
