@@ -20,6 +20,7 @@
                         @startLoading="(data)=>{ $emit('startLoading', data); }"
                         @stopLoading="(data)=>{ $emit('stopLoading', data); }"
                         @packageDeleted="fetchYourPackages()"
+                        @packagePublished="fetchYourPackages()"
                         :rac-package="racpackage"
                     ></rac-package-card>
                 </div>

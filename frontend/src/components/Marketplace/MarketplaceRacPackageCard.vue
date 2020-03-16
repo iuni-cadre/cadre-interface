@@ -61,8 +61,13 @@
                     class="float-right btn btn-primary"
                     @click="create_package_modal_open = true;"
                 >Clone Package</button>
+
+                <button
+                    v-if="racpackage.created_by == user_id"
+                    class="float-left btn btn-primary"
+                    @click="publish_package_open = true;"
+                >Publish Package</button>                
             </div>
-            
             <div
                 class="mt-3"
                 v-if="racpackage.created_by == user_id"
@@ -199,7 +204,36 @@
         >
             <p>Package could not be deleted.</p>
         </modal>
-
+        
+        <modal
+            v-if="publish_package_open"
+            @close="publish_package_open = false"
+            @ok="publishPackage()"
+            :ok-in-footer="true"
+            modal-style="success"
+            modal-type="publish"
+            ok-button-label="Yes, Publish Package"
+            close-button-label="Cancel"
+        >
+            <p>This will make your package publicly accessible. Proceed?</p>
+        </modal>
+        <modal
+            v-if="publish_success_open"
+            @close="publishSuccess()"
+            modal-style="success"
+            close-button-label="OK"
+        >
+            <p>Package was published successfully.</p>
+        </modal>
+        <modal
+            v-if="publish_error_open"
+            @close="publish_error_open=false"
+            modal-style="danger"
+            modal-type="error"
+            close-button-label="Close"
+        >
+            <p>Package could not be published.</p>
+        </modal>
         
     </div>
 </template>
@@ -225,6 +259,10 @@ export default {
             delete_package_open: false,
             delete_success_open: false,
             delete_error_open: false,
+
+            publish_package_open:false,
+            publish_success_open:false,
+            publish_error_open:false,
         };
     },
     computed: {
@@ -388,6 +426,40 @@ export default {
         deleteSuccess: function() {
             this.delete_success_open = false;
             this.$emit("packageDeleted", this.racpackage);
+        },
+        publishPackage: function(){
+            //uncomment after testing 1
+            // if (this.racpackage.created_by != this.user_id || this.racpackage.published){
+            //     return false;
+            // }
+            this.$emit("startLoading", "packagePublish");
+            let publish_promise = this.$cadre.axios({
+                url: this.$cadreConfig.rac_api_prefix + "/packages/publish",
+                method:"POST",
+                data: {
+                    package_id: this.racpackage.package_id
+                }
+            });
+            publish_promise.then(
+                response => {
+                    this.publish_success_open = true;
+                    this.$store.commit("racpackage/refreshPackages"); //?check this too
+                },
+                error => {
+                    console.error(error);
+                    this.publish_error_open = true;
+                }
+            );
+            publish_promise.finally(() => {
+                this.publish_package_open = false;
+                this.$emit("stopLoading", "packagePublish");
+                //passing on updating the store view -- should the package share button no longer be visible. done in ln434
+                //refresh
+            });
+        },
+        publishSuccess: function(){
+            this.publish_success_open = false;
+            this.$emit("packagePublished", this.racpackage);
         },
         // addOutputFile: function() {
         //     this.output_filenames.push("");
