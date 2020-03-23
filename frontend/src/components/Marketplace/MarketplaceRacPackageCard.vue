@@ -63,7 +63,7 @@
                 >Clone Package</button>
 
                 <button
-                    v-if="racpackage.created_by == user_id && racpackage.published == 'FALSE'"
+                    v-if="racpackage.created_by == user_id && racpackage.published == false"
                     class="float-left btn btn-primary"
                     @click="publish_package_open = true;"
                 >Publish Package</button>                

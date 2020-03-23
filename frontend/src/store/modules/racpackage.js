@@ -260,7 +260,7 @@ const TEST_RAC_PACKAGES=[
         description: 'some description',
         name: 'package_name',
         doi: 'doi_number',
-        published:'FALSE',
+        published: false,
         //created_on: now.isoformat(),
         created_by: '1000', 
         tools: [
@@ -289,7 +289,7 @@ const TEST_RAC_PACKAGES=[
         description: 'some description',
         name: 'package_name_published',
         doi: 'doi_number',
-        published:'TRUE',
+        published:true,
         //created_on: now.isoformat(),
         created_by: '1000', 
         tools: [
