@@ -223,7 +223,7 @@ const TEST_RAC_TOOLS = [
     {
         tool_id: "112342211261",
         name: "tool_name1",
-        author: "username",
+        author: "test-user",
         description: "some description",
         entrypoint: "some_script1.py",
         created_on: "2020-01-07 14:15:00",
@@ -239,3 +239,77 @@ const TEST_RAC_TOOLS = [
     
 ]
 const TEST_RAC_JOBS = {}
+
+
+const TEST_RAC_ARCHIVES=[
+    {
+        archive_description: "",
+        archive_id: "1",
+        archive_name: "test1",
+        created_on: "2020-01-27T21:03:13.358954+00:00",
+        permissions: { data_type: "MAG", other: [] },
+        created_by: "1000"
+    }
+]
+
+//uncomment FOR TESTING lines 130+ to use test packages
+const TEST_RAC_PACKAGES=[
+    {
+        package_id: '1234567890',
+        type: 'type',
+        description: 'some description',
+        name: 'package_name',
+        doi: 'doi_number',
+        published: false,
+        //created_on: now.isoformat(),
+        created_by: '1000', 
+        tools: [
+            {
+                tool_id: 'tool_1',
+                description: 'tool_desc1',
+                name: 'tool_name1',
+                tool_script_name: 'tool_script.py',
+                //tool_script_name: packages[10]
+            },
+            {
+                tool_id: 'tool_2',
+                description: 'tool_desc2',
+                name: 'tool_name2',
+                tool_script_name: 'tool_script2.py',
+                //tool_script_name: packages[10]
+            }
+        ],
+        'archive_ids': ["archive_1", "archive_2"],
+        'input_files': ["archive_1 name", "archive_2 name"],
+        'permissions': [{"data_type": "wos", "other": []}, {"data_type": "wos", "other": []}]
+    },
+    {
+        package_id: '1234567890',
+        type: 'type',
+        description: 'some description',
+        name: 'package_name_published',
+        doi: 'doi_number',
+        published:true,
+        //created_on: now.isoformat(),
+        created_by: '1000', 
+        tools: [
+            {
+                tool_id: 'tool_1',
+                description: 'tool_desc1',
+                name: 'tool_name1',
+                tool_script_name: 'tool_script.py',
+                //tool_script_name: packages[10]
+            },
+            {
+                tool_id: 'tool_2',
+                description: 'tool_desc2',
+                name: 'tool_name2',
+                tool_script_name: 'tool_script2.py',
+                //tool_script_name: packages[10]
+            }
+        ],
+        'archive_ids': ["archive_1", "archive_2"],
+        'input_files': ["archive_1 name", "archive_2 name"],
+        'permissions': [{"data_type": "wos", "other": []}, {"data_type": "wos", "other": []}]
+    }
+]

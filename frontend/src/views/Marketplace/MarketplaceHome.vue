@@ -29,6 +29,7 @@
                                 @stopLoading="(data)=>{ $emit('stopLoading', data); }"
                                 :rac-package="racpackage"
                                 @packageDeleted="getPackages()"
+                                @packagePublished="getPackages()"
                             ></rac-package-card>
                         </div>
                     </div>
