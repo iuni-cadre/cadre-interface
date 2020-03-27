@@ -479,11 +479,11 @@ export default {
     mounted: function() {
         // console.debug("mounted");
         // this.addToLoadingQueue("test");
-        console.debug("adding initialize to queue");
-        this.addToLoadingQueue("initialize");
+        // console.debug("adding initialize to queue");
+        // this.addToLoadingQueue("initialize");
         this.validate().finally(() => {
-            console.debug("removing initialize from queue")
-            this.removeFromLoadingQueue("initialize");
+            // console.debug("removing initialize from queue")
+            // this.removeFromLoadingQueue("initialize");
         });
 
         // let encoded = Base32.encode('this is a test');
