@@ -51,6 +51,11 @@ export default new Router({
             component: JobsList
         },
         {
+            path: "/jobs/:job_id",
+            name: "jobs-list-id",
+            component: JobsList
+        },
+        {
             path: "/rac",
             name: "rac-marketplace",
             component: RAC_Marketplace
