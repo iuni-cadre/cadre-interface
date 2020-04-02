@@ -25,7 +25,7 @@
 
                     <button v-if="status && !server_running && !server_pending"
                             @click="tryToCreateJupyterHub()"
-                            class="btn btn-primary btn-lg">Create Notebook Server</button>
+                            class="btn btn-primary btn-lg">Start Notebook Server</button>
 
                 </div>
                 <div class="mt-3">
