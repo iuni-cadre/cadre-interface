@@ -15,8 +15,6 @@ blueprint = Blueprint('qi_api', __name__)
 
 @blueprint.route('/qi-api/user-jobs')
 def user_jobs():
-    request_json = request.get_json()
-    
     auth_token = request.headers.get('auth-token')
     username = request.headers.get('auth-username')
     if auth_token is None or username is None:
@@ -38,19 +36,42 @@ def user_jobs():
                                             headers=headers,
                                             verify=False)
     if validate_token_response.status_code is not 200:
-        print(validate_token_response)
         return jsonify({"error": "Invalid Token"}), 403
 
     response_json = validate_token_response.json()
-    roles = response_json['roles']
+    # roles = response_json['roles']
     user_id = response_json['user_id']
 
-
     # actually get the jobs
-    conn = psycopg2.connect(dbname = meta_db_config["database-name"], user= meta_db_config["database-username"], password= meta_db_config["database-password"], host= meta_db_config["database-host"], port= meta_db_config["database-port"])
+    conn = psycopg2.connect(
+        dbname = meta_db_config["database-name"], 
+        user= meta_db_config["database-username"], 
+        password= meta_db_config["database-password"], 
+        host= meta_db_config["database-host"], 
+        port= meta_db_config["database-port"]
+    )
     cur = conn.cursor()
     try:
-        cur.execute("SELECT job_id, message_id, s3_location, job_status, started_on, modified_on, \"type\", \"description\", \"name\" FROM user_job WHERE user_id=%s ORDER BY modified_on, started_on;", [user_id])
+        query = (
+            'SELECT '
+            '   uj.job_id as job_id, '
+            '   uj.message_id as message_id, '
+            '   uj.s3_location as s3_location, '
+            '   uj.job_status as job_status, '
+            '   uj.started_on as started_on, '
+            '   uj.modified_on as modified_on, '
+            '   uj."type" as "type", '
+            '   uj."description" as "description", '
+            '   uj."name" as "name", '
+            '   array_agg(qr.efs_path) as filepaths'
+            'FROM user_job as uj'
+            '   LEFT JOIN query_result as qr '
+            '       ON(uj.job_id = qr.job_id) '
+            'WHERE uj.user_id=%s '
+            'GROUP BY uj.job_id '
+            'ORDER BY uj.modified_on, uj.started_on; '
+        )
+        cur.execute(query, [user_id])
         results = cur.fetchall()
 
         conn.close()

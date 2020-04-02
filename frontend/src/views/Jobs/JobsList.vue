@@ -29,37 +29,70 @@
                             <th>Run Time</th>
                             <!-- <th>S3 Bucket</th> -->
                         </tr>
-                        <tr
-                            v-for="job in jobs_sorted"
-                            :class="{
+                        <template v-for="job in jobs_sorted">
+                            <tr
+                                :key="job.job_id"
+                                :id="`job_row_${job.job_id}`"
+                                @click="clickJobRow(job.job_id)"
+                                :class="{
                                 'table-success': job.status == 'Completed',
                                 'table-info': job.run_time <= (1000 * 60 * 10) && job.status == 'Running',
                                 'table-danger': job.status == 'Failed',
                                 'table-warning': (job.status == 'Running' || job.status == 'Submitted') && job.run_time > (1000 * 60 * 10),
-                                'active_job': job.job_id == selected_job_id
+                                'active_job': job.job_id == selected_job_id,
+                                'active_job_bottom': job.job_id == selected_job_id && job.files.length == 0
                                 }"
-                            :key="job.job_id"
-                            :id="`job_row_${job.job_id}`"
-                            @click="clickJobRow(job.job_id)"
-                        >
-                            <td v-text="job.job_id">Job Id</td>
-                            <td v-text="job.job_name">Job Name</td>
-                            <td v-text="job.status">Status</td>
-                            <td v-text="job.type">Type</td>
-                            <td v-text="job.start.toLocaleString()">Started</td>
-                            <td
-                                v-text="(job.run_time/1000) + ' second' + ((job.run_time/100) !== 1?'s':'')"
-                            ></td>
-                            <!-- <td><a :href="job[2]"
-                            v-text="job[2]"></a></td>-->
-                        </tr>
+                            >
+                                <td v-text="job.job_id">Job Id</td>
+                                <td v-text="job.job_name">Job Name</td>
+                                <td v-text="job.status">Status</td>
+                                <td v-text="job.type">Type</td>
+                                <td v-text="job.start.toLocaleString()">Started</td>
+                                <td
+                                    v-text="(job.run_time/1000) + ' second' + ((job.run_time/100) !== 1?'s':'')"
+                                ></td>
+                                <!-- <td><a :href="job[2]"
+                                v-text="job[2]"></a></td>-->
+                            </tr>
+                            <tr
+                                v-if="job.files.length > 0"
+                                :key="`job_files_${job.job_id}`"
+                                :id="`job_files_${job.job_id}`"
+                                :class="{
+                                'table-success': job.status == 'Completed',
+                                'table-info': job.run_time <= (1000 * 60 * 10) && job.status == 'Running',
+                                'table-danger': job.status == 'Failed',
+                                'table-warning': (job.status == 'Running' || job.status == 'Submitted') && job.run_time > (1000 * 60 * 10),
+                                'active_job_bottom': job.job_id == selected_job_id
+                                }"
+                                
+                                @click="clickJobRow(job.job_id)"
+                            >
+                                <td colspan="6">
+                                    <div class="d-flex">
+                                        <div class="file_label">Result File{{job.files.length == 1?"":"s"}}:&nbsp;</div>
+                                        <div>
+                                            <div v-for="filename in job.files" :key="`${job.job_id}_${filename}`">
+                                                <a :href="`${jupyter_url}/user/${username}/lab/tree/${filename}?token=${jupyter_token}`" v-text="filename">Filename</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
                         <tr v-if="jobs.length === 0">
                             <td colspan="6">No jobs could be found</td>
                         </tr>
                     </table>
                     <div>
-                        <button class="btn btn-primary" v-if="page > 0">Prev</button>
-                        <button class="btn btn-primary" v-if="page + 1 < total_pages">Next</button>
+                        <button
+                            class="btn btn-primary"
+                            v-if="page > 0"
+                        >Prev</button>
+                        <button
+                            class="btn btn-primary"
+                            v-if="page + 1 < total_pages"
+                        >Next</button>
                     </div>
                 </div>
             </div>
@@ -98,12 +131,25 @@ export default {
         starting_index: function() {
             return this.page_number * this.number_per_page;
         },
-        total_pages: function(){
+        total_pages: function() {
             let pages = Math.ceil(this.jobs.length / this.number_per_page);
             return pages;
         },
-        selected_job_id: function(){
+        selected_job_id: function() {
             return this.$route.params["job_id"];
+        },
+
+        jupyter_url: function() {
+            return this.$cadreConfig.jupyter_url;
+        },
+        // jupyter_full_url: function() {
+        //     return `${this.jupyter_url}/user/${this.username}/lab/?token=${this.jupyter_token}`;
+        // },
+        jupyter_token: function() {
+            return this.$store.getters["user/jToken"];
+        },
+        username: function() {
+            return this.$store.getters["user/username"];
         }
     },
     methods: {
@@ -122,8 +168,11 @@ export default {
 
             return diff; //> (10 * 60 * 1000);
         },
-        clickJobRow: function(job_id){
-            this.$router.push({name:"jobs-list-id", params:{job_id:job_id}})
+        clickJobRow: function(job_id) {
+            this.$router.push({
+                name: "jobs-list-id",
+                params: { job_id: job_id }
+            });
         },
         getJobs: function() {
             // for (let job of sample_jobs) {
@@ -168,7 +217,14 @@ export default {
                             start: new Date(job[4]),
                             update: job[5] ? new Date(job[5]) : new Date(),
                             run_time: this.getRunTime(job),
-                            job_name: job[8]
+                            job_name: job[8],
+                            files: job[9].filter(item => {
+                                return item;
+                            }).map(item=>{
+                                let parts = item.split("/");
+                                let last = parts.length - 1;
+                                return `${parts[last-1]}/${parts[last]}`;
+                            })
                         });
                     }
 
@@ -409,16 +465,25 @@ export default {
 </script>
 
 <style lang="scss">
-.active_job {
-    $border: solid gray 1px;
+$border: solid gray 1px;
+.active_job,
+.active_job_bottom {
     border-left: $border;
     border-right: $border;
     font-weight: bold;
     td {
-    z-index: 100;
-    position: relative;
-        border-top: $border;
-        border-bottom: $border;
+        z-index: 100;
+        position: relative;
     }
+}
+.active_job td {
+    border-top: $border;
+}
+.active_job_bottom td {
+    border-bottom: $border;
+}
+
+.file_label{
+    padding: 0 1rem;
 }
 </style>
