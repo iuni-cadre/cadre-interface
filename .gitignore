@@ -28,3 +28,5 @@ eb_bundle*.zip
 
 .vs
 frontend/coverage
+
+frontend/public/assets/sample_data
