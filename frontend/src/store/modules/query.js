@@ -86,6 +86,10 @@ export default {
                     dataset: dataset
                 };
 
+                if(Datasets[dataset].database_type == "janus")
+                {
+                    request = convertQueryDataToJanus(request);
+                }
 
                 let canceled_timeout = setTimeout(() => {
                     reject({ code: 1000, message: "Query timed out" });
