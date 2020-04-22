@@ -56,6 +56,14 @@ export default {
                 return "";
             }
         },
+        database_type: function() {
+            try {
+                return Datasets[this.$store.getters["query/selectedDataset"]]
+                    .database_type;
+            } catch (err) {
+                return "";
+            }
+        },
         is_loading: function() {
             return this.isLoading;
         },
@@ -575,7 +583,7 @@ export default {
                         </div>
                     </div>
 
-                    <div class="card mb-3">
+                    <div v-if="database_type != 'janus'" class="card mb-3">
                         <div class="form-group">
                             <button
                                 v-if="selected_fields.length == 0"
