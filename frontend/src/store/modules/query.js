@@ -116,3 +116,73 @@ export default {
         }
     }
 };
+
+export function convertQueryDataToJanus({job_name = "", filters = [], output = [], dataset = ""})
+{
+    let result = {
+        job_name: job_name,
+        graph: [],
+        csv_output: [],
+        dataset: dataset
+    };
+    //get the maps so we can map the old filters to the new
+    const janus_map = Datasets[dataset].fields.janus_map;
+    const input_map = janus_map.input_field_map;
+    const network_map = janus_map.network_map;
+    const output_map = janus_map.output_field_map;
+
+    let graph = [];
+    let types_with_filters = {}
+    let csv_output = [];
+
+    //pull out all the filters and group by vertex
+    for(let {field, value, operation} of filters)
+    {
+        let {vertex, field: new_field} = input_map[field];
+        if(!types_with_filters[vertex])
+        {
+            types_with_filters[vertex] = [];
+        }
+        types_with_filters[vertex].push({
+            "field": new_field,
+            "filterType": "is",
+            "value": value,
+            "operator": operation
+        });
+    }
+
+    //build the actual graph
+    for(let vertex in types_with_filters)
+    {
+        let node = {"vertexType": vertex, "filters": []}
+        const filters = types_with_filters[vertex];
+        for(let filter of filters)
+        {
+            node.filters.push(filter);
+        }
+        graph.push(node);
+    }
+
+    for(let {field, type, degree = 0} of output)
+    {
+        //if a network output field was checked, match it to proper
+        //  vertex type and push an empty vertex on the graph
+        if(type == "network")
+        {
+            let {vertex} = network_map[field];
+            graph.push({
+                vertexType: vertex,
+                filters: []
+            });
+        }
+        else if(type == "single")
+        {
+            csv_output.push(output_map[field]);
+        }
+    }
+    
+    result.csv_output = csv_output;
+    result.graph = graph;
+    return result;
+}
+// export convertQueryDataToJanus as convertQueryDataToJanus;

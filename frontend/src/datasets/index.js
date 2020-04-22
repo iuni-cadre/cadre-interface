@@ -13,6 +13,7 @@ export default{
         name: "Microsoft Academic Graph",
         fields: MAG_Fields,
         description: "Metadata for scholarly papers and their authors",
-        allowed_roles: []
+        allowed_roles: [],
+        database_type: "janus"
     }
 }

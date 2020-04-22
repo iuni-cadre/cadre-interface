@@ -1,6 +1,5 @@
 export default {
     output: [
-
         {
             field: "paper_id",
             type: "single",
@@ -146,17 +145,16 @@ export default {
             type: "single",
             label: "journal_publisher"
         },
-        {
-            field: "paper_title_tsv",
-            type: "single",
-            label: "paper_title_tsv"
-        },
+        // {
+        //     field: "paper_title_tsv",
+        //     type: "single",
+        //     label: "paper_title_tsv"
+        // },
         {
             field: "citations",
             type: "network",
             label: "First Degree Citation Network"
-        },
-
+        }
     ],
     input: {
         // year: "Year",
@@ -169,7 +167,7 @@ export default {
         conference_display_name: "Conference Name",
         authors_display_name: "Author Names",
         paper_title: "Paper Title",
-        paper_abstract: "Paper Abstract",
+        paper_abstract: "Paper Abstract"
     },
     default: [
         "paper_id",
@@ -179,9 +177,161 @@ export default {
         "journal_display_name"
         // "author_id",
         // "citations"
-    ]
+    ],
+    janus_map: {
+        vertex_types: ["Paper", "JournalFixed", "Author", "ConferenceInstance", "ConferenceSeries", "FieldOfStudy"],
+        input_field_map: {
+            year: {
+                vertex: "Paper",
+                field: "year"
+            },
+            doi: {
+                vertex: "Paper",
+                field: "doi"
+            },
+            journal_display_name: {
+                vertex: "JournalFixed",
+                field: "name"
+            },
+            conference_display_name: {
+                vertex: "ConferenceInstance",
+                field: "name"
+            },
+            authors_display_name: {
+                vertex: "Author",
+                field: "name"
+            },
+            paper_title: {
+                vertex: "Paper",
+                field: "title"
+            },
+            paper_abstract: {
+                vertex: "Paper",
+                field: "abstract"
+            }
+        },
+        network_map: {
+            citations: {
+                vertex: "Paper"
+            }
+        },
+        output_field_map: {
+            paper_id: {
+                vertexType: "Paper",
+                field: "paperId"
+            },
+            author_id: {
+                vertexType: "Author",
+                field: "authorId"
+            },
+            author_sequence_number: {
+                vertexType: "Author",
+                field: "rank"
+            },
+            authors_display_name: {
+                vertexType: "Author",
+                field: "displayName"
+            },
+            authors_last_known_affiliation_id: {
+                vertexType: "Author",
+                field: "lastKnownAffiliationId"
+            },
+            journal_id: {
+                vertexType: "JournalFixed",
+                field: "journalIdFixed"
+            },
+            conference_series_id: {
+                vertexType: "ConferenceSeries",
+                field: "conferenceSeriesId"
+            },
+            conference_instance_id: {
+                vertexType: "ConferenceInstance",
+                field: "conferenceInstanceId"
+            },
+            // paper_reference_id: { "vertexType": "", "field":""},
+            field_of_study_id: {
+                vertexType: "FieldOfStudy",
+                field: "fieldOfStudyId"
+            },
+            doi: {
+                vertexType: "Paper",
+                field: "doi"
+            },
+            doc_type: {
+                vertexType: "Paper",
+                field: "docType"
+            },
+            paper_title: {
+                vertexType: "Paper",
+                field: "paperTitle"
+            },
+            original_title: {
+                vertexType: "Paper",
+                field: "originalTitle"
+            },
+            book_title: {
+                vertexType: "Paper",
+                field: "bookTitle"
+            },
+            year: {
+                vertexType: "Paper",
+                field: "year"
+            },
+            date: {
+                vertexType: "Paper",
+                field: "date"
+            },
+            paper_publisher: {
+                vertexType: "Paper",
+                field: "publisher"
+            },
+            issue: {
+                vertexType: "Paper",
+                field: "issue"
+            },
+            paper_abstract: {
+                vertexType: "",
+                field: ""
+            },
+            paper_first_page: {
+                vertexType: "Paper",
+                field: "firstPage"
+            },
+            paper_last_page: {
+                vertexType: "Paper",
+                field: "lastPage"
+            },
+            paper_reference_count: {
+                vertexType: "Paper",
+                field: "referenceCount"
+            },
+            paper_citation_count: {
+                vertexType: "Paper",
+                field: "citationCount"
+            },
+            paper_estimated_citation: {
+                vertexType: "Paper",
+                field: "estimatedCitation"
+            },
+            conference_display_name: {
+                vertexType: "ConferenceSeries",
+                field: "displayname"
+            },
+            journal_display_name: {
+                vertexType: "JournalFixed",
+                field: "displayName"
+            },
+            journal_issn: {
+                vertexType: "JournalFixed",
+                field: "issn"
+            },
+            journal_publisher: {
+                vertexType: "JournalFixed",
+                field: "publisher"
+            }
+        }
+    }
 };
-
 
 // Column          |            Type             | Collation | Nullable | Default
 // --------------------------+-----------------------------+-----------+----------+---------
