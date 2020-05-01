@@ -1,13 +1,11 @@
-
-import {convertQueryDataToJanus} from '../src/store/modules/query.js';
-
+import { convertQueryDataToJanus } from "../src/store/modules/query.js";
 
 describe("ConvertQueryDataToJanus", () => {
     test("returns something", () => {
         let result = convertQueryDataToJanus(sampleJSON);
         expect(result).toBeTruthy();
     });
-    
+
     test("has all the parts", () => {
         let result = convertQueryDataToJanus(sampleJSON);
         expect(result.job_name).not.toBeUndefined();
@@ -15,7 +13,6 @@ describe("ConvertQueryDataToJanus", () => {
         expect(result.csv_output).not.toBeUndefined();
         expect(result.dataset).not.toBeUndefined();
     });
-
 
     test("copies job_name and datasets", () => {
         let result = convertQueryDataToJanus(sampleJSON);
@@ -32,133 +29,131 @@ describe("ConvertQueryDataToJanus", () => {
         let result = convertQueryDataToJanus(sampleJSON);
         expect(result.csv_output).toStrictEqual(sampleResult.csv_output);
     });
-    
-
-    
 });
 
 const sampleResult = {
-    "job_name": "Job Name",
-    "dataset": "mag",
-    "graph": [
-        {
-            "vertexType": "Paper",
-            "filters": [
-                {
-                    "field": "year",
-                    "filterType": "is",
-                    "value": "TEST",
-                    "operator": "AND"
-                },
-                {
-                    "field": "title",
-                    "filterType": "is",
-                    "value": "SOME TITLE",
-                    "operator": ""
-                }
-            ]
-        },
-        {
-            "vertexType": "Author",
-            "filters": [
-                {
-                    "field": "name",
-                    "filterType": "is",
-                    "value": "TEST AUTH",
-                    "operator": "AND"
-                }
-            ]
-        },
-        {
-            "vertexType": "Paper",
-            "filters": []
-        }
-
-    ],
+    job_name: "Job Name",
+    dataset: "mag",
+    graph: {
+        nodes: [
+            {
+                vertexType: "Paper",
+                filters: [
+                    {
+                        field: "year",
+                        filterType: "is",
+                        value: "TEST",
+                        operator: "AND"
+                    },
+                    {
+                        field: "title",
+                        filterType: "is",
+                        value: "SOME TITLE",
+                        operator: ""
+                    }
+                ]
+            },
+            {
+                vertexType: "Author",
+                filters: [
+                    {
+                        field: "name",
+                        filterType: "is",
+                        value: "TEST AUTH",
+                        operator: "AND"
+                    }
+                ]
+            },
+            {
+                vertexType: "Paper",
+                filters: []
+            }
+        ],
+        edges: [
+            {
+                source: "Author",
+                target: "Paper",
+                relation: "AuthorOf"
+            },
+            {
+                source: "Paper",
+                target: "Paper",
+                relation: "References"
+            }
+        ],
+    },
     csv_output: [
         {
-            "field": "paperId",
-            "vertexType": "Paper"
+            field: "paperId",
+            vertexType: "Paper"
         },
         {
-            "field": "year",
-            "vertexType": "Paper"
+            field: "year",
+            vertexType: "Paper"
         },
         {
-            "field": "originalTitle",
-            "vertexType": "Paper"
+            field: "originalTitle",
+            vertexType: "Paper"
         },
         {
-            "field": "displayName",
-            "vertexType": "Author"
+            field: "displayName",
+            vertexType: "Author"
         },
         {
-            "field": "displayName",
-            "vertexType": "JournalFixed"
+            field: "displayName",
+            vertexType: "JournalFixed"
         }
-
     ]
-}
+};
 
 const sampleJSON = {
-    "job_name": "Job Name",
-    "filters": [
+    job_name: "Job Name",
+    filters: [
         {
-            "field": "year",
-            "value": "TEST",
-            "operation": "AND"
+            field: "year",
+            value: "TEST",
+            operation: "AND"
         },
         {
-            "field": "authors_display_name",
-            "value": "TEST AUTH",
-            "operation": "AND"
+            field: "authors_display_name",
+            value: "TEST AUTH",
+            operation: "AND"
         },
         {
-            "field": "paper_title",
-            "value": "SOME TITLE",
-            "operation": ""
+            field: "paper_title",
+            value: "SOME TITLE",
+            operation: ""
         }
     ],
-    "output": [
+    output: [
         {
-            "field": "paper_id",
-            "type": "single"
+            field: "paper_id",
+            type: "single"
         },
         {
-            "field": "year",
-            "type": "single"
+            field: "year",
+            type: "single"
         },
         {
-            "field": "original_title",
-            "type": "single"
+            field: "original_title",
+            type: "single"
         },
         {
-            "field": "authors_display_name",
-            "type": "single"
+            field: "authors_display_name",
+            type: "single"
         },
         {
-            "field": "journal_display_name",
-            "type": "single"
+            field: "journal_display_name",
+            type: "single"
         },
         {
-            "field": "citations",
-            "type": "network",
-            "degree": 1
+            field: "citations",
+            type: "network",
+            degree: 1
         }
     ],
-    "dataset": "mag"
-}
-
-
-
-
-
-
-
-
-
-
-
+    dataset: "mag"
+};
 
 // import { shallowMount, createLocalVue, mount } from "@vue/test-utils";
 // import FilebrowserMain from "../src/components/Filebrowser/FilebrowserMain.vue"; // name of your Vue component
@@ -306,7 +301,7 @@ const sampleJSON = {
 //         let checkboxes = wrapper.findAll('input[type=checkbox]'); //all files
 //         checkboxes.trigger("click");
 //         await wrapper.vm.$nextTick();
-        
+
 //         expect(wrapper.vm.selected_paths.length).toEqual(4);
 //         wrapper.destroy();
 
@@ -321,8 +316,8 @@ const sampleJSON = {
 //             store,
 
 //         });
-//         let folders = wrapper.findAll('input[type=checkbox]'); 
-//         folders.trigger("click"); 
+//         let folders = wrapper.findAll('input[type=checkbox]');
+//         folders.trigger("click");
 //         await wrapper.vm.$nextTick();
 
 //         expect(wrapper.vm.selected_paths.length).toEqual(2);
@@ -339,8 +334,8 @@ const sampleJSON = {
 //             store,
 
 //         });
-//         let folders = wrapper.findAll('input[type=checkbox]'); 
-//         folders.trigger("click"); 
+//         let folders = wrapper.findAll('input[type=checkbox]');
+//         folders.trigger("click");
 //         await wrapper.vm.$nextTick();
 //         let expected = [
 //             sample_response_1.data[0].path,
@@ -350,7 +345,6 @@ const sampleJSON = {
 //         wrapper.destroy();
 
 //     });
-    
 
 //     test("deselecting box removes from selected_paths", async () => {
 //         axios.mockReturnValue(Promise.resolve(sample_response_1));
@@ -361,8 +355,8 @@ const sampleJSON = {
 //             store,
 
 //         });
-//         let folders = wrapper.findAll('input[type=checkbox]'); 
-//         folders.trigger("click"); 
+//         let folders = wrapper.findAll('input[type=checkbox]');
+//         folders.trigger("click");
 //         await wrapper.vm.$nextTick();
 //         folders.at(0).trigger("click");
 //         await wrapper.vm.$nextTick();

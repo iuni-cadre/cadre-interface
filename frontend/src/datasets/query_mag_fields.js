@@ -179,7 +179,46 @@ export default {
         // "citations"
     ],
     janus_map: {
-        vertex_types: ["Paper", "JournalFixed", "Author", "ConferenceInstance", "ConferenceSeries", "FieldOfStudy"],
+        vertex_types: [
+            "Paper",
+            "JournalFixed",
+            "Author",
+            "ConferenceInstance",
+            "ConferenceSeries",
+            "FieldOfStudy"
+        ],
+        edge_types: [
+            {
+                target: "Paper",
+                source: "Paper",
+                relation: "References"
+            },
+            {
+                target: "JournalFixed",
+                source: "Paper",
+                relation: "PublishedInFixed"
+            },
+            {
+                target: "Paper",
+                source: "Author",
+                relation: "AuthorOf"
+            },
+            {
+                target: "ConferenceInstance",
+                source: "Paper",
+                relation: "PresentedAt"
+            },
+            {
+                target: "ConferenceInstance",
+                source: "ConferenceSeries",
+                relation: "InstanceOf"
+            },
+            {
+                target: "FieldOfStudy",
+                source: "Paper",
+                relation: "BelongsTo"
+            }
+        ],
         input_field_map: {
             year: {
                 vertex: "Paper",
@@ -212,7 +251,8 @@ export default {
         },
         network_map: {
             citations: {
-                vertex: "Paper"
+                vertex: "Paper",
+                relation: "References"
             }
         },
         output_field_map: {

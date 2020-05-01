@@ -4,11 +4,11 @@ import QueryBuilderHeader from "./QueryInterfaceHeader";
 import OutputFields from "@/components/QueryBuilder/QueryBuilderOutputFields";
 import Datasets from "../../datasets";
 
-let operator_types = [
-    "AND",
-    "OR"
-    // "NOT"
-];
+// let operator_types = [
+//     "AND",
+//     "OR"
+//     // "NOT"
+// ];
 
 export default {
     data: function() {
@@ -142,7 +142,13 @@ export default {
         //     return this.$store.getters["query/queryClauses"];
         // },
         operator_types: function() {
-            return operator_types;
+            let types = [];
+            types.push("AND");
+            if(this.database_type != 'janus')
+            {
+                types.push("OR");
+            }
+            return types;
         },
         preview_data: function() {
             // let tmp =
@@ -226,7 +232,7 @@ export default {
 
             //when adding a new clause, set the operator of the previous clause
             if (len) {
-                this.queries[len - 1].operator = operator_types[0];
+                this.queries[len - 1].operator = this.operator_types[0];
             }
 
             this.queries.push({
@@ -409,6 +415,15 @@ export default {
 
 
 <template>
+<!-- 
+######## ######## ##     ## ########  ##          ###    ######## ######## 
+   ##    ##       ###   ### ##     ## ##         ## ##      ##    ##       
+   ##    ##       #### #### ##     ## ##        ##   ##     ##    ##       
+   ##    ######   ## ### ## ########  ##       ##     ##    ##    ######   
+   ##    ##       ##     ## ##        ##       #########    ##    ##       
+   ##    ##       ##     ## ##        ##       ##     ##    ##    ##       
+   ##    ######## ##     ## ##        ######## ##     ##    ##    ######## 
+    -->
     <div>
         <query-builder-header />
         <section>
@@ -465,7 +480,7 @@ export default {
                                 </div>
 
                                 <div v-if="index != queries.length - 1">
-                                    <div class="form-group">
+                                    <div v-if="operator_types.length > 1" class="form-group">
                                         <!-- <label>Operator</label> -->
                                         <select
                                             class="form-control"
@@ -484,6 +499,12 @@ export default {
                                                 v-text="operator"
                                             ></option>
                                         </select>
+                                    </div>
+                                    <div v-else>
+                                        <!-- <input type="hidden" 
+                                        :value="operator_types[0]" 
+                                        v-model="queries[index].operator" /> -->
+                                        {{operator_types[0]}}
                                     </div>
                                 </div>
                             </div>
