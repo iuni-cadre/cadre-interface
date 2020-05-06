@@ -294,7 +294,7 @@ export default {
             return prom;
         },
         getArchivesAndTools: function() {
-            this.$emit("startLoading", "getPackageOptions");
+            this.$store.commit("loading/addKey", {key:"getPackageOptions"});
             let proms = [];
             proms.push(this.getArchives());
             proms.push(this.getTools());
@@ -309,7 +309,7 @@ export default {
                 }
             );
             prom.finally(() => {
-                this.$emit("stopLoading", "getPackageOptions");
+                this.$store.commit("loading/removeKey", {key: "getPackageOptions"});
             });
             return prom;
         },
@@ -324,14 +324,14 @@ export default {
         },
 
         submitForm: function() {
-            this.$emit("startLoading", {
+            this.$store.commit("loading/addKey", {
                 key: "newTool",
                 message: "Creating new tool"
             });
             let is_valid = this.validateForm();
             // console.debug(this.data_to_send);
             if (!is_valid) {
-                this.$emit("stopLoading", { key: "newTool" });
+                this.$store.commit("loading/removeKey", { key: "newTool" });
             } else {
                 // let prom = new Promise((resolve, reject) => {
                 //     setTimeout(() => {
@@ -365,7 +365,7 @@ export default {
                         this.error_message.push(message);
                     }
                 ).finally(() => {
-                    this.$emit("stopLoading", { key: "newTool" });
+                    this.$store.commit("loading/removeKey", { key: "newTool" });
                 });
             }
         },
@@ -416,11 +416,11 @@ export default {
                 if (this.selected_files.length <= 0) {
                     errors.push("Must choose a file.");
                     this.$set(this, "error_message", errors);
-                    this.$emit("stopLoading", { key: "verifyFile" });
+                    this.$store.commit("loading/removeKey", { key: "verifyFile" });
                     resolve(false);
                 } else {
                     //verify authenticity of file
-                    this.$emit("startLoading", { key: "verifyFile" });
+                    this.$store.commit("loading/addKey", { key: "verifyFile" });
                     let url = this.new_archive_endpoint + "/check";
                     let prom = this.$cadre.axios({
                         url: url,
@@ -438,7 +438,7 @@ export default {
                         }
                     ).finally(() => {
                         this.$set(this, "error_message", errors);
-                        this.$emit("stopLoading", { key: "verifyFile" });
+                        this.$store.commit("loading/removeKey", { key: "verifyFile" });
                         if (errors.length > 0) {
                             // console.debug("Form not valid.");
                             resolve(false);

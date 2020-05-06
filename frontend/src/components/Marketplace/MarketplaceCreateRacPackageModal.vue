@@ -146,7 +146,7 @@ export default {
         //     this.$emit("stopLoading", { key: "running_package" });
         // }
         createPackage: function() {
-            this.$emit("startLoading", { key: "create_package", message: "" });
+            this.$store.commit("loading/addKey", { key: "create_package", message: "" });
             let create_prom = this.$store.dispatch("racpackage/createPackage", {
                 package_name: this.new_package_name,
                 tool_id: this.new_package_tool,
@@ -162,7 +162,7 @@ export default {
                 )
                 .finally(() => {
                     //stop loading
-                    this.$emit("stopLoading", { key: "create_package" });
+                    this.$store.commit("loading/removeKey", { key: "create_package" });
                 });
         },
         refreshMyJobs: function() {

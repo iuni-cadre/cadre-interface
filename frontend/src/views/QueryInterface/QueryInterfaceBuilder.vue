@@ -640,12 +640,12 @@ export default {
 
             //start loading
             if (!async) {
-                this.$emit("startLoading", {
+                this.$store.commit("loading/addKey", {
                     message: "Fetching Preview...",
                     key: "query"
                 });
             } else {
-                this.$emit("startLoading", {
+                this.$store.commit("loading/addKey", {
                     message: "Sending Query...",
                     key: "query"
                 });
@@ -681,7 +681,7 @@ export default {
 
             query_prom.then(
                 result => {
-                    this.$emit("stopLoading", { key: "query" });
+                    this.$store.commit("loading/removeKey", { key: "query" });
                     console.debug(result);
                     if (!async) {
                         if (result.errors) {
@@ -706,7 +706,7 @@ export default {
                     }
                 },
                 error => {
-                    this.$emit("stopLoading", { key: "query" });
+                    this.$store.commit("loading/removeKey", { key: "query" });
                     // console.error(error);
                     if (error.code === 1000) {
                         if (async) {
@@ -737,7 +737,7 @@ export default {
         }
     },
     props: {
-        isLoading: Number
+        isLoading: Boolean
     },
     components: {
         QueryBuilderHeader,
