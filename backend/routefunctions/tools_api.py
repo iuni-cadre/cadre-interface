@@ -106,7 +106,8 @@ def get_tools():
                 name as tool_name,
                 script_name as tool_script_name,
                 created_on as tool_created_on,
-                created_by as created_by
+                created_by as created_by,
+                published as published
                 FROM tool
                 WHERE created_by = %s
                 AND to_be_deleted IS NOT TRUE
@@ -184,6 +185,64 @@ def delete_tool():
         query = """UPDATE tool set to_be_deleted=TRUE WHERE tool_id=%s"""
         cur.execute(query, (tool_id,))
         return jsonify({'Deletion': 'Successful'}), 200
+    except Exception:
+        return jsonify({"error:", "Problem updating the tool table in the meta database."}), 500
+    finally:
+        # Closing the database connection.
+        cur.close()
+        conn.close()
+        print("The database connection has been closed successfully.")
+
+
+# /rac-api/tools/publish    
+# Generic "Publish" request to set bool. value in tools table on Postgres metadatabase to T 
+
+@blueprint.route('/rac-api/tools/publish', methods=['POST'])
+def publish_tool():
+    """
+    This is a method to publish (set published val. to true) the tool with given id.
+
+    Args:
+        tool_id
+    Returns:
+    """
+    auth_token = request.headers.get('auth-token')
+    username = request.headers.get('auth-username')
+
+    headers = {
+        'auth-token': auth_token,
+        'auth-username': username
+    }
+    is_valid, validate_token_response = utilities.validate_user(headers=headers)
+    if not is_valid:
+        return validate_token_response
+
+    validate_response_json = None
+    try:
+        validate_response_json = validate_token_response.get_json()
+    except:
+        validate_response_json = validate_token_response.json()
+    user_id = validate_response_json.get("user_id", None)
+
+    if not user_id:
+        return jsonify({"error": "Invalid user"}), 401
+
+
+    tool_id = request.get_json().get("tool_id", None)
+
+
+    # This is where we are actually connecting to the database and getting the details of the tools
+    conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
+                            password=meta_db_config["database-password"], host=meta_db_config["database-host"],
+                            port=meta_db_config["database-port"])
+    conn.autocommit = True
+    cur = conn.cursor()
+
+    # Here we are getting all the details of the all the different tools from the database
+    try:
+        query = "UPDATE tool set published=TRUE WHERE tool_id=%s"
+        cur.execute(query, (tool_id,))
+        return jsonify({'Publish': 'Successful'}), 200
     except Exception:
         return jsonify({"error:", "Problem updating the tool table in the meta database."}), 500
     finally:

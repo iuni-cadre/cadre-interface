@@ -119,7 +119,7 @@ def publish_package():
 
     # Here we are getting all the details of the all the different tools from the database
     try:
-        query = """UPDATE package set published=TRUE WHERE package_id=%s"""
+        query = "UPDATE package set published=TRUE WHERE package_id=%s"
         cur.execute(query, (package_id,))
         return jsonify({'Publish': 'Successful'}), 200
     except Exception:
@@ -213,7 +213,8 @@ def get_packages_user():
                     max(package.name) as name, 
                     max(package.doi) as doi, 
                     max(package.created_on) as created_on, 
-                    max(package.created_by) as created_by, 
+                    max(package.created_by) as created_by,
+                    max(package.published) as published, 
                     max(tool.tool_id) as tool_id, 
                     max(tool.description) as tool_description, 
                     max(tool.name) as tool_name, 

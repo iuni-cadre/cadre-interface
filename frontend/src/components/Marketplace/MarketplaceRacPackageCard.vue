@@ -58,15 +58,14 @@
 
             <div class="mt-3">
                 <button
-                    class="float-right btn btn-primary"
-                    @click="create_package_modal_open = true;"
-                >Clone Package</button>
-
-                <button
                     v-if="racpackage.created_by == user_id && racpackage.published == false"
                     class="float-left btn btn-primary"
                     @click="publish_package_open = true;"
-                >Publish Package</button>                
+                >Publish Package</button> 
+                <button
+                    class="float-right btn btn-primary"
+                    @click="create_package_modal_open = true;"
+                >Clone Package</button>             
             </div>
             <div
                 class="mt-3"
@@ -261,7 +260,7 @@ export default {
 
             publish_package_open:false,
             publish_success_open:false,
-            publish_error_open:false,
+            publish_error_open:false
         };
     },
     computed: {
@@ -455,6 +454,7 @@ export default {
                 //passing on updating the store view -- should the package share button no longer be visible. done in ln434
                 //refresh
             });
+            this.publish_package_open = false;
         },
         publishSuccess: function(){
             this.publish_success_open = false;
