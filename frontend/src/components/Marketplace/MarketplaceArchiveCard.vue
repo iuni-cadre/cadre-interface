@@ -44,7 +44,7 @@
                 :archive-ids="[archive.archive_id]"
                 @packageCreated="create_package_modal_open = false;"
                 @startLoading="startLoading"
-                @stopLoading="startLoading"
+                @stopLoading="stopLoading"
             ></new-package-form>
         </modal>
         
