@@ -89,10 +89,10 @@ export default {
             debounce: debounce,
             changeBaseURL: changeBaseURL,
             startLoading({key, message}){
-                this.$store.commit("loading/addKey", {key, message});
+                cadreGlobals.$store.commit("loading/addKey", {key, message});
             },
             stopLoading({key}){
-                this.$store.commit("loading/removeKey", {key});
+                cadreGlobals.$store.commit("loading/removeKey", {key});
             },
             // startLoading: function(key) {
             //     cadreGlobals.$store.commit("startLoading", key);
