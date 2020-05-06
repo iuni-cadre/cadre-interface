@@ -43,8 +43,8 @@
                     class="col-md-4 flex-fill d-flex"
                 >
                     <rac-package-card
-                        @startLoading="(data)=>{ $emit('startLoading', data); }"
-                        @stopLoading="(data)=>{ $emit('stopLoading', data); }"
+                        @startLoading="startLoading"
+                        @stopLoading="stopLoading"
                         :rac-package="racpackage"
                     ></rac-package-card>
                 </div>
@@ -63,18 +63,18 @@
             <hr />
             
             <your-packages
-                @startLoading="(data)=>{ $emit('startLoading', data); }"
-                @stopLoading="(data)=>{ $emit('stopLoading', data); }"
+                @startLoading="startLoading"
+                @stopLoading="stopLoading"
             ></your-packages>
             <hr />
             <your-tools
-                @startLoading="(data)=>{ $emit('startLoading', data); }"
-                @stopLoading="(data)=>{ $emit('stopLoading', data); }"
+                @startLoading="startLoading"
+                @stopLoading="stopLoading"
             ></your-tools>
             <hr />
             <your-archives
-                @startLoading="(data)=>{ $emit('startLoading', data); }"
-                @stopLoading="(data)=>{ $emit('stopLoading', data); }"
+                @startLoading="startLoading"
+                @stopLoading="stopLoading"
             ></your-archives>
         </div>
     </section>
@@ -126,7 +126,14 @@ export default {
         goToNotebook: function() {
             // location.href = this.jupyter_full_url;
             this.$router.push({ name: "jupyter-hub" });
-        }
+        },
+        
+        startLoading({key, message}){
+            this.$store.commit("loading/addKey", {key, message});
+        },
+        stopLoading({key}){
+            this.$store.commit("loading/removeKey", {key});
+        },
     },
     components: {
         Modal,
@@ -137,14 +144,14 @@ export default {
     },
     mounted: function() {
         if (this.racpackages.length === 0) {
-            this.$emit("startLoading", { key: "get_packages", message: "" });
+            this.startLoading({ key: "get_packages", message: "" });
             let get_packages_prom = this.$store.dispatch(
                 "racpackage/getPackages"
             );
             let get_tools_prom = this.$store.dispatch("racpackage/getTools");
             Promise.all([get_packages_prom, get_tools_prom]).finally(() => {
                 //stop loading
-                this.$emit("stopLoading", { key: "get_packages" });
+                this.stopLoading({ key: "get_packages" });
             });
         }
     }

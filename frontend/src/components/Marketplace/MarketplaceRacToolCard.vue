@@ -125,7 +125,7 @@ export default {
             if (this.ractool.created_by != this.user_id) {
                 return false;
             }
-            this.$emit("startLoading", "toolDelete");
+            this.$store.commit("loading/addKey", {key: "toolDelete"});
             let delete_prom = this.$cadre.axios({
                 url: this.$cadreConfig.rac_api_prefix + "/tools/delete",
                 method: "POST",
@@ -145,7 +145,7 @@ export default {
             );
             delete_prom.finally(() => {
                 this.delete_tool_open = false;
-                this.$emit("stopLoading", "toolDelete");
+                this.$store.commit("loading/removeKey", {key: "toolDelete"});
             });
 
             this.delete_tool_open = false;

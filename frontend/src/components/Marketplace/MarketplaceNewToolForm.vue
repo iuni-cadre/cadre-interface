@@ -192,7 +192,7 @@ export default {
     },
     methods: {
         submitForm: function() {
-            this.$emit("startLoading", {
+            this.$store.commit("loading/addKey", {
                 key: "newTool",
                 message: "Creating new tool"
             });
@@ -210,7 +210,7 @@ export default {
             let is_valid = this.validateForm(actual_to_send);
             // console.debug(this.data_to_send);
             if (!is_valid) {
-                this.$emit("stopLoading", { key: "newTool" });
+                this.$store.commit("loading/removeKey", { key: "newTool" });
             } else {
                 // let prom = new Promise((resolve, reject) => {
                 //     setTimeout(() => {
@@ -240,7 +240,7 @@ export default {
                         this.error_message.push(message);
                     }
                 ).finally(() => {
-                    this.$emit("stopLoading", { key: "newTool" });
+                    this.$store.commit("loading/removeKey", { key: "newTool" });
                 });
             }
         },
