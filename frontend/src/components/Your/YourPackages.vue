@@ -17,8 +17,8 @@
                     class="col-md-4 d-flex"
                 >
                     <rac-package-card
-                        @startLoading="(data)=>{ $emit('startLoading', data); }"
-                        @stopLoading="(data)=>{ $emit('stopLoading', data); }"
+                        @startLoading="startLoading"
+                        @stopLoading="stopLoading"
                         @packageDeleted="fetchYourPackages()"
                         @packagePublished="fetchYourPackages()"
                         :rac-package="racpackage"
@@ -99,8 +99,15 @@ export default {
         // openCreateArchiveModal: function(){
         //     this.show_create_racpackage_modal = true;
         // }
+        startLoading({key, message}){
+            this.$store.commit("loading/addKey", {key, message});
+        },
+        stopLoading({key}){
+            this.$store.commit("loading/removeKey", {key});
+        },
         fetchYourPackages: function() {
-            this.$emit("startLoading", { key: "get_your_racpackages", message: "" });
+            // this.$emit("startLoading", { key: "get_your_racpackages", message: "" });
+            this.$store.commit("loading/addKey", { key: "get_your_racpackages", message: "" });
 
             let prom = this.$cadre.axios({
                 url: this.$cadreConfig.rac_api_prefix + GET_PACKAGES_ENDPOINT,
@@ -115,9 +122,8 @@ export default {
                     console.error(error);
                     this.error_message = "We tried to get your packages, but could not connect to the server.  Try again later.";
                 }
-            );
-            prom.finally(() => {
-                this.$emit("stopLoading", { key: "get_your_racpackages" });
+            ).finally(() => {
+                this.$store.commit("loading/removeKey", {key: "get_your_racpackages"});
             });
         }
     },

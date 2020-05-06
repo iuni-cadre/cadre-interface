@@ -91,7 +91,7 @@ export default {
     },
     methods: {
         submitForm: async function() {
-            this.$emit("startLoading", {
+            this.$store.commit("loading/addKey", {
                 key: "newArchive",
                 message: "Creating new archive"
             });
@@ -99,7 +99,7 @@ export default {
             let is_valid = await this.validateForm();
             // console.debug(this.data_to_send);
             if (!is_valid) {
-                this.$emit("stopLoading", { key: "newArchive" });
+                this.$store.commit("loading/removeKey", { key: "newArchive" });
             } else {
                 let url = this.new_archive_endpoint;
                 let prom = this.$cadre.axios({
@@ -130,7 +130,7 @@ export default {
                         this.error_message.push(message);
                     }
                 ).finally(() => {
-                    this.$emit("stopLoading", { key: "newArchive" });
+                    this.$store.commit("loading/removeKey", { key: "newArchive" });
                 });
             }
         },
@@ -152,11 +152,11 @@ export default {
                 if (this.selected_files.length <= 0) {
                     errors.push("Must choose a file.");
                     this.$set(this, "error_message", errors);
-                    this.$emit("stopLoading", { key: "verifyFile" });
+                    this.$store.commit("loading/removeKey", { key: "verifyFile" });
                     resolve(false);
                 } else {
                     //verify authenticity of file
-                    this.$emit("startLoading", { key: "verifyFile" });
+                    this.$store.commit("loading/addKey", { key: "verifyFile" });
                     let url =
                         this.new_archive_endpoint +
                         "/check";
@@ -174,7 +174,7 @@ export default {
                         }
                     ).finally(() => {
                         this.$set(this, "error_message", errors);
-                        this.$emit("stopLoading", { key: "verifyFile" });
+                        this.$store.commit("loading/removeKey", { key: "verifyFile" });
                         if (errors.length > 0) {
                             // console.debug("Form not valid.");
                             resolve(false);

@@ -17,8 +17,8 @@
                     class="col-md-4 d-flex"
                 >
                     <archive-card
-                        @startLoading="(data)=>{ $emit('startLoading', data); }"
-                        @stopLoading="(data)=>{ $emit('stopLoading', data); }"
+                        @startLoading="startLoading"
+                        @stopLoading="stopLoading"
                         @archiveDeleted="fetchYourArchives()"
                         :rac-archive="archive"
                     ></archive-card>
@@ -91,11 +91,17 @@ export default {
         NewArchiveForm
     },
     methods: {
+        startLoading({key, message}){
+            this.$store.commit("loading/addKey", {key, message});
+        },
+        stopLoading({key}){
+            this.$store.commit("loading/removeKey", {key});
+        },
         // openCreateArchiveModal: function(){
         //     this.show_create_archive_modal = true;
         // }
         fetchYourArchives: function() {
-            this.$emit("startLoading", { key: "get_your_archives", message: "" });
+            this.startLoading({ key: "get_your_archives", message: "" });
 
             let prom = this.$cadre.axios({
                 url: this.$cadreConfig.rac_api_prefix + GET_TOOLS_ENDPOINT,
@@ -112,7 +118,7 @@ export default {
                 }
             );
             prom.finally(() => {
-                this.$emit("stopLoading", { key: "get_your_archives" });
+                this.stopLoading({ key: "get_your_archives" });
             });
         }
     },

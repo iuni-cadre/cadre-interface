@@ -43,8 +43,8 @@
             <new-package-form
                 :archive-ids="[archive.archive_id]"
                 @packageCreated="create_package_modal_open = false;"
-                @startLoading="(key)=>$emit('startLoading',key)"
-                @stopLoading="(key)=>$emit('stopLoading',key)"
+                @startLoading="startLoading"
+                @stopLoading="startLoading"
             ></new-package-form>
         </modal>
         
@@ -116,11 +116,17 @@ export default {
         RacArchive: Object
     },
     methods: {
+        startLoading({key, message}){
+            this.$store.commit("loading/addKey", {key, message});
+        },
+        stopLoading({key}){
+            this.$store.commit("loading/removeKey", {key});
+        },
         deleteArchive: function() {
             if (this.archive.created_by != this.user_id) {
                 return false;
             }
-            this.$emit("startLoading", "archiveDelete");
+            this.startLoading({key: "archiveDelete"});
             let delete_prom = this.$cadre.axios({
                 url: this.$cadreConfig.rac_api_prefix + "/archives/delete",
                 method: "POST",
@@ -139,7 +145,7 @@ export default {
             );
             delete_prom.finally(() => {
                 this.delete_archive_open = false;
-                this.$emit("stopLoading", "archiveDelete");
+                this.stopLoading({key: "archiveDelete"});
             });
 
             this.delete_archive_open = false;

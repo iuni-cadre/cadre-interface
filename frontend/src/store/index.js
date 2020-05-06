@@ -5,6 +5,7 @@ import UserModule from "./modules/user.js";
 import QueryModule from "./modules/query.js";
 import RacPackageModule from "./modules/racpackage.js";
 import FilesystemModule from "./modules/filesystem";
+import LoadingModule from "./modules/loading";
 
 Vue.use(Vuex);
 
@@ -13,7 +14,8 @@ export default new Vuex.Store({
         user: UserModule,
         query: QueryModule,
         racpackage: RacPackageModule,
-        filesystem: FilesystemModule
+        filesystem: FilesystemModule,
+        loading: LoadingModule
 
     },
     state: {
