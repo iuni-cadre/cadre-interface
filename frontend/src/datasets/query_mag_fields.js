@@ -179,6 +179,15 @@ export default {
         // "citations"
     ],
     janus_map: {
+        main_vertext: "Paper",
+        path_to_main: {
+            "Paper": ["References"],
+            "JournalFixed": ["PublishedInFixed"],
+            "Author": ["AuthorOf"],
+            "ConferenceInstance": ["PresentedAt"],
+            "ConferenceSeries": ["InstanceOf", "PresentedAt"],
+            "FieldOfStudy": ["BelongsTo"]
+        },
         vertex_types: [
             "Paper",
             "JournalFixed",

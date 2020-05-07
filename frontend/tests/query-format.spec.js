@@ -29,6 +29,59 @@ describe("ConvertQueryDataToJanus", () => {
         let result = convertQueryDataToJanus(sampleJSON);
         expect(result.csv_output).toStrictEqual(sampleResult.csv_output);
     });
+
+    
+    test("converts output to graph with single vertex", () => {
+
+        let input = {
+            job_name: "Job Name",
+            filters: [
+                {
+                    field: "year",
+                    value: "2010",
+                    operation: "AND"
+                }
+            ],
+            output: [
+            ],
+            dataset: "mag"
+        };
+
+        const expected_output = {
+            job_name: "Job Name",
+            dataset: "mag",
+            graph: {
+                nodes: [
+                    {
+                        vertexType: "Paper",
+                        filters: [
+                            {
+                                field: "year",
+                                filterType: "is",
+                                value: "2010",
+                                operator: "AND"
+                            }
+                        ]
+                    }
+                ],
+                edges: [
+                    {
+                        source: "Paper",
+                        target: "Paper",
+                        relation: "References"
+                    }
+                ],
+            },
+            csv_output: [
+                
+            ]
+        };
+        
+
+
+        let result = convertQueryDataToJanus(input);
+        expect(result.graph).toStrictEqual(expected_output.graph);
+    });
 });
 
 const sampleResult = {

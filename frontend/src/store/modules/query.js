@@ -140,6 +140,7 @@ export function convertQueryDataToJanus({
     const network_map = janus_map.network_map;
     const output_map = janus_map.output_field_map;
     const edge_types = janus_map.edge_types;
+    const path_to_main = janus_map.path_to_main;
 
     let graph = {
         nodes: [],
@@ -206,6 +207,23 @@ export function convertQueryDataToJanus({
             csv_output.push(output_map[field]);
         }
     }
+
+
+    //you need at least one edge to generate a janus query
+    //  the only way you can get no edges is if there's only one vertex type
+    //  this little bit adds extra edges onto the list until it reaches the main vertext type
+    if(graph.edges.length === 0 && graph.nodes.length === 1)
+    {
+        //chart course to main vertex
+        const the_one_node = graph.nodes[0].vertexType;
+        const the_course = path_to_main[the_one_node];
+        for(const relation of the_course)
+        {
+            const edge_to_add = edge_types.find((edge)=>{ return edge.relation == relation});
+            graph.edges.push(edge_to_add);
+        }
+    }
+
     // console.debug(graph);
     result.csv_output = csv_output;
     result.graph = graph;
