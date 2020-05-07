@@ -276,20 +276,18 @@ export default {
 
             //save the query
             this.setStoreQuery();
-
             //start loading
             if (!async) {
-                this.$emit("startLoading", {
+                this.$store.commit("loading/addKey", {
                     message: "Fetching Preview...",
                     key: "query"
                 });
             } else {
-                this.$emit("startLoading", {
+                this.$store.commit("loading/addKey", {
                     message: "Sending Query...",
                     key: "query"
                 });
             }
-
             //build up the output fields
             let output_fields = [];
             for (let selected_field of this.selected_fields) {
@@ -320,7 +318,7 @@ export default {
 
             query_prom.then(
                 result => {
-                    this.$emit("stopLoading", { key: "query" });
+                    this.$store.commit("loading/removeKey", { key: "query" });
                     console.debug(result);
                     if (!async) {
                         if (result.errors) {
@@ -345,7 +343,7 @@ export default {
                     }
                 },
                 error => {
-                    this.$emit("stopLoading", { key: "query" });
+                    this.$store.commit("loading/removeKey", { key: "query" });
                     // console.error(error);
                     if (error.code === 1000) {
                         if (async) {
@@ -376,7 +374,7 @@ export default {
         }
     },
     props: {
-        isLoading: Number
+        isLoading: Boolean
     },
     components: {
         QueryBuilderHeader,
@@ -412,7 +410,6 @@ export default {
     }
 };
 </script>
-
 
 <template>
 <!-- 
@@ -698,6 +695,7 @@ export default {
                     </div>
                 </form>
 
+
                 <template v-if="error_message">
                     <div
                         class="modal show"
@@ -805,7 +803,6 @@ export default {
         </section>
     </div>
 </template>
-
 
 <style lang="scss">
 .network-query-degrees.disabled {

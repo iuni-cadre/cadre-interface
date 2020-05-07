@@ -263,7 +263,7 @@ export default {
             return prom;
         },
         getArchivesAndTools: function() {
-            this.$emit("startLoading", "getPackageOptions");
+            this.$store.commit("loading/addKey", {key: "getPackageOptions"});
             let proms = [];
             proms.push(this.getArchives());
             proms.push(this.getTools());
@@ -278,19 +278,19 @@ export default {
                 }
             );
             prom.finally(() => {
-                this.$emit("stopLoading", "getPackageOptions");
+                this.$store.commit("loading/removeKey", {key: "getPackageOptions"});
             });
             return prom;
         },
         getPackages: function() {
-            this.$emit("startLoading", { key: "get_packages", message: "" });
+            this.$store.commit("loading/addKey", { key: "get_packages", message: "" });
             let get_packages_prom = this.$store.dispatch(
                 "racpackage/getPackages"
             );
             let get_tools_prom = this.$store.dispatch("racpackage/getTools");
             Promise.all([get_packages_prom, get_tools_prom]).finally(() => {
                 //stop loading
-                this.$emit("stopLoading", { key: "get_packages" });
+                this.$store.commit("loading/removeKey", { key: "get_packages" });
             });
         }
     },

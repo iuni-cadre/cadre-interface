@@ -87,7 +87,13 @@ export default {
                 return cadreGlobals.cloneObject(o);
             },
             debounce: debounce,
-            changeBaseURL: changeBaseURL
+            changeBaseURL: changeBaseURL,
+            startLoading({key, message}){
+                cadreGlobals.$store.commit("loading/addKey", {key, message});
+            },
+            stopLoading({key}){
+                cadreGlobals.$store.commit("loading/removeKey", {key});
+            },
             // startLoading: function(key) {
             //     cadreGlobals.$store.commit("startLoading", key);
             // },
