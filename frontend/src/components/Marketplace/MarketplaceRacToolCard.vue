@@ -193,9 +193,9 @@ export default {
         },
         publishTool: function(){
             //uncomment after testing 1
-            // if (this.racpackage.created_by != this.user_id || this.racpackage.published){
-            //     return false;
-            // }
+            if (this.ractool.created_by != this.user_id || this.ractool.tool_published){
+                return false;
+            }
             this.$emit("startLoading", "toolPublish");
             let publish_promise = this.$cadre.axios({
                 url: this.$cadreConfig.rac_api_prefix + "/tools/publish",

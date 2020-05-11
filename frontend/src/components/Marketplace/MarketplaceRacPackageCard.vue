@@ -427,9 +427,9 @@ export default {
         },
         publishPackage: function(){
             //uncomment after testing 1
-            // if (this.racpackage.created_by != this.user_id || this.racpackage.published){
-            //     return false;
-            // }
+            if (this.racpackage.created_by != this.user_id || this.racpackage.published){
+                return false;
+            }
             this.$emit("startLoading", "packagePublish");
             let publish_promise = this.$cadre.axios({
                 url: this.$cadreConfig.rac_api_prefix + "/packages/publish",
