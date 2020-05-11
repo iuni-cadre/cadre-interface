@@ -58,7 +58,7 @@
 
             <div class="mt-3">
                 <button
-                    v-if="racpackage.created_by == user_id && racpackage.published == false"
+                    v-if="racpackage.created_by == user_id && !racpackage.published"
                     class="float-left btn btn-primary"
                     @click="publish_package_open = true;"
                 >Publish Package</button> 

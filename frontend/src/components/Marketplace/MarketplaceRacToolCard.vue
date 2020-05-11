@@ -18,7 +18,7 @@
             </div>
             <div class="mt-3">
                 <button
-                    v-if="ractool.created_by == user_id && ractool.published == false"
+                    v-if="ractool.created_by == user_id && !ractool.published"
                     class="float-left btn btn-primary"
                     @click="publish_tool_open = true;"
                 >Publish Tool</button>
