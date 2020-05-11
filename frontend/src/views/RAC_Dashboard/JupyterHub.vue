@@ -22,6 +22,9 @@
                     <button v-if="server_running"
                             @click="goToNotebook()"
                             class="btn btn-primary btn-lg">Go To Notebook</button>
+                    <button v-if="server_running"
+                            @click="stopServer()"
+                            class="btn btn-danger btn-lg">Stop Notebook Server</button>
 
                     <button v-if="status && !server_running && !server_pending"
                             @click="tryToCreateJupyterHub()"
@@ -58,6 +61,9 @@ export default {
         },
         jupyter_api_new_url: function() {
             return "/new-notebook/" + this.username;
+        },
+        jupyter_api_stop_url: function() {
+            return "/stop-notebook/" + this.username;
         },
         jupyter_api_status_url: function() {
             return "/notebook-status/" + this.username;
@@ -155,6 +161,24 @@ export default {
                 error => {
                     setTimeout(this.getUserStatus, 1000);
                     this.error_message = error.message;
+                }
+            );
+        },
+        stopServer: function() {
+            this.error_message = "";
+            this.status = null;
+            let jupyter_prom = this.$cadre.racAxios({
+                method: "POST",
+                url: this.jupyter_api_stop_url
+            });
+            jupyter_prom.then(
+                response => {
+                    console.debug(response);
+                    setTimeout(this.getUserStatus, 1000);
+                },
+                error => {
+                    setTimeout(this.getUserStatus, 1000);
+                    // this.error_message = error.message;
                 }
             );
         }

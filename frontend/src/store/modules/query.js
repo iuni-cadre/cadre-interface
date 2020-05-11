@@ -13,15 +13,24 @@ export default {
     },
     getters: {
         outputFields: function(state) {
-            let fields = Datasets[state.dataset] && Datasets[state.dataset].fields.output || [];
+            let fields =
+                (Datasets[state.dataset] &&
+                    Datasets[state.dataset].fields.output) ||
+                [];
             return fields;
         },
         inputFields: function(state) {
-            let fields = Datasets[state.dataset] && Datasets[state.dataset].fields.input || [];
+            let fields =
+                (Datasets[state.dataset] &&
+                    Datasets[state.dataset].fields.input) ||
+                [];
             return fields;
         },
         defaultFields: function(state) {
-            let fields = Datasets[state.dataset] && Datasets[state.dataset].fields.default || [];
+            let fields =
+                (Datasets[state.dataset] &&
+                    Datasets[state.dataset].fields.default) ||
+                [];
             return fields;
         },
         selectedDataset: function(state) {
@@ -49,20 +58,13 @@ export default {
             let main_prom = new Promise(function(resolve, reject) {
                 let async = payload.async || false;
 
+                let endpoint = "";
 
-                let endpoint = '';
-
-                if(async)
-                {
-
-                    endpoint = '/publications-async'; //preview query
+                if (async) {
+                    endpoint = "/publications-async"; //preview query
+                } else {
+                    endpoint = "/publications-sync"; //full query
                 }
-                else
-                {
-                    endpoint = '/publications-sync'; //full query
-                }
-
-
 
                 let query = state.query;
                 let dataset = state.dataset;
@@ -86,6 +88,9 @@ export default {
                     dataset: dataset
                 };
 
+                if (Datasets[dataset].database_type == "janus") {
+                    request = convertQueryDataToJanus(request);
+                }
 
                 let canceled_timeout = setTimeout(() => {
                     reject({ code: 1000, message: "Query timed out" });
@@ -116,3 +121,112 @@ export default {
         }
     }
 };
+
+export function convertQueryDataToJanus({
+    job_name = "",
+    filters = [],
+    output = [],
+    dataset = ""
+}) {
+    let result = {
+        job_name: job_name,
+        graph: [],
+        csv_output: [],
+        dataset: dataset
+    };
+    //get the maps so we can map the old filters to the new
+    const janus_map = Datasets[dataset].fields.janus_map;
+    const input_map = janus_map.input_field_map;
+    const network_map = janus_map.network_map;
+    const output_map = janus_map.output_field_map;
+    const edge_types = janus_map.edge_types;
+    const path_to_main = janus_map.path_to_main;
+
+    let graph = {
+        nodes: [],
+        edges: [],
+        // network: ""
+    };
+    let types_with_filters = {};
+    let csv_output = [];
+
+    //pull out all the filters and group by vertex
+    for (let { field, value, operation } of filters) {
+        let { vertex, field: new_field } = input_map[field];
+        if (!types_with_filters[vertex]) {
+            types_with_filters[vertex] = [];
+        }
+        types_with_filters[vertex].push({
+            field: new_field,
+            filterType: "is",
+            value: value,
+            operator: operation
+        });
+    }
+
+    //build the actual graph
+    let lastVertex = "";
+    for (let vertex in types_with_filters) {
+        let edge = edge_types.find(edge => {
+            return (
+                (edge.source == lastVertex && edge.target == vertex) ||
+                (edge.target == lastVertex && edge.source == vertex)
+            );
+        });
+        
+        let node = { vertexType: vertex, filters: [] };
+        const filters = types_with_filters[vertex];
+        for (let filter of filters) {
+            node.filters.push(filter);
+        }
+        graph.nodes.push(node);
+        if(edge) {
+            graph.edges.push(edge);
+        }
+        lastVertex = vertex;
+    }
+
+    for (let { field, type, degree = 0 } of output) {
+        //if a network output field was checked, match it to proper
+        //  vertex type and push an empty vertex on the graph
+        if (type == "network") {
+            let { vertex, relation } = network_map[field];
+            graph.nodes.push({
+                vertexType: vertex,
+                filters: []
+            });
+            let edge = edge_types.find(edge=>{
+                return edge.relation == relation;
+            })
+            if(edge)
+            {
+                graph.edges.push(edge);
+            }
+            // graph.network = vertex;
+        } else if (type == "single") {
+            csv_output.push(output_map[field]);
+        }
+    }
+
+
+    //you need at least one edge to generate a janus query
+    //  the only way you can get no edges is if there's only one vertex type
+    //  this little bit adds extra edges onto the list until it reaches the main vertext type
+    if(graph.edges.length === 0 && graph.nodes.length === 1)
+    {
+        //chart course to main vertex
+        const the_one_node = graph.nodes[0].vertexType;
+        const the_course = path_to_main[the_one_node];
+        for(const relation of the_course)
+        {
+            const edge_to_add = edge_types.find((edge)=>{ return edge.relation == relation});
+            graph.edges.push(edge_to_add);
+        }
+    }
+
+    // console.debug(graph);
+    result.csv_output = csv_output;
+    result.graph = graph;
+    return result;
+}
+// export convertQueryDataToJanus as convertQueryDataToJanus;

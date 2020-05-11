@@ -1,389 +1,14 @@
-<template>
-    <div>
-        <query-builder-header />
-        <section>
-            <div class="container">
-                <h3 class>
-                    Query the
-                    <u>{{dataset_name}}</u> dataset
-                </h3>
-                <form @submit.stop.prevent="sendQuery()">
-                    <div class="card container mb-3">
-                        <h4>Filters</h4>
-                        <template v-for="(clause, index) in queries">
-                            <div :key="`clause_${index}`">
-                                <div
-                                    class="alert d-flex justify-content-between align-items-end"
-                                    :class="{'alert-danger': query_errors[index]}"
-                                >
-                                    <div class="form-group">
-                                        <label>Field</label>
-                                        <select
-                                            class="form-control"
-                                            v-model="queries[index].field"
-                                        >
-                                            <option
-                                                disabled
-                                                selected
-                                                :value="''"
-                                            >Choose a search field</option>
-                                            <option
-                                                v-for="field in field_options"
-                                                :key="`${field.value}_${index}`"
-                                                :value="field.value"
-                                                v-text="field.label"
-                                            ></option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group col">
-                                        <label>Value</label>
-                                        <input
-                                            class="form-control"
-                                            type="text"
-                                            v-model="queries[index].value"
-                                        />
-                                    </div>
-                                    <div class="form-group">
-                                        <button
-                                            class="btn btn-outline-danger"
-                                            type="button"
-                                            @click.stop.prevent="removeQueryClause(index)"
-                                        >
-                                            <fa icon="trash-alt" />Remove Filter
-                                        </button>
-                                    </div>
-                                </div>
 
-                                <div v-if="index != queries.length - 1">
-                                    <div class="form-group">
-                                        <!-- <label>Operator</label> -->
-                                        <select
-                                            class="form-control"
-                                            style="width: auto"
-                                            v-model="queries[index].operator"
-                                        >
-                                            <option
-                                                disabled
-                                                selected
-                                                :value="''"
-                                            >Choose an operand</option>
-                                            <option
-                                                v-for="operator in operator_types"
-                                                :key="`${operator}_${index}`"
-                                                :value="operator"
-                                                v-text="operator"
-                                            ></option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                        <div>
-                            <button
-                                class="btn btn-outline-primary"
-                                type="button"
-                                @click.stop.prevent="addQueryClause()"
-                            >+ Add Additional Filter</button>
-                        </div>
-                    </div>
-
-                    <div class="card mb-3">
-                        <h4 class>Output Fields</h4>
-                        <!-- <div>Help Text</div> -->
-                        <output-fields v-model="selected_fields"></output-fields>
-                    </div>
-
-                    <div
-                        v-if="Object.keys(network_fields).length > 0"
-                        class="card mb-3"
-                    >
-                        <h4>Network Queries</h4>
-                        <!-- <div>Help Text</div> -->
-                        <div
-                            v-for="(field, field_name) in network_fields"
-                            class="d-flex justify-content-start align-items-center"
-                            :key="`network_field_${field_name}`"
-                        >
-                            <label
-                                class="btn mb-0"
-                                :class="{
-                                    'btn-outline-primary': selected_fields.indexOf(field.field) == -1,
-                                    'btn-primary': selected_fields.indexOf(field.field) >= 0,
-                                    }"
-                            >
-                                <input
-                                    type="checkbox"
-                                    class="mr-2"
-                                    :id="`${field.field}_field`"
-                                    v-model="selected_fields"
-                                    :value="field.field"
-                                />
-                                Include
-                                <strong
-                                    :for="`${field.field}_field`"
-                                    v-text="field.label"
-                                ></strong>
-                            </label>
-                            <!-- <div
-                                class="ml-3 d-flex align-items-center network-query-degrees"
-                                :class="{
-                                        'text-muted disabled': selected_fields.indexOf(field.field) == -1,
-                                        }"
-                            > -->
-                                <!-- <span>Degrees:</span>
-                                <span
-                                    v-for="degree in [1, 2]"
-                                    :key="`${field.field}_degree_${degree}`"
-                                >
-                                    <label
-                                        class="btn ml-3 mb-0"
-                                        :title=" degree > 1 ? 'Coming Soon...': ''"
-                                        :class="{
-                                                    'disabled': selected_fields.indexOf(field.field) == -1 || degree > 1,
-                                                    'btn-outline-primary': network_field_degrees[field.field] != degree,
-                                                    'btn-primary': network_field_degrees[field.field] == degree,
-                                                    }"
-                                    >
-                                        <input
-                                            type="radio"
-                                            :disabled="selected_fields.indexOf(field.field) == -1 || degree > 1"
-                                            class="mr-2"
-                                            :id="`${field.field}_field_degree`"
-                                            v-model="network_field_degrees[field.field]"
-                                            :value="degree"
-                                        />
-                                        <span v-text="degree"></span>
-                                    </label> -->
-                                    <!-- <label class="btn ml-3 mb-0"
-                                           :class="{
-                                                    'disabled': selected_fields.indexOf(field.field) == -1,
-                                                    'btn-outline-primary': network_field_degrees[field.field] != degree,
-                                                    'btn-primary': network_field_degrees[field.field] == degree,
-                                                    }">
-                                        <input type="radio"
-                                               :disabled='selected_fields.indexOf(field.field) == -1'
-                                               class="mr-2"
-                                               :id="`${field.field}_field_degree`"
-                                               v-model="network_field_degrees[field.field]"
-                                               :value="degree" />
-                                        <span v-text="degree"></span>
-                                    </label>-->
-                                <!-- </span> -->
-                            <!-- </div> -->
-                        </div>
-                    </div>
-
-                    <div class="card mb-3">
-                        <div class="form-group">
-                            <button
-                                v-if="selected_fields.length == 0"
-                                class="btn btn-primary btn-lg disabled"
-                                disabled
-                            >Preview Query</button>
-                            <button
-                                v-else
-                                class="btn btn-primary btn-lg"
-                                type="submit"
-                            >Get Preview</button>
-                        </div>
-                        <div v-if="preview_data">
-                            <h4 class="mt-5">Preview Results</h4>
-                            <table class="table">
-                                <tr>
-                                    <th
-                                        v-for="(data, field_name) in preview_data[0]"
-                                        v-text="field_name"
-                                        :key="`preview_header_${field_name}`"
-                                    ></th>
-                                </tr>
-                                <template v-for="(row, index) in preview_data">
-                                    <tr :key="`preview_row_${index}`">
-                                        <td
-                                            v-for="(value, field_name) in row"
-                                            v-text="value !== undefined && value !== null && String(value).split('|').join(', ') || ''"
-                                            :key="`preview_row_${index}_${field_name}`"
-                                        ></td>
-                                    </tr>
-                                </template>
-                                <tr v-if="preview_data.length == 0">
-                                    <td
-                                        :colspan="selected_fields.length"
-                                    >No results were found. Please modify your query and try again.</td>
-                                </tr>
-                            </table>
-                        </div>
-                        <div v-else>There are currently no preview results. Please run a query.</div>
-                        <!-- <pre class="pre"
-                        v-text="result"></pre>-->
-                    </div>
-
-                    <div class="card mb-3">
-                        <div class="form-group">
-                            <h4 class>Job Name <small class="text-muted">(Optional)</small></h4>
-                            
-                            <p>To make it easier to identify the status of a specific query, you may enter an optional job name.<p>
-                            <div class="form-group col">
-                                <input
-                                    class="form-control"
-                                    type="text"
-                                    v-model="job_name"
-                                    maxlength="255"
-                                    placeholder="Some Name"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card mb-3">
-                        <div class="form-group">
-                            <!-- <button v-if="selected_fields.length == 0 || !preview_data"
-                        class="btn btn-primary btn-lg disabled"
-                        disabled
-                        @click.stop.prevent>Submit Query</button>
-                <button v-else
-                        @click.stop.prevent="sendQuery(true)"
-                        class="btn btn-primary btn-lg"
-                            type="submit">Submit Query</button>-->
-
-                            <button
-                                v-if="selected_fields.length == 0"
-                                class="btn btn-primary btn-lg disabled"
-                                disabled
-                            >Submit Query</button>
-                            <button
-                                v-else
-                                @click.stop.prevent="sendQuery(true)"
-                                class="btn btn-primary btn-lg"
-                                type="submit"
-                            >Submit Query</button>
-
-                            <button
-                                v-if="allow_overload"
-                                @click.stop.prevent="overloadDatabase(true)"
-                                class="btn btn-danger btn-lg float-right"
-                                type="button"
-                            >&#x1F47F; Overload CADRE &#x1F47F;</button>
-                        </div>
-                    </div>
-                </form>
-
-                <template v-if="error_message">
-                    <div
-                        class="modal show"
-                        style="display: block;"
-                        tabindex="-1"
-                        role="dialog"
-                    >
-                        <div
-                            class="modal-dialog"
-                            role="document"
-                        >
-                            <div class="modal-content">
-                                <div class="alert alert-danger mb-0">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">There was a problem with your query</h5>
-                                        <button
-                                            type="button"
-                                            class="close"
-                                            @click="error_message = ''"
-                                            aria-label="Close"
-                                        >
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p v-text="error_message"></p>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button
-                                            type="button"
-                                            class="btn btn-secondary"
-                                            @click="error_message = ''"
-                                        >OK</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div
-                        class="modal-backdrop fade show"
-                        @click="error_message = ''"
-                    ></div>
-                </template>
-
-                <template v-if="query_modal_open && !is_loading">
-                    <div
-                        class="modal show"
-                        style="display: block;"
-                        tabindex="-1"
-                        role="dialog"
-                    >
-                        <div
-                            class="modal-dialog"
-                            role="document"
-                        >
-                            <div class="modal-content">
-                                <div class="alert alert-success mb-0">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Query Is Running</h5>
-                                        <button
-                                            type="button"
-                                            class="close"
-                                            @click="query_modal_open = false;"
-                                            aria-label="Close"
-                                        >
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div v-if="job_name">
-                                            Job Name:
-                                            <b v-text="job_name"></b>
-                                        </div>
-                                        <div>
-                                            Job ID:
-                                            <b v-text="query_results.job_id"></b>
-                                        </div>
-                                        <button
-                                            @click.prevent.stop="$router.push({
-                                                name: 'jobs-list-id', 
-                                                params: {
-                                                    'job_id':query_results.job_id
-                                                }
-                                            })"
-                                            class="btn btn-primary"
-                                        >Check Job Statuses</button>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button
-                                            type="button"
-                                            class="btn btn-secondary"
-                                            @click="query_modal_open = false;"
-                                        >OK</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div
-                        class="modal-backdrop fade show"
-                        @click="query_modal_open = false;"
-                    ></div>
-                </template>
-            </div>
-        </section>
-    </div>
-</template>
 <script>
 import QueryBuilderHeader from "./QueryInterfaceHeader";
 import OutputFields from "@/components/QueryBuilder/QueryBuilderOutputFields";
 import Datasets from "../../datasets";
 
-let operator_types = [
-    "AND",
-    "OR"
-    // "NOT"
-];
+// let operator_types = [
+//     "AND",
+//     "OR"
+//     // "NOT"
+// ];
 
 export default {
     data: function() {
@@ -427,6 +52,14 @@ export default {
             try {
                 return Datasets[this.$store.getters["query/selectedDataset"]]
                     .name;
+            } catch (err) {
+                return "";
+            }
+        },
+        database_type: function() {
+            try {
+                return Datasets[this.$store.getters["query/selectedDataset"]]
+                    .database_type;
             } catch (err) {
                 return "";
             }
@@ -509,7 +142,13 @@ export default {
         //     return this.$store.getters["query/queryClauses"];
         // },
         operator_types: function() {
-            return operator_types;
+            let types = [];
+            types.push("AND");
+            if(this.database_type != 'janus')
+            {
+                types.push("OR");
+            }
+            return types;
         },
         preview_data: function() {
             // let tmp =
@@ -593,7 +232,7 @@ export default {
 
             //when adding a new clause, set the operator of the previous clause
             if (len) {
-                this.queries[len - 1].operator = operator_types[0];
+                this.queries[len - 1].operator = this.operator_types[0];
             }
 
             this.queries.push({
@@ -637,7 +276,6 @@ export default {
 
             //save the query
             this.setStoreQuery();
-
             //start loading
             if (!async) {
                 this.$store.commit("loading/addKey", {
@@ -650,7 +288,6 @@ export default {
                     key: "query"
                 });
             }
-
             //build up the output fields
             let output_fields = [];
             for (let selected_field of this.selected_fields) {
@@ -773,6 +410,400 @@ export default {
     }
 };
 </script>
+
+<template>
+<!-- 
+######## ######## ##     ## ########  ##          ###    ######## ######## 
+   ##    ##       ###   ### ##     ## ##         ## ##      ##    ##       
+   ##    ##       #### #### ##     ## ##        ##   ##     ##    ##       
+   ##    ######   ## ### ## ########  ##       ##     ##    ##    ######   
+   ##    ##       ##     ## ##        ##       #########    ##    ##       
+   ##    ##       ##     ## ##        ##       ##     ##    ##    ##       
+   ##    ######## ##     ## ##        ######## ##     ##    ##    ######## 
+    -->
+    <div>
+        <query-builder-header />
+        <section>
+            <div class="container">
+                <h3 class>
+                    Query the
+                    <u>{{dataset_name}}</u> dataset
+                </h3>
+                <form @submit.stop.prevent="sendQuery()">
+                    <div class="card container mb-3">
+                        <h4>Filters</h4>
+                        <template v-for="(clause, index) in queries">
+                            <div :key="`clause_${index}`">
+                                <div
+                                    class="alert d-flex justify-content-between align-items-end"
+                                    :class="{'alert-danger': query_errors[index]}"
+                                >
+                                    <div class="form-group">
+                                        <label>Field</label>
+                                        <select
+                                            class="form-control"
+                                            v-model="queries[index].field"
+                                        >
+                                            <option
+                                                disabled
+                                                selected
+                                                :value="''"
+                                            >Choose a search field</option>
+                                            <option
+                                                v-for="field in field_options"
+                                                :key="`${field.value}_${index}`"
+                                                :value="field.value"
+                                                v-text="field.label"
+                                            ></option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col">
+                                        <label>Value</label>
+                                        <input
+                                            class="form-control"
+                                            type="text"
+                                            v-model="queries[index].value"
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <button
+                                            class="btn btn-outline-danger"
+                                            type="button"
+                                            @click.stop.prevent="removeQueryClause(index)"
+                                        >
+                                            <fa icon="trash-alt" />Remove Filter
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div v-if="index != queries.length - 1">
+                                    <div v-if="operator_types.length > 1" class="form-group">
+                                        <!-- <label>Operator</label> -->
+                                        <select
+                                            class="form-control"
+                                            style="width: auto"
+                                            v-model="queries[index].operator"
+                                        >
+                                            <option
+                                                disabled
+                                                selected
+                                                :value="''"
+                                            >Choose an operand</option>
+                                            <option
+                                                v-for="operator in operator_types"
+                                                :key="`${operator}_${index}`"
+                                                :value="operator"
+                                                v-text="operator"
+                                            ></option>
+                                        </select>
+                                    </div>
+                                    <div v-else>
+                                        <!-- <input type="hidden" 
+                                        :value="operator_types[0]" 
+                                        v-model="queries[index].operator" /> -->
+                                        {{operator_types[0]}}
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                        <div>
+                            <button
+                                class="btn btn-outline-primary"
+                                type="button"
+                                @click.stop.prevent="addQueryClause()"
+                            >+ Add Additional Filter</button>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <h4 class>Output Fields</h4>
+                        <!-- <div>Help Text</div> -->
+                        <output-fields v-model="selected_fields"></output-fields>
+                    </div>
+
+                    <div
+                        v-if="Object.keys(network_fields).length > 0"
+                        class="card mb-3"
+                    >
+                        <h4>Network Queries</h4>
+                        <!-- <div>Help Text</div> -->
+                        <div
+                            v-for="(field, field_name) in network_fields"
+                            class="d-flex justify-content-start align-items-center"
+                            :key="`network_field_${field_name}`"
+                        >
+                            <label
+                                class="btn mb-0"
+                                :class="{
+                                    'btn-outline-primary': selected_fields.indexOf(field.field) == -1,
+                                    'btn-primary': selected_fields.indexOf(field.field) >= 0,
+                                    }"
+                            >
+                                <input
+                                    type="checkbox"
+                                    class="mr-2"
+                                    :id="`${field.field}_field`"
+                                    v-model="selected_fields"
+                                    :value="field.field"
+                                />
+                                Include
+                                <strong
+                                    :for="`${field.field}_field`"
+                                    v-text="field.label"
+                                ></strong>
+                            </label>
+                            <!-- <div
+                                class="ml-3 d-flex align-items-center network-query-degrees"
+                                :class="{
+                                        'text-muted disabled': selected_fields.indexOf(field.field) == -1,
+                                        }"
+                            > -->
+                                <!-- <span>Degrees:</span>
+                                <span
+                                    v-for="degree in [1, 2]"
+                                    :key="`${field.field}_degree_${degree}`"
+                                >
+                                    <label
+                                        class="btn ml-3 mb-0"
+                                        :title=" degree > 1 ? 'Coming Soon...': ''"
+                                        :class="{
+                                                    'disabled': selected_fields.indexOf(field.field) == -1 || degree > 1,
+                                                    'btn-outline-primary': network_field_degrees[field.field] != degree,
+                                                    'btn-primary': network_field_degrees[field.field] == degree,
+                                                    }"
+                                    >
+                                        <input
+                                            type="radio"
+                                            :disabled="selected_fields.indexOf(field.field) == -1 || degree > 1"
+                                            class="mr-2"
+                                            :id="`${field.field}_field_degree`"
+                                            v-model="network_field_degrees[field.field]"
+                                            :value="degree"
+                                        />
+                                        <span v-text="degree"></span>
+                                    </label> -->
+                                    <!-- <label class="btn ml-3 mb-0"
+                                           :class="{
+                                                    'disabled': selected_fields.indexOf(field.field) == -1,
+                                                    'btn-outline-primary': network_field_degrees[field.field] != degree,
+                                                    'btn-primary': network_field_degrees[field.field] == degree,
+                                                    }">
+                                        <input type="radio"
+                                               :disabled='selected_fields.indexOf(field.field) == -1'
+                                               class="mr-2"
+                                               :id="`${field.field}_field_degree`"
+                                               v-model="network_field_degrees[field.field]"
+                                               :value="degree" />
+                                        <span v-text="degree"></span>
+                                    </label>-->
+                                <!-- </span> -->
+                            <!-- </div> -->
+                        </div>
+                    </div>
+
+                    <div v-if="database_type != 'janus'" class="card mb-3">
+                        <div class="form-group">
+                            <button
+                                v-if="selected_fields.length == 0"
+                                class="btn btn-primary btn-lg disabled"
+                                disabled
+                            >Preview Query</button>
+                            <button
+                                v-else
+                                class="btn btn-primary btn-lg"
+                                type="submit"
+                            >Get Preview</button>
+                        </div>
+                        <div v-if="preview_data">
+                            <h4 class="mt-5">Preview Results</h4>
+                            <table class="table">
+                                <tr>
+                                    <th
+                                        v-for="(data, field_name) in preview_data[0]"
+                                        v-text="field_name"
+                                        :key="`preview_header_${field_name}`"
+                                    ></th>
+                                </tr>
+                                <template v-for="(row, index) in preview_data">
+                                    <tr :key="`preview_row_${index}`">
+                                        <td
+                                            v-for="(value, field_name) in row"
+                                            v-text="value !== undefined && value !== null && String(value).split('|').join(', ') || ''"
+                                            :key="`preview_row_${index}_${field_name}`"
+                                        ></td>
+                                    </tr>
+                                </template>
+                                <tr v-if="preview_data.length == 0">
+                                    <td
+                                        :colspan="selected_fields.length"
+                                    >No results were found. Please modify your query and try again.</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div v-else>There are currently no preview results. Please run a query.</div>
+                        <!-- <pre class="pre"
+                        v-text="result"></pre>-->
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="form-group">
+                            <h4 class>Job Name <small class="text-muted">(Optional)</small></h4>
+                            
+                            <p>To make it easier to identify the status of a specific query, you may enter an optional job name.<p>
+                            <div class="form-group col">
+                                <input
+                                    class="form-control"
+                                    type="text"
+                                    v-model="job_name"
+                                    maxlength="255"
+                                    placeholder="Some Name"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="form-group">
+                            <!-- <button v-if="selected_fields.length == 0 || !preview_data"
+                        class="btn btn-primary btn-lg disabled"
+                        disabled
+                        @click.stop.prevent>Submit Query</button>
+                <button v-else
+                        @click.stop.prevent="sendQuery(true)"
+                        class="btn btn-primary btn-lg"
+                            type="submit">Submit Query</button>-->
+
+                            <button
+                                v-if="selected_fields.length == 0"
+                                class="btn btn-primary btn-lg disabled"
+                                disabled
+                            >Submit Query</button>
+                            <button
+                                v-else
+                                @click.stop.prevent="sendQuery(true)"
+                                class="btn btn-primary btn-lg"
+                                type="submit"
+                            >Submit Query</button>
+
+                            <button
+                                v-if="allow_overload"
+                                @click.stop.prevent="overloadDatabase(true)"
+                                class="btn btn-danger btn-lg float-right"
+                                type="button"
+                            >&#x1F47F; Overload CADRE &#x1F47F;</button>
+                        </div>
+                    </div>
+                </form>
+
+
+                <template v-if="error_message">
+                    <div
+                        class="modal show"
+                        style="display: block;"
+                        tabindex="-1"
+                        role="dialog"
+                    >
+                        <div
+                            class="modal-dialog"
+                            role="document"
+                        >
+                            <div class="modal-content">
+                                <div class="alert alert-danger mb-0">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">There was a problem with your query</h5>
+                                        <button
+                                            type="button"
+                                            class="close"
+                                            @click="error_message = ''"
+                                            aria-label="Close"
+                                        >
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p v-text="error_message"></p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button
+                                            type="button"
+                                            class="btn btn-secondary"
+                                            @click="error_message = ''"
+                                        >OK</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="modal-backdrop fade show"
+                        @click="error_message = ''"
+                    ></div>
+                </template>
+
+                <template v-if="query_modal_open && !is_loading">
+                    <div
+                        class="modal show"
+                        style="display: block;"
+                        tabindex="-1"
+                        role="dialog"
+                    >
+                        <div
+                            class="modal-dialog"
+                            role="document"
+                        >
+                            <div class="modal-content">
+                                <div class="alert alert-success mb-0">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Query Is Running</h5>
+                                        <button
+                                            type="button"
+                                            class="close"
+                                            @click="query_modal_open = false;"
+                                            aria-label="Close"
+                                        >
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div v-if="job_name">
+                                            Job Name:
+                                            <b v-text="job_name"></b>
+                                        </div>
+                                        <div>
+                                            Job ID:
+                                            <b v-text="query_results.job_id"></b>
+                                        </div>
+                                        <button
+                                            @click.prevent.stop="$router.push({
+                                                name: 'jobs-list-id', 
+                                                params: {
+                                                    'job_id':query_results.job_id
+                                                }
+                                            })"
+                                            class="btn btn-primary"
+                                        >Check Job Statuses</button>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button
+                                            type="button"
+                                            class="btn btn-secondary"
+                                            @click="query_modal_open = false;"
+                                        >OK</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="modal-backdrop fade show"
+                        @click="query_modal_open = false;"
+                    ></div>
+                </template>
+            </div>
+        </section>
+    </div>
+</template>
+
 <style lang="scss">
 .network-query-degrees.disabled {
     &,

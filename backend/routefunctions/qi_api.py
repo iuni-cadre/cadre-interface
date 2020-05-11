@@ -63,7 +63,7 @@ def user_jobs():
             '   uj."type" as "type", '
             '   uj."description" as "description", '
             '   uj."name" as "name", '
-            '   array_agg(qr.efs_path) as filepaths'
+            '   array_agg(qr.efs_path) as filepaths '
             'FROM user_job as uj'
             '   LEFT JOIN query_result as qr '
             '       ON(uj.job_id = qr.job_id) '

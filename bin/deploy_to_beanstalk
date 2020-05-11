@@ -27,14 +27,14 @@ rm -rf eb_bundle*.zip
 
 pushd bundle
 today=`date '+%Y-%m-%d--%H-%M-%S'`
+# zip -r ../eb_bundle.zip -r * .[^.]*
 zip -r ../eb_bundle.zip -r * .[^.]*
-# zip -r ../eb_bundle-$today.zip -r * .[^.]*
 
 #remove the temporary bundle directory
 pushd ..
 rm -rf ./bundle
 
-exec eb deploy -v &
+exec eb deploy -v -l eb_bundle_$today &
 wait
 exec eb status -v &
 wait

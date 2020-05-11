@@ -17,6 +17,23 @@
                         <fa icon="sync-alt" />&nbsp;Refresh Status
                     </button>
                 </div>
+
+                <modal
+                    v-if="current_result_url"
+                    @close="current_result_url = null"
+                >
+                    <div>
+                        <p>Please wait a moment while we start the Jupyter Notebook server that will open your result file.</p>
+                        <div>
+                            <jupyter-status
+                                @serverStarted="goToNotebook"
+                                auto-start="true"
+                                hide-buttons="true"
+                            />
+                        </div>
+                    </div>
+                </modal>
+
                 <div class="card">
                     <h4>Jobs</h4>
                     <table class="table mt-3">
@@ -65,15 +82,23 @@
                                 'table-warning': (job.status == 'Running' || job.status == 'Submitted') && job.run_time > (1000 * 60 * 10),
                                 'active_job_bottom': job.job_id == selected_job_id
                                 }"
-                                
                                 @click="clickJobRow(job.job_id)"
                             >
                                 <td colspan="6">
                                     <div class="d-flex">
-                                        <div class="file_label">Result File{{job.files.length == 1?"":"s"}}:&nbsp;</div>
+                                        <div
+                                            class="file_label"
+                                        >Result File{{job.files.length == 1?"":"s"}}:&nbsp;</div>
                                         <div>
-                                            <div v-for="filename in job.files" :key="`${job.job_id}_${filename}`">
-                                                <a :href="`${jupyter_url}/user/${username}/lab/tree/${filename}?token=${jupyter_token}`" v-text="filename">Filename</a>
+                                            <div
+                                                v-for="filename in job.files"
+                                                :key="`${job.job_id}_${filename}`"
+                                            >
+                                                <a
+                                                    href="#"
+                                                    @click.prevent.stop="openJupyterModal(`${jupyter_url}/user/${username}/lab/tree/${filename}`)"
+                                                    v-text="filename"
+                                                >Filename</a>
                                             </div>
                                         </div>
                                     </div>
@@ -102,15 +127,19 @@
 
 <script>
 // import QueryBuilderHeader from "./QueryInterfaceHeader";
+import JupyterStatus from "@/components/Common/CommonJupyterStatus";
+import Modal from "@/components/Common/CommonModal";
 
 import axios from "axios";
+
 export default {
     data: function() {
         return {
             jobs: [],
             refresh_timeout: 0,
             page: 0,
-            number_per_page: 25
+            number_per_page: 25,
+            current_result_url: null
         };
     },
     computed: {
@@ -145,6 +174,10 @@ export default {
         // jupyter_full_url: function() {
         //     return `${this.jupyter_url}/user/${this.username}/lab/?token=${this.jupyter_token}`;
         // },
+
+        jupyter_api_token_url: function() {
+            return "/get-new-notebook-token/" + this.username;
+        },
         jupyter_token: function() {
             return this.$store.getters["user/jToken"];
         },
@@ -153,6 +186,31 @@ export default {
         }
     },
     methods: {
+        getNewToken: async function() {
+            try {
+                let response = await this.$cadre.racAxios({
+                    url: this.jupyter_api_token_url
+                });
+                console.debug(response.data);
+                this.$store.commit("user/setJToken", response.data);
+            } catch (error) {
+                console.warn(error);
+                this.error_message = "Could not refresh Jupyter Token";
+            }
+        },
+        goToNotebook: async function() {
+            let url = this.current_result_url;
+            try {
+                await this.getNewToken();
+                window.open(`${url}?token=${this.jupyter_token}`, "_blank");
+                this.current_result_url = null;
+            } catch (error) {
+                console.warn(error);
+            }
+        },
+        openJupyterModal(url) {
+            this.current_result_url = url;
+        },
         getRunTime: function(job) {
             let start_date = new Date(job[4]);
             let update_date = job[5] ? new Date(job[5]) : new Date();
@@ -218,13 +276,15 @@ export default {
                             update: job[5] ? new Date(job[5]) : new Date(),
                             run_time: this.getRunTime(job),
                             job_name: job[8],
-                            files: job[9].filter(item => {
-                                return item;
-                            }).map(item=>{
-                                let parts = item.split("/");
-                                let last = parts.length - 1;
-                                return `${parts[last-1]}/${parts[last]}`;
-                            })
+                            files: job[9]
+                                .filter(item => {
+                                    return item;
+                                })
+                                .map(item => {
+                                    let parts = item.split("/");
+                                    let last = parts.length - 1;
+                                    return `${parts[last - 1]}/${parts[last]}`;
+                                })
                         });
                     }
 
@@ -239,7 +299,9 @@ export default {
         }
     },
     components: {
-        // QueryBuilderHeader
+        // QueryBuilderHeader.
+        JupyterStatus,
+        Modal
     },
     beforeDestroy: function() {
         clearTimeout(this.refresh_timeout);
@@ -483,7 +545,7 @@ $border: solid gray 1px;
     border-bottom: $border;
 }
 
-.file_label{
+.file_label {
     padding: 0 1rem;
 }
 </style>
