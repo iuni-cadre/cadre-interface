@@ -18,6 +18,11 @@
             </div>
             <div class="mt-3">
                 <button
+                    v-if="ractool.created_by == user_id && ractool.published == false"
+                    class="float-left btn btn-primary"
+                    @click="publish_tool_open = true;"
+                >Publish Tool</button>
+                <button
                     class="float-right btn btn-primary"
                     @click="create_package_modal_open = true;"
                 >Create Package</button>
@@ -88,6 +93,34 @@
         >
             <p>Tool could not be deleted.</p>
         </modal>
+        <modal
+            v-if="publish_tool_open"
+            @close="publish_tool_open = false"
+            @ok="publishTool()"
+            :ok-in-footer="true"
+            modal-style="success"
+            ok-button-label="Yes, Publish Tool"
+            close-button-label="Cancel"
+        >
+            <p>This will make your tool publicly accessible. Proceed?</p>
+        </modal>
+        <modal
+            v-if="publish_success_open"
+            @close="publishSuccess()"
+            modal-style="success"
+            close-button-label="OK"
+        >
+            <p>Tool was published successfully.</p>
+        </modal>
+        <modal
+            v-if="publish_error_open"
+            @close="publish_error_open=false"
+            modal-style="danger"
+            modal-type="error"
+            close-button-label="Close"
+        >
+            <p>Tool could not be published</p>
+        </modal>
     </div>
 </template>
 
@@ -106,7 +139,11 @@ export default {
             delete_error_open: false,
 
             create_package_modal_open: false,
-            confirm_package_create_modal_close: false
+            confirm_package_create_modal_close: false,
+
+            publish_tool_open:false,
+            publish_success_open:false,
+            publish_error_open:false
         };
     },
     computed: {
@@ -153,7 +190,40 @@ export default {
         deleteSuccess: function() {
             this.delete_success_open = false;
             this.$emit("toolDeleted", this.ractool);
-        }
+        },
+        publishTool: function(){
+            //uncomment after testing 1
+            if (this.ractool.created_by != this.user_id || this.ractool.tool_published){
+                return false;
+            }
+            this.$emit("startLoading", "toolPublish");
+            let publish_promise = this.$cadre.axios({
+                url: this.$cadreConfig.rac_api_prefix + "/tools/publish",
+                method:"POST",
+                data: {
+                    tool_id: this.ractool.tool_id
+                }
+            });
+            publish_promise.then(
+                response => {
+                    this.publish_success_open = true;
+                    this.$store.commit("racpackage/refreshTools");
+                },
+                error => {
+                    console.error(error);
+                    this.publish_error_open = true;
+                }
+            );
+            publish_promise.finally(() => {
+                this.publish_tool_open = false;
+                this.$emit("stopLoading", "toolPublish");
+            });
+            this.publish_tool_open = false;
+        },
+        publishSuccess: function(){
+            this.publish_success_open = false;
+            this.$emit("toolPublished", this.ractool);
+        }       
     },
     watch: {
         RacTool: function() {

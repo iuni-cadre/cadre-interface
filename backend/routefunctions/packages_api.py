@@ -119,7 +119,7 @@ def publish_package():
 
     # Here we are getting all the details of the all the different tools from the database
     try:
-        query = """UPDATE package set published=TRUE WHERE package_id=%s"""
+        query = "UPDATE package set published=TRUE WHERE package_id=%s"
         cur.execute(query, (package_id,))
         return jsonify({'Publish': 'Successful'}), 200
     except Exception:
@@ -213,14 +213,15 @@ def get_packages_user():
                     max(package.name) as name, 
                     max(package.doi) as doi, 
                     max(package.created_on) as created_on, 
-                    max(package.created_by) as created_by, 
+                    max(package.created_by) as created_by,
                     max(tool.tool_id) as tool_id, 
                     max(tool.description) as tool_description, 
                     max(tool.name) as tool_name, 
                     max(tool.script_name) as tool_script_name, 
                     array_agg(archive.name) as input_files, 
                     array_agg(archive.archive_id) as archive_ids, 
-                    array_agg(archive.permissions) as permissions 
+                    array_agg(archive.permissions) as permissions,
+                    bool_or(package.published) as published  
                 FROM package 
                     JOIN archive ON (package.archive_id = archive.archive_id) 
                     JOIN tool ON (package.tool_id = tool.tool_id) 
@@ -254,6 +255,7 @@ def get_packages_user():
                 input_files = package[11]
                 archive_ids = package[12]
                 permissions = package[13]
+                published = package[14]
                 
                 #get the existing item on the dict or create an empty one
                 p = packages_dict.get(package_id, {})
@@ -268,6 +270,7 @@ def get_packages_user():
                 p['input_files'] = input_files
                 p['archive_ids'] = archive_ids
                 p['permissions'] = permissions
+                p['published'] = published
 
                 # get the tools or default to []
                 p['tools'] = p.get('tools', [])

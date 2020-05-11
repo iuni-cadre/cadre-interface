@@ -211,5 +211,8 @@ ALL_ENDPOINTS = [
     # "/api/notebook/status",
     # "/api/notebook/publish",
     # "/rac-api/packages/run-package",
-    # "/rac-api/packages/get-packages"
+    # "/rac-api/packages/get-packages",
+    "/rac-api/tools/publish",
+    "/rac-api/packages/publish",
+    
 ]
