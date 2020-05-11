@@ -396,7 +396,7 @@ export default {
             if (this.racpackage.created_by != this.user_id) {
                 return false;
             }
-            this.$emit("startLoading", "packageDelete");
+            this.$store.commit("loading/addKey", {key: "packageDelete"});
             let delete_prom = this.$cadre.axios({
                 url: this.$cadreConfig.rac_api_prefix + "/packages/delete",
                 method: "POST",
@@ -416,7 +416,7 @@ export default {
             );
             delete_prom.finally(() => {
                 this.delete_package_open = false;
-                this.$emit("stopLoading", "packageDelete");
+                this.$store.commit("loading/removeKey", {key: "packageDelete"});
             });
 
             this.delete_package_open = false;
@@ -430,7 +430,7 @@ export default {
             if (this.racpackage.created_by != this.user_id || this.racpackage.published){
                 return false;
             }
-            this.$emit("startLoading", "packagePublish");
+            this.$store.commit("loading/addKey", {key: "packagePublish"});
             let publish_promise = this.$cadre.axios({
                 url: this.$cadreConfig.rac_api_prefix + "/packages/publish",
                 method:"POST",
@@ -450,7 +450,7 @@ export default {
             );
             publish_promise.finally(() => {
                 this.publish_package_open = false;
-                this.$emit("stopLoading", "packagePublish");
+                this.$store.commit("loading/removeKey", {key: "packagePublish"});
                 //passing on updating the store view -- should the package share button no longer be visible. done in ln434
                 //refresh
             });
@@ -490,7 +490,7 @@ export default {
                 return false;
             }
 
-            this.$emit("startLoading", { key: "running_package" });
+            this.$store.commit("loading/addKey", { key: "running_package" });
 
             let running_promise = this.$store.dispatch(
                 "racpackage/runPackage",
@@ -524,7 +524,7 @@ export default {
             };
         },
         runFinally: function() {
-            this.$emit("stopLoading", { key: "running_package" });
+            this.$store.commit("loading/removeKey", { key: "running_package" });
         },
         initializeOutputFilenames: function() {
             // console.debug(this.racpackage);

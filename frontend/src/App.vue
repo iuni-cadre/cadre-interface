@@ -315,10 +315,10 @@ export default {
     data: function() {
         return {
             error_message: "",
-            loading_queue: {},
-            loading_timeout: 0,
-            max_loading_time: 30000, //30 seconds
-            min_loading_time: 500,
+            // loading_queue: {},
+            // loading_timeout: 0,
+            // max_loading_time: 30000, //30 seconds
+            // min_loading_time: 500,
             display_menu: false
         };
     },
@@ -337,7 +337,11 @@ export default {
             return this.$cadreConfig.logout_url;
         },
         is_loading: function() {
-            return Object.keys(this.loading_queue).length;
+            return this.$store.getters["loading/is_loading"];
+            // return Object.keys(this.loading_queue).length;
+        },
+        loading_queue: function(){
+            return this.$store.getters["loading/loading_queue"];
         },
         is_under_construction: function() {
             return this.$cadreConfig.under_construction;
@@ -354,64 +358,66 @@ export default {
             this.removeFromLoadingQueue(key);
         },
         addToLoadingQueue: function(key, message) {
-            if (!this.loading_queue[key]) {
-                // this.loading_queue[key] = 0;
-                this.$set(this.loading_queue, key, {
-                    interval: 0,
-                    timer: 0,
-                    cooldown_timeout: 0,
-                    message: ""
-                });
-                this.loading_queue[key].interval = setInterval(() => {
-                    /*
-                        we need to keep track of how long this key has been
-                        loading so we can show the spinner for at least a minimum
-                        amount of time.
-                    */
-                    this.loading_queue[key].timer += 100;
-                }, 100);
-            } else {
-                /* 
-                    Handles a race condition if we add the key again during the "cooldown" time,
-                    we need to cancel the old cooldown timer so that 
-                    it doesn't cancel the NEW instance when it thinks it's
-                    canceling the old instance.  So just cancel the cooldown
-                    and keep going.
-                */
-                clearTimeout(this.loading_queue[key].cooldown_timeout);
-            }
-            this.loading_queue[key].message = message || "";
+            this.$store.commit("loading/addKey", {key, message});
+            // if (!this.loading_queue[key]) {
+            //     // this.loading_queue[key] = 0;
+            //     this.$set(this.loading_queue, key, {
+            //         interval: 0,
+            //         timer: 0,
+            //         cooldown_timeout: 0,
+            //         message: ""
+            //     });
+            //     this.loading_queue[key].interval = setInterval(() => {
+            //         /*
+            //             we need to keep track of how long this key has been
+            //             loading so we can show the spinner for at least a minimum
+            //             amount of time.
+            //         */
+            //         this.loading_queue[key].timer += 100;
+            //     }, 100);
+            // } else {
+            //     /* 
+            //         Handles a race condition if we add the key again during the "cooldown" time,
+            //         we need to cancel the old cooldown timer so that 
+            //         it doesn't cancel the NEW instance when it thinks it's
+            //         canceling the old instance.  So just cancel the cooldown
+            //         and keep going.
+            //     */
+            //     clearTimeout(this.loading_queue[key].cooldown_timeout);
+            // }
+            // this.loading_queue[key].message = message || "";
         },
         removeFromLoadingQueue: function(key) {
-            if (this.loading_queue[key] !== undefined) {
-                /*
-                    we want to make sure that the spinner is shown for at least half a second
-                    for UX purposes.  So it's not just a flash and people can't see it.
-                    If the given key has been loading for more than the minimum time, just go 
-                    ahead and call the callback.  Otherwise, we need to keep spinning for the 
-                    min load time minus the time it's already been spinning during the actual
-                    loading.
-                */
-                let cooldown_time = Math.max(
-                    this.min_loading_time - this.loading_queue[key].timer,
-                    1
-                );
-                /*
-                    After the given cooldown time cancel the time tracking interval,
-                    the cooldown timeout, and remove the key from the loading queue.
-                */
-                this.loading_queue[key].cooldown_timeout = setTimeout(() => {
-                    if (this.loading_queue[key]) {
-                        clearInterval(this.loading_queue[key].interval);
-                        clearTimeout(this.loading_queue[key].cooldown_timeout);
-                        this.$delete(this.loading_queue, key);
-                    } else {
-                        console.warn(
-                            `Loading queue key "${key}" was not found.`
-                        );
-                    }
-                }, cooldown_time);
-            }
+            this.$store.commit("loading/removeKey", {key});
+            // if (this.loading_queue[key] !== undefined) {
+            //     /*
+            //         we want to make sure that the spinner is shown for at least half a second
+            //         for UX purposes.  So it's not just a flash and people can't see it.
+            //         If the given key has been loading for more than the minimum time, just go 
+            //         ahead and call the callback.  Otherwise, we need to keep spinning for the 
+            //         min load time minus the time it's already been spinning during the actual
+            //         loading.
+            //     */
+            //     let cooldown_time = Math.max(
+            //         this.min_loading_time - this.loading_queue[key].timer,
+            //         1
+            //     );
+            //     /*
+            //         After the given cooldown time cancel the time tracking interval,
+            //         the cooldown timeout, and remove the key from the loading queue.
+            //     */
+            //     this.loading_queue[key].cooldown_timeout = setTimeout(() => {
+            //         if (this.loading_queue[key]) {
+            //             clearInterval(this.loading_queue[key].interval);
+            //             clearTimeout(this.loading_queue[key].cooldown_timeout);
+            //             this.$delete(this.loading_queue, key);
+            //         } else {
+            //             console.warn(
+            //                 `Loading queue key "${key}" was not found.`
+            //             );
+            //         }
+            //     }, cooldown_time);
+            // }
         },
         validate: function() {
             // setTimeout(() => {

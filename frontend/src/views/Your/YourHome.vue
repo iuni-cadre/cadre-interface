@@ -117,7 +117,7 @@ export default {
         //     this.show_create_tool_modal = true;
         // }
         fetchYourTools: function() {
-            this.$emit("startLoading", { key: "get_your_tools", message: "" });
+            this.$store.commit("loading/addKey", { key: "get_your_tools", message: "" });
 
             let prom = this.$axios({
                 url: this.$cadreConfig.rac_api_prefix + GET_TOOLS_ENDPOINT,
@@ -129,7 +129,7 @@ export default {
                 () => {}
             );
             prom.finally(() => {
-                this.$emit("stopLoading", { key: "get_your_tools" });
+                this.$store.commit("loading/removeKey", { key: "get_your_tools" });
             });
         }
     },

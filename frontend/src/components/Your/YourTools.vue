@@ -17,8 +17,8 @@
                     class="col-md-4 d-flex"
                 >
                     <rac-tool-card
-                        @startLoading="(data)=>{ $emit('startLoading', data); }"
-                        @stopLoading="(data)=>{ $emit('stopLoading', data); }"
+                        @startLoading="startLoading"
+                        @stopLoading="stopLoading"
                         @toolDeleted="fetchYourTools()"
                         @toolPublished="fetchYourTools()"
                         :rac-tool="ractool"
@@ -92,11 +92,17 @@ export default {
         NewToolForm
     },
     methods: {
+        startLoading({key, message}){
+            this.$store.commit("loading/addKey", {key, message});
+        },
+        stopLoading({key}){
+            this.$store.commit("loading/removeKey", {key});
+        },
         // openCreateToolModal: function(){
         //     this.show_create_tool_modal = true;
         // }
         fetchYourTools: function() {
-            this.$emit("startLoading", { key: "get_your_tools", message: "" });
+            this.startLoading({ key: "get_your_tools", message: "" });
 
             let prom = this.$cadre.axios({
                 url: this.$cadreConfig.rac_api_prefix + GET_TOOLS_ENDPOINT,
@@ -114,7 +120,7 @@ export default {
                 }
             );
             prom.finally(() => {
-                this.$emit("stopLoading", { key: "get_your_tools" });
+                this.stopLoading({ key: "get_your_tools" });
             });
         }
     },
