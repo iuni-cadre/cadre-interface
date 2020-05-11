@@ -80,6 +80,30 @@ def new_notebook(username):
     r = requests.post(jupyter_config["APIURL"] + "/users/" + username + "/server", data=payload, headers=headers)
     return jsonify({"status_code": r.status_code, "text": r.text}), r.status_code
 
+@blueprint.route('/rac-api/stop-notebook/<username>', methods=['POST'])
+def stop_notebook(username):
+    """
+    This is a method which creates a new notebook server for the user.
+
+    Args:
+        username: This is the username of the person.
+
+    Returns:
+        This method returns the details of the newly created notebook server.
+    """
+    is_valid, valid_response = validate_user(headers=request.headers)
+    if is_valid is not True:
+        return valid_response
+    auth_token = request.headers.get('auth-token')
+    username = request.headers.get('auth-username')
+    # if auth_token is None or username is None:
+    #     return jsonify({"error": "auth headers are missing"}), 401
+
+    headers = {"Authorization": "token " + jupyter_config["AuthToken"]}
+    payload = {}
+    r = requests.delete(jupyter_config["APIURL"] + "/users/" + username + "/server", data=payload, headers=headers)
+    return jsonify({"status_code": r.status_code, "text": r.text}), r.status_code
+
 
 @blueprint.route('/rac-api/notebook-status/<username>', methods=['GET'])
 def notebook_status(username):
