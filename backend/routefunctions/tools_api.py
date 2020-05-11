@@ -107,7 +107,7 @@ def get_tools():
                 script_name as tool_script_name,
                 created_on as tool_created_on,
                 created_by as created_by,
-                published as published
+                published as tool_published
                 FROM tool
                 WHERE created_by = %s
                 AND to_be_deleted IS NOT TRUE
@@ -126,7 +126,8 @@ def get_tools():
                 'tool_name': tools[2],
                 'tool_script_name': tools[3],
                 'created_on': tools[4].isoformat(),
-                'created_by': tools[5]
+                'created_by': tools[5],
+                'tool_published': tools[6]
             }
             tool_list.append(tool_json)
         return jsonify(tool_list), 200
