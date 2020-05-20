@@ -10,7 +10,7 @@ import configparser
 import requests
 import psycopg2
 
-from routefunctions import rac_api, qi_api, tools_api, archive_api, users_api, notebooks_api, packages_api
+from routefunctions import rac_api, qi_api, tools_api, archive_api, users_api, notebooks_api, packages_api, data_api
 
 from library import readconfig
 
@@ -53,6 +53,9 @@ fallback_blueprint = Blueprint('fallbacks', __name__)
 @qi_api.blueprint.route("/qi-api", methods=['GET', 'POST'])
 @qi_api.blueprint.route("/qi-api/", methods=['GET', 'POST'])
 @qi_api.blueprint.route("/qi-api/<path:fallback>", methods=['GET', 'POST'])
+@qi_api.blueprint.route("/data-api", methods=['GET', 'POST'])
+@qi_api.blueprint.route("/data-api/", methods=['GET', 'POST'])
+@qi_api.blueprint.route("/data-api/<path:fallback>", methods=['GET', 'POST'])
 def api_index(fallback=""):
     print(fallback)
     return jsonify({"error": "Unknown endpoint."}), 404
@@ -106,6 +109,7 @@ app.register_blueprint(users_api.blueprint)
 app.register_blueprint(archive_api.blueprint)
 app.register_blueprint(notebooks_api.blueprint)
 app.register_blueprint(packages_api.blueprint)
+app.register_blueprint(data_api.blueprint)
 app.register_blueprint(fallback_blueprint)
 
 

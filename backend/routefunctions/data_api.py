@@ -7,7 +7,7 @@ import os
 from flask import Flask, Blueprint, render_template, request, json, jsonify
 from datetime import date
 
-blueprint = Blueprint('rac_api_packages', __name__)
+blueprint = Blueprint('data_api', __name__)
 
 from library import readconfig, utilities
 import boto3
@@ -159,7 +159,7 @@ def generate_mag_query(output_filter_string, query_json):
 
 # For the preview queries: call the database directly,
 # Preview query for graph queries will be same as sql query with citation counts
-@blueprint.route('/api/data/publications-sync', methods=['POST'])
+@blueprint.route('/data-api/publications-sync', methods=['POST'])
 def submit_query_preview():
     try:
         request_json = request.get_json()
@@ -290,14 +290,9 @@ def submit_query_preview():
             conn.close()
         if cur:
             cur.close()
-        # Closing database connections.
-        # wos_cursor.close()
-        # mag_cursor.close()
-        # wos_connection_pool.putconn(wos_connection)
-        # mag_connection_pool.putconn(mag_connection)
 
 
-# @blueprint.route('/api/data/publications-async', methods=['POST'])
+# @blueprint.route('/data-api/publications-async', methods=['POST'])
 # def submit_query():
 #     try:
 #         request_json = request.get_json()
