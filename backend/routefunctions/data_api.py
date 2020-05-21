@@ -350,12 +350,12 @@ def submit_query():
         # wos_queue_url = util.config_reader.get_aws_queue_url()
         # janus_queue_url = util.config_reader.get_janus_queue_url()
         sqs_client = boto3.client('sqs',
-                aws_access_key_id=aws_config.aws_access_key_id,
-                aws_secret_access_key=aws_config.aws_secret_access_key,
-                region_name=aws_config.region_name)
+                aws_access_key_id=aws_config["aws_access_key_id"],
+                aws_secret_access_key=aws_config["aws_secret_access_key"],
+                region_name=aws_config["region_name"])
 
-        wos_queue_url = aws_config.aws_queue_url
-        janus_queue_url = aws_config.janus_queue_url
+        wos_queue_url = aws_config["aws_queue_url"]
+        janus_queue_url = aws_config["janus_queue_url"]
 
 
         role_found = False
