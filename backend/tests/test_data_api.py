@@ -15,8 +15,8 @@ from library import readconfig
 from .conftest import MockPsycopgConnection, MockPsycopgCursor, MockResponse, patch_cursor, patch_user
 
 import routefunctions.data_api as data_api
-    # wos_filter_string = {"job_name": "", "filters": [{"field": "year", "value": "2005", "operation": ""}], "output": [
-    #     {"field": "wos_id", "type": "single"}, {"field": "year", "type": "single"}, {"field": "authors_full_name", "type": "single"}], "dataset": "wos"}
+# wos_filter_string = {"job_name": "", "filters": [{"field": "year", "value": "2005", "operation": ""}], "output": [
+#     {"field": "wos_id", "type": "single"}, {"field": "year", "type": "single"}, {"field": "authors_full_name", "type": "single"}], "dataset": "wos"}
 
 
 def test_gen_wos_query_exists(client):
@@ -24,10 +24,93 @@ def test_gen_wos_query_exists(client):
     assert query == 'SELECT string FROM wos_core.interface_table WHERE  LIMIT 10'
     assert value_array == []
 
+
 def test_gen_mag_query_exists(client):
     query, value_array = data_api.generate_mag_query('string', [])
     assert query == 'SELECT string FROM mag_core.interface_table WHERE LIMIT 10'
     assert value_array == []
+
+
+def test_sync_endpoint_exists(client, mocker):
+    patch_user(mocker)
+    patch_cursor(mocker, [])
+
+    rv = client.post('/data-api/publications-sync', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+    assert rv.status_code != 404
+
+
+def test_sync_endpoint_works(client, mocker):
+    patch_user(mocker)
+    patch_cursor(mocker, [])
+
+    rv = client.post('/data-api/publications-sync', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+    assert rv.status_code != 500
+
+    json_to_send = {"job_name": "", "filters": [{"field": "year", "value": "2005", "operation": ""}], "output": [
+    {"field": "wos_id", "type": "single"}, {"field": "year", "type": "single"}, {"field": "authors_full_name", "type": "single"}], "dataset": "wos"}
+
+    rv = client.post('/data-api/publications-sync', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username",
+        },
+        content_type='application/json', 
+        data=json.dumps(json_to_send)
+    )
+
+    assert rv.status_code != 400
+    
+
+
+# def test_sync_endpoint_works(client, mocker):
+#     patch_user(mocker)
+#     patch_cursor(mocker, [])
+#     rv = client.post('/data-api/publications-sync', headers={
+#         'auth-token': "Some Token",
+#         'auth-username': "Some Username"
+#     })
+#     assert rv.status_code != 500
+
+
+
+def test_async_endpoint_exists(client, mocker):
+    patch_user(mocker)
+    patch_cursor(mocker, [])
+
+    rv = client.post('/data-api/publications-async', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    assert rv.status_code != 404
+
+def test_async_endpoint_works(client, mocker):
+    patch_user(mocker)
+    patch_cursor(mocker, [])
+
+    rv = client.post('/data-api/publications-async', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+    assert rv.status_code != 500
+
+    json_to_send = {"job_name": "", "filters": [{"field": "year", "value": "2005", "operation": ""}], "output": [
+    {"field": "wos_id", "type": "single"}, {"field": "year", "type": "single"}, {"field": "authors_full_name", "type": "single"}], "dataset": "wos"}
+
+    rv = client.post('/data-api/publications-async', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username",
+        },
+        content_type='application/json', 
+        data=json.dumps(json_to_send)
+    )
+
+    assert rv.status_code != 400
 
 # def test_gen_wos_query_exists(client):
 #     data_api.generate_wos_query('string', [])

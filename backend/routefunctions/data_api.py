@@ -162,11 +162,8 @@ def generate_mag_query(output_filter_string, query_json):
 @blueprint.route('/data-api/publications-sync', methods=['POST'])
 def submit_query_preview():
     try:
-        request_json = request.get_json()
-        dataset = request_json['dataset']
-        filters = request_json['filters']
-        output_fields = request_json['output']
-        output_filters_single = []
+        conn = None
+        cur = None
 
         auth_token = request.headers.get('auth-token')
         username = request.headers.get('auth-username')
@@ -189,6 +186,15 @@ def submit_query_preview():
 
         if not user_id:
             return jsonify({"error": "Invalid user"}), 401
+
+        try:
+            request_json = request.get_json()
+            dataset = request_json['dataset']
+            filters = request_json['filters']
+            output_fields = request_json['output']
+            output_filters_single = []
+        except Exception as error:
+            return jsonify({"error": "Invalid parameters"}), 400
 
 
         wos_role_found = False
@@ -292,126 +298,156 @@ def submit_query_preview():
             cur.close()
 
 
-# @blueprint.route('/data-api/publications-async', methods=['POST'])
-# def submit_query():
-#     try:
-#         request_json = request.get_json()
-#         auth_token = request.headers.get('auth-token')
-#         username = request.headers.get('auth-username')
-#         connection = cadre_meta_connection_pool.getconn()
-#         cursor = connection.cursor()
-#         validata_token_args = {
-#             'username': username
-#         }
-#         headers = {
-#             'auth-token': auth_token,
-#             'Content-Type': 'application/json'
-#         }
-#         validate_token_response = requests.post(util.config_reader.get_cadre_token_ep(),
-#                                                 data=json.dumps(validata_token_args),
-#                                                 headers=headers,
-#                                                 verify=False)
-#         status_code = validate_token_response.status_code
-#         if status_code == 200:
-#             sqs_client = boto3.client('sqs',
-#                     aws_access_key_id=util.config_reader.get_aws_access_key(),
-#                     aws_secret_access_key=util.config_reader.get_aws_access_key_secret(),
-#                     region_name=util.config_reader.get_aws_region())
+@blueprint.route('/data-api/publications-async', methods=['POST'])
+def submit_query():
+    try:
 
-#             wos_queue_url = util.config_reader.get_aws_queue_url()
-#             janus_queue_url = util.config_reader.get_janus_queue_url()
+        connection = None
+        cursor = None
+        dataset = None
 
-#             role_found = False
-#             response_json = validate_token_response.json()
-#             roles = response_json['roles']
-#             user_id = response_json['user_id']
-#             dataset = request_json['dataset']
+        auth_token = request.headers.get('auth-token')
+        username = request.headers.get('auth-username')
 
-#             print('User authorized !!!')
+        headers = {
+            'auth-token': auth_token,
+            'auth-username': username
+        }
 
-#             for role in roles:
-#                 if 'wos' in role:
-#                     role_found = True
-#             job_id = str(uuid.uuid4())
-#             print(job_id)
-#             if 'job_name' in request_json:
-#                 job_name = request_json['job_name']
-#             else:
-#                 job_name = job_id
-#             request_json['job_id'] = job_id
-#             request_json['username'] = username
-#             request_json['user_id'] = user_id
-#             request_json['job_name'] = job_name
-#             query_in_string = json.dumps(request_json)
-#             print(query_in_string)
-#             if dataset == 'wos':
-#                 if role_found:
-#                     print('User has wos role')
-#                     sqs_response = sqs_client.send_message(
-#                         QueueUrl=wos_queue_url,
-#                         MessageBody=query_in_string,
-#                         MessageGroupId='cadre'
-#                     )
-#                     print(sqs_response)
-#                     if 'MessageId' in sqs_response:
-#                         message_id = sqs_response['MessageId']
-#                         print(message_id)
-#                         # save job information to meta database
-#                         insert_q = "INSERT INTO user_job(job_id, user_id, name, message_id,job_status, type, dataset, started_on) VALUES (%s,%s,%s,%s,%s,%s,%s,clock_timestamp())"
+        is_valid, validate_token_response = utilities.validate_user(headers=headers)
+        if not is_valid:
+            return validate_token_response
 
-#                         data = (job_id, user_id, job_name, message_id,  'SUBMITTED', 'QUERY', 'WOS')
-#                         print(data)
-#                         cursor.execute(insert_q, data)
-#                         connection.commit()
+        validate_response_json = None
+        try:
+            validate_response_json = validate_token_response.get_json()
+        except:
+            validate_response_json = validate_token_response.json()
+        user_id = validate_response_json.get("user_id", None)
 
-#                         return jsonify({'message_id': message_id,
-#                                         'job_id': job_id}, 200)
-#                     else:
-#                         print("Error while publishing to sqs")
-#                         return jsonify({'error': 'error while publishing to SQS'}, 500)
-#                 else:
-#                     print('User has guest role. He does not have access to WOS database.. '
-#                             'Please login with BTAA member institution, if you are part of it..')
-#                     return jsonify({'error': 'User is not authorized to access data in WOS'}), 401
-#             else:
-#                 sqs_response = sqs_client.send_message(
-#                     QueueUrl=janus_queue_url,
-#                     MessageBody=query_in_string,
-#                     MessageGroupId='cadre'
-#                 )
-#                 print(sqs_response)
-#                 if 'MessageId' in sqs_response:
-#                     message_id = sqs_response['MessageId']
-#                     print(message_id)
-#                     # save job information to meta database
-#                     insert_q = "INSERT INTO user_job(job_id, user_id, name, message_id,job_status, type, dataset, started_on) VALUES (%s,%s,%s,%s,%s,%s,%s,clock_timestamp())"
+        if not user_id:
+            return jsonify({"error": "Invalid user"}), 401
 
-#                     data = (job_id, user_id, job_name, message_id, 'SUBMITTED', 'QUERY', 'MAG')
-#                     print(data)
-#                     cursor.execute(insert_q, data)
-#                     connection.commit()
+        print('User authorized !!!')
 
-#                     return jsonify({'message_id': message_id,
-#                                     'job_id': job_id}, 200)
-#                 else:
-#                     print("Error while publishing to sqs")
-#                     return jsonify({'error': 'error while publishing to SQS'}, 500)
-#         elif status_code == 401:
-#             print('User is not authorized to access this endpoint !!!')
-#             return jsonify({'error': 'User is not authorized to access this endpoint'}), 401
-#         elif status_code == 500:
-#             print('Unable to contact login server to validate the token !!!')
-#             return jsonify({'error': 'Unable to contact login server to validate the token'}), 500
-#         else:
-#             print('Something went wrong. Contact admins !!! ')
-#             return jsonify({'error': 'Something went wrong. Contact admins'}), 500
-#     except (Exception, psycopg2.Error) as error:
-#         traceback.print_tb(error.__traceback__)
-#         print('Error while connecting to cadre meta database. Error is ' + str(error))
-#         return jsonify({'error': str(error)}), 500
-#     finally:
-#         # Closing database connection.
-#         cursor.close()
-#         # Use this method to release the connection object and send back ti connection pool
-#         cadre_meta_connection_pool.putconn(connection)
-#         print("PostgreSQL connection pool is closed")
+        try:
+            request_json = request.get_json()
+            dataset = request_json['dataset']
+        except Exception as error:
+            return jsonify({"error": "Invalid parameters"}), 400
+
+        # This is where we are actually connecting to the database and getting the details of the tools
+        connection = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
+                                password=meta_db_config["database-password"], host=meta_db_config["database-host"],
+                                port=meta_db_config["database-port"])
+        cursor = connection.cursor()
+            
+        # sqs_client = boto3.client('sqs',
+        #         aws_access_key_id=util.config_reader.get_aws_access_key(),
+        #         aws_secret_access_key=util.config_reader.get_aws_access_key_secret(),
+        #         region_name=util.config_reader.get_aws_region())
+
+        # wos_queue_url = util.config_reader.get_aws_queue_url()
+        # janus_queue_url = util.config_reader.get_janus_queue_url()
+        sqs_client = boto3.client('sqs',
+                aws_access_key_id=aws_config.aws_access_key_id,
+                aws_secret_access_key=aws_config.aws_secret_access_key,
+                region_name=aws_config.region_name)
+
+        wos_queue_url = aws_config.aws_queue_url
+        janus_queue_url = aws_config.janus_queue_url
+
+
+        role_found = False
+
+        roles = validate_response_json.get("roles", [])
+
+        for role in roles:
+            if 'wos' in role:
+                role_found = True
+
+        job_id = str(uuid.uuid4())
+
+        print(job_id)
+        
+        # if 'job_name' in request_json:
+        #     job_name = request_json['job_name']
+        # else:
+        #     job_name = job_id
+
+        job_name = request_json.get('job_name', job_id)
+
+        request_json['job_id'] = job_id
+        request_json['username'] = username
+        request_json['user_id'] = user_id
+        request_json['job_name'] = job_name
+
+        query_in_string = json.dumps(request_json)
+
+        print(query_in_string)
+
+
+        if dataset == 'wos':
+            if not role_found:
+                print('User has guest role. He does not have access to WOS database.. '
+                        'Please login with BTAA member institution, if you are part of it..')
+                return jsonify({'error': 'User is not authorized to access data in WOS'}), 401
+
+            print('User has wos role')
+            sqs_response = sqs_client.send_message(
+                QueueUrl=wos_queue_url,
+                MessageBody=query_in_string,
+                MessageGroupId='cadre'
+            )
+            print(sqs_response)
+            if 'MessageId' in sqs_response:
+                message_id = sqs_response['MessageId']
+                print(message_id)
+                # save job information to meta database
+                insert_q = "INSERT INTO user_job(job_id, user_id, name, message_id,job_status, type, dataset, started_on) VALUES (%s,%s,%s,%s,%s,%s,%s,clock_timestamp())"
+
+                data = (job_id, user_id, job_name, message_id,  'SUBMITTED', 'QUERY', 'WOS')
+                print(data)
+                cursor.execute(insert_q, data)
+                connection.commit()
+
+                return jsonify({'message_id': message_id,
+                                'job_id': job_id}, 200)
+            else:
+                print("Error while publishing to sqs")
+                return jsonify({'error': 'error while publishing to SQS'}, 500)
+        else:
+            sqs_response = sqs_client.send_message(
+                QueueUrl=janus_queue_url,
+                MessageBody=query_in_string,
+                MessageGroupId='cadre'
+            )
+            print(sqs_response)
+            if 'MessageId' in sqs_response:
+                message_id = sqs_response['MessageId']
+                print(message_id)
+                # save job information to meta database
+                insert_q = "INSERT INTO user_job(job_id, user_id, name, message_id,job_status, type, dataset, started_on) VALUES (%s,%s,%s,%s,%s,%s,%s,clock_timestamp())"
+
+                data = (job_id, user_id, job_name, message_id, 'SUBMITTED', 'QUERY', 'MAG')
+                print(data)
+                cursor.execute(insert_q, data)
+                connection.commit()
+
+                return jsonify({'message_id': message_id,
+                                'job_id': job_id}, 200)
+            else:
+                print("Error while publishing to sqs")
+                return jsonify({'error': 'error while publishing to SQS'}, 500)
+        
+    except (Exception, psycopg2.Error) as error:
+        traceback.print_tb(error.__traceback__)
+        print('Error while connecting to cadre meta database. Error is ' + str(error))
+        return jsonify({'error': str(error)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+        print("PostgreSQL connection pool is closed")
