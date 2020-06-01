@@ -17,6 +17,11 @@ blueprint = Blueprint('qi_api', __name__)
 def user_jobs():
     auth_token = request.headers.get('auth-token')
     username = request.headers.get('auth-username')
+    limit = int(request.args.get('limit', 1000))
+    page = int(request.args.get('page', 0))
+    order = request.args.get('order', 'started_on')
+
+
     if auth_token is None or username is None:
         return jsonify({"error": "auth headers are missing"}), 401
     # connection = cadre_meta_connection_pool.getconn()
@@ -41,6 +46,33 @@ def user_jobs():
     response_json = validate_token_response.json()
     # roles = response_json['roles']
     user_id = response_json['user_id']
+
+    # Validating request parameters
+    try:
+        limit_value = int(limit)
+    except ValueError:
+        return jsonify({"error": "Invalid Request: Limit should be a positive integer."}), 400
+
+    try:
+        page_value = int(page)
+    except ValueError:
+        return jsonify({"error": "Invalid Request: Page should be a integer."}), 400
+
+    # This prevents sql injection for the order by clause. Never use data sent by the user directly in a query
+    actual_order_by = 'started_on'
+    if order == 'name':
+        actual_order_by = 'name'
+    if order == 'started_on':
+        actual_order_by = 'started_on'
+    if order == 'modified_on':
+        actual_order_by = 'modified_on'
+    if order == 'status':
+        actual_order_by = "status"
+    if order == "type":
+        actual_order_by = "type"
+
+    offset = page * limit
+
 
     # actually get the jobs
     conn = psycopg2.connect(
@@ -69,7 +101,7 @@ def user_jobs():
             '       ON(uj.job_id = qr.job_id) '
             'WHERE uj.user_id=%s '
             'GROUP BY uj.job_id '
-            'ORDER BY uj.modified_on, uj.started_on; '
+            'ORDER BY {} '.format(actual_order_by)
         )
         cur.execute(query, [user_id])
         results = cur.fetchall()

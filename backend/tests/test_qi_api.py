@@ -173,7 +173,28 @@ def test_user_jobs_ep_does_not_fail_with_successful_query(client, mocker):
     
     assert rv.status_code == 200
 
+def test_user_jobs_ep_accepts_params(client):
+    """
+    End point doesn't accepts params
+    """
 
+    # mock_response = MockResponse()
+    # mock_response.set_status_code(200)
+    # mock_response.set_json({
+    #     "roles": "some_roles",
+    #     "user_id": "12345"
+    # })
+    # mocker.patch("requests.post", return_value=mock_response)
+    # mock_connection = MockPsycopgConnection()
+    # mocker.patch("psycopg2.connect", return_value=mock_connection)
+
+    rv = client.get('/rac-api/get-tools?limit=50&page=1&order=status', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+
+    assert rv.status_code != 500
+    
 def test_user_jobs_ep_fails_on_db_exception(client, mocker):
     '''
     Uses psycopg mock to mock DB call with exception
@@ -252,5 +273,5 @@ def test_user_jobs_ep_returns_jsonified_jobs_from_db(client, mocker):
     })
     
     pprint(rv.get_json())
-    pprint(rows);
+    pprint(rows)
     assert rv.get_json() == (rows)
