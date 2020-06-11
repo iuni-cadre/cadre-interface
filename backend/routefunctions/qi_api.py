@@ -67,9 +67,9 @@ def user_jobs():
     if order == 'modified_on':
         actual_order_by = 'modified_on'
     if order == 'status':
-        actual_order_by = "status"
-    if order == "type":
-        actual_order_by = "type"
+        actual_order_by = 'job_status'
+    if order == 'type':
+        actual_order_by = 'type'
 
     offset = page * limit
 
@@ -101,8 +101,8 @@ def user_jobs():
             '       ON(uj.job_id = qr.job_id) '
             'WHERE uj.user_id=%s '
             'GROUP BY uj.job_id '
-            'ORDER BY {} '.format(actual_order_by)
-        )
+            'ORDER BY {} '
+        ).format(actual_order_by)
         cur.execute(query, [user_id])
         results = cur.fetchall()
 

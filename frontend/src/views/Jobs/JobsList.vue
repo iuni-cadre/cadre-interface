@@ -273,7 +273,7 @@ export default {
             // }
             // return false;
 
-            // //uncomment for testing using sample jobs with result file
+            // uncomment for testing using sample jobs with result file
             //         clearTimeout(this.refresh_timeout);
             //         this.refresh_timeout = 0;
             //         console.info(sample_jobs);
@@ -311,7 +311,10 @@ export default {
             // clearTimeout(this.refresh_timeout);
             // this.refresh_timeout = 0;
             // return false;
-            // //end test
+            //end test
+
+            clearTimeout(this.refresh_timeout);
+            this.refresh_timeout = 0;
 
             let prom = this.$cadre.qbAxios({
                 url: "/user-jobs"
