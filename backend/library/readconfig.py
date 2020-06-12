@@ -44,6 +44,8 @@ config_parser.read(config_filename)
 config = config_parser['DEFAULT']
 jupyter = config_parser['JUPYTERAPI']
 meta_db = config_parser['CADRE_META_DATABASE_INFO']
+wos_db = config_parser['WOS_DATABASE_INFO']
+mag_db = config_parser['MAG_DATABASE_INFO']
 aws = config_parser['AWS']
 auth = config_parser['AUTH']
 data = config_parser['DATA']
