@@ -6,10 +6,11 @@ import CryptoJS from "crypto-js";
 
 const TEST_USER = {
     username: "test-user",
-    // roles: ["wos_gold"],
-    roles: [],
+    roles: ["wos_gold"],
+    //roles: [],
     token: "fake_token",
-    user_id: 1000
+    user_id: 1000,
+    cognito_groups: ["wos_gold"]
 };
 
 const HEARTBEAT_INTERVAL = 60000;
@@ -25,7 +26,8 @@ export default {
         username: "",
         heartbeat_timer: 0,
         roles: [],
-        user_id: null
+        user_id: null,
+        cognito_groups: [],
     },
     getters: {
         tokenValid: function (state) {
@@ -52,6 +54,9 @@ export default {
         },
         roles: function (state) {
             return state.roles;
+        },
+        cognito_groups: function (state) {
+            return state.roles;
         }
     },
     mutations: {
@@ -76,10 +81,12 @@ export default {
             state.username = null;
             state.user_id = null;
             Vue.set(state, "roles", []);
+            Vue.set(state, "cognito_groups", []);
             localStorage.removeItem("token");
             localStorage.removeItem("username");
             localStorage.removeItem("roles");
             localStorage.removeItem("user_id");
+            localStorage.removeItem("cognito_groups");
         },
         setToken: function (state, token) {
             state.auth_token = token;
@@ -104,10 +111,16 @@ export default {
             localStorage.removeItem("roles");
             localStorage.setItem("roles", roles);
         },
+        setCognitoGroups: function (state, cognito_groups) {
+            Vue.set(state, "cognito_groups", cognito_groups);
+            localStorage.removeItem("cognito_groups");
+            localStorage.setItem("cognito_groups", cognito_groups);
+        },
         initializeToken: function (state) {
             state.auth_token = localStorage.getItem("token");
             state.username = localStorage.getItem("username");
             state.roles = localStorage.getItem("roles");
+            state.cognito_groups = localStorage.getItem("cognito_groups");
         },
         invalidateToken: function (state) {
             state.token_is_valid = false;
@@ -144,6 +157,9 @@ export default {
                             }
                             if (response.user_id) {
                                 commit("setUserId", response.user_id);
+                            }
+                            if (response.cognito_groups) {
+                                commit("setCognitoGroups", response.cognito_groups);
                             }
                         },
                         error => {
@@ -206,6 +222,7 @@ export default {
                     context.commit("setUsername", Globals.base32encode(TEST_USER.username));
                     context.commit("setRoles", TEST_USER.roles);
                     context.commit("setUserId", TEST_USER.user_id);
+                    context.commit("setCognitoGroups", TEST_USER.cognito_groups);
                     console.info("Fake user token is valid");
                     resolve({ msg: "Fake Validation" });
                 } else {
@@ -230,6 +247,7 @@ export default {
                             context.commit("setUsername", username);
                             context.commit("setRoles", result.data.roles);
                             context.commit("setUserId", result.data.user_id);
+                            context.commit("setCognitoGroups", result.data.cognito_groups)
                             console.info("Token is valid");
                             resolve(result);
                         },
