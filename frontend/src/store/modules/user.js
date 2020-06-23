@@ -6,7 +6,7 @@ import CryptoJS from "crypto-js";
 
 const TEST_USER = {
     username: "test-user",
-    roles: ["wos_gold"],
+    roles: [""],
     //roles: [],
     token: "fake_token",
     user_id: 1000,
@@ -56,7 +56,7 @@ export default {
             return state.roles;
         },
         cognito_groups: function (state) {
-            return state.roles;
+            return state.cognito_groups;
         }
     },
     mutations: {
