@@ -183,11 +183,11 @@ export default {
             label: "journal_tsv",
             type: 'single'
         },
-        {
-            field: 'reference_count',
-            label: "reference_count",
-            type: 'single'
-        },
+        // {
+        //     field: 'reference_count',
+        //     label: "reference_count",
+        //     type: 'single'
+        // },
     ],
     input: {
         year: "Year",
