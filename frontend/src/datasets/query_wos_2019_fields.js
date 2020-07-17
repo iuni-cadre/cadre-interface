@@ -123,11 +123,11 @@ export default {
             label: "authors_email",
             type: 'single'
         },
-        {
-            field: 'references',
-            label: "First Degree Citation Network",
-            type: 'network'
-        },
+        // {
+        //     field: 'references',
+        //     label: "First Degree Citation Network",
+        //     type: 'network'
+        // },
         // {
         //     field: 'references',
         //     label: "references",
