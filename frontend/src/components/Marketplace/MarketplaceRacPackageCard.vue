@@ -289,7 +289,7 @@ export default {
             return [...datasets];
         },
         can_access_dataset: function() {
-            let user_roles = this.$store.getters["user/roles"];
+            let user_roles = this.$store.getters["user/roles"], user_groups = this.$store.getters["user/cognito_groups"];
             return function(dataset_id) {
                 let allow = false;
                 let dataset_roles =
@@ -306,6 +306,11 @@ export default {
                 //check all my roles.  If at least one of my roles is allowed for this data set, return true
                 for (let role of user_roles) {
                     if (dataset_roles.indexOf(role) > -1) {
+                        return true;
+                    }
+                }
+                for (let group of user_groups) {
+                    if (dataset_roles.indexOf(group) > -1) {
                         return true;
                     }
                 }
