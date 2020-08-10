@@ -417,11 +417,14 @@ def submit_query():
                 print("Error while publishing to sqs")
                 return jsonify({'error': 'error while publishing to SQS'}, 500)
         else:
+            print("janus_queue_url")
+            print(janus_queue_url)
             sqs_response = sqs_client.send_message(
                 QueueUrl=janus_queue_url,
                 MessageBody=query_in_string,
                 MessageGroupId='cadre'
             )
+            print("sqs response")
             print(sqs_response)
             if 'MessageId' in sqs_response:
                 message_id = sqs_response['MessageId']
