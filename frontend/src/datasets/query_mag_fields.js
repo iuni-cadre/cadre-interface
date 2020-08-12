@@ -181,7 +181,7 @@ export default {
     janus_map: {
         main_vertext: "Paper",
         path_to_main: {
-            "Paper": ["References"],
+            "Paper": [],
             "JournalFixed": ["PublishedInFixed"],
             "Author": ["AuthorOf"],
             "ConferenceInstance": ["PresentedAt"],
