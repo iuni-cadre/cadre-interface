@@ -112,6 +112,35 @@ def test_async_endpoint_works(client, mocker):
 
     assert rv.status_code != 400
 
+
+def test_async_endpoint_works_with_mag(client, mocker):
+    patch_user(mocker)
+    patch_cursor(mocker, [])
+
+    rv = client.post('/data-api/publications-async', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    })
+    assert rv.status_code != 500
+
+    json_to_send = {"job_name": "", "filters": [{"field": "year", "value": "2005", "operation": ""}], "output": [
+    {"field": "wos_id", "type": "single"}, {"field": "year", "type": "single"}, {"field": "authors_full_name", "type": "single"}], "dataset": "mag"}
+
+    rv = client.post('/data-api/publications-async', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username",
+        },
+        content_type='application/json', 
+        data=json.dumps(json_to_send)
+    )
+
+    assert rv.status_code != 500
+    assert rv.status_code != 400
+    assert False
+
+
+
+
 # def test_gen_wos_query_exists(client):
 #     data_api.generate_wos_query('string', [])
 
