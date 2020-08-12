@@ -104,6 +104,28 @@
                                     </div>
                                 </td>
                             </tr>
+                            <tr
+                                v-if="job.status == 'Failed'"
+                                :key="`job_files_${job.job_id}`"
+                                :id="`job_files_${job.job_id}`"
+                                :class="{
+                                'table-success': job.status == 'Failed',
+                                'table-info': job.run_time <= (1000 * 60 * 10) && job.status == 'Running',
+                                'table-danger': job.status == 'Failed',
+                                'table-warning': (job.status == 'Running' || job.status == 'Submitted') && job.run_time > (1000 * 60 * 10),
+                                'active_job_bottom': job.job_id == selected_job_id
+                                }"
+                                @click="clickJobRow(job.job_id)"
+                            >
+                                <td colspan="6">
+                                    <div class="d-flex">
+                                        <div
+                                            class="file_label"
+                                        >Message:&nbsp;</div>
+                                        <div v-text="job.description || 'Unknown Error'"></div>
+                                    </div>
+                                </td>
+                            </tr>
                         </template>
                         <tr v-if="jobs.length === 0">
                             <td colspan="6">No jobs could be found</td>
@@ -338,6 +360,7 @@ export default {
                             start: new Date(job[4]),
                             update: job[5] ? new Date(job[5]) : new Date(),
                             run_time: this.getRunTime(job),
+                            description: job[7] || "",
                             job_name: job[8],
                             files: job[9]
                                 .filter(item => {
