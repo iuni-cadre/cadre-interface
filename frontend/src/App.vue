@@ -101,7 +101,11 @@
                     </div>
                     <div v-else>
                         Logged in as
-                        <span v-text="decodedUsername"></span>
+                            <router-link
+                                class="p-3 p-md-0 d-inline-block"
+                                :to="{name: 'your-profile'}"
+                                target
+                            ><span v-text="decodedUsername"></span></router-link>
                         &nbsp;
                         <a
                             class="btn get-started-button"

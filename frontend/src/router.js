@@ -13,6 +13,7 @@ let QI_Builder = () => import( /* webpackChunkName: "query_builder" */ "./views/
 let JobsList = () => import( /* webpackChunkName: "rac" */ "./views/Jobs/JobsList.vue");
 let RAC_Marketplace = () => import( /* webpackChunkName: "rac" */ "./views/Marketplace/MarketplaceHome.vue");
 let YourHome = () => import( /* webpackChunkName: "your" */ "./views/Your/YourHome.vue");
+let YourProfile = () => import( /* webpackChunkName: "your_profile" */ "./views/Your/YourProfile.vue");
 
 Vue.use(Router);
 
@@ -64,6 +65,11 @@ export default new Router({
             path: "/your",
             name: "your-home",
             component: YourHome
+        },
+        {
+            path: "/profile",
+            name: "your-profile",
+            component: YourProfile
         },
         {
             path: "/component_test",
