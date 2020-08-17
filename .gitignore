@@ -25,6 +25,7 @@ eb_bundle*.zip
 !.elasticbeanstalk/example.config.yml
 
 .ebextensions/storage-efs-mountfilesystem.config
+.ebextensions/02-configure_logstash.config
 
 .vs
 frontend/coverage

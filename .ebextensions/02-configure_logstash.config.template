@@ -1,0 +1,133 @@
+files:
+   "/etc/logstash/jvm.options":
+     mode: "000664"
+     owner: root
+     group: logstash
+     content: |
+       -Xms200m
+       -Xmx500m
+       -XX:+UseConcMarkSweepGC
+       -XX:CMSInitiatingOccupancyFraction=75
+       -XX:+UseCMSInitiatingOccupancyOnly
+       -Djava.awt.headless=true
+       -Dfile.encoding=UTF-8
+
+   "/etc/logstash/logstash.yml":
+     mode: "000664"
+     owner: root
+     group: logstash
+     content: |
+       path.data: /var/lib/logstash
+       pipeline.workers: 1
+       path.logs: /var/log/logstash
+
+   "/etc/sysconfig/logstash":
+     mode: "000664"
+     owner: root
+     group: root
+     content: |
+       AWS_ACCESS_KEY_ID=""
+       AWS_SECRET_ACCESS_KEY=""
+       LOGSTASH_AWS_ES_HOST=""
+       LOGSTASH_AWS_ES_REGION=""
+
+   "/etc/logstash/conf.d/logstash-all.conf":
+     mode: "000664"
+     owner: root
+     group: logstash
+     content: |
+       input {
+
+         file {
+           type => "apache_access"
+           path => "/var/log/httpd/access_log"
+         }
+
+         file {
+           type => "apache_error"
+           path => "/var/log/httpd/error_log"
+         }
+
+       }
+
+       filter {
+
+         if [type] == "apache_access" {
+           grok {
+             match => { "message" => "%{IPORHOST:clientip} \(%{DATA:route}\) %{HTTPDUSER:ident} %{HTTPDUSER:auth} \[%{HTTPDATE:timestamp}\] \"(?:%{WORD:verb} %{NOTSPACE:request}(?: HTTP/%{NUMBER:httpversion})?|%{DATA:rawrequest})\" %{NUMBER:response} (?:%{NUMBER:bytes}|-) %{QS:referrer} %{QS:agent}" }
+           }
+
+           if "_grokparsefailure" in [tags] or [agent] =~ "ELB-HealthChecker" {
+             drop{}
+           } else {
+
+             date {
+               match => [ "timestamp", "dd/MMM/yyyy:HH:mm:ss Z"]
+               target => "@timestamp"
+             }
+
+             mutate {
+               add_field => { "[@metadata][type]" => "%{type}" }
+
+               convert => {
+                 "response" => "integer"
+                 "bytes" => "integer"
+               }
+
+               gsub => ["agent","\"",""]
+               gsub => ["referrer","\"",""]
+               remove_field => [ "message", "@version", "path", "timestamp", "type", "tags" ]
+             }
+           }
+
+         } else if [type] == "apache_error" {
+
+           grok {
+             match => { "message" => "%{HTTPD_ERRORLOG}" }
+             overwrite => [ "message" ]
+           }
+
+           if "_grokparsefailure" in [tags] {
+             drop{}
+           } else {
+             date {
+               match => [ "timestamp", "EEE MMM dd HH:mm:ss.SSSSSS yyyy" ]
+               target => "@timestamp"
+             }
+
+             mutate {
+               add_field => { "[@metadata][type]" => "%{type}" }
+               remove_field => [ "@version", "path", "timestamp", "tid", "pid", "type", "tags" ]
+             }
+           }
+         }
+       }
+
+       output {
+
+         if [@metadata][type] == "apache_access" {
+           amazon_es {
+             hosts => ["${LOGSTASH_AWS_ES_HOST}"]
+             region => "${LOGSTASH_AWS_ES_REGION}"
+             index => "alias-cadre-interface-access"
+           }
+         } else if [@metadata][type] == "apache_error" {
+           amazon_es {
+             hosts => ["${LOGSTASH_AWS_ES_HOST}"]
+             region => "${LOGSTASH_AWS_ES_REGION}"
+             index => "alias-cadre-interface-error"
+           }
+         }
+
+       }
+
+
+commands:
+  "500-install-aws-plugin":
+    command: "sudo -E /usr/share/logstash/bin/logstash-plugin install logstash-output-amazon_es"
+  "600-conf-sysv":
+    command: "sudo /usr/share/logstash/bin/system-install /etc/logstash/startup.options sysv"
+  "601-sysv-runlevels":
+    command: "sudo chkconfig --levels 2345 --add logstash"
+  "602-sysv-start":
+    command: "sudo service logstash restart"
