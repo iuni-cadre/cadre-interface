@@ -63,18 +63,10 @@
                                 @click=updateProfile()
                             >Update Profile</button> 
                         </div>
-                        <div v-text="`test the displayname value: ${new_display_name}`">
+                        <!-- <div v-text="`test the displayname value: ${new_display_name}`">
                         </div>
                         <div v-text="`test the checkbox value: ${new_tos_confirm}`">
-                        </div>
-                        <div v-text="`test the checkbox value: ${access_form_fields.first_name}`">
-                        </div> 
-                        <div v-text="`test the checkbox value: ${access_form_fields.last_name}`">
-                        </div> 
-                        <div v-text="`test the checkbox value: ${access_form_fields.first_name}`">
-                        </div> 
-                        <div v-text="`test the checkbox value: ${access_form_fields.start_date}`">
-                        </div> 
+                        </div>  -->
                     </div>
             </div>
             <div class="card mb-3">
