@@ -310,6 +310,7 @@ export default {
             access_policy_open: false,
             get_user_profile_endpoint: this.$cadreConfig.rac_api_prefix + "/profile/get-user-profile",
             update_user_profile_endpoint: this.$cadreConfig.rac_api_prefix + "/profile/update-user-profile",
+            update_user_agreement_endpoint: this.$cadreConfig.rac_api_prefix + "/profile/update-user-agreement",
             current_user_profile: [],
             new_display_name: "",
             new_tos_confirm: false,
@@ -334,7 +335,7 @@ export default {
             access_agreement_confirm: false,
 
             //set testing_page to true to use sample user profile
-            testing_page: true
+            testing_page: false
         };
     },
     computed: {
