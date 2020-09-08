@@ -221,10 +221,12 @@ def get_packages_user():
                     array_agg(archive.name) as input_files, 
                     array_agg(archive.archive_id) as archive_ids, 
                     array_agg(archive.permissions) as permissions,
-                    bool_or(package.published) as published  
+                    bool_or(package.published) as published,
+                    max(user_profile.display_name) as display_name   
                 FROM package 
                     JOIN archive ON (package.archive_id = archive.archive_id) 
                     JOIN tool ON (package.tool_id = tool.tool_id) 
+                    LEFT JOIN user_profile ON (package.created_by = user_profile.user_id)
                 WHERE package.to_be_deleted IS NOT TRUE 
                     AND package.created_by = %s
                 GROUP BY package.package_id 
@@ -256,6 +258,7 @@ def get_packages_user():
                 archive_ids = package[12]
                 permissions = package[13]
                 published = package[14]
+                display_name = package[15] 
                 
                 #get the existing item on the dict or create an empty one
                 p = packages_dict.get(package_id, {})
@@ -271,6 +274,7 @@ def get_packages_user():
                 p['archive_ids'] = archive_ids
                 p['permissions'] = permissions
                 p['published'] = published
+                p['display_name'] = display_name
 
                 # get the tools or default to []
                 p['tools'] = p.get('tools', [])

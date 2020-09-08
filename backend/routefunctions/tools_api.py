@@ -101,14 +101,16 @@ def get_tools():
     # Here we are getting all the details of the all the different tools from the database
     try:
         query = """SELECT
-                tool_id as tool_id,
-                description as tool_description,
-                name as tool_name,
-                script_name as tool_script_name,
-                created_on as tool_created_on,
-                created_by as created_by,
-                published as tool_published
+                tool.tool_id as tool_id,
+                tool.description as tool_description,
+                tool.name as tool_name,
+                tool.script_name as tool_script_name,
+                tool.created_on as tool_created_on,
+                tool.created_by as created_by,
+                tool.published as tool_published,
+                user_profile.display_name as display_name 
                 FROM tool
+                LEFT JOIN user_profile ON (tool.created_by = user_profile.user_id)
                 WHERE created_by = %s
                 AND to_be_deleted IS NOT TRUE
                 ORDER BY {}
@@ -127,7 +129,8 @@ def get_tools():
                 'tool_script_name': tools[3],
                 'created_on': tools[4].isoformat(),
                 'created_by': tools[5],
-                'tool_published': tools[6]
+                'tool_published': tools[6],
+                'display_name': tools[7]
             }
             tool_list.append(tool_json)
         return jsonify(tool_list), 200
