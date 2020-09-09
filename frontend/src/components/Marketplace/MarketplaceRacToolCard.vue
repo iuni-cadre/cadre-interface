@@ -6,10 +6,16 @@
         <div class="ractool-card card p-3 flex-fill d-flex flex-column justify-content-between">
             <div>
                 <h4 v-text="ractool.tool_name">Tool Name</h4>
-                <!-- <div
+                <div
+                    v-if="ractool.created_by == user_id"
                     class="small"
-                    v-text="`By: ${ractool.created_by || 'CADRE Team'}`"
-                ></div>-->
+                    v-text="`By: You`"
+                ></div>
+                <div
+                    v-else
+                    class="small"
+                    v-text="`By: ${ractool.display_name || ractool.created_by || 'CADRE Team'}`"
+                ></div>
                 <div
                     class="small"
                     v-text="`Created On: ${new Date(ractool.created_on).toUTCString()}`"

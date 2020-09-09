@@ -11,7 +11,7 @@
                 <div
                     v-else
                     class="small"
-                    v-text="`By: ${racpackage.created_by || 'CADRE Team'}`"
+                    v-text="`By: ${racpackage.display_name || racpackage.created_by || 'CADRE Team'}`"
                 ></div>
                 <div
                     class="small"
