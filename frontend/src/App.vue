@@ -61,7 +61,7 @@
                                 class="p-3 p-md-0 d-inline-block"
                                 :to="{name: 'query-builder-builder'}"
                                 target
-                            >Query Interface</router-link>
+                            >Query Builder</router-link>
                         </li>
                         <li class="nav-item">
                             <router-link
@@ -528,6 +528,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import "@/assets/bootstrap_variables.scss";
 @import "../node_modules/bootstrap/scss/bootstrap.scss";
 @import "@/assets/cadre.scss";
 #app {

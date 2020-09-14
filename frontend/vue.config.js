@@ -9,5 +9,13 @@ module.exports = {
     runtimeCompiler: undefined,
     productionSourceMap: false,
     parallel: false,
-    css: undefined
+    css: undefined,
+    configureWebpack: {
+        devServer: {
+            watchOptions: {
+                ignored: /node_modules/,
+                poll: 1000
+            }
+        }
+    }
 };
