@@ -16,7 +16,7 @@
                     class="col d-flex"
                 >
                     <div class="card flex-fill">
-                        <h4 class="btn btn-primary btn-lg">Query Interface</h4>
+                        <h4 class="btn btn-primary btn-lg">Query Builder</h4>
                         <p>Pick a dataset and run a search query.</p>
                     </div>
                 </router-link>
@@ -35,7 +35,14 @@
                 </router-link>
             </div>
             <hr />
-            <h3>Top Packages</h3>&nbsp;&nbsp;
+            <div class="d-flex justify-content-between align-items-baseline">
+                <h3>Top Packages</h3>&nbsp;&nbsp;
+                <router-link
+                    :to="{name: 'rac-marketplace'}"
+                    target
+                    class
+                >Visit Marketplace</router-link>
+            </div>
             <div class="row flex-wrap d-flex mb-3">
                 <div
                     v-for="(racpackage, index) in racpackages"
@@ -48,20 +55,18 @@
                         :rac-package="racpackage"
                     ></rac-package-card>
                 </div>
+                <div class="col" v-if="racpackages.length == 0">
+                    Could not find any packages.
+                </div>
             </div>
-            <router-link
-                :to="{name: 'rac-marketplace'}"
-                target
-                class="btn btn-primary"
-            >Visit Full RAC Marketplace</router-link>
-            <span class="ml-3 d-inline-block">
+            <!-- <span class="ml-3 d-inline-block">
                 <span v-text="racpackages_total_count"></span> Total Packages
-            </span>
+            </span> -->
             <!-- <div>
             {{jupyter_full_url}}
             </div>-->
             <hr />
-            
+
             <your-packages
                 @startLoading="startLoading"
                 @stopLoading="stopLoading"
@@ -89,50 +94,50 @@ import YourPackages from "@/components/Your/YourPackages";
 const RAC_PACKAGES_TO_SHOW = 3;
 
 export default {
-    data: function() {
+    data: function () {
         return {};
     },
     computed: {
-        query_interface_url: function() {
+        query_interface_url: function () {
             return this.$cadreConfig.query_interface_url;
         },
-        jupyter_url: function() {
+        jupyter_url: function () {
             return this.$cadreConfig.jupyter_url;
         },
-        token: function() {
+        token: function () {
             return this.$store.getters["user/authToken"];
         },
-        jupyter_token: function() {
+        jupyter_token: function () {
             return this.$store.getters["user/jToken"];
         },
-        username: function() {
+        username: function () {
             return this.$store.getters["user/username"];
         },
 
-        racpackages: function() {
+        racpackages: function () {
             return this.$store.getters["racpackage/packages"].slice(
                 0,
                 RAC_PACKAGES_TO_SHOW
             );
         },
-        racpackages_total_count: function() {
+        racpackages_total_count: function () {
             return this.$store.getters["racpackage/packages"].length;
-        }
+        },
     },
     methods: {
-        goToQueryInterface: function() {
+        goToQueryInterface: function () {
             location.href = `${this.query_interface_url}?username=${this.username}&token=${this.token}`;
         },
-        goToNotebook: function() {
+        goToNotebook: function () {
             // location.href = this.jupyter_full_url;
             this.$router.push({ name: "jupyter-hub" });
         },
-        
-        startLoading({key, message}){
-            this.$store.commit("loading/addKey", {key, message});
+
+        startLoading({ key, message }) {
+            this.$store.commit("loading/addKey", { key, message });
         },
-        stopLoading({key}){
-            this.$store.commit("loading/removeKey", {key});
+        stopLoading({ key }) {
+            this.$store.commit("loading/removeKey", { key });
         },
     },
     components: {
@@ -140,9 +145,9 @@ export default {
         RacPackageCard,
         YourTools,
         YourArchives,
-        YourPackages
+        YourPackages,
     },
-    mounted: function() {
+    mounted: function () {
         if (this.racpackages.length === 0) {
             this.startLoading({ key: "get_packages", message: "" });
             let get_packages_prom = this.$store.dispatch(
@@ -154,7 +159,7 @@ export default {
                 this.stopLoading({ key: "get_packages" });
             });
         }
-    }
+    },
 };
 </script>
 <style lang="scss" scoped>

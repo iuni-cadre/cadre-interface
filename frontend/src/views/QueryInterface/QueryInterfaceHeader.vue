@@ -10,7 +10,7 @@
                         </li>
 
                         <li class="list-item">
-                            <router-link :to="{name: 'query-builder-builder'}">Query Builder</router-link>
+                            <router-link :to="{name: 'query-builder-builder'}">Build Query</router-link>
                         </li>
 <!--
                         <li class="list-item">

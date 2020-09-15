@@ -7,14 +7,14 @@
                             'btn-primary': fields_view == 'selected'
                         }"><input type="radio"
                        v-model="fields_view"
-                       value="selected" />Show Selected Only</label>
+                       value="selected" class="mr-1" /> Show Selected Only</label>
             <label class="btn btn-sm d-flex align-items-center"
                    :class="{
                             'btn-outline-primary': fields_view != 'all',
                             'btn-primary': fields_view == 'all'
                         }"><input type="radio"
                        v-model="fields_view"
-                       value="all" />Show All Available Fields</label>
+                       value="all" class="mr-1" /> Show All Available Fields</label>
             <label @click.stop.prevent="deselectAll"
                    class="btn btn-outline-primary btn-sm d-flex align-items-center ml-auto">Deselect All</label>
         </div>

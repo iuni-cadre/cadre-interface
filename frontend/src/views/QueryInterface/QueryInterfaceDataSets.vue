@@ -3,12 +3,12 @@
         <query-builder-header />
         <section>
             <div class="container">
-                <h2>Choose a Dataset</h2>
+                <h3>Choose a Dataset</h3>
                 <div class="card p-3">
                     <template v-for="(dataset, id) in datasets">
                         <div v-if="can_access_dataset(id)"
                              :key="`dataset_${id}`"
-                             class="d-flex">
+                             class="d-flex align-items-center">
                             <button class="btn m-3 p-3 d-flex align-items-center col-4 justify-content-between"
                                     :class="dataset_button_styles(id)"
                                     @click="selectDataset(id)">
@@ -25,7 +25,7 @@
 
                         <div v-else
                              :key="`dataset_${id}`"
-                             class="d-flex disabled dataset-disabled">
+                             class="d-flex disabled dataset-disabled align-items-center">
                             <button disabled
                                     class="btn m-3 p-3 d-flex align-items-center col-4 justify-content-between disabled"
                                     :class="dataset_button_styles(id)">
@@ -45,11 +45,11 @@
                             </div>
                         </div>
                     </template>
-
-                </div>
-                <div class="mt-3">
-                    <router-link :to="{name: 'query-builder-builder'}"
-                                 class="btn btn-lg btn-primary">Proceed to Query Builder</router-link>
+<hr />
+                    <div class="">
+                        <router-link :to="{name: 'query-builder-builder'}"
+                                    class="btn btn-lg btn-primary m-3 ">Proceed to Query Builder</router-link>
+                    </div>
                 </div>
             </div>
         </section>
@@ -123,5 +123,16 @@ export default {
 .dataset-disabled
 {
     opacity: .5;
+}
+
+
+button span
+{
+    font-size: 1.2rem;
+}
+
+a.btn
+{
+    text-decoration: none;
 }
 </style>
