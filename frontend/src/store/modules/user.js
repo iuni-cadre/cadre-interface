@@ -7,7 +7,7 @@ import CryptoJS from "crypto-js";
 const TEST_USER = {
     username: "test-user",
     roles: [""],
-    //roles: [],
+    roles: ["wos_gold"],
     token: "fake_token",
     user_id: 1000,
     cognito_groups: ["wos_gold"]

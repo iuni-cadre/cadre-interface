@@ -439,8 +439,8 @@ export default {
                                     :class="{'alert-danger': query_errors[index]}"
                                 >
                                     <div class="form-group">
-                                        <label>Field</label>
-                                        <select
+                                        <label :for="`field_${index}`">Field</label>
+                                        <select :id="`field_${index}`"
                                             class="form-control"
                                             v-model="queries[index].field"
                                         >
@@ -458,8 +458,8 @@ export default {
                                         </select>
                                     </div>
                                     <div class="form-group col">
-                                        <label>Value</label>
-                                        <input
+                                        <label :for="`value_${index}`">Value</label>
+                                        <input :id="`value_${index}`"
                                             class="form-control"
                                             type="text"
                                             v-model="queries[index].value"
@@ -471,7 +471,7 @@ export default {
                                             type="button"
                                             @click.stop.prevent="removeQueryClause(index)"
                                         >
-                                            <fa icon="trash-alt" />Remove Filter
+                                            <fa icon="trash-alt" class="mr-1" /> Remove Filter
                                         </button>
                                     </div>
                                 </div>
@@ -506,7 +506,7 @@ export default {
                                 </div>
                             </div>
                         </template>
-                        <div>
+                        <div class="alert">
                             <button
                                 class="btn btn-outline-primary"
                                 type="button"
@@ -518,7 +518,9 @@ export default {
                     <div class="card mb-3">
                         <h4 class>Output Fields</h4>
                         <!-- <div>Help Text</div> -->
-                        <output-fields v-model="selected_fields"></output-fields>
+                        <div class="alert">
+                            <output-fields v-model="selected_fields"></output-fields>
+                        </div>
                     </div>
 
                     <div
@@ -601,6 +603,23 @@ export default {
                         </div>
                     </div>
 
+                    <div class="card mb-3">
+                        <div class="form-group">
+                            <h4 class>Job Name <small class="text-muted">(Optional)</small></h4>
+                            
+                            <p>To make it easier to identify the status of a specific query, you may enter an optional job name.<p>
+                            <div class="form-group col">
+                                <input
+                                    class="form-control"
+                                    type="text"
+                                    v-model="job_name"
+                                    maxlength="255"
+                                    placeholder="Some Name"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
                     <div v-if="database_type != 'janus'" class="card mb-3">
                         <div class="form-group">
                             <button
@@ -640,27 +659,11 @@ export default {
                                 </tr>
                             </table>
                         </div>
-                        <div v-else>There are currently no preview results. Please run a query.</div>
+                        <!-- <div v-else>There are currently no preview results. Please run a query.</div> -->
                         <!-- <pre class="pre"
                         v-text="result"></pre>-->
                     </div>
 
-                    <div class="card mb-3">
-                        <div class="form-group">
-                            <h4 class>Job Name <small class="text-muted">(Optional)</small></h4>
-                            
-                            <p>To make it easier to identify the status of a specific query, you may enter an optional job name.<p>
-                            <div class="form-group col">
-                                <input
-                                    class="form-control"
-                                    type="text"
-                                    v-model="job_name"
-                                    maxlength="255"
-                                    placeholder="Some Name"
-                                />
-                            </div>
-                        </div>
-                    </div>
 
                     <div class="card mb-3">
                         <div class="form-group">
