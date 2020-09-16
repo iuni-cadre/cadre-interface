@@ -7,53 +7,53 @@ import Base32 from "hi-base32";
 
 import { mapGetters } from "vuex";
 export default {
-    data: function() {
+    data: function () {
         return {
             error_message: "",
             // loading_queue: {},
             // loading_timeout: 0,
             // max_loading_time: 30000, //30 seconds
             // min_loading_time: 500,
-            display_menu: false
+            display_menu: false,
         };
     },
     computed: {
-        version: function() {
+        version: function () {
             return this.$version;
         },
         ...mapGetters("user", ["authToken", "decodedUsername", "roles"]),
-        token: function() {
+        token: function () {
             return this.authToken;
         },
-        login_url: function() {
+        login_url: function () {
             return this.$cadreConfig.login_url;
         },
-        logout_url: function() {
+        logout_url: function () {
             return this.$cadreConfig.logout_url;
         },
-        is_loading: function() {
+        is_loading: function () {
             return this.$store.getters["loading/is_loading"];
             // return Object.keys(this.loading_queue).length;
         },
-        loading_queue: function(){
+        loading_queue: function () {
             return this.$store.getters["loading/loading_queue"];
         },
-        is_under_construction: function() {
+        is_under_construction: function () {
             return this.$cadreConfig.under_construction;
-        }
+        },
     },
     methods: {
-        toggleMenu: function() {
+        toggleMenu: function () {
             this.display_menu = !this.display_menu;
         },
-        startLoading: function({ key, message }) {
+        startLoading: function ({ key, message }) {
             this.addToLoadingQueue(key, message);
         },
-        stopLoading: function({ key }) {
+        stopLoading: function ({ key }) {
             this.removeFromLoadingQueue(key);
         },
-        addToLoadingQueue: function(key, message) {
-            this.$store.commit("loading/addKey", {key, message});
+        addToLoadingQueue: function (key, message) {
+            this.$store.commit("loading/addKey", { key, message });
             // if (!this.loading_queue[key]) {
             //     // this.loading_queue[key] = 0;
             //     this.$set(this.loading_queue, key, {
@@ -71,9 +71,9 @@ export default {
             //         this.loading_queue[key].timer += 100;
             //     }, 100);
             // } else {
-            //     /* 
+            //     /*
             //         Handles a race condition if we add the key again during the "cooldown" time,
-            //         we need to cancel the old cooldown timer so that 
+            //         we need to cancel the old cooldown timer so that
             //         it doesn't cancel the NEW instance when it thinks it's
             //         canceling the old instance.  So just cancel the cooldown
             //         and keep going.
@@ -82,14 +82,14 @@ export default {
             // }
             // this.loading_queue[key].message = message || "";
         },
-        removeFromLoadingQueue: function(key) {
-            this.$store.commit("loading/removeKey", {key});
+        removeFromLoadingQueue: function (key) {
+            this.$store.commit("loading/removeKey", { key });
             // if (this.loading_queue[key] !== undefined) {
             //     /*
             //         we want to make sure that the spinner is shown for at least half a second
             //         for UX purposes.  So it's not just a flash and people can't see it.
-            //         If the given key has been loading for more than the minimum time, just go 
-            //         ahead and call the callback.  Otherwise, we need to keep spinning for the 
+            //         If the given key has been loading for more than the minimum time, just go
+            //         ahead and call the callback.  Otherwise, we need to keep spinning for the
             //         min load time minus the time it's already been spinning during the actual
             //         loading.
             //     */
@@ -114,7 +114,7 @@ export default {
             //     }, cooldown_time);
             // }
         },
-        validate: function() {
+        validate: function () {
             // setTimeout(() => {
             //     this.removeFromLoadingQueue("initialize");
             // }, 2);
@@ -128,28 +128,26 @@ export default {
                 let jupyter_token = this.$route.query.jupyter_token;
                 this.$router.push({
                     path: this.$route.path,
-                    query: {}
+                    query: {},
                 });
                 // console.debug(token, jupyter_token);
-                validate_prom = this.$store
-                    .dispatch("user/validateToken", {
-                        token: token,
-                        username: username,
-                        j_token: jupyter_token
-                    });
+                validate_prom = this.$store.dispatch("user/validateToken", {
+                    token: token,
+                    username: username,
+                    j_token: jupyter_token,
+                });
             } else {
-                validate_prom = this.$store
-                    .dispatch("user/validateToken");
+                validate_prom = this.$store.dispatch("user/validateToken");
             }
 
             validate_prom.then(
-                result => {
+                (result) => {
                     // console.info("Token valid.");
                     // console.debug(this.token);
                     // this.removeFromLoadingQueue("initialize");
                     this.$store.dispatch("user/beatHeart");
                 },
-                error => {
+                (error) => {
                     // this.removeFromLoadingQueue("initialize");
                     this.error_message = "Unauthorized";
                     console.error("Could not validate token.", error);
@@ -158,16 +156,16 @@ export default {
             return validate_prom;
         },
 
-        logout: function() {
+        logout: function () {
             this.startLoading("logout");
 
             let logout_prom = this.$store.dispatch("user/logout");
 
             logout_prom.then(
-                response => {
+                (response) => {
                     window.location.href = this.$cadreConfig.logout_url;
                 },
-                error => {
+                (error) => {
                     this.error_message = "Could not log out.";
                 }
             );
@@ -175,9 +173,9 @@ export default {
             logout_prom.finally(() => {
                 this.stopLoading("logout");
             });
-        }
+        },
     },
-    mounted: function() {
+    mounted: function () {
         // console.debug("mounted");
         // this.addToLoadingQueue("test");
         // console.debug("adding initialize to queue");
@@ -213,21 +211,21 @@ export default {
         // console.log("parsed:", parsedStr);
     },
     components: {
-        Spinner
+        Spinner,
     },
     watch: {
         // "$route.query": function(){
         // }
-    }
+    },
 };
 
-// ######## ######## ##     ## ########  ##          ###    ######## ######## 
-//    ##    ##       ###   ### ##     ## ##         ## ##      ##    ##       
-//    ##    ##       #### #### ##     ## ##        ##   ##     ##    ##       
-//    ##    ######   ## ### ## ########  ##       ##     ##    ##    ######   
-//    ##    ##       ##     ## ##        ##       #########    ##    ##       
-//    ##    ##       ##     ## ##        ##       ##     ##    ##    ##       
-//    ##    ######## ##     ## ##        ######## ##     ##    ##    ######## 
+// ######## ######## ##     ## ########  ##          ###    ######## ########
+//    ##    ##       ###   ### ##     ## ##         ## ##      ##    ##
+//    ##    ##       #### #### ##     ## ##        ##   ##     ##    ##
+//    ##    ######   ## ### ## ########  ##       ##     ##    ##    ######
+//    ##    ##       ##     ## ##        ##       #########    ##    ##
+//    ##    ##       ##     ## ##        ##       ##     ##    ##    ##
+//    ##    ######## ##     ## ##        ######## ##     ##    ##    ########
 </script>
 <template>
     <div id="app">
@@ -323,21 +321,22 @@ export default {
                     </ul>
 
                     <div v-if="!token">
-                        <a
+                        <!-- <a
                             class="btn get-started-button"
                             :href="login_url"
                         >
                             <span class="p-3 p-md-0 d-inline-block">Login</span>
-                        </a>
+                        </a>-->
                     </div>
                     <div v-else>
                         Logged in as
-                            <router-link
-                                class="p-3 p-md-0 d-inline-block"
-                                :to="{name: 'your-profile'}"
-                                target
-                            ><span v-text="decodedUsername"></span></router-link>
-                        &nbsp;
+                        <router-link
+                            class="p-3 p-md-0 d-inline-block"
+                            :to="{name: 'your-profile'}"
+                            target
+                        >
+                            <span v-text="decodedUsername"></span>
+                        </router-link>&nbsp;
                         <a
                             class="btn get-started-button"
                             @click="logout"
@@ -364,16 +363,6 @@ export default {
             </div>
         </section>
 
-        <!-- <hr /> -->
-        <!-- {{$store.getters["user/authToken"]}} -->
-        <router-view
-            v-if="token"
-            class
-            @startLoading="startLoading"
-            @stopLoading="stopLoading"
-            :isLoading="is_loading"
-        />
-
         <template v-if="error_message && token">
             <div class="container pt-3">
                 <div class="alert alert-danger">
@@ -383,8 +372,45 @@ export default {
             </div>
         </template>
 
+        <router-view
+            v-if="token"
+            class
+            @startLoading="startLoading"
+            @stopLoading="stopLoading"
+            :isLoading="is_loading"
+        />
+
         <template v-if="!token">
-            <div class="container pt-3">
+            <div class="container">
+                <div class="not-logged-in-alert alert alert-warning">
+                    Login Status:
+                    <strong>Not logged in</strong>
+                </div>
+
+                <div class="not-logged-in-alert alert alert-info d-flex">
+                    <div></div>
+                    <div>
+                        <p>
+                            To access/query all versions of Web of Science
+                            (WoS) databases, institutional/organizational
+                            login is required. To do so, click “Log in to CADRE”
+                            below, then select CILogon on the next page.
+                        </p>
+                        <p>
+                            Please note that even if your institutional/organizational
+                            account is also a Google/G Suite/Gmail account,
+                            you still need to login through CILogon to access WoS.
+                        </p>
+
+                        <a
+                            class="btn btn-primary btn-lg px-5"
+                            :href="login_url"
+                        >Log In to CADRE</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- <div class="container pt-3">
                 <div class="alert alert-info">
                     You are not logged in. You can log in
                     <a
@@ -409,8 +435,17 @@ export default {
                         target="_blank"
                     >the CADRE home page</a>.
                 </p>
-            </div>
+            </div>-->
         </template>
+        <!-- 
+ ######  ########  #### ##    ## ##    ## ######## ########  
+##    ## ##     ##  ##  ###   ## ###   ## ##       ##     ## 
+##       ##     ##  ##  ####  ## ####  ## ##       ##     ## 
+ ######  ########   ##  ## ## ## ## ## ## ######   ########  
+      ## ##         ##  ##  #### ##  #### ##       ##   ##   
+##    ## ##         ##  ##   ### ##   ### ##       ##    ##  
+ ######  ##        #### ##    ## ##    ## ######## ##     ##
+        -->
 
         <div
             v-if="is_loading"
@@ -431,6 +466,16 @@ export default {
             </div>
         </div>
 
+        <!-- 
+########  #######   #######  ######## ######## ########  
+##       ##     ## ##     ##    ##    ##       ##     ## 
+##       ##     ## ##     ##    ##    ##       ##     ## 
+######   ##     ## ##     ##    ##    ######   ########  
+##       ##     ## ##     ##    ##    ##       ##   ##   
+##       ##     ## ##     ##    ##    ##       ##    ##  
+##        #######   #######     ##    ######## ##     ##
+        -->
+
         <footer id="main-footer">
             <div class="container">
                 <div
@@ -448,11 +493,6 @@ export default {
                         <span class="d-none">CADRE</span>
                     </a>
 
-                    <!-- </div> -->
-                    <!-- <div class="">
-                        &copy; <a href="https://iuni.iu.edu">Indiana University Network Science Institute</a>
-                    </div>-->
-                    <!-- <div class=""> -->
                     <a
                         href="https://www.btaa.org/"
                         class="btaa-logo"
@@ -463,8 +503,6 @@ export default {
                         />
                         <span class="d-none">BTAA</span>
                     </a>
-                    <!-- </div> -->
-                    <!-- <div class=""> -->
                     <a
                         href="https://libraries.indiana.edu/"
                         class="libraries-logo"
@@ -475,8 +513,6 @@ export default {
                         />
                         <span class="d-none">IU Libraries</span>
                     </a>
-                    <!-- </div> -->
-                    <!-- <div class=""> -->
                     <a
                         href="https://iuni.iu.edu"
                         class="iuni-logo"
@@ -487,43 +523,6 @@ export default {
                         />
                         <span class="d-none">IUNI</span>
                     </a>
-                    <!-- </div> -->
-
-                    <!-- {% for page in pages.children if page.header.main == true %}
-            <div class="col">
-                <a href="{{url(page.url)}}"><strong>{{page.title}}</strong></a>
-                <ul class="list-unstyled">
-                    {% for subpage in page.children %}
-                    <li class="list-item">
-                        <a href="{{url(subpage.url)}}">{{subpage.title}}</a>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endfor %}
-
-            {# <div class="col">
-                <strong>About CADRE</strong>
-                {{site.title}}
-                {% for mitem in site.menu %}
-            <li>
-                <a {% if mitem.class %}class="{{ mitem.class }}"{% endif %} href="{{ mitem.url }}">
-                    {% if mitem.icon %}<i class="fa fa-{{ mitem.icon }}"></i>{% endif %}
-                    {{ mitem.text }}
-                </a>
-            </li>
-                    {% endfor %} #}-->
-
-                    <!-- {# </div>
-            <div class="col">
-                <strong>Documentation</strong>
-            </div>
-            <div class="col">
-                <strong>Work With Us</strong>
-            </div>
-            <div class="col">
-                <strong>Resources</strong>
-                    </div> #}-->
                 </div>
                 <div
                     class="mt-5 text-center small text-muted"
@@ -560,6 +559,13 @@ export default {
             color: #42b983;
         }
     }
+}
+
+.not-logged-in-alert.alert-warning {
+    margin-top: 4rem;
+}
+.not-logged-in-alert.alert-info {
+    margin-bottom: 10rem;
 }
 
 header#main-header .nav-item {
