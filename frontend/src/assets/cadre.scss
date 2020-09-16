@@ -33,6 +33,17 @@ body a {
     padding: 1rem;
 }
 
+a.btn.btn-primary
+{
+    text-decoration: none;
+    color: #fff;
+
+    &:hover
+    {
+        color: #fff;
+    }
+}
+
 header#main-header {
     position: relative;
     z-index: 1;
