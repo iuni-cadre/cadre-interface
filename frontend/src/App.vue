@@ -1,3 +1,234 @@
+
+<script>
+import Spinner from "@/components/Common/CommonSpinner";
+
+// import CryptoJS from "crypto-js";
+import Base32 from "hi-base32";
+
+import { mapGetters } from "vuex";
+export default {
+    data: function() {
+        return {
+            error_message: "",
+            // loading_queue: {},
+            // loading_timeout: 0,
+            // max_loading_time: 30000, //30 seconds
+            // min_loading_time: 500,
+            display_menu: false
+        };
+    },
+    computed: {
+        version: function() {
+            return this.$version;
+        },
+        ...mapGetters("user", ["authToken", "decodedUsername", "roles"]),
+        token: function() {
+            return this.authToken;
+        },
+        login_url: function() {
+            return this.$cadreConfig.login_url;
+        },
+        logout_url: function() {
+            return this.$cadreConfig.logout_url;
+        },
+        is_loading: function() {
+            return this.$store.getters["loading/is_loading"];
+            // return Object.keys(this.loading_queue).length;
+        },
+        loading_queue: function(){
+            return this.$store.getters["loading/loading_queue"];
+        },
+        is_under_construction: function() {
+            return this.$cadreConfig.under_construction;
+        }
+    },
+    methods: {
+        toggleMenu: function() {
+            this.display_menu = !this.display_menu;
+        },
+        startLoading: function({ key, message }) {
+            this.addToLoadingQueue(key, message);
+        },
+        stopLoading: function({ key }) {
+            this.removeFromLoadingQueue(key);
+        },
+        addToLoadingQueue: function(key, message) {
+            this.$store.commit("loading/addKey", {key, message});
+            // if (!this.loading_queue[key]) {
+            //     // this.loading_queue[key] = 0;
+            //     this.$set(this.loading_queue, key, {
+            //         interval: 0,
+            //         timer: 0,
+            //         cooldown_timeout: 0,
+            //         message: ""
+            //     });
+            //     this.loading_queue[key].interval = setInterval(() => {
+            //         /*
+            //             we need to keep track of how long this key has been
+            //             loading so we can show the spinner for at least a minimum
+            //             amount of time.
+            //         */
+            //         this.loading_queue[key].timer += 100;
+            //     }, 100);
+            // } else {
+            //     /* 
+            //         Handles a race condition if we add the key again during the "cooldown" time,
+            //         we need to cancel the old cooldown timer so that 
+            //         it doesn't cancel the NEW instance when it thinks it's
+            //         canceling the old instance.  So just cancel the cooldown
+            //         and keep going.
+            //     */
+            //     clearTimeout(this.loading_queue[key].cooldown_timeout);
+            // }
+            // this.loading_queue[key].message = message || "";
+        },
+        removeFromLoadingQueue: function(key) {
+            this.$store.commit("loading/removeKey", {key});
+            // if (this.loading_queue[key] !== undefined) {
+            //     /*
+            //         we want to make sure that the spinner is shown for at least half a second
+            //         for UX purposes.  So it's not just a flash and people can't see it.
+            //         If the given key has been loading for more than the minimum time, just go 
+            //         ahead and call the callback.  Otherwise, we need to keep spinning for the 
+            //         min load time minus the time it's already been spinning during the actual
+            //         loading.
+            //     */
+            //     let cooldown_time = Math.max(
+            //         this.min_loading_time - this.loading_queue[key].timer,
+            //         1
+            //     );
+            //     /*
+            //         After the given cooldown time cancel the time tracking interval,
+            //         the cooldown timeout, and remove the key from the loading queue.
+            //     */
+            //     this.loading_queue[key].cooldown_timeout = setTimeout(() => {
+            //         if (this.loading_queue[key]) {
+            //             clearInterval(this.loading_queue[key].interval);
+            //             clearTimeout(this.loading_queue[key].cooldown_timeout);
+            //             this.$delete(this.loading_queue, key);
+            //         } else {
+            //             console.warn(
+            //                 `Loading queue key "${key}" was not found.`
+            //             );
+            //         }
+            //     }, cooldown_time);
+            // }
+        },
+        validate: function() {
+            // setTimeout(() => {
+            //     this.removeFromLoadingQueue("initialize");
+            // }, 2);
+            this.$store.commit("user/initializeToken");
+            let validate_prom = null;
+            // console.debug(this.$route.query);
+            // console.debug(this.$route);
+            if (this.$route.query.cadre_token && this.$route.query.username) {
+                let token = this.$route.query.cadre_token;
+                let username = this.$route.query.username;
+                let jupyter_token = this.$route.query.jupyter_token;
+                this.$router.push({
+                    path: this.$route.path,
+                    query: {}
+                });
+                // console.debug(token, jupyter_token);
+                validate_prom = this.$store
+                    .dispatch("user/validateToken", {
+                        token: token,
+                        username: username,
+                        j_token: jupyter_token
+                    });
+            } else {
+                validate_prom = this.$store
+                    .dispatch("user/validateToken");
+            }
+
+            validate_prom.then(
+                result => {
+                    // console.info("Token valid.");
+                    // console.debug(this.token);
+                    // this.removeFromLoadingQueue("initialize");
+                    this.$store.dispatch("user/beatHeart");
+                },
+                error => {
+                    // this.removeFromLoadingQueue("initialize");
+                    this.error_message = "Unauthorized";
+                    console.error("Could not validate token.", error);
+                }
+            );
+            return validate_prom;
+        },
+
+        logout: function() {
+            this.startLoading("logout");
+
+            let logout_prom = this.$store.dispatch("user/logout");
+
+            logout_prom.then(
+                response => {
+                    window.location.href = this.$cadreConfig.logout_url;
+                },
+                error => {
+                    this.error_message = "Could not log out.";
+                }
+            );
+
+            logout_prom.finally(() => {
+                this.stopLoading("logout");
+            });
+        }
+    },
+    mounted: function() {
+        // console.debug("mounted");
+        // this.addToLoadingQueue("test");
+        // console.debug("adding initialize to queue");
+        // this.addToLoadingQueue("initialize");
+        this.validate().finally(() => {
+            // console.debug("removing initialize from queue")
+            // this.removeFromLoadingQueue("initialize");
+        });
+
+        // let encoded = Base32.encode('this is a test');
+        // console.debug(encoded);
+
+        // console.debug(Base32.decode('MNYGK3DJNNQW4'));
+
+        // var rawStr = "hello world!";
+        // var wordArray = CryptoJS.enc.Utf8.parse(rawStr);
+        // var base64 = CryptoJS.enc.Base64.stringify(wordArray);
+        // console.log("encrypted:", base64);
+
+        // //decrypt
+        // // var parsedWordArray = CryptoJS.enc.Base64.parse(base64);
+        // var parsedWordArray = CryptoJS.enc.Base64.parse("YW55IGNhcm5hbCBwbGVhcw==");
+        // var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
+        // console.log("parsed:", parsedStr);
+        // var parsedWordArray = CryptoJS.enc.Base64.parse("YW55IGNhcm5hbCBwbGVhcw=");
+        // var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
+        // console.log("parsed:", parsedStr);
+        // var parsedWordArray = CryptoJS.enc.Base64.parse("YW55IGNhcm5hbCBwbGVhcw");
+        // var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
+        // console.log("parsed:", parsedStr);
+        // var parsedWordArray = CryptoJS.enc.Base64.parse("YW55IGNhcm5hbCBwbGVhcw===");
+        // var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
+        // console.log("parsed:", parsedStr);
+    },
+    components: {
+        Spinner
+    },
+    watch: {
+        // "$route.query": function(){
+        // }
+    }
+};
+
+// ######## ######## ##     ## ########  ##          ###    ######## ######## 
+//    ##    ##       ###   ### ##     ## ##         ## ##      ##    ##       
+//    ##    ##       #### #### ##     ## ##        ##   ##     ##    ##       
+//    ##    ######   ## ### ## ########  ##       ##     ##    ##    ######   
+//    ##    ##       ##     ## ##        ##       #########    ##    ##       
+//    ##    ##       ##     ## ##        ##       ##     ##    ##    ##       
+//    ##    ######## ##     ## ##        ######## ##     ##    ##    ######## 
+</script>
 <template>
     <div id="app">
         <!-- <header class="container">
@@ -308,228 +539,6 @@
         </div>
     </div>
 </template>
-<script>
-import Spinner from "@/components/Common/CommonSpinner";
-
-// import CryptoJS from "crypto-js";
-import Base32 from "hi-base32";
-
-import { mapGetters } from "vuex";
-export default {
-    data: function() {
-        return {
-            error_message: "",
-            // loading_queue: {},
-            // loading_timeout: 0,
-            // max_loading_time: 30000, //30 seconds
-            // min_loading_time: 500,
-            display_menu: false
-        };
-    },
-    computed: {
-        version: function() {
-            return this.$version;
-        },
-        ...mapGetters("user", ["authToken", "decodedUsername", "roles"]),
-        token: function() {
-            return this.authToken;
-        },
-        login_url: function() {
-            return this.$cadreConfig.login_url;
-        },
-        logout_url: function() {
-            return this.$cadreConfig.logout_url;
-        },
-        is_loading: function() {
-            return this.$store.getters["loading/is_loading"];
-            // return Object.keys(this.loading_queue).length;
-        },
-        loading_queue: function(){
-            return this.$store.getters["loading/loading_queue"];
-        },
-        is_under_construction: function() {
-            return this.$cadreConfig.under_construction;
-        }
-    },
-    methods: {
-        toggleMenu: function() {
-            this.display_menu = !this.display_menu;
-        },
-        startLoading: function({ key, message }) {
-            this.addToLoadingQueue(key, message);
-        },
-        stopLoading: function({ key }) {
-            this.removeFromLoadingQueue(key);
-        },
-        addToLoadingQueue: function(key, message) {
-            this.$store.commit("loading/addKey", {key, message});
-            // if (!this.loading_queue[key]) {
-            //     // this.loading_queue[key] = 0;
-            //     this.$set(this.loading_queue, key, {
-            //         interval: 0,
-            //         timer: 0,
-            //         cooldown_timeout: 0,
-            //         message: ""
-            //     });
-            //     this.loading_queue[key].interval = setInterval(() => {
-            //         /*
-            //             we need to keep track of how long this key has been
-            //             loading so we can show the spinner for at least a minimum
-            //             amount of time.
-            //         */
-            //         this.loading_queue[key].timer += 100;
-            //     }, 100);
-            // } else {
-            //     /* 
-            //         Handles a race condition if we add the key again during the "cooldown" time,
-            //         we need to cancel the old cooldown timer so that 
-            //         it doesn't cancel the NEW instance when it thinks it's
-            //         canceling the old instance.  So just cancel the cooldown
-            //         and keep going.
-            //     */
-            //     clearTimeout(this.loading_queue[key].cooldown_timeout);
-            // }
-            // this.loading_queue[key].message = message || "";
-        },
-        removeFromLoadingQueue: function(key) {
-            this.$store.commit("loading/removeKey", {key});
-            // if (this.loading_queue[key] !== undefined) {
-            //     /*
-            //         we want to make sure that the spinner is shown for at least half a second
-            //         for UX purposes.  So it's not just a flash and people can't see it.
-            //         If the given key has been loading for more than the minimum time, just go 
-            //         ahead and call the callback.  Otherwise, we need to keep spinning for the 
-            //         min load time minus the time it's already been spinning during the actual
-            //         loading.
-            //     */
-            //     let cooldown_time = Math.max(
-            //         this.min_loading_time - this.loading_queue[key].timer,
-            //         1
-            //     );
-            //     /*
-            //         After the given cooldown time cancel the time tracking interval,
-            //         the cooldown timeout, and remove the key from the loading queue.
-            //     */
-            //     this.loading_queue[key].cooldown_timeout = setTimeout(() => {
-            //         if (this.loading_queue[key]) {
-            //             clearInterval(this.loading_queue[key].interval);
-            //             clearTimeout(this.loading_queue[key].cooldown_timeout);
-            //             this.$delete(this.loading_queue, key);
-            //         } else {
-            //             console.warn(
-            //                 `Loading queue key "${key}" was not found.`
-            //             );
-            //         }
-            //     }, cooldown_time);
-            // }
-        },
-        validate: function() {
-            // setTimeout(() => {
-            //     this.removeFromLoadingQueue("initialize");
-            // }, 2);
-            this.$store.commit("user/initializeToken");
-            let validate_prom = null;
-            // console.debug(this.$route.query);
-            // console.debug(this.$route);
-            if (this.$route.query.cadre_token && this.$route.query.username) {
-                let token = this.$route.query.cadre_token;
-                let username = this.$route.query.username;
-                let jupyter_token = this.$route.query.jupyter_token;
-                this.$router.push({
-                    path: this.$route.path,
-                    query: {}
-                });
-                // console.debug(token, jupyter_token);
-                validate_prom = this.$store
-                    .dispatch("user/validateToken", {
-                        token: token,
-                        username: username,
-                        j_token: jupyter_token
-                    });
-            } else {
-                validate_prom = this.$store
-                    .dispatch("user/validateToken");
-            }
-
-            validate_prom.then(
-                result => {
-                    // console.info("Token valid.");
-                    // console.debug(this.token);
-                    // this.removeFromLoadingQueue("initialize");
-                    this.$store.dispatch("user/beatHeart");
-                },
-                error => {
-                    // this.removeFromLoadingQueue("initialize");
-                    this.error_message = "Unauthorized";
-                    console.error("Could not validate token.", error);
-                }
-            );
-            return validate_prom;
-        },
-
-        logout: function() {
-            this.startLoading("logout");
-
-            let logout_prom = this.$store.dispatch("user/logout");
-
-            logout_prom.then(
-                response => {
-                    window.location.href = this.$cadreConfig.logout_url;
-                },
-                error => {
-                    this.error_message = "Could not log out.";
-                }
-            );
-
-            logout_prom.finally(() => {
-                this.stopLoading("logout");
-            });
-        }
-    },
-    mounted: function() {
-        // console.debug("mounted");
-        // this.addToLoadingQueue("test");
-        // console.debug("adding initialize to queue");
-        // this.addToLoadingQueue("initialize");
-        this.validate().finally(() => {
-            // console.debug("removing initialize from queue")
-            // this.removeFromLoadingQueue("initialize");
-        });
-
-        // let encoded = Base32.encode('this is a test');
-        // console.debug(encoded);
-
-        // console.debug(Base32.decode('MNYGK3DJNNQW4'));
-
-        // var rawStr = "hello world!";
-        // var wordArray = CryptoJS.enc.Utf8.parse(rawStr);
-        // var base64 = CryptoJS.enc.Base64.stringify(wordArray);
-        // console.log("encrypted:", base64);
-
-        // //decrypt
-        // // var parsedWordArray = CryptoJS.enc.Base64.parse(base64);
-        // var parsedWordArray = CryptoJS.enc.Base64.parse("YW55IGNhcm5hbCBwbGVhcw==");
-        // var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
-        // console.log("parsed:", parsedStr);
-        // var parsedWordArray = CryptoJS.enc.Base64.parse("YW55IGNhcm5hbCBwbGVhcw=");
-        // var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
-        // console.log("parsed:", parsedStr);
-        // var parsedWordArray = CryptoJS.enc.Base64.parse("YW55IGNhcm5hbCBwbGVhcw");
-        // var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
-        // console.log("parsed:", parsedStr);
-        // var parsedWordArray = CryptoJS.enc.Base64.parse("YW55IGNhcm5hbCBwbGVhcw===");
-        // var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
-        // console.log("parsed:", parsedStr);
-    },
-    components: {
-        Spinner
-    },
-    watch: {
-        // "$route.query": function(){
-        // }
-    }
-};
-</script>
 
 <style lang="scss">
 @import "@/assets/bootstrap_variables.scss";
