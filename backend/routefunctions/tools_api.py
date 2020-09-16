@@ -254,3 +254,60 @@ def publish_tool():
         cur.close()
         conn.close()
         print("The database connection has been closed successfully.")
+
+# /rac-api/tools/unpublish    
+# Generic global "Unpublish" request to set bool. value in tools table on Postgres metadatabase to F
+
+@blueprint.route('/rac-api/tools/unpublish', methods=['POST'])
+def unpublish_tool():
+    """
+    This is a method to unpublish (set published val. to false) the tool with given id.
+
+    Args:
+        tool_id
+    Returns:
+    """
+    auth_token = request.headers.get('auth-token')
+    username = request.headers.get('auth-username')
+
+    headers = {
+        'auth-token': auth_token,
+        'auth-username': username
+    }
+    is_valid, validate_token_response = utilities.validate_user(headers=headers)
+    if not is_valid:
+        return validate_token_response
+
+    validate_response_json = None
+    try:
+        validate_response_json = validate_token_response.get_json()
+    except:
+        validate_response_json = validate_token_response.json()
+    user_id = validate_response_json.get("user_id", None)
+
+    if not user_id:
+        return jsonify({"error": "Invalid user"}), 401
+
+
+    tool_id = request.get_json().get("tool_id", None)
+
+
+    # This is where we are actually connecting to the database and getting the details of the tools
+    conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
+                            password=meta_db_config["database-password"], host=meta_db_config["database-host"],
+                            port=meta_db_config["database-port"])
+    conn.autocommit = True
+    cur = conn.cursor()
+
+    # Here we are getting all the details of the all the different tools from the database
+    try:
+        query = "UPDATE tool set published=FALSE WHERE tool_id=%s"
+        cur.execute(query, (tool_id,))
+        return jsonify({'Unpublish': 'Successful'}), 200
+    except Exception:
+        return jsonify({"error:", "Problem updating the tool table in the meta database."}), 500
+    finally:
+        # Closing the database connection.
+        cur.close()
+        conn.close()
+        print("The database connection has been closed successfully.")

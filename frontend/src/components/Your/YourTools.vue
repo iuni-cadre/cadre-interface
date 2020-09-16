@@ -21,6 +21,7 @@
                         @stopLoading="stopLoading"
                         @toolDeleted="fetchYourTools()"
                         @toolPublished="fetchYourTools()"
+                        @toolUnpublished="fetchYourTools()"
                         :rac-tool="ractool"
                     ></rac-tool-card>
                 </div>

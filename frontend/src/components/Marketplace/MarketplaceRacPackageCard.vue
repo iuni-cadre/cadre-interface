@@ -63,6 +63,11 @@
                     @click="publish_package_open = true;"
                 >Publish Package</button> 
                 <button
+                    v-if="racpackage.created_by == user_id && racpackage.published"
+                    class="float-left btn btn-primary"
+                    @click="unpublish_package_open = true;"
+                >Unpublish Package</button> 
+                <button
                     class="float-right btn btn-primary"
                     @click="create_package_modal_open = true;"
                 >Clone Package</button>             
@@ -232,6 +237,35 @@
         >
             <p>Package could not be published.</p>
         </modal>
+
+        <modal
+            v-if="unpublish_package_open"
+            @close="unpublish_package_open = false"
+            @ok="unpublishPackage()"
+            :ok-in-footer="true"
+            modal-style="success"
+            ok-button-label="Yes, Unpublish Package"
+            close-button-label="Cancel"
+        >
+            <p>This will de-list your Package from the Marketplace. Proceed?</p>
+        </modal>
+        <modal
+            v-if="unpublish_success_open"
+            @close="unpublishSuccess()"
+            modal-style="success"
+            close-button-label="OK"
+        >
+            <p>Package was unpublished successfully.</p>
+        </modal>
+        <modal
+            v-if="unpublish_error_open"
+            @close="unpublish_error_open=false"
+            modal-style="danger"
+            modal-type="error"
+            close-button-label="Close"
+        >
+            <p>Package could not be unpublished.</p>
+        </modal>
         
     </div>
 </template>
@@ -260,7 +294,11 @@ export default {
 
             publish_package_open:false,
             publish_success_open:false,
-            publish_error_open:false
+            publish_error_open:false,
+
+            unpublish_package_open:false,
+            unpublish_success_open:false,
+            unpublish_error_open:false
         };
     },
     computed: {
@@ -464,6 +502,41 @@ export default {
         publishSuccess: function(){
             this.publish_success_open = false;
             this.$emit("packagePublished", this.racpackage);
+        },
+        unpublishPackage: function(){
+            //uncomment after testing 1
+            if (this.racpackage.created_by != this.user_id || !this.racpackage.published){
+                return false;
+            }
+            this.$store.commit("loading/addKey", {key: "packageUnpublish"});
+            let unpublish_promise = this.$cadre.axios({
+                url: this.$cadreConfig.rac_api_prefix + "/packages/unpublish",
+                method:"POST",
+                data: {
+                    package_id: this.racpackage.package_id
+                }
+            });
+            unpublish_promise.then(
+                response => {
+                    this.unpublish_success_open = true;
+                    this.$store.commit("racpackage/refreshPackages"); //?check this too
+                },
+                error => {
+                    console.error(error);
+                    this.unpublish_error_open = true;
+                }
+            );
+            unpublish_promise.finally(() => {
+                this.unpublish_package_open = false;
+                this.$store.commit("loading/removeKey", {key: "packageUnpublish"});
+                //passing on updating the store view -- should the package share button no longer be visible. done in ln434
+                //refresh
+            });
+            this.unpublish_package_open = false;
+        },
+        unpublishSuccess: function(){
+            this.unpublish_success_open = false;
+            this.$emit("packageUnpublished", this.racpackage);
         },
         // addOutputFile: function() {
         //     this.output_filenames.push("");
