@@ -297,6 +297,13 @@ export default {
                         <li class="nav-item">
                             <router-link
                                 class="p-3 p-md-0 d-inline-block"
+                                :to="{name: 'jobs-list'}"
+                                target
+                            >Jobs</router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link
+                                class="p-3 p-md-0 d-inline-block"
                                 :to="{name: 'jupyter-hub'}"
                                 target
                             >Notebook</router-link>
@@ -307,13 +314,6 @@ export default {
                                 :to="{name: 'rac-marketplace'}"
                                 target
                             >Marketplace</router-link>
-                        </li>
-                        <li class="nav-item">
-                            <router-link
-                                class="p-3 p-md-0 d-inline-block"
-                                :to="{name: 'jobs-list'}"
-                                target
-                            >Jobs</router-link>
                         </li>
                         <!-- <li class="nav-item">
                             <router-link class="p-3 p-md-0 d-inline-block"
