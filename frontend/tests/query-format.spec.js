@@ -30,7 +30,30 @@ describe("ConvertQueryDataToJanus", () => {
         expect(result.csv_output).toStrictEqual(sampleResult.csv_output);
     });
 
-    
+    test("wos: converts input fields", () => {
+        sampleJSON.dataset = "wos";
+        sampleJSON.filters = [
+            {
+                field: "publicationYear",
+                value: "2010",
+                operation: "AND"
+            }];
+        const expected = [
+                            {
+                                field: "publicationYear",
+                                filterType: "is",
+                                value: "2010",
+                                operator: "AND"
+                            }
+                        ];
+
+        let result = convertQueryDataToJanus(sampleJSON);
+        expect(result.graph.nodes.length).toBe(2);
+        expect(result.graph.nodes[0].filters.length).toBe(1);
+        expect(result.graph.nodes[1].filters.length).toBe(0);
+        expect(result.graph.nodes[0].filters).toStrictEqual(expected);
+    });
+
     test("converts output to graph with single vertex", () => {
 
         let input = {
@@ -73,10 +96,10 @@ describe("ConvertQueryDataToJanus", () => {
                 ],
             },
             csv_output: [
-                
+
             ]
         };
-        
+
 
 
         let result = convertQueryDataToJanus(input);
