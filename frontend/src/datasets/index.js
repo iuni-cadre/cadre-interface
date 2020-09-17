@@ -7,7 +7,8 @@ export default{
         name: "Web of Science",
         fields: WoS_Fields,
         description: "Metadata for scholarly papers and their authors",
-        allowed_roles: ["wos_gold", "wos_limited"]
+        allowed_roles: ["wos_gold", "wos_limited"],
+        database_type: "janus"
     },
     "mag": {
         name: "Microsoft Academic Graph",
