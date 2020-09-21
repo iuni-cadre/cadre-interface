@@ -30,6 +30,7 @@
                                 :rac-package="racpackage"
                                 @packageDeleted="getPackages()"
                                 @packagePublished="getPackages()"
+                                @packageUnpublished="getPackages()"
                             ></rac-package-card>
                         </div>
                     </div>
@@ -204,6 +205,12 @@ export default {
         // }
         getArchives: function() {
             let prom = new Promise((resolve, reject) => {
+                //FOR TESTING
+                console.debug(TEST_RAC_ARCHIVES);
+                this.$set(this, "available_archives", TEST_RAC_ARCHIVES)
+                resolve({ status: 200, data: { message: "Test Tools" } });
+                return true;
+
                 if (this.existingTools && this.existingTools.length > 0) {
                     this.$set(
                         this,
@@ -313,6 +320,43 @@ export default {
         this.getArchives();
     }
 };
+
+const TEST_RAC_ARCHIVES=[
+    {
+        archive_description: "This is a test archive",
+        archive_id: "1",
+        archive_name: "test1",
+        created_on: "2020-01-27T21:03:13.358954+00:00",
+        permissions: { data_type: "MAG", other: [] },
+        created_by: "1000",
+        display_name: "Test User 1"
+    },
+    {
+        archive_description: "This is a test archive",
+        archive_id: "112312",
+        archive_name: "test2",
+        created_on: "2020-01-27T21:03:13.358954+00:00",
+        permissions: { data_type: "MAG", other: [] },
+        created_by: "1000",
+    },
+    {
+        archive_description: "This is a test archive",
+        archive_id: "1122",
+        archive_name: "test3",
+        created_on: "2020-01-27T21:03:13.358954+00:00",
+        permissions: { data_type: "MAG", other: [] },
+        created_by: "1200",
+    },
+    {
+        archive_description: "This is a test archive",
+        archive_id: "11452",
+        archive_name: "test4",
+        created_on: "2020-01-27T21:03:13.358954+00:00",
+        permissions: { data_type: "MAG", other: [] },
+        created_by: "1200",
+        display_name: "Test User 2"
+    },
+]
 </script>
 
 <style>

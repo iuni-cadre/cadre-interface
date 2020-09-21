@@ -214,5 +214,10 @@ ALL_ENDPOINTS = [
     # "/rac-api/packages/get-packages",
     "/rac-api/tools/publish",
     "/rac-api/packages/publish",
+    "/rac-api/profile/get-user-profile",
+    "/rac-api/profile/create-user-profile",
+    "/rac-api/profile/update-user-profile",
+    "/rac-api/profile/update-user-agreement"
+
     
 ]

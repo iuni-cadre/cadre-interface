@@ -21,6 +21,7 @@
                         @stopLoading="stopLoading"
                         @packageDeleted="fetchYourPackages()"
                         @packagePublished="fetchYourPackages()"
+                        @packageUnpublished="fetchYourPackages()"
                         :rac-package="racpackage"
                     ></rac-package-card>
                 </div>

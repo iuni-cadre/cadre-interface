@@ -6,10 +6,16 @@
         <div class="ractool-card card p-3 flex-fill d-flex flex-column justify-content-between">
             <div>
                 <h4 v-text="ractool.tool_name">Tool Name</h4>
-                <!-- <div
+                <div
+                    v-if="ractool.created_by == user_id"
                     class="small"
-                    v-text="`By: ${ractool.created_by || 'CADRE Team'}`"
-                ></div>-->
+                    v-text="`By: You`"
+                ></div>
+                <div
+                    v-else
+                    class="small"
+                    v-text="`By: ${ractool.display_name || ractool.created_by || 'CADRE Team'}`"
+                ></div>
                 <div
                     class="small"
                     v-text="`Created On: ${new Date(ractool.created_on).toUTCString()}`"
@@ -18,10 +24,15 @@
             </div>
             <div class="mt-3">
                 <button
-                    v-if="ractool.created_by == user_id && !ractool.published"
+                    v-if="ractool.created_by == user_id && !ractool.tool_published"
                     class="float-left btn btn-primary"
                     @click="publish_tool_open = true;"
                 >Publish Tool</button>
+                <button
+                    v-if="ractool.created_by == user_id && ractool.tool_published"
+                    class="float-left btn btn-primary"
+                    @click="unpublish_tool_open = true;"
+                >Unpublish Tool</button>
                 <button
                     class="float-right btn btn-primary"
                     @click="create_package_modal_open = true;"
@@ -121,6 +132,34 @@
         >
             <p>Tool could not be published</p>
         </modal>
+        <modal
+            v-if="unpublish_tool_open"
+            @close="unpublish_tool_open = false"
+            @ok="unpublishTool()"
+            :ok-in-footer="true"
+            modal-style="success"
+            ok-button-label="Yes, Unpublish Tool"
+            close-button-label="Cancel"
+        >
+            <p>This will de-list your Tool from the Marketplace. Proceed?</p>
+        </modal>
+        <modal
+            v-if="unpublish_success_open"
+            @close="unpublishSuccess()"
+            modal-style="success"
+            close-button-label="OK"
+        >
+            <p>Tool was unpublished successfully.</p>
+        </modal>
+        <modal
+            v-if="unpublish_error_open"
+            @close="unpublish_error_open=false"
+            modal-style="danger"
+            modal-type="error"
+            close-button-label="Close"
+        >
+            <p>Tool could not be unpublished</p>
+        </modal>
     </div>
 </template>
 
@@ -143,7 +182,11 @@ export default {
 
             publish_tool_open:false,
             publish_success_open:false,
-            publish_error_open:false
+            publish_error_open:false,
+
+            unpublish_tool_open:false,
+            unpublish_success_open:false,
+            unpublish_error_open:false
         };
     },
     computed: {
@@ -223,7 +266,40 @@ export default {
         publishSuccess: function(){
             this.publish_success_open = false;
             this.$emit("toolPublished", this.ractool);
-        }       
+        },  
+        unpublishTool: function(){
+            //uncomment after testing 1
+            if (this.ractool.created_by != this.user_id || !this.ractool.tool_published){
+                return false;
+            }
+            this.$store.commit("loading/addKey", {key: "toolUnpublish"});
+            let unpublish_promise = this.$cadre.axios({
+                url: this.$cadreConfig.rac_api_prefix + "/tools/unpublish",
+                method:"POST",
+                data: {
+                    tool_id: this.ractool.tool_id
+                }
+            });
+            unpublish_promise.then(
+                response => {
+                    this.unpublish_success_open = true;
+                    this.$store.commit("racpackage/refreshTools");
+                },
+                error => {
+                    console.error(error);
+                    this.unpublish_error_open = true;
+                }
+            );
+            unpublish_promise.finally(() => {
+                this.unpublish_tool_open = false;
+                this.$store.commit("loading/removeKey", {key: "toolUnpublish"});
+            });
+            this.unpublish_tool_open = false;
+        },
+        unpublishSuccess: function(){
+            this.unpublish_success_open = false;
+            this.$emit("toolUnpublished", this.ractool);
+        }     
     },
     watch: {
         RacTool: function() {

@@ -10,7 +10,7 @@ import configparser
 import requests
 import psycopg2
 
-from routefunctions import rac_api, qi_api, tools_api, archive_api, users_api, notebooks_api, packages_api, data_api
+from routefunctions import rac_api, qi_api, tools_api, archive_api, users_api, notebooks_api, packages_api, data_api, profile_api
 
 from library import readconfig
 
@@ -110,6 +110,7 @@ app.register_blueprint(archive_api.blueprint)
 app.register_blueprint(notebooks_api.blueprint)
 app.register_blueprint(packages_api.blueprint)
 app.register_blueprint(data_api.blueprint)
+app.register_blueprint(profile_api.blueprint)
 app.register_blueprint(fallback_blueprint)
 
 

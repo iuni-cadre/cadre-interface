@@ -357,13 +357,15 @@ def get_user_archives():
     # Here we are getting all the details of the all the different tools from the database
     try:
         query = """SELECT
-                archive_id as archive_id,
-                description as description,
-                name as name,
-                permissions as permissions,
-                created_on as created_on,
-                created_by as created_by
+                archive.archive_id as archive_id,
+                archive.description as description,
+                archive.name as name,
+                archive.permissions as permissions,
+                archive.created_on as created_on,
+                archive.created_by as created_by,
+                user_profile.display_name as display_name
                 FROM archive
+                LEFT JOIN user_profile ON (archive.created_by = user_profile.user_id)
                 WHERE created_by = %s
                 AND to_be_deleted IS NOT TRUE
                 ORDER BY {}
@@ -380,7 +382,8 @@ def get_user_archives():
                 'archive_name': archives[2],
                 'permissions': archives[3],
                 'created_on': archives[4].isoformat(),
-                'created_by': archives[5]
+                'created_by': archives[5],
+                'display_name': archives[6]
             }
             archive_list.append(archive_json)
         # print(archive_list)
@@ -538,13 +541,15 @@ def get_archives():
     # Here we are getting all the details of the all the different archives from the database
     try:
         query = """SELECT
-                archive_id as archive_id,
-                s3_location as s3_location,
-                description as archive_description,
-                name as archive_name,
-                created_on as archive_created_on,
-                created_by as created_by
+                archive.archive_id as archive_id,
+                archive.s3_location as s3_location,
+                archive.description as archive_description,
+                archive.name as archive_name,
+                archive.created_on as archive_created_on,
+                archive.created_by as created_by,
+                user_profile.display_name as display_name
                 FROM archive
+                LEFT JOIN user_profile ON (archive.created_by = user_profile.user_id)
                 WHERE to_be_deleted IS NOT TRUE 
                 AND (published IS TRUE OR created_by = %s)
                 ORDER BY {}
@@ -562,7 +567,8 @@ def get_archives():
                 'archive_description': archives[2],
                 'archive_name': archives[3],
                 'created_on': archives[4].isoformat(),
-                'created_by': archives[5]
+                'created_by': archives[5],
+                'display_name': archives[6]
             }
             archive_list.append(archive_json)
         return jsonify(archive_list), 200

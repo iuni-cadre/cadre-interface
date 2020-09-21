@@ -130,7 +130,56 @@ def publish_package():
         conn.close()
         print("The database connection has been closed successfully.")
 
+# Generic "Unpublish" request to set bool. value in package table on Postgres metadatabase to F 
+@blueprint.route('/rac-api/packages/unpublish', methods=['POST'])
+def unpublish_package():
+    """
+    This is a method that unpublishes (sets published val. to false) the package with given id.
+    Args:
+        package_id
+    Returns:
+    """
+    auth_token = request.headers.get('auth-token')
+    username = request.headers.get('auth-username')
 
+    headers = {
+        'auth-token': auth_token,
+        'auth-username': username
+    }
+    is_valid, validate_token_response = utilities.validate_user(headers=headers)
+    if not is_valid:
+        return validate_token_response
+
+    validate_response_json = None
+    try:
+        validate_response_json = validate_token_response.get_json()
+    except:
+        validate_response_json = validate_token_response.json()
+    user_id = validate_response_json.get("user_id", None)
+
+    if not user_id:
+        return jsonify({"error": "Invalid user"}), 401
+    package_id = request.get_json().get("package_id", None)
+    # This is where we are actually connecting to the database and getting the details of the tools
+    conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
+                            password=meta_db_config["database-password"], host=meta_db_config["database-host"],
+                            port=meta_db_config["database-port"])
+    conn.autocommit = True
+    cur = conn.cursor()
+
+    # Here we are getting all the details of the all the different tools from the database
+    try:
+        query = "UPDATE package set published=FALSE WHERE package_id=%s"
+        cur.execute(query, (package_id,))
+        return jsonify({'Unpublish': 'Successful'}), 200
+    except Exception:
+        return jsonify({"error:", "Problem updating the package table in the meta database."}), 500
+    finally:
+        # Closing the database connection.
+        cur.close()
+        conn.close()
+        print("The database connection has been closed successfully.")
+        
 @blueprint.route('/rac-api/get-packages/user', methods=['GET'])
 def get_packages_user():
     """
@@ -221,10 +270,12 @@ def get_packages_user():
                     array_agg(archive.name) as input_files, 
                     array_agg(archive.archive_id) as archive_ids, 
                     array_agg(archive.permissions) as permissions,
-                    bool_or(package.published) as published  
+                    bool_or(package.published) as published,
+                    max(user_profile.display_name) as display_name   
                 FROM package 
                     JOIN archive ON (package.archive_id = archive.archive_id) 
                     JOIN tool ON (package.tool_id = tool.tool_id) 
+                    LEFT JOIN user_profile ON (package.created_by = user_profile.user_id)
                 WHERE package.to_be_deleted IS NOT TRUE 
                     AND package.created_by = %s
                 GROUP BY package.package_id 
@@ -256,6 +307,7 @@ def get_packages_user():
                 archive_ids = package[12]
                 permissions = package[13]
                 published = package[14]
+                display_name = package[15] 
                 
                 #get the existing item on the dict or create an empty one
                 p = packages_dict.get(package_id, {})
@@ -271,6 +323,7 @@ def get_packages_user():
                 p['archive_ids'] = archive_ids
                 p['permissions'] = permissions
                 p['published'] = published
+                p['display_name'] = display_name
 
                 # get the tools or default to []
                 p['tools'] = p.get('tools', [])
