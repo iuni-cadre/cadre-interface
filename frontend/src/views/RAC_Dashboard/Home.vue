@@ -81,6 +81,37 @@
                 @startLoading="startLoading"
                 @stopLoading="stopLoading"
             ></your-archives>
+            <!-- <modal
+            @close="welcome_message = ''"
+            v-if="welcome_message"
+            modal-style="info"
+            hide-footer=true
+            >
+            
+            <div class="form-group">
+                {{welcome_message}}
+                <hr />
+                <div class="form-group">
+                <router-link
+                :to="{name: 'your-profile'}"
+                target
+                class="col d-flex"
+                >
+                    <h3 class="btn btn-primary">Go to your User Profile</h3>
+                
+                
+                </router-link>
+                </div>
+            </div>
+            </modal> -->
+            <modal
+            @close="goToProfile()"
+            v-if="welcome_message"
+            modal-style="info"
+            close-button-label="Go to your User Profile"
+            >
+                <h5>{{welcome_message}}</h5>
+            </modal>
         </div>
     </section>
 </template>
@@ -94,8 +125,13 @@ import YourPackages from "@/components/Your/YourPackages";
 const RAC_PACKAGES_TO_SHOW = 3;
 
 export default {
-    data: function () {
-        return {};
+    data: function() {
+        return {
+            welcome_message: "",
+            display_name: "",
+            agreement_signed: false,
+            testing_page: false
+        };
     },
     computed: {
         query_interface_url: function () {
@@ -139,6 +175,53 @@ export default {
         stopLoading({ key }) {
             this.$store.commit("loading/removeKey", { key });
         },
+        getProfile: function() {
+            let prom = new Promise((resolve, reject) => {
+                if (this.testing_page === true){
+                    let user_profile = sample_user_profile;
+                    this.$set(this, "display_name", user_profile.display_name);
+                    this.$set(this, "agreement_signed", user_profile.agreement_signed);
+                    resolve();
+                } 
+                else {
+                    let axios_prom = this.$cadre.axios({
+                        url: this.$cadreConfig.rac_api_prefix + "/profile/get-user-profile",
+                        method: "GET",
+                        data:{
+                            user_id: this.user_id
+
+                        }
+                    });
+                    axios_prom.then(
+                        response => {
+                            let user_profile = response.data;
+                            this.$set(this, "display_name", user_profile.display_name);
+                            this.$set(this, "agreement_signed", user_profile.display_name);
+                            resolve(response);
+                        },
+                        error => {
+                            console.error(error);
+                            reject(error);
+                        }
+                    );
+                }
+            });
+            return prom;
+        },
+        firstLogin: function() {
+            if (this.$store.state.user.cognito_groups != null) {
+                if (this.$store.getters["user/cognito_groups"].includes("wos_trial") & !this.agreement_signed){
+                    this.welcome_message = "Welcome to CADRE! Before you begin, please update your Display Name and sign the User Agreement."
+                } else if (!this.display_name) {
+                this.welcome_message = "Welcome to CADRE! Before you begin, please update your Display Name."
+            }
+            } else if (!this.display_name) {
+                this.welcome_message = "Welcome to CADRE! Before you begin, please update your Display Name."
+            }
+        },
+        goToProfile: function() {
+            this.$router.push({ name: "your-profile" });
+        }
     },
     components: {
         Modal,
@@ -159,8 +242,17 @@ export default {
                 this.stopLoading({ key: "get_packages" });
             });
         }
-    },
+        this.getProfile();
+        this.firstLogin();
+    }
 };
+
+const sample_user_profile = {
+    user_id: 1000,
+    display_name: "Test User",
+    agreement_signed: true,
+    date_agreement_signed: "2020-02-07T21:10:46.773823+00:00"
+}
 </script>
 <style lang="scss" scoped>
 .quick-start > a {

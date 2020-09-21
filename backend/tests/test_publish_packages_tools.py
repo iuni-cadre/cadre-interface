@@ -142,5 +142,130 @@ def test_publish_tools_ep_fails_if_missing_params(client, mocker):
     # }))
     # assert rv.status_code == 500
 
+def test_unpublish_packages_ep_exists(client, mocker):
+    """
+    test that /rac-api/packages/unpublish endpoint exists
+    """
 
 
+    rv = client.post('/rac-api/packages/unpublish', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    },
+    content_type='application/json', data=json.dumps({
+        "package_id": "1234567890"
+    }))
+
+    response_json = rv.get_json()
+    assert rv.status_code != 404
+    if response_json:
+        assert response_json["error"] != "Unknown endpoint."
+
+
+def test_unpublish_packages_ep_fails_if_missing_params(client, mocker):
+    """
+    test that /rac-api/packages/unpublish fails if missing header, params (package_id)
+    """
+    headers = {
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    }
+    patch_user(mocker, json={"user_id":"FAKEUSERID"})
+    mock_cursor, mock_connection = patch_cursor(mocker, [[]])
+
+    #not missing params
+    rv = client.post('/rac-api/packages/unpublish', headers=headers,
+    content_type='application/json', data=json.dumps({
+        "package_id": "1234567890"
+    }))
+    assert rv.status_code != 400
+    assert rv.status_code == 200
+
+    #params absent
+    rv = client.post('/rac-api/packages/unpublish', headers=headers)
+    assert rv.status_code == 500
+    
+    #headers absent
+    rv = client.post('/rac-api/packages/unpublish',
+    content_type='application/json', data=json.dumps({
+        "package_id": "1234567890"
+    }))
+    assert rv.status_code == 401
+
+    #headers malformed
+    rv = client.post('/rac-api/packages/unpublish', headers={},
+    content_type='application/json', data=json.dumps({
+        "package_id": "1234567890"
+    }))
+    assert rv.status_code == 401
+    
+    # #empty json
+    # rv = client.post('/rac-api/packages/unpublish', headers=headers,
+    # content_type='application/json', data=json.dumps({
+    #     "package_id": "1234567890"
+    # }))
+    # assert rv.status_code == 500
+
+def test_unpublish_tools_ep_exists(client, mocker):
+    """
+    test that '/rac-api/tools/unpublish' endpoint exists
+    """
+
+
+    rv = client.post('/rac-api/tools/unpublish', headers={
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    },
+    content_type='application/json', data=json.dumps({
+        "package_id": "1234567890"
+    }))
+
+    response_json = rv.get_json()
+    assert rv.status_code != 404
+    if response_json:
+        assert response_json["error"] != "Unknown endpoint."
+
+
+def test_unpublish_tools_ep_fails_if_missing_params(client, mocker):
+    """
+    test that '/rac-api/tools/unpublish' fails if missing header, params (package_id)
+    """
+    headers = {
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    }
+    patch_user(mocker, json={"user_id":"FAKEUSERID"})
+    mock_cursor, mock_connection = patch_cursor(mocker, [[]])
+
+    #not missing params
+    rv = client.post('/rac-api/tools/unpublish', headers=headers,
+    content_type='application/json', data=json.dumps({
+        "package_id": "1234567890"
+    }))
+    assert rv.status_code != 400
+    assert rv.status_code == 200
+
+    #params absent
+    rv = client.post('/rac-api/tools/unpublish', headers=headers)
+    assert rv.status_code == 500
+    
+    #headers absent
+    rv = client.post('/rac-api/tools/unpublish',
+    content_type='application/json', data=json.dumps({
+        "package_id": "1234567890"
+    }))
+    assert rv.status_code == 401
+
+    #headers malformed
+    rv = client.post('/rac-api/tools/unpublish', headers={},
+    content_type='application/json', data=json.dumps({
+        "package_id": "1234567890"
+    }))
+    assert rv.status_code == 401
+    
+    # #empty json
+    # rv = client.post('/rac-api/tools/unpublish', headers=headers,
+    # content_type='application/json', data=json.dumps({
+    #     "package_id": "1234567890"
+    # }))
+    # assert rv.status_code == 500

@@ -6,10 +6,16 @@
         <div class="archive-card card p-3 flex-fill d-flex flex-column justify-content-between">
             <div>
                 <h4 v-text="archive.archive_name">Archive Name</h4>
-                <!-- <div
+                <div
+                    v-if="archive.created_by == user_id"
                     class="small"
-                    v-text="`By: ${archive.created_by || 'CADRE Team'}`"
-                ></div>-->
+                    v-text="`By: You`"
+                ></div>
+                <div
+                    v-else
+                    class="small"
+                    v-text="`By: ${archive.display_name || archive.created_by || 'CADRE Team'}`"
+                ></div>
                 <div
                     class="small"
                     v-text="`Created On: ${new Date(archive.created_on).toUTCString()}`"

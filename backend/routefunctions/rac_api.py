@@ -367,10 +367,12 @@ def get_packages():
                     array_agg(archive.name) as input_files, 
                     array_agg(archive.archive_id) as archive_ids, 
                     array_agg(archive.permissions) as permissions, 
-                    bool_or(package.published) as published  
+                    bool_or(package.published) as published,
+                    max(user_profile.display_name) as display_name 
                 FROM package 
                     JOIN archive ON (package.archive_id = archive.archive_id) 
                     JOIN tool ON (package.tool_id = tool.tool_id) 
+                    LEFT JOIN user_profile ON (package.created_by = user_profile.user_id)
                 WHERE package.to_be_deleted IS NOT TRUE AND (package.published IS TRUE OR package.created_by = %s)
                 GROUP BY package.package_id 
                 ORDER BY {} 
@@ -402,6 +404,7 @@ def get_packages():
                 archive_ids = package[12]
                 permissions = package[13]
                 published = package[14]
+                display_name = package[15]
                 
                 #get the existing item on the dict or create an empty one
                 p = packages_dict.get(package_id, {})
@@ -417,6 +420,7 @@ def get_packages():
                 p['archive_ids'] = archive_ids
                 p['permissions'] = permissions
                 p['published'] = published
+                p['display_name'] = display_name
 
                 # get the tools or default to []
                 p['tools'] = p.get('tools', [])
@@ -529,14 +533,16 @@ def get_tools():
     # Here we are getting all the details of the all the different tools from the database
     try:
         query = "SELECT " \
-                "tool_id as tool_id, " \
-                "description as tool_description, " \
-                "name as tool_name, " \
-                "script_name as tool_script_name, " \
-                "created_on as tool_created_on, " \
-                "created_by as created_by, " \
-                "published as tool_published " \
+                "tool.tool_id as tool_id, " \
+                "tool.description as tool_description, " \
+                "tool.name as tool_name, " \
+                "tool.script_name as tool_script_name, " \
+                "tool.created_on as tool_created_on, " \
+                "tool.created_by as created_by, " \
+                "tool.published as tool_published, " \
+                "user_profile.display_name as display_name" \
                 "FROM tool " \
+                "LEFT JOIN user_profile ON (tool.created_by = user_profile.user_id)" \
                 "WHERE to_be_deleted IS NOT TRUE AND (published IS TRUE OR created_by = %s) " \
                 "ORDER BY {} " \
                 "LIMIT %s " \
@@ -556,7 +562,8 @@ def get_tools():
                     'tool_script_name': tools[3],
                     'created_on': tools[4].isoformat(),
                     'created_by': tools[5],
-                    'tool_published': tools[6]
+                    'tool_published': tools[6],
+                    'display_name': tools[7]
                 }
                 tool_list.append(tool_json)
             # tool_response = json.dumps(tool_list, cls=DateEncoder)
