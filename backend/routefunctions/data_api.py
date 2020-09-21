@@ -228,65 +228,65 @@ def submit_query_preview():
 
         output_filter_string = ",".join(output_filters_single)
 
-        if dataset == 'wos':
-            if not wos_role_found:
-                print("User does not have access to WOS dataset..")
-                return jsonify({'error': 'User does not have access to WOS dataset'}), 401
+        # if dataset == 'wos':
+        #     if not wos_role_found:
+        #         print("User does not have access to WOS dataset..")
+        #         return jsonify({'error': 'User does not have access to WOS dataset'}), 401
 
-            print('User has wos role')
+        #     print('User has wos role')
 
-            conn = psycopg2.connect(dbname=wos_db_config["database-name"], user=wos_db_config["database-username"],
-                                    password=wos_db_config["database-password"], host=wos_db_config["database-host"],
-                                    port=wos_db_config["database-port"])
-            conn.autocommit = True
-            cur = conn.cursor()
+        #     conn = psycopg2.connect(dbname=wos_db_config["database-name"], user=wos_db_config["database-username"],
+        #                             password=wos_db_config["database-password"], host=wos_db_config["database-host"],
+        #                             port=wos_db_config["database-port"])
+        #     conn.autocommit = True
+        #     cur = conn.cursor()
 
-            if network_query_type == 'references':
-                output_filters_single.append('reference_count')
-                output_filter_string = ",".join(output_filters_single)
+        #     if network_query_type == 'references':
+        #         output_filters_single.append('reference_count')
+        #         output_filter_string = ",".join(output_filters_single)
 
-            interface_query, value_array = generate_wos_query(output_filter_string, filters)
+        #     interface_query, value_array = generate_wos_query(output_filter_string, filters)
 
-            value_tuple = tuple(value_array)
-            cur.execute(interface_query, value_tuple)
-            if cur.rowcount == 0:
-                print('The value of the row count is zero.')
-            response = []
-            if cur.rowcount > 0:
-                results = cur.fetchall()
-                for result in results:
-                    paper_response = {}
-                    for i in range(len(output_filters_single)):
-                        result_json = {output_filters_single[i]: result[i]}
-                        paper_response.update(result_json)
-                    response.append(paper_response)
-            return jsonify(response), 200
-        else:
-            conn = psycopg2.connect(dbname=mag_db_config["database-name"], user=mag_db_config["database-username"],
-                                    password=mag_db_config["database-password"], host=mag_db_config["database-host"],
-                                    port=mag_db_config["database-port"])
-            conn.autocommit = True
-            cur = conn.cursor()
-            
-            if network_query_type == 'citations':
-                output_filters_single.append('paper_citation_count')
-                output_filter_string = ",".join(output_filters_single)
-            interface_query, value_array = generate_mag_query(output_filter_string, filters)
-            value_tuple = tuple(value_array)
-            print(interface_query)
-            cur.execute(interface_query, value_tuple)
-            if cur.rowcount == 0:
-                print('The value of the row count is zero.')
-            response = []
-            if cur.rowcount > 0:
-                results = cur.fetchall()
-                for result in results:
-                    paper_response = {}
-                    for i in range(len(output_filters_single)):
-                        result_json = {output_filters_single[i]: result[i]}
-                        paper_response.update(result_json)
-                    response.append(paper_response)
-            return jsonify(response), 200
+        #     value_tuple = tuple(value_array)
+        #     cur.execute(interface_query, value_tuple)
+        #     if cur.rowcount == 0:
+        #         print('The value of the row count is zero.')
+        #     response = []
+        #     if cur.rowcount > 0:
+        #         results = cur.fetchall()
+        #         for result in results:
+        #             paper_response = {}
+        #             for i in range(len(output_filters_single)):
+        #                 result_json = {output_filters_single[i]: result[i]}
+        #                 paper_response.update(result_json)
+        #             response.append(paper_response)
+        #     return jsonify(response), 200
+        # else:
+        conn = psycopg2.connect(dbname=mag_db_config["database-name"], user=mag_db_config["database-username"],
+                                password=mag_db_config["database-password"], host=mag_db_config["database-host"],
+                                port=mag_db_config["database-port"])
+        conn.autocommit = True
+        cur = conn.cursor()
+        
+        if network_query_type == 'citations':
+            output_filters_single.append('paper_citation_count')
+            output_filter_string = ",".join(output_filters_single)
+        interface_query, value_array = generate_mag_query(output_filter_string, filters)
+        value_tuple = tuple(value_array)
+        print(interface_query)
+        cur.execute(interface_query, value_tuple)
+        if cur.rowcount == 0:
+            print('The value of the row count is zero.')
+        response = []
+        if cur.rowcount > 0:
+            results = cur.fetchall()
+            for result in results:
+                paper_response = {}
+                for i in range(len(output_filters_single)):
+                    result_json = {output_filters_single[i]: result[i]}
+                    paper_response.update(result_json)
+                response.append(paper_response)
+        return jsonify(response), 200
     except (Exception, psycopg2.Error) as error:
         traceback.print_tb(error.__traceback__)
         print('Error while connecting to cadre meta database. Error is ' + str(error))
@@ -387,61 +387,63 @@ def submit_query():
         print(query_in_string)
 
 
-        if dataset == 'wos':
-            if not role_found:
-                print('User has guest role. He does not have access to WOS database.. '
-                        'Please login with BTAA member institution, if you are part of it..')
-                return jsonify({'error': 'User is not authorized to access data in WOS'}), 401
+        # if dataset == 'wos':
+        #     if not role_found:
+        #         print('User has guest role. He does not have access to WOS database.. '
+        #                 'Please login with BTAA member institution, if you are part of it..')
+        #         return jsonify({'error': 'User is not authorized to access data in WOS'}), 401
 
-            print('User has wos role')
-            sqs_response = sqs_client.send_message(
-                QueueUrl=wos_queue_url,
-                MessageBody=query_in_string,
-                MessageGroupId='cadre'
-            )
-            print(sqs_response)
-            if 'MessageId' in sqs_response:
-                message_id = sqs_response['MessageId']
-                print(message_id)
-                # save job information to meta database
-                insert_q = "INSERT INTO user_job(job_id, user_id, name, message_id,job_status, type, dataset, started_on) VALUES (%s,%s,%s,%s,%s,%s,%s,clock_timestamp())"
+        #     print('User has wos role')
+        #     sqs_response = sqs_client.send_message(
+        #         QueueUrl=wos_queue_url,
+        #         MessageBody=query_in_string,
+        #         MessageGroupId='cadre'
+        #     )
+        #     print(sqs_response)
+        #     if 'MessageId' in sqs_response:
+        #         message_id = sqs_response['MessageId']
+        #         print(message_id)
+        #         # save job information to meta database
+        #         insert_q = "INSERT INTO user_job(job_id, user_id, name, message_id,job_status, type, dataset, started_on) VALUES (%s,%s,%s,%s,%s,%s,%s,clock_timestamp())"
 
-                data = (job_id, user_id, job_name, message_id,  'SUBMITTED', 'QUERY', 'WOS')
-                print(data)
-                cursor.execute(insert_q, data)
-                connection.commit()
+        #         data = (job_id, user_id, job_name, message_id,  'SUBMITTED', 'QUERY', 'WOS')
+        #         print(data)
+        #         cursor.execute(insert_q, data)
+        #         connection.commit()
 
-                return jsonify({'message_id': message_id,
-                                'job_id': job_id}, 200)
-            else:
-                print("Error while publishing to sqs")
-                return jsonify({'error': 'error while publishing to SQS'}, 500)
+        #         return jsonify({'message_id': message_id,
+        #                         'job_id': job_id}, 200)
+        #     else:
+        #         print("Error while publishing to sqs")
+        #         return jsonify({'error': 'error while publishing to SQS'}, 500)
+        # else:
+
+
+        print("janus_queue_url")
+        print(janus_queue_url)
+        sqs_response = sqs_client.send_message(
+            QueueUrl=janus_queue_url,
+            MessageBody=query_in_string,
+            MessageGroupId='cadre'
+        )
+        print("sqs response")
+        print(sqs_response)
+        if 'MessageId' in sqs_response:
+            message_id = sqs_response['MessageId']
+            print(message_id)
+            # save job information to meta database
+            insert_q = "INSERT INTO user_job(job_id, user_id, name, message_id,job_status, type, dataset, started_on) VALUES (%s,%s,%s,%s,%s,%s,%s,clock_timestamp())"
+
+            data = (job_id, user_id, job_name, message_id, 'SUBMITTED', 'QUERY', 'MAG')
+            print(data)
+            cursor.execute(insert_q, data)
+            connection.commit()
+
+            return jsonify({'message_id': message_id,
+                            'job_id': job_id}, 200)
         else:
-            print("janus_queue_url")
-            print(janus_queue_url)
-            sqs_response = sqs_client.send_message(
-                QueueUrl=janus_queue_url,
-                MessageBody=query_in_string,
-                MessageGroupId='cadre'
-            )
-            print("sqs response")
-            print(sqs_response)
-            if 'MessageId' in sqs_response:
-                message_id = sqs_response['MessageId']
-                print(message_id)
-                # save job information to meta database
-                insert_q = "INSERT INTO user_job(job_id, user_id, name, message_id,job_status, type, dataset, started_on) VALUES (%s,%s,%s,%s,%s,%s,%s,clock_timestamp())"
-
-                data = (job_id, user_id, job_name, message_id, 'SUBMITTED', 'QUERY', 'MAG')
-                print(data)
-                cursor.execute(insert_q, data)
-                connection.commit()
-
-                return jsonify({'message_id': message_id,
-                                'job_id': job_id}, 200)
-            else:
-                print("Error while publishing to sqs")
-                return jsonify({'error': 'error while publishing to SQS'}, 500)
+            print("Error while publishing to sqs")
+            return jsonify({'error': 'error while publishing to SQS'}, 500)
         
     except (Exception, psycopg2.Error) as error:
         traceback.print_tb(error.__traceback__)
