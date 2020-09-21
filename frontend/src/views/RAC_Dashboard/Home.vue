@@ -125,7 +125,7 @@ export default {
             welcome_message: "",
             display_name: "",
             agreement_signed: false,
-            testing_page: true
+            testing_page: false
         };
     },
     computed: {
@@ -180,7 +180,7 @@ export default {
                 } 
                 else {
                     let axios_prom = this.$cadre.axios({
-                        url: this.get_user_profile_endpoint,
+                        url: this.$cadreConfig.rac_api_prefix + "/profile/get-user-profile",
                         method: "GET",
                         data:{
                             user_id: this.user_id
