@@ -241,7 +241,7 @@ def update_user_agreement():
     cur = conn.cursor()
     # Creating/updating new record and changing display_name 
     try:
-        update_query = ("UPDATE user_profile SET access_form_fields = %s, agreement_signed = TRUE, date_agreement_signed = NOW() WHERE user_id= %s"))
+        update_query = ("UPDATE user_profile SET access_form_fields = %s, agreement_signed = TRUE, date_agreement_signed = NOW() WHERE user_id= %s")
         cur.execute(update_query, (access_form_fields, user_id))
         return jsonify({'Update': 'Successful'}), 200
     except Exception:
