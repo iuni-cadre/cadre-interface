@@ -1,197 +1,251 @@
 export default {
-    "output": [{
-        "field": "ISBN",
-        "type": "single",
-        "label": "ISBN"
-    }, {
-        "field": "DOI",
-        "type": "single",
-        "label": "DOI"
-    }, {
-        "field": "pubmedId",
-        "type": "single",
-        "label": "pubmedId"
-    }, {
-        "field": "bookEditors",
-        "type": "single",
-        "label": "bookEditors"
-    }, {
-        "field": "groupAuthors",
-        "type": "single",
-        "label": "groupAuthors"
-    }, {
-        "field": "bookSeriesTitle",
-        "type": "single",
-        "label": "bookSeriesTitle"
-    }, {
-        "field": "bookSeriesSubtitle",
-        "type": "single",
-        "label": "bookSeriesSubtitle"
-    }, {
-        "field": "conferenceDate",
-        "type": "single",
-        "label": "conferenceDate"
-    }, {
-        "field": "conferenceLocation",
-        "type": "single",
-        "label": "conferenceLocation"
-    }, {
-        "field": "conferenceSponsor",
-        "type": "single",
-        "label": "conferenceSponsor"
-    }, {
-        "field": "conferenceHost",
-        "type": "single",
-        "label": "conferenceHost"
-    }, {
-        "field": "keywordsPlus",
-        "type": "single",
-        "label": "keywordsPlus"
-    }, {
-        "field": "reprintAddresses",
-        "type": "single",
-        "label": "reprintAddresses"
-    }, {
-        "field": "emailAddresses",
-        "type": "single",
-        "label": "emailAddresses"
-    }, {
-        "field": "RIDs",
-        "type": "single",
-        "label": "RIDs"
-    }, {
-        "field": "ORCIDs",
-        "type": "single",
-        "label": "ORCIDs"
-    }, {
-        "field": "fundingOrgs",
-        "type": "single",
-        "label": "fundingOrgs"
-    }, {
-        "field": "publisherCity",
-        "type": "single",
-        "label": "publisherCity"
-    }, {
-        "field": "publisherAddress",
-        "type": "single",
-        "label": "publisherAddress"
-    }, {
-        "field": "journalAbbreviation",
-        "type": "single",
-        "label": "journalAbbreviation"
-    }, {
-        "field": "journalISOAbbreviation",
-        "type": "single",
-        "label": "journalISOAbbreviation"
-    }, {
-        "field": "publicationDate",
-        "type": "single",
-        "label": "publicationDate"
-    }, {
-        "field": "volume",
-        "type": "single",
-        "label": "volume"
-    }, {
-        "field": "issue",
-        "type": "single",
-        "label": "issue"
-    }, {
-        "field": "partNumber",
-        "type": "single",
-        "label": "partNumber"
-    }, {
-        "field": "supplement",
-        "type": "single",
-        "label": "supplement"
-    }, {
-        "field": "specialIssue",
-        "type": "single",
-        "label": "specialIssue"
-    }, {
-        "field": "startPage",
-        "type": "single",
-        "label": "startPage"
-    }, {
-        "field": "endPage",
-        "type": "single",
-        "label": "endPage"
-    }, {
-        "field": "articleNumber",
-        "type": "single",
-        "label": "articleNumber"
-    }, {
-        "field": "bookDOI",
-        "type": "single",
-        "label": "bookDOI"
-    }, {
-        "field": "earlyAccessDate",
-        "type": "single",
-        "label": "earlyAccessDate"
-    }, {
-        "field": "numberOfPages",
-        "type": "single",
-        "label": "numberOfPages"
-    }, {
-        "field": "wosId",
-        "type": "single",
-        "label": "wosId"
-    }, {
-        "field": "publicationYear",
-        "type": "single",
-        "label": "publicationYear"
-    }, {
-        "field": "standardNames",
-        "type": "single",
-        "label": "standardNames"
-    }, {
-        "field": "authorFullNames",
-        "type": "single",
-        "label": "authorFullNames"
-    }, {
-        "field": "articleTitle",
-        "type": "single",
-        "label": "articleTitle"
-    }, {
-        "field": "sourceTitle",
-        "type": "single",
-        "label": "sourceTitle"
-    }, {
-        "field": "documentType",
-        "type": "single",
-        "label": "documentType"
-    }, {
-        "field": "conferenceTitle",
-        "type": "single",
-        "label": "conferenceTitle"
-    }, {
-        "field": "abstract",
-        "type": "single",
-        "label": "abstract"
-    }, {
-        "field": "addresses",
-        "type": "single",
-        "label": "addresses"
-    }, {
-        "field": "fundingText",
-        "type": "single",
-        "label": "fundingText"
-    }, {
-        "field": "citedReferenceCount",
-        "type": "single",
-        "label": "citedReferenceCount"
-    }, {
-        "field": "publisher",
-        "type": "single",
-        "label": "publisher"
-    }, {
-        "field": "ISSN",
-        "type": "single",
-        "label": "ISSN"
-    }, {
-        "field": "eISSN",
-        "type": "single",
-        "label": "eISSN"
-    }
+    output: [
+        {
+            field: "ISBN",
+            type: "single",
+            label: "ISBN"
+        },
+        {
+            field: "DOI",
+            type: "single",
+            label: "DOI"
+        },
+        {
+            field: "pubmedId",
+            type: "single",
+            label: "pubmedId"
+        },
+        {
+            field: "bookEditors",
+            type: "single",
+            label: "bookEditors"
+        },
+        {
+            field: "groupAuthors",
+            type: "single",
+            label: "groupAuthors"
+        },
+        {
+            field: "bookSeriesTitle",
+            type: "single",
+            label: "bookSeriesTitle"
+        },
+        {
+            field: "bookSeriesSubtitle",
+            type: "single",
+            label: "bookSeriesSubtitle"
+        },
+        {
+            field: "conferenceDate",
+            type: "single",
+            label: "conferenceDate"
+        },
+        {
+            field: "conferenceLocation",
+            type: "single",
+            label: "conferenceLocation"
+        },
+        {
+            field: "conferenceSponsor",
+            type: "single",
+            label: "conferenceSponsor"
+        },
+        {
+            field: "conferenceHost",
+            type: "single",
+            label: "conferenceHost"
+        },
+        {
+            field: "keywordsPlus",
+            type: "single",
+            label: "keywordsPlus"
+        },
+        {
+            field: "reprintAddresses",
+            type: "single",
+            label: "reprintAddresses"
+        },
+        {
+            field: "emailAddresses",
+            type: "single",
+            label: "emailAddresses"
+        },
+        {
+            field: "RIDs",
+            type: "single",
+            label: "RIDs"
+        },
+        {
+            field: "ORCIDs",
+            type: "single",
+            label: "ORCIDs"
+        },
+        {
+            field: "fundingOrgs",
+            type: "single",
+            label: "fundingOrgs"
+        },
+        {
+            field: "publisherCity",
+            type: "single",
+            label: "publisherCity"
+        },
+        {
+            field: "publisherAddress",
+            type: "single",
+            label: "publisherAddress"
+        },
+        {
+            field: "journalAbbreviation",
+            type: "single",
+            label: "journalAbbreviation"
+        },
+        {
+            field: "journalISOAbbreviation",
+            type: "single",
+            label: "journalISOAbbreviation"
+        },
+        {
+            field: "publicationDate",
+            type: "single",
+            label: "publicationDate"
+        },
+        {
+            field: "volume",
+            type: "single",
+            label: "volume"
+        },
+        {
+            field: "issue",
+            type: "single",
+            label: "issue"
+        },
+        {
+            field: "partNumber",
+            type: "single",
+            label: "partNumber"
+        },
+        {
+            field: "supplement",
+            type: "single",
+            label: "supplement"
+        },
+        {
+            field: "specialIssue",
+            type: "single",
+            label: "specialIssue"
+        },
+        {
+            field: "startPage",
+            type: "single",
+            label: "startPage"
+        },
+        {
+            field: "endPage",
+            type: "single",
+            label: "endPage"
+        },
+        {
+            field: "articleNumber",
+            type: "single",
+            label: "articleNumber"
+        },
+        {
+            field: "bookDOI",
+            type: "single",
+            label: "bookDOI"
+        },
+        {
+            field: "earlyAccessDate",
+            type: "single",
+            label: "earlyAccessDate"
+        },
+        {
+            field: "numberOfPages",
+            type: "single",
+            label: "numberOfPages"
+        },
+        {
+            field: "wosId",
+            type: "single",
+            label: "wosId"
+        },
+        {
+            field: "publicationYear",
+            type: "single",
+            label: "publicationYear"
+        },
+        {
+            field: "standardNames",
+            type: "single",
+            label: "standardNames"
+        },
+        {
+            field: "authorFullNames",
+            type: "single",
+            label: "authorFullNames"
+        },
+        {
+            field: "articleTitle",
+            type: "single",
+            label: "articleTitle"
+        },
+        {
+            field: "sourceTitle",
+            type: "single",
+            label: "sourceTitle"
+        },
+        {
+            field: "documentType",
+            type: "single",
+            label: "documentType"
+        },
+        {
+            field: "conferenceTitle",
+            type: "single",
+            label: "conferenceTitle"
+        },
+        {
+            field: "abstract",
+            type: "single",
+            label: "abstract"
+        },
+        {
+            field: "addresses",
+            type: "single",
+            label: "addresses"
+        },
+        {
+            field: "fundingText",
+            type: "single",
+            label: "fundingText"
+        },
+        {
+            field: "citedReferenceCount",
+            type: "single",
+            label: "citedReferenceCount"
+        },
+        {
+            field: "publisher",
+            type: "single",
+            label: "publisher"
+        },
+        {
+            field: "ISSN",
+            type: "single",
+            label: "ISSN"
+        },
+        {
+            field: "eISSN",
+            type: "single",
+            label: "eISSN"
+        },
+
+        {
+            field: "citations",
+            type: "network",
+            label: "First Degree Citation Network"
+        }
     ],
     input: {
         publicationYear: "Year",
@@ -210,17 +264,16 @@ export default {
     janus_map: {
         main_vertext: "Paper",
         path_to_main: {
-            "Paper": ["References"],
+            Paper: []
         },
-        vertex_types: [
-            "Paper",
-        ],
+        vertex_types: ["Paper"],
         edge_types: [
             {
                 target: "Paper",
                 source: "Paper",
                 relation: "References"
-            }],
+            }
+        ],
         network_map: {
             citations: {
                 vertex: "Paper",
@@ -228,403 +281,401 @@ export default {
             }
         },
         input_field_map: {
-            "publisherCity": {
-                "field": "publisherCity",
-                "vertex": "Paper"
+            publisherCity: {
+                field: "publisherCity",
+                vertex: "Paper"
             },
-            "authorFullNames": {
-                "field": "authorFullNames",
-                "vertex": "Paper"
+            authorFullNames: {
+                field: "authorFullNames",
+                vertex: "Paper"
             },
-            "DOI": {
-                "field": "DOI",
-                "vertex": "Paper"
+            DOI: {
+                field: "DOI",
+                vertex: "Paper"
             },
-            "ISBN": {
-                "field": "ISBN",
-                "vertex": "Paper"
+            ISBN: {
+                field: "ISBN",
+                vertex: "Paper"
             },
-            "addresses": {
-                "field": "addresses",
-                "vertex": "Paper"
+            addresses: {
+                field: "addresses",
+                vertex: "Paper"
             },
-            "conferenceHost": {
-                "field": "conferenceHost",
-                "vertex": "Paper"
+            conferenceHost: {
+                field: "conferenceHost",
+                vertex: "Paper"
             },
-            "standardNames": {
-                "field": "standardNames",
-                "vertex": "Paper"
+            standardNames: {
+                field: "standardNames",
+                vertex: "Paper"
             },
-            "bookDOI": {
-                "field": "bookDOI",
-                "vertex": "Paper"
+            bookDOI: {
+                field: "bookDOI",
+                vertex: "Paper"
             },
-            "keywordsPlus": {
-                "field": "keywordsPlus",
-                "vertex": "Paper"
+            keywordsPlus: {
+                field: "keywordsPlus",
+                vertex: "Paper"
             },
-            "citedReferenceCount": {
-                "field": "citedReferenceCount",
-                "vertex": "Paper"
+            citedReferenceCount: {
+                field: "citedReferenceCount",
+                vertex: "Paper"
             },
-            "supplement": {
-                "field": "supplement",
-                "vertex": "Paper"
+            supplement: {
+                field: "supplement",
+                vertex: "Paper"
             },
-            "startPage": {
-                "field": "startPage",
-                "vertex": "Paper"
+            startPage: {
+                field: "startPage",
+                vertex: "Paper"
             },
-            "publicationDate": {
-                "field": "publicationDate",
-                "vertex": "Paper"
+            publicationDate: {
+                field: "publicationDate",
+                vertex: "Paper"
             },
-            "documentType": {
-                "field": "documentType",
-                "vertex": "Paper"
+            documentType: {
+                field: "documentType",
+                vertex: "Paper"
             },
-            "eISSN": {
-                "field": "eISSN",
-                "vertex": "Paper"
+            eISSN: {
+                field: "eISSN",
+                vertex: "Paper"
             },
-            "RIDs": {
-                "field": "RIDs",
-                "vertex": "Paper"
+            RIDs: {
+                field: "RIDs",
+                vertex: "Paper"
             },
-            "publicationYear": {
-                "field": "publicationYear",
-                "vertex": "Paper"
+            publicationYear: {
+                field: "publicationYear",
+                vertex: "Paper"
             },
-            "conferenceDate": {
-                "field": "conferenceDate",
-                "vertex": "Paper"
+            conferenceDate: {
+                field: "conferenceDate",
+                vertex: "Paper"
             },
-            "conferenceLocation": {
-                "field": "conferenceLocation",
-                "vertex": "Paper"
+            conferenceLocation: {
+                field: "conferenceLocation",
+                vertex: "Paper"
             },
-            "ISSN": {
-                "field": "ISSN",
-                "vertex": "Paper"
+            ISSN: {
+                field: "ISSN",
+                vertex: "Paper"
             },
-            "conferenceSponsor": {
-                "field": "conferenceSponsor",
-                "vertex": "Paper"
+            conferenceSponsor: {
+                field: "conferenceSponsor",
+                vertex: "Paper"
             },
-            "specialIssue": {
-                "field": "specialIssue",
-                "vertex": "Paper"
+            specialIssue: {
+                field: "specialIssue",
+                vertex: "Paper"
             },
-            "journalAbbreviation": {
-                "field": "journalAbbreviation",
-                "vertex": "Paper"
+            journalAbbreviation: {
+                field: "journalAbbreviation",
+                vertex: "Paper"
             },
-            "issue": {
-                "field": "issue",
-                "vertex": "Paper"
+            issue: {
+                field: "issue",
+                vertex: "Paper"
             },
-            "abstract": {
-                "field": "abstract",
-                "vertex": "Paper"
+            abstract: {
+                field: "abstract",
+                vertex: "Paper"
             },
-            "reprintAddresses": {
-                "field": "reprintAddresses",
-                "vertex": "Paper"
+            reprintAddresses: {
+                field: "reprintAddresses",
+                vertex: "Paper"
             },
-            "endPage": {
-                "field": "endPage",
-                "vertex": "Paper"
+            endPage: {
+                field: "endPage",
+                vertex: "Paper"
             },
-            "numberOfPages": {
-                "field": "numberOfPages",
-                "vertex": "Paper"
+            numberOfPages: {
+                field: "numberOfPages",
+                vertex: "Paper"
             },
-            "sourceTitle": {
-                "field": "sourceTitle",
-                "vertex": "Paper"
+            sourceTitle: {
+                field: "sourceTitle",
+                vertex: "Paper"
             },
-            "wosId": {
-                "field": "wosId",
-                "vertex": "Paper"
+            wosId: {
+                field: "wosId",
+                vertex: "Paper"
             },
-            "fundingOrgs": {
-                "field": "fundingOrgs",
-                "vertex": "Paper"
+            fundingOrgs: {
+                field: "fundingOrgs",
+                vertex: "Paper"
             },
-            "pubmedId": {
-                "field": "pubmedId",
-                "vertex": "Paper"
+            pubmedId: {
+                field: "pubmedId",
+                vertex: "Paper"
             },
-            "volume": {
-                "field": "volume",
-                "vertex": "Paper"
+            volume: {
+                field: "volume",
+                vertex: "Paper"
             },
-            "journalISOAbbreviation": {
-                "field": "journalISOAbbreviation",
-                "vertex": "Paper"
+            journalISOAbbreviation: {
+                field: "journalISOAbbreviation",
+                vertex: "Paper"
             },
-            "conferenceTitle": {
-                "field": "conferenceTitle",
-                "vertex": "Paper"
+            conferenceTitle: {
+                field: "conferenceTitle",
+                vertex: "Paper"
             },
-            "publisherAddress": {
-                "field": "publisherAddress",
-                "vertex": "Paper"
+            publisherAddress: {
+                field: "publisherAddress",
+                vertex: "Paper"
             },
-            "Property": {
-                "field": "Property",
-                "vertex": "Paper"
+            Property: {
+                field: "Property",
+                vertex: "Paper"
             },
-            "partNumber": {
-                "field": "partNumber",
-                "vertex": "Paper"
+            partNumber: {
+                field: "partNumber",
+                vertex: "Paper"
             },
-            "bookSeriesSubtitle": {
-                "field": "bookSeriesSubtitle",
-                "vertex": "Paper"
+            bookSeriesSubtitle: {
+                field: "bookSeriesSubtitle",
+                vertex: "Paper"
             },
-            "bookEditors": {
-                "field": "bookEditors",
-                "vertex": "Paper"
+            bookEditors: {
+                field: "bookEditors",
+                vertex: "Paper"
             },
-            "articleNumber": {
-                "field": "articleNumber",
-                "vertex": "Paper"
+            articleNumber: {
+                field: "articleNumber",
+                vertex: "Paper"
             },
-            "ORCIDs": {
-                "field": "ORCIDs",
-                "vertex": "Paper"
+            ORCIDs: {
+                field: "ORCIDs",
+                vertex: "Paper"
             },
-            "groupAuthors": {
-                "field": "groupAuthors",
-                "vertex": "Paper"
+            groupAuthors: {
+                field: "groupAuthors",
+                vertex: "Paper"
             },
-            "publisher": {
-                "field": "publisher",
-                "vertex": "Paper"
+            publisher: {
+                field: "publisher",
+                vertex: "Paper"
             },
-            "bookSeriesTitle": {
-                "field": "bookSeriesTitle",
-                "vertex": "Paper"
+            bookSeriesTitle: {
+                field: "bookSeriesTitle",
+                vertex: "Paper"
             },
-            "earlyAccessDate": {
-                "field": "earlyAccessDate",
-                "vertex": "Paper"
+            earlyAccessDate: {
+                field: "earlyAccessDate",
+                vertex: "Paper"
             },
-            "articleTitle": {
-                "field": "articleTitle",
-                "vertex": "Paper"
+            articleTitle: {
+                field: "articleTitle",
+                vertex: "Paper"
             },
-            "emailAddresses": {
-                "field": "emailAddresses",
-                "vertex": "Paper"
+            emailAddresses: {
+                field: "emailAddresses",
+                vertex: "Paper"
             },
-            "fundingText": {
-                "field": "fundingText",
-                "vertex": "Paper"
+            fundingText: {
+                field: "fundingText",
+                vertex: "Paper"
             }
         },
         output_field_map: {
-            "publisherCity": {
-                "vertexType": "Paper",
-                "field": "publisherCity"
+            publisherCity: {
+                vertexType: "Paper",
+                field: "publisherCity"
             },
-            "authorFullNames": {
-                "vertexType": "Paper",
-                "field": "authorFullNames"
+            authorFullNames: {
+                vertexType: "Paper",
+                field: "authorFullNames"
             },
-            "DOI": {
-                "vertexType": "Paper",
-                "field": "DOI"
+            DOI: {
+                vertexType: "Paper",
+                field: "DOI"
             },
-            "ISBN": {
-                "vertexType": "Paper",
-                "field": "ISBN"
+            ISBN: {
+                vertexType: "Paper",
+                field: "ISBN"
             },
-            "addresses": {
-                "vertexType": "Paper",
-                "field": "addresses"
+            addresses: {
+                vertexType: "Paper",
+                field: "addresses"
             },
-            "conferenceHost": {
-                "vertexType": "Paper",
-                "field": "conferenceHost"
+            conferenceHost: {
+                vertexType: "Paper",
+                field: "conferenceHost"
             },
-            "standardNames": {
-                "vertexType": "Paper",
-                "field": "standardNames"
+            standardNames: {
+                vertexType: "Paper",
+                field: "standardNames"
             },
-            "bookDOI": {
-                "vertexType": "Paper",
-                "field": "bookDOI"
+            bookDOI: {
+                vertexType: "Paper",
+                field: "bookDOI"
             },
-            "keywordsPlus": {
-                "vertexType": "Paper",
-                "field": "keywordsPlus"
+            keywordsPlus: {
+                vertexType: "Paper",
+                field: "keywordsPlus"
             },
-            "citedReferenceCount": {
-                "vertexType": "Paper",
-                "field": "citedReferenceCount"
+            citedReferenceCount: {
+                vertexType: "Paper",
+                field: "citedReferenceCount"
             },
-            "supplement": {
-                "vertexType": "Paper",
-                "field": "supplement"
+            supplement: {
+                vertexType: "Paper",
+                field: "supplement"
             },
-            "startPage": {
-                "vertexType": "Paper",
-                "field": "startPage"
+            startPage: {
+                vertexType: "Paper",
+                field: "startPage"
             },
-            "publicationDate": {
-                "vertexType": "Paper",
-                "field": "publicationDate"
+            publicationDate: {
+                vertexType: "Paper",
+                field: "publicationDate"
             },
-            "documentType": {
-                "vertexType": "Paper",
-                "field": "documentType"
+            documentType: {
+                vertexType: "Paper",
+                field: "documentType"
             },
-            "eISSN": {
-                "vertexType": "Paper",
-                "field": "eISSN"
+            eISSN: {
+                vertexType: "Paper",
+                field: "eISSN"
             },
-            "RIDs": {
-                "vertexType": "Paper",
-                "field": "RIDs"
+            RIDs: {
+                vertexType: "Paper",
+                field: "RIDs"
             },
-            "publicationYear": {
-                "vertexType": "Paper",
-                "field": "publicationYear"
+            publicationYear: {
+                vertexType: "Paper",
+                field: "publicationYear"
             },
-            "conferenceDate": {
-                "vertexType": "Paper",
-                "field": "conferenceDate"
+            conferenceDate: {
+                vertexType: "Paper",
+                field: "conferenceDate"
             },
-            "conferenceLocation": {
-                "vertexType": "Paper",
-                "field": "conferenceLocation"
+            conferenceLocation: {
+                vertexType: "Paper",
+                field: "conferenceLocation"
             },
-            "ISSN": {
-                "vertexType": "Paper",
-                "field": "ISSN"
+            ISSN: {
+                vertexType: "Paper",
+                field: "ISSN"
             },
-            "conferenceSponsor": {
-                "vertexType": "Paper",
-                "field": "conferenceSponsor"
+            conferenceSponsor: {
+                vertexType: "Paper",
+                field: "conferenceSponsor"
             },
-            "specialIssue": {
-                "vertexType": "Paper",
-                "field": "specialIssue"
+            specialIssue: {
+                vertexType: "Paper",
+                field: "specialIssue"
             },
-            "journalAbbreviation": {
-                "vertexType": "Paper",
-                "field": "journalAbbreviation"
+            journalAbbreviation: {
+                vertexType: "Paper",
+                field: "journalAbbreviation"
             },
-            "issue": {
-                "vertexType": "Paper",
-                "field": "issue"
+            issue: {
+                vertexType: "Paper",
+                field: "issue"
             },
-            "abstract": {
-                "vertexType": "Paper",
-                "field": "abstract"
+            abstract: {
+                vertexType: "Paper",
+                field: "abstract"
             },
-            "reprintAddresses": {
-                "vertexType": "Paper",
-                "field": "reprintAddresses"
+            reprintAddresses: {
+                vertexType: "Paper",
+                field: "reprintAddresses"
             },
-            "endPage": {
-                "vertexType": "Paper",
-                "field": "endPage"
+            endPage: {
+                vertexType: "Paper",
+                field: "endPage"
             },
-            "numberOfPages": {
-                "vertexType": "Paper",
-                "field": "numberOfPages"
+            numberOfPages: {
+                vertexType: "Paper",
+                field: "numberOfPages"
             },
-            "sourceTitle": {
-                "vertexType": "Paper",
-                "field": "sourceTitle"
+            sourceTitle: {
+                vertexType: "Paper",
+                field: "sourceTitle"
             },
-            "wosId": {
-                "vertexType": "Paper",
-                "field": "wosId"
+            wosId: {
+                vertexType: "Paper",
+                field: "wosId"
             },
-            "fundingOrgs": {
-                "vertexType": "Paper",
-                "field": "fundingOrgs"
+            fundingOrgs: {
+                vertexType: "Paper",
+                field: "fundingOrgs"
             },
-            "pubmedId": {
-                "vertexType": "Paper",
-                "field": "pubmedId"
+            pubmedId: {
+                vertexType: "Paper",
+                field: "pubmedId"
             },
-            "volume": {
-                "vertexType": "Paper",
-                "field": "volume"
+            volume: {
+                vertexType: "Paper",
+                field: "volume"
             },
-            "journalISOAbbreviation": {
-                "vertexType": "Paper",
-                "field": "journalISOAbbreviation"
+            journalISOAbbreviation: {
+                vertexType: "Paper",
+                field: "journalISOAbbreviation"
             },
-            "conferenceTitle": {
-                "vertexType": "Paper",
-                "field": "conferenceTitle"
+            conferenceTitle: {
+                vertexType: "Paper",
+                field: "conferenceTitle"
             },
-            "publisherAddress": {
-                "vertexType": "Paper",
-                "field": "publisherAddress"
+            publisherAddress: {
+                vertexType: "Paper",
+                field: "publisherAddress"
             },
-            "Property": {
-                "vertexType": "Paper",
-                "field": "Property"
+            Property: {
+                vertexType: "Paper",
+                field: "Property"
             },
-            "partNumber": {
-                "vertexType": "Paper",
-                "field": "partNumber"
+            partNumber: {
+                vertexType: "Paper",
+                field: "partNumber"
             },
-            "bookSeriesSubtitle": {
-                "vertexType": "Paper",
-                "field": "bookSeriesSubtitle"
+            bookSeriesSubtitle: {
+                vertexType: "Paper",
+                field: "bookSeriesSubtitle"
             },
-            "bookEditors": {
-                "vertexType": "Paper",
-                "field": "bookEditors"
+            bookEditors: {
+                vertexType: "Paper",
+                field: "bookEditors"
             },
-            "articleNumber": {
-                "vertexType": "Paper",
-                "field": "articleNumber"
+            articleNumber: {
+                vertexType: "Paper",
+                field: "articleNumber"
             },
-            "ORCIDs": {
-                "vertexType": "Paper",
-                "field": "ORCIDs"
+            ORCIDs: {
+                vertexType: "Paper",
+                field: "ORCIDs"
             },
-            "groupAuthors": {
-                "vertexType": "Paper",
-                "field": "groupAuthors"
+            groupAuthors: {
+                vertexType: "Paper",
+                field: "groupAuthors"
             },
-            "publisher": {
-                "vertexType": "Paper",
-                "field": "publisher"
+            publisher: {
+                vertexType: "Paper",
+                field: "publisher"
             },
-            "bookSeriesTitle": {
-                "vertexType": "Paper",
-                "field": "bookSeriesTitle"
+            bookSeriesTitle: {
+                vertexType: "Paper",
+                field: "bookSeriesTitle"
             },
-            "earlyAccessDate": {
-                "vertexType": "Paper",
-                "field": "earlyAccessDate"
+            earlyAccessDate: {
+                vertexType: "Paper",
+                field: "earlyAccessDate"
             },
-            "articleTitle": {
-                "vertexType": "Paper",
-                "field": "articleTitle"
+            articleTitle: {
+                vertexType: "Paper",
+                field: "articleTitle"
             },
-            "emailAddresses": {
-                "vertexType": "Paper",
-                "field": "emailAddresses"
+            emailAddresses: {
+                vertexType: "Paper",
+                field: "emailAddresses"
             },
-            "fundingText": {
-                "vertexType": "Paper",
-                "field": "fundingText"
+            fundingText: {
+                vertexType: "Paper",
+                field: "fundingText"
             }
         }
-
-
     }
 };
 // ==>------------------------------------------------------------------------------------------------

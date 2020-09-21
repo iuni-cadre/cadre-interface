@@ -225,7 +225,7 @@ def archive_user_file_check():
         except IOError:
             print("Error", "Could not access given file")
             return jsonify({"error": "Could not access given file"}), 400
-
+        print(user_id)
         try:
             conn = psycopg2.connect(dbname=meta_db_config["database-name"],
                                     user=meta_db_config["database-username"],
@@ -235,10 +235,13 @@ def archive_user_file_check():
             cur = conn.cursor()
             permissions = {"data_type": "", "other": []}
             query_file_checksum = utilities.calc_checksum(full_file_name)
+            print(query_file_checksum)
             query_result_q = """
                 SELECT id, data_type FROM query_result 
                 WHERE file_checksum LIKE %s AND created_by = %s
             """
+            mogrified = cur.mogrify(query_result_q, (query_file_checksum,user_id))
+            print(mogrified)
             cur.execute(query_result_q, (query_file_checksum,user_id))
             if cur.rowcount > 0:
                 query_result_info = cur.fetchone()
