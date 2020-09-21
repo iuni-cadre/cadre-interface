@@ -11,6 +11,8 @@ from datetime import date
 from library import readconfig
 import boto3
 
+import subprocess
+
 config = readconfig.config
 jupyter_config = readconfig.jupyter
 meta_db_config = readconfig.meta_db
@@ -58,11 +60,14 @@ def validate_user(headers={}, **kwargs):
 
 
 def calc_checksum(file_path):
-    with open(file_path, "r", encoding='utf-8') as file_to_check:
-        # read contents of the file
-        data = file_to_check.read()
-        # pipe contents of the file through
-        return hashlib.md5(data.encode('utf-8')).hexdigest()
+    # with open(file_path, "r", encoding='utf-8') as file_to_check:
+    #     # read contents of the file
+    #     data = file_to_check.read()
+    #     # pipe contents of the file through
+    #     return hashlib.md5(data.encode('utf-8')).hexdigest()
+    output = subprocess.check_output(["md5sum", file_path],universal_newlines=True)
+    checksum = output.split(" ")[0]
+    return checksum
     
     
 def validate_checksum(file_full_path, existing_checksum):
