@@ -71,15 +71,16 @@ def get_user_profile():
             '   display_name as display_name, '
             '   agreement_signed as agreement_signed, '
             '   date_agreement_signed as date_agreement_signed, '
-            '   access_form_fields as access_form_fields'
+            '   access_form_fields as access_form_fields '
             'FROM user_profile '
             'WHERE user_id=%s '
         )
-        cur.execute(query, (user_id))
+        cur.execute(query, (user_id,))
         results = cur.fetchall()
 
         return jsonify(results)
-    except Exception:
+    except Exception as err:
+        print(err)
         return jsonify({"error": "Problem querying the user profile table in the meta database."}), 500
     finally:
         # Closing the database connection.
@@ -129,10 +130,11 @@ def create_user_profile():
     # Creating/updating new record and changing display_name 
     try:
         insert_query = ("INSERT INTO user_profile (user_id) VALUES (%s)")
-        cur.execute(insert_query, (user_id))
+        cur.execute(insert_query, (user_id,))
         return jsonify({'Create': 'Successful'}), 200
-    except Exception:
-        return jsonify({"error:", "Problem updating the user profile table in the meta database."}), 500
+    except Exception as err:
+        print(err)
+        return jsonify({"error":  "Problem updating the user profile table in the meta database."}), 500
     finally:
         # Closing the database connection.
         cur.close()
@@ -172,7 +174,7 @@ def update_user_profile():
         return jsonify({"error": "Invalid user"}), 401
 
     #If None, don't update
-    new_display_name: request.get_json().get("new_display_name", None)
+    new_display_name = request.get_json().get("new_display_name", None)
 
     if not new_display_name:
         return jsonify({"error": "Invalid request"}), 400
@@ -188,8 +190,9 @@ def update_user_profile():
         update_query = ("UPDATE user_profile SET display_name = %s WHERE user_id = %s")
         cur.execute(update_query, (new_display_name, user_id,))
         return jsonify({'Update': 'Successful'}), 200
-    except Exception:
-        return jsonify({"error:", "Problem updating the user profile table in the meta database."}), 500
+    except Exception as err:
+        print(str(err))
+        return jsonify({"error":  "Problem updating the user profile table in the meta database."}), 500
     finally:
         # Closing the database connection.
         cur.close()
@@ -245,7 +248,7 @@ def update_user_agreement():
         cur.execute(update_query, (access_form_fields, user_id))
         return jsonify({'Update': 'Successful'}), 200
     except Exception:
-        return jsonify({"error:", "Problem updating the user profile table in the meta database."}), 500
+        return jsonify({"error":  "Problem updating the user profile table in the meta database."}), 500
     finally:
         # Closing the database connection.
         cur.close()
