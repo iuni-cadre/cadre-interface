@@ -540,7 +540,7 @@ def get_tools():
                 "tool.created_on as tool_created_on, " \
                 "tool.created_by as created_by, " \
                 "tool.published as tool_published, " \
-                "user_profile.display_name as display_name" \
+                "user_profile.display_name as display_name " \
                 "FROM tool " \
                 "LEFT JOIN user_profile ON (tool.created_by = user_profile.user_id)" \
                 "WHERE to_be_deleted IS NOT TRUE AND (published IS TRUE OR created_by = %s) " \
@@ -569,7 +569,8 @@ def get_tools():
             # tool_response = json.dumps(tool_list, cls=DateEncoder)
             # print(tool_response)
             return jsonify(tool_list), 200
-    except Exception:
+    except Exception as err:
+        print(str(err))
         return jsonify({"error": "Problem querying the tools table in the meta database."}), 500
     finally:
         # Closing the database connection.
