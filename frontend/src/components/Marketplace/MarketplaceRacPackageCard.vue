@@ -2,7 +2,7 @@
     <div class="flex-fill d-flex mb-3">
         <div class="racpackage-card card p-3 flex-fill d-flex flex-column justify-content-between">
             <div>
-                <h4 v-text="racpackage.name">Package Name</h4>
+                <router-link :to="{name: 'rac-single-package', params: {package_id: racpackage.package_id}}"><h4 v-text="racpackage.name">Package Name</h4></router-link>
                 <div
                     v-if="racpackage.created_by == user_id"
                     class="small"

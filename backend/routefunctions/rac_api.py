@@ -901,24 +901,49 @@ def get_package_details_from_package_id(package_id):
 
 
     try:
+        # query = """SELECT 
+        #         max(package.package_id) as package_id, 
+        #         max(package.type) as type, 
+        #         max(package.description) as description, 
+        #         max(package.name) as name, 
+        #         max(package.doi) as doi, 
+        #         max(package.created_on) as created_on, 
+        #         max(package.created_by) as created_by, 
+        #         max(tool.tool_id) as tool_id, 
+        #         max(tool.description) as tool_description, 
+        #         max(tool.name) as tool_name, 
+        #         max(tool.script_name) as tool_script_name, 
+        #         array_agg(archive.name) as input_files 
+        #         FROM package 
+        #         JOIN archive ON (package.archive_id = archive.archive_id) 
+        #         JOIN tool ON (package.tool_id = tool.tool_id) 
+        #         GROUP BY package.package_id 
+        #         WHERE package_id = %s """
+
         query = """SELECT 
-                max(package.package_id) as package_id, 
-                max(package.type) as type, 
-                max(package.description) as description, 
-                max(package.name) as name, 
-                max(package.doi) as doi, 
-                max(package.created_on) as created_on, 
-                max(package.created_by) as created_by, 
-                max(tool.tool_id) as tool_id, 
-                max(tool.description) as tool_description, 
-                max(tool.name) as tool_name, 
-                max(tool.script_name) as tool_script_name, 
-                array_agg(archive.name) as input_files 
+                    max(package.package_id) as package_id, 
+                    max(package.type) as type, 
+                    max(package.description) as description, 
+                    max(package.name) as name, 
+                    max(package.doi) as doi, 
+                    max(package.created_on) as created_on, 
+                    max(package.created_by) as created_by, 
+                    max(tool.tool_id) as tool_id, 
+                    max(tool.description) as tool_description, 
+                    max(tool.name) as tool_name, 
+                    max(tool.script_name) as tool_script_name, 
+                    array_agg(archive.name) as input_files, 
+                    array_agg(archive.archive_id) as archive_ids, 
+                    array_agg(archive.permissions) as permissions, 
+                    bool_or(package.published) as published,
+                    max(user_profile.display_name) as display_name 
                 FROM package 
-                JOIN archive ON (package.archive_id = archive.archive_id) 
-                JOIN tool ON (package.tool_id = tool.tool_id) 
-                GROUP BY package.package_id 
-                WHERE package_id = %s """
+                    JOIN archive ON (package.archive_id = archive.archive_id) 
+                    JOIN tool ON (package.tool_id = tool.tool_id) 
+                    LEFT JOIN user_profile ON (package.created_by = user_profile.user_id)
+                
+                WHERE package_id = %s
+                GROUP BY package.package_id """
 
         cur.execute(query, (package_id,))
         if cur.rowcount == 0:
@@ -928,7 +953,6 @@ def get_package_details_from_package_id(package_id):
             packages_dict = {}
             
             for package in packages:
-                #pull apart the row:
                 package_id = package[0]
                 p_type = package[1]
                 description = package[2]
@@ -941,6 +965,10 @@ def get_package_details_from_package_id(package_id):
                 tool_name = package[9]
                 tool_script_name = package[10]
                 input_files = package[11]
+                archive_ids = package[12]
+                permissions = package[13]
+                published = package[14]
+                display_name = package[15]
                 
                 #get the existing item on the dict or create an empty one
                 p = packages_dict.get(package_id, {})
@@ -953,6 +981,10 @@ def get_package_details_from_package_id(package_id):
                 p['created_on'] = created_on
                 p['created_by'] = created_by
                 p['input_files'] = input_files
+                p['archive_ids'] = archive_ids
+                p['permissions'] = permissions
+                p['published'] = published
+                p['display_name'] = display_name
 
                 # get the tools or default to []
                 p['tools'] = p.get('tools', [])
@@ -968,7 +1000,7 @@ def get_package_details_from_package_id(package_id):
                 #put it back on the dict
                 packages_dict[package_id] = p
             #return a jsonified version of the dict values only
-            return jsonify(list(packages_dict.values())), 200
+            return jsonify(list(packages_dict.values())[0]), 200
     except Exception as e:
         # print(str(e.__traceback__.))
         print("There was an error: ", str(e))  # sends the error to the log

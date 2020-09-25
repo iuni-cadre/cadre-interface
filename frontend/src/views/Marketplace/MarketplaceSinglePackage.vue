@@ -23,7 +23,7 @@ export default {
         loadPackage() {
             let url = `${this.$cadreConfig.rac_api_prefix}/packages/get-package/${this.package_id}`;
             // console.debug(url);
-            let prom = this.axios({
+            let prom = this.$cadre.axios({
                 url: url,
                 method: "GET",
                 responseType: "json",
