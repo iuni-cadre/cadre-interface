@@ -12,6 +12,7 @@ let QI_Home = () => import( /* webpackChunkName: "query_builder" */ "./views/Que
 let QI_Builder = () => import( /* webpackChunkName: "query_builder" */ "./views/QueryInterface/QueryInterfaceBuilder.vue");
 let JobsList = () => import( /* webpackChunkName: "rac" */ "./views/Jobs/JobsList.vue");
 let RAC_Marketplace = () => import( /* webpackChunkName: "rac" */ "./views/Marketplace/MarketplaceHome.vue");
+let RAC_SinglePackage = () => import( /* webpackChunkName: "rac" */ "./views/Marketplace/MarketplaceSinglePackage.vue");
 let YourHome = () => import( /* webpackChunkName: "your" */ "./views/Your/YourHome.vue");
 let YourProfile = () => import( /* webpackChunkName: "your_profile" */ "./views/Your/YourProfile.vue");
 
@@ -60,6 +61,11 @@ export default new Router({
             path: "/rac",
             name: "rac-marketplace",
             component: RAC_Marketplace
+        },
+        {
+            path: "/rac/package/:package_id",
+            name: "rac-single-package",
+            component: RAC_SinglePackage
         },
         {
             path: "/your",
