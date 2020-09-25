@@ -20,6 +20,12 @@
                 <div class="racpackage-body row mt-3">
                     <div class="racpackage-info col jusify-content-between">
                         <dl>
+                            <dt v-if="show_description" 
+                                class="mr-1">Description:</dt>
+                            <dd v-if="show_description" 
+                                class="ml-1"
+                                v-text="racpackage.description"
+                            ></dd>
                             <dt class="mr-1">Tool:</dt>
                             <dd
                                 class="ml-1"
@@ -302,6 +308,9 @@ export default {
         };
     },
     computed: {
+        show_description(){
+            return this.ShowDescription;
+        },
         allow_overload: function() {
             return this.$cadreConfig.allow_overload || false;
         },
@@ -432,7 +441,11 @@ export default {
         }
     },
     props: {
-        RacPackage: Object
+        RacPackage: Object,
+        ShowDescription: {
+            type: Boolean,
+            default: false
+        }
     },
     methods: {
         deletePackage: function() {
