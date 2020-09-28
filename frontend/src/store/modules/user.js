@@ -164,7 +164,7 @@ export default {
                 }
                 else
                 {
-                    response = await Globals.authAxios({
+                    response = await Vue.$cadre.axios({
                         url: Vue.$cadreConfig.rac_api_prefix + "/profile/get-user-profile",
                         method: "GET",
                         data:{
