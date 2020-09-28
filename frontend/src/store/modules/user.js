@@ -207,14 +207,14 @@ export default {
                     }
 
                     dispatch("beatHeart");
-                    if (response.roles) {
-                        commit("setRoles", response.roles)
+                    if (response.data.roles) {
+                        commit("setRoles", response.data.roles)
                     }
-                    if (response.user_id) {
-                        commit("setUserId", response.user_id);
+                    if (response.data.user_id) {
+                        commit("setUserId", response.data.user_id);
                     }
-                    if (response.cognito_groups) {
-                        commit("setCognitoGroups", response.cognito_groups);
+                    if (response.data.cognito_groups) {
+                        commit("setCognitoGroups", response.data.cognito_groups);
                     }
                     else
                     {
