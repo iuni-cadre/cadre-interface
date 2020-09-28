@@ -104,14 +104,6 @@
                 </div>
             </div>
             </modal> -->
-            <modal
-            @close="goToProfile()"
-            v-if="welcome_message"
-            modal-style="info"
-            close-button-label="Go to your User Profile"
-            >
-                <h5>{{welcome_message}}</h5>
-            </modal>
         </div>
     </section>
 </template>
@@ -127,10 +119,6 @@ const RAC_PACKAGES_TO_SHOW = 3;
 export default {
     data: function() {
         return {
-            welcome_message: "",
-            display_name: "",
-            agreement_signed: false,
-            testing_page: false
         };
     },
     computed: {
@@ -175,53 +163,7 @@ export default {
         stopLoading({ key }) {
             this.$store.commit("loading/removeKey", { key });
         },
-        getProfile: function() {
-            let prom = new Promise((resolve, reject) => {
-                if (this.testing_page === true){
-                    let user_profile = sample_user_profile;
-                    this.$set(this, "display_name", user_profile.display_name);
-                    this.$set(this, "agreement_signed", user_profile.agreement_signed);
-                    resolve();
-                } 
-                else {
-                    let axios_prom = this.$cadre.axios({
-                        url: this.$cadreConfig.rac_api_prefix + "/profile/get-user-profile",
-                        method: "GET",
-                        data:{
-                            user_id: this.user_id
-
-                        }
-                    });
-                    axios_prom.then(
-                        response => {
-                            let user_profile = response.data;
-                            this.$set(this, "display_name", user_profile.display_name);
-                            this.$set(this, "agreement_signed", user_profile.display_name);
-                            resolve(response);
-                        },
-                        error => {
-                            console.error(error);
-                            reject(error);
-                        }
-                    );
-                }
-            });
-            return prom;
-        },
-        firstLogin: function() {
-            if (this.$store.state.user.cognito_groups != null) {
-                if (this.$store.getters["user/cognito_groups"].includes("wos_trial") & !this.agreement_signed){
-                    this.welcome_message = "Welcome to CADRE! Before you begin, please update your Display Name and sign the User Agreement."
-                } else if (!this.display_name) {
-                this.welcome_message = "Welcome to CADRE! Before you begin, please update your Display Name."
-            }
-            } else if (!this.display_name) {
-                this.welcome_message = "Welcome to CADRE! Before you begin, please update your Display Name."
-            }
-        },
-        goToProfile: function() {
-            this.$router.push({ name: "your-profile" });
-        }
+        
     },
     components: {
         Modal,
@@ -230,7 +172,7 @@ export default {
         YourArchives,
         YourPackages,
     },
-    mounted: function () {
+    mounted: async function () {
         if (this.racpackages.length === 0) {
             this.startLoading({ key: "get_packages", message: "" });
             let get_packages_prom = this.$store.dispatch(
@@ -242,8 +184,6 @@ export default {
                 this.stopLoading({ key: "get_packages" });
             });
         }
-        this.getProfile();
-        this.firstLogin();
     }
 };
 

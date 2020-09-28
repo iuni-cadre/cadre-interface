@@ -76,9 +76,20 @@ def get_user_profile():
             'WHERE user_id=%s '
         )
         cur.execute(query, (user_id,))
-        results = cur.fetchall()
+        if cur.rowcount == 0:
+            return jsonify({"error": "Could not find profile for user {}".format(user_id)}), 404
 
-        return jsonify(results)
+        results = cur.fetchall()
+        user_profile = results[0]
+
+        response = {
+            "user_id": user_profile[0],
+            "display_name": user_profile[1],
+            "agreement_signed": user_profile[2],
+            "date_agreement_signed": user_profile[3],
+            "access_form_fields": user_profile[4],
+        }
+        return jsonify(response)
     except Exception as err:
         print(err)
         return jsonify({"error": "Problem querying the user profile table in the meta database."}), 500
