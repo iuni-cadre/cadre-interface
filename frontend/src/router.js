@@ -75,7 +75,10 @@ export default new Router({
         {
             path: "/profile",
             name: "your-profile",
-            component: YourProfile
+            component: YourProfile,
+            meta: {
+                test: "TEST"
+            }
         },
         {
             path: "/component_test",

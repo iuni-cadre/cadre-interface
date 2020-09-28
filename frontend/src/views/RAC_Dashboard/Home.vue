@@ -104,14 +104,6 @@
                 </div>
             </div>
             </modal> -->
-            <modal
-            @close="goToProfile()"
-            v-if="welcome_message"
-            modal-style="info"
-            close-button-label="Go to your User Profile"
-            >
-                <h5>{{welcome_message}}</h5>
-            </modal>
         </div>
     </section>
 </template>
@@ -127,10 +119,6 @@ const RAC_PACKAGES_TO_SHOW = 3;
 export default {
     data: function() {
         return {
-            welcome_message: "",
-            display_name: "",
-            agreement_signed: false,
-            testing_page: false
         };
     },
     computed: {
@@ -175,34 +163,7 @@ export default {
         stopLoading({ key }) {
             this.$store.commit("loading/removeKey", { key });
         },
-        getProfile: async function() {
-            await this.$store.dispatch("user/getProfile");
-            let user_profile = this.$store.getters["user/profile"];
-            // console.debug(user_profile)
-            this.display_name = user_profile.display_name;
-            this.agreement_signed = user_profile.agreement_signed;
-
-            // console.debug(this.display_name, this.agreement_signed);
-        },
-        firstLogin: function() {
-            
-            const welcome_message = "Welcome to CADRE! Before you begin, please update your Display Name."
-            
-            if (this.$store.getters["user/cognito_groups"].length > 0) {
-
-                if (this.$store.getters["user/cognito_groups"].includes("wos_trial") & !this.agreement_signed){
-                    this.welcome_message = "Welcome to CADRE! Before you begin, please update your Display Name and sign the User Agreement."
-                } else if (!this.display_name) {
-                    this.welcome_message = welcome_message;
-                }
-
-            } else if (!this.display_name) {
-                this.welcome_message = welcome_message;
-            }
-        },
-        goToProfile: function() {
-            this.$router.push({ name: "your-profile" });
-        }
+        
     },
     components: {
         Modal,
@@ -223,8 +184,6 @@ export default {
                 this.stopLoading({ key: "get_packages" });
             });
         }
-        await this.getProfile();
-        await this.firstLogin();
     }
 };
 

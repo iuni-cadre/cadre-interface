@@ -10,11 +10,14 @@ const TEST_USER = {
     roles: ["wos_gold"],
     token: "fake_token",
     user_id: 1000,
-    cognito_groups: ["wos_gold"]
+    cognito_groups: ["wos_gold", "wos_trial"]
 };
 
-const mock_authorize_token_response = {"user_id": 86, "roles": ["wos_gold"], "cognito_groups": ["WOS", "MAG"]}
-const mock_profile_response = {data: {"user_id": 86, "display_name": "TEST USER DISP", agreement_signed: true, date_agreement_signed: "2020-09-28T12:43:00", "access_form_fields":{}} }
+// const mock_authorize_token_response = {"user_id": 86, "roles": ["wos_gold"], "cognito_groups": ["WOS", "MAG"]}
+// const mock_profile_response = {data: {"user_id": 86, "display_name": "TEST USER DISP", agreement_signed: true, date_agreement_signed: "2020-09-28T12:43:00", "access_form_fields":{}} }
+
+const mock_authorize_token_response = {"user_id": 86, "roles": ["wos_trial"], "cognito_groups": ["WOS", "MAG", "wos_trial"]}
+const mock_profile_response = {data: {"user_id": 86, "display_name": "TEST USER DISP", agreement_signed: false, date_agreement_signed: "2020-09-28T12:43:00", "access_form_fields":{}} }
 
 const HEARTBEAT_INTERVAL = 60000;
 

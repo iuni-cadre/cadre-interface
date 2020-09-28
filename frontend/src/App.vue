@@ -1,6 +1,7 @@
 
 <script>
 import Spinner from "@/components/Common/CommonSpinner";
+import Modal from "@/components/Common/CommonModal";
 
 // import CryptoJS from "crypto-js";
 import Base32 from "hi-base32";
@@ -15,6 +16,10 @@ export default {
             // max_loading_time: 30000, //30 seconds
             // min_loading_time: 500,
             display_menu: false,
+            welcome_message: "",
+            display_name: "",
+            agreement_signed: false,
+            testing_page: false
         };
     },
     computed: {
@@ -174,48 +179,63 @@ export default {
                 this.stopLoading("logout");
             });
         },
+
+        getProfile: async function() {
+            await this.$store.dispatch("user/getProfile");
+            let user_profile = this.$store.getters["user/profile"];
+            console.debug(user_profile)
+            this.display_name = user_profile.display_name;
+            this.agreement_signed = user_profile.agreement_signed;
+
+            // console.debug(this.display_name, this.agreement_signed);
+        },
+        firstLogin: function() {
+            const welcome_message = "Welcome to CADRE! Before you begin, please update your Display Name."
+            // console.debug(this.$store.getters["user/cognito_groups"]);
+            if (this.$store.getters["user/cognito_groups"].length > 0) {
+                
+                if (this.$store.getters["user/cognito_groups"].includes("wos_trial") & !this.agreement_signed){
+                    this.goToProfile()
+                    this.welcome_message = "Welcome to CADRE! Before you begin, please update your Display Name and sign the User Agreement."
+                } else if (!this.display_name) {
+                    this.goToProfile()
+                    this.welcome_message = welcome_message;
+                }
+
+            } else if (!this.display_name) {
+                this.goToProfile()
+                this.welcome_message = welcome_message;
+            }
+        },
+        goToProfile: function() {
+            // console.debug(this.$route)
+            this.welcome_message = ""
+            if(this.$route.name != "your-profile"){
+                this.$router.push({ name: "your-profile" });
+            }
+        }
     },
-    mounted: function () {
-        // console.debug("mounted");
-        // this.addToLoadingQueue("test");
-        // console.debug("adding initialize to queue");
-        // this.addToLoadingQueue("initialize");
-        this.validate().finally(() => {
-            // console.debug("removing initialize from queue")
-            // this.removeFromLoadingQueue("initialize");
-        });
+    mounted: async function () {
 
-        // let encoded = Base32.encode('this is a test');
-        // console.debug(encoded);
+        await this.validate();
+        await this.getProfile();
+        this.$nextTick(()=>{
+            this.firstLogin();
+        })
 
-        // console.debug(Base32.decode('MNYGK3DJNNQW4'));
-
-        // var rawStr = "hello world!";
-        // var wordArray = CryptoJS.enc.Utf8.parse(rawStr);
-        // var base64 = CryptoJS.enc.Base64.stringify(wordArray);
-        // console.log("encrypted:", base64);
-
-        // //decrypt
-        // // var parsedWordArray = CryptoJS.enc.Base64.parse(base64);
-        // var parsedWordArray = CryptoJS.enc.Base64.parse("YW55IGNhcm5hbCBwbGVhcw==");
-        // var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
-        // console.log("parsed:", parsedStr);
-        // var parsedWordArray = CryptoJS.enc.Base64.parse("YW55IGNhcm5hbCBwbGVhcw=");
-        // var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
-        // console.log("parsed:", parsedStr);
-        // var parsedWordArray = CryptoJS.enc.Base64.parse("YW55IGNhcm5hbCBwbGVhcw");
-        // var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
-        // console.log("parsed:", parsedStr);
-        // var parsedWordArray = CryptoJS.enc.Base64.parse("YW55IGNhcm5hbCBwbGVhcw===");
-        // var parsedStr = parsedWordArray.toString(CryptoJS.enc.Utf8);
-        // console.log("parsed:", parsedStr);
     },
     components: {
         Spinner,
+        Modal
     },
     watch: {
-        // "$route.query": function(){
-        // }
+        "$route.name": function(){
+            // console.debug(this.$route)
+            // if (!this.display_name)
+            {
+                this.firstLogin();
+            }
+        }
     },
 };
 
@@ -379,6 +399,16 @@ export default {
             @stopLoading="stopLoading"
             :isLoading="is_loading"
         />
+
+        <modal
+            @close="goToProfile()"
+            v-if="token && welcome_message"
+            modal-style="info"
+            close-button-label="Go to your User Profile"
+            >
+                <h5>{{welcome_message}}</h5>
+            </modal>
+
 
         <template v-if="!token">
             <div class="container">
