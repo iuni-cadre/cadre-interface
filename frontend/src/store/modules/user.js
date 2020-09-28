@@ -13,6 +13,9 @@ const TEST_USER = {
     cognito_groups: ["wos_gold"]
 };
 
+const mock_authorize_token_response = {"user_id": 86, "roles": ["wos_gold"], "cognito_groups": ["WOS", "MAG"]}
+const mock_profile_response = {data: {"user_id": 86, "display_name": "TEST USER DISP", agreement_signed: true, date_agreement_signed: "2020-09-28T12:43:00", "access_form_fields":{}} }
+
 const HEARTBEAT_INTERVAL = 60000;
 
 export default {
@@ -28,6 +31,14 @@ export default {
         roles: [],
         user_id: null,
         cognito_groups: [],
+        profile: {
+            "user_id": null,
+            "display_name": null,
+            "agreement_signed": null,
+            "date_agreement_signed": null,
+            "access_form_fields": null,
+        },
+        agreement_signed: false
     },
     getters: {
         tokenValid: function (state) {
@@ -57,6 +68,10 @@ export default {
         },
         cognito_groups: function (state) {
             return state.cognito_groups;
+        },
+        profile: function(state) {
+            // console.debug(state.profile);
+            return state.profile;
         }
     },
     mutations: {
@@ -129,50 +144,83 @@ export default {
             state.user_id = user_id;
             localStorage.removeItem("user_id");
             localStorage.setItem("user_id", user_id);
+        },
+
+        setProfile: function(state, user_profile) {
+            // console.debug(user_profile)
+            state.profile = user_profile;
         }
     },
     actions: {
-        beatHeart: function ({ state, dispatch, getters, commit }) {
+        getProfile: async function({state, commit}){
+            try {
+                let response = null;
+                if (Vue.$cadreConfig.force_validation === false) {
+                    console.debug("Using mock profile response")
+                    response = mock_profile_response;
+                }
+                else
+                {
+                    response = await Globals.authAxios({
+                        url: Vue.$cadreConfig.rac_api_prefix + "/profile/get-user-profile",
+                        method: "GET",
+                        data:{
+                            user_id: state.user_id
+                        }
+                    });
+                }
+
+                let user_profile = response.data;
+                // console.debug()
+                commit("setProfile", user_profile);
+            }
+            catch(error){
+                console.warn(error);
+            }
+            // });
+            // return prom;
+        },
+        beatHeart: async function ({ state, dispatch, getters, commit }) {
             clearTimeout(state.heartbeat_timer);
-            state.heartbeat_timer = setTimeout(() => {
+            state.heartbeat_timer = setTimeout(async () => {
                 // console.debug("Beat");
                 let username = getters.username;
                 let token = getters.authToken;
-
-                if (Vue.$cadreConfig.force_validation !== false) {
-                    let validate_prom = Globals.authAxios({
-                        url: "/authenticate-token",
-                        method: "POST",
-                        data: {
-                            username: username
-                        }
-                    });
-
-                    validate_prom.then(
-                        response => {
-                            dispatch("beatHeart");
-
-                            if (response.roles) {
-                                commit("setRoles", response.roles)
+                try {
+                    let response = null;
+                    if (Vue.$cadreConfig.force_validation === false) {
+                        console.debug("Using mock token response")
+                        response = mock_authorize_token_response;
+                    }
+                    else
+                    {
+                        response = await Globals.authAxios({
+                            url: "/authenticate-token",
+                            method: "POST",
+                            data: {
+                                username: username
                             }
-                            if (response.user_id) {
-                                commit("setUserId", response.user_id);
-                            }
-                            if (response.cognito_groups) {
-                                commit("setCognitoGroups", response.cognito_groups);
-                            }
-                        },
-                        error => {
-                            console.warn(error);
+                        });
+                    }
 
-                            // if (Vue.$cadreConfig.force_validation !== false) {
-                            commit("logout");
-                            // }
-                        }
-                    );
+                    dispatch("beatHeart");
+                    if (response.roles) {
+                        commit("setRoles", response.roles)
+                    }
+                    if (response.user_id) {
+                        commit("setUserId", response.user_id);
+                    }
+                    if (response.cognito_groups) {
+                        commit("setCognitoGroups", response.cognito_groups);
+                    }
+                    else
+                    {
+                        throw new Error("Couldn't get cognito groups.");
+                    }
                 }
-                else {
-                    console.log("fake validation");
+                catch(error) {
+                    console.warn(error);
+                    commit("logout");
                 }
             }, HEARTBEAT_INTERVAL);
         },
