@@ -13,7 +13,7 @@
                             <input
                                 class="form-control"
                                 type="text"
-                                :placeholder="[[ current_user_profile.display_name ]]"
+                                placeholder="Display Name"
                                 v-model="new_display_name"
                             />
                         </div>
@@ -442,6 +442,7 @@ export default {
                             this.$set(this, "current_user_profile", user_profile);
                             this.$set(this, "agreement_signed", user_profile.agreement_signed);
                             this.$set(this, "completed_access_form", user_profile.access_form_fields);
+                            this.new_display_name = user_profile.display_name;
                             resolve(response);
                         },
                         error => {
@@ -476,8 +477,8 @@ export default {
             return prom;
         },
         //Element(s) in user profile section updated
-        updateProfile: function() {
-            let prom = new Promise((resolve, reject) => {
+        updateProfile: async function() {
+            let prom = new Promise(async (resolve, reject) => {
                 let axios_prom = this.$cadre.axios({
                     url: this.$cadreConfig.rac_api_prefix + "/profile/update-user-profile",
                     method:"POST",
@@ -487,8 +488,12 @@ export default {
                     }
                 });
                 axios_prom.then(
-                    response => {
-                        this.update_successful = true
+                    async response => {
+                        this.update_successful = true;
+                        
+                        await this.$store.dispatch("user/getProfile");
+                        // let user_profile = this.$store.getters["user/profile"];
+
                         resolve(response)
                     },
                     error => {

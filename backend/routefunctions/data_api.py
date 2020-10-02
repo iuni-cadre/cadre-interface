@@ -434,7 +434,7 @@ def submit_query():
             # save job information to meta database
             insert_q = "INSERT INTO user_job(job_id, user_id, name, message_id,job_status, type, dataset, started_on) VALUES (%s,%s,%s,%s,%s,%s,%s,clock_timestamp())"
 
-            data = (job_id, user_id, job_name, message_id, 'SUBMITTED', 'QUERY', 'MAG')
+            data = (job_id, user_id, job_name, message_id, 'SUBMITTED', 'QUERY', dataset.upper())
             print(data)
             cursor.execute(insert_q, data)
             connection.commit()

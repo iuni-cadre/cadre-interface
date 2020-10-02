@@ -15,18 +15,22 @@ export default {
             // loading_timeout: 0,
             // max_loading_time: 30000, //30 seconds
             // min_loading_time: 500,
+            ready: false,
             display_menu: false,
             welcome_message: "",
-            display_name: "",
+            // display_name: "",
             agreement_signed: false,
             testing_page: false
         };
     },
     computed: {
+        display_name(){
+            return this.profile.display_name;
+        },
         version: function () {
             return this.$version;
         },
-        ...mapGetters("user", ["authToken", "decodedUsername", "roles"]),
+        ...mapGetters("user", ["authToken", "decodedUsername", "roles", "profile"]),
         token: function () {
             return this.authToken;
         },
@@ -183,32 +187,28 @@ export default {
         getProfile: async function() {
             await this.$store.dispatch("user/getProfile");
             let user_profile = this.$store.getters["user/profile"];
-            console.debug(user_profile)
-            this.display_name = user_profile.display_name;
+            // this.display_name = user_profile.display_name;
             this.agreement_signed = user_profile.agreement_signed;
 
-            // console.debug(this.display_name, this.agreement_signed);
         },
         firstLogin: function() {
-            const welcome_message = "Welcome to CADRE! Before you begin, please update your Display Name."
-            // console.debug(this.$store.getters["user/cognito_groups"]);
-            if (this.$store.getters["user/cognito_groups"].length > 0) {
-                
-                if (this.$store.getters["user/cognito_groups"].includes("wos_trial") & !this.agreement_signed){
-                    this.goToProfile()
-                    this.welcome_message = "Welcome to CADRE! Before you begin, please update your Display Name and sign the User Agreement."
-                } else if (!this.display_name) {
-                    this.goToProfile()
-                    this.welcome_message = welcome_message;
-                }
+            if(!this.ready) //wait until we've gotten the profile before we start checking for display name
+            {
+                return;
+            }
 
+            const welcome_message = "Welcome to CADRE! Before you begin, please update your Display Name."
+            if (this.$store.getters["user/cognito_groups"].includes("wos_trial") && !this.agreement_signed){
+                this.goToProfile()
+                this.welcome_message = "Welcome to CADRE! Before you begin, please update your Display Name and sign the User Agreement."
             } else if (!this.display_name) {
                 this.goToProfile()
                 this.welcome_message = welcome_message;
+            } else {
+                this.welcome_message = "";
             }
         },
         goToProfile: function() {
-            // console.debug(this.$route)
             this.welcome_message = ""
             if(this.$route.name != "your-profile"){
                 this.$router.push({ name: "your-profile" });
@@ -216,12 +216,18 @@ export default {
         }
     },
     mounted: async function () {
-
-        await this.validate();
-        await this.getProfile();
-        this.$nextTick(()=>{
-            this.firstLogin();
-        })
+        this.addToLoadingQueue({key: "initializing"})
+        try {
+            await this.validate();
+            await this.getProfile();
+            this.ready = true;
+            this.$nextTick(()=>{
+                this.firstLogin();
+            })
+        }catch(e){
+            console.warn(e);
+        }
+        this.removeFromLoadingQueue({key: "initializing"})
 
     },
     components: {
@@ -230,11 +236,8 @@ export default {
     },
     watch: {
         "$route.name": function(){
-            // console.debug(this.$route)
-            // if (!this.display_name)
-            {
-                this.firstLogin();
-            }
+            console.debug("wa");
+            this.firstLogin();
         }
     },
 };
@@ -355,7 +358,7 @@ export default {
                             :to="{name: 'your-profile'}"
                             target
                         >
-                            <span v-text="decodedUsername"></span>
+                            <span v-text="display_name || decodedUsername" :title="decodedUsername"></span>
                         </router-link>&nbsp;
                         <a
                             class="btn get-started-button"
