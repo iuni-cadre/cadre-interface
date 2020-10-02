@@ -262,7 +262,7 @@ export default {
         // "references"
     ],
     janus_map: {
-        main_vertext: "Paper",
+        main_vertex: "Paper",
         path_to_main: {
             Paper: []
         },

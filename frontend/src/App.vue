@@ -290,6 +290,7 @@ export default {
                 </button>
 
                 <div
+                    v-if="token"
                     class="collapse navbar-collapse"
                     :class="{'show': display_menu}"
                     id="navbarSupportedContent"
@@ -320,7 +321,7 @@ export default {
                                 class="p-3 p-md-0 d-inline-block"
                                 :to="{name: 'jobs-list'}"
                                 target
-                            >Jobs</router-link>
+                            >Job Status</router-link>
                         </li>
                         <li class="nav-item">
                             <router-link
@@ -364,7 +365,7 @@ export default {
                             class="btn get-started-button"
                             @click="logout"
                         >
-                            <span class="p-3 p-md-0 d-inline-block">Logout</span>
+                            <span class="p-3 p-md-0 d-inline-block">Log Out</span>
                         </a>
                     </div>
                 </div>
@@ -432,7 +433,7 @@ export default {
                         <p>
                             Please note that even if your institutional/organizational
                             account is also a Google/G Suite/Gmail account,
-                            you still need to login through CILogon to access WoS.
+                            you still need to log in through CILogon to access WoS.
                         </p>
 
                         <a

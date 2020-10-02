@@ -30,11 +30,11 @@ export default {
             type: "single",
             label: "journal_id"
         },
-        {
-            field: "conference_series_id",
-            type: "single",
-            label: "conference_series_id"
-        },
+        // {
+        //     field: "conference_series_id",
+        //     type: "single",
+        //     label: "conference_series_id"
+        // },
         {
             field: "conference_instance_id",
             type: "single",
@@ -95,11 +95,11 @@ export default {
             type: "single",
             label: "issue"
         },
-        {
-            field: "paper_abstract",
-            type: "single",
-            label: "paper_abstract"
-        },
+        // {
+        //     field: "paper_abstract",
+        //     type: "single",
+        //     label: "paper_abstract"
+        // },
         {
             field: "paper_first_page",
             type: "single",
@@ -125,11 +125,11 @@ export default {
             type: "single",
             label: "paper_estimated_citation"
         },
-        {
-            field: "conference_display_name",
-            type: "single",
-            label: "conference_display_name"
-        },
+        // {
+        //     field: "conference_display_name",
+        //     type: "single",
+        //     label: "conference_display_name"
+        // },
         {
             field: "journal_display_name",
             type: "single",
@@ -167,7 +167,7 @@ export default {
         conference_display_name: "Conference Name",
         authors_display_name: "Author Names",
         paper_title: "Paper Title",
-        paper_abstract: "Paper Abstract"
+        // paper_abstract: "Paper Abstract"
     },
     default: [
         "paper_id",
@@ -179,21 +179,21 @@ export default {
         // "citations"
     ],
     janus_map: {
-        main_vertext: "Paper",
+        main_vertex: "Paper",
         path_to_main: {
             "Paper": [],
             "JournalFixed": ["PublishedInFixed"],
             "Author": ["AuthorOf"],
-            "ConferenceInstance": ["PresentedAt"],
-            "ConferenceSeries": ["InstanceOf", "PresentedAt"],
+            // "ConferenceInstance": ["PresentedAt"],
+            // "ConferenceSeries": ["InstanceOf", "PresentedAt"],
             "FieldOfStudy": ["BelongsTo"]
         },
         vertex_types: [
             "Paper",
             "JournalFixed",
             "Author",
-            "ConferenceInstance",
-            "ConferenceSeries",
+            // "ConferenceInstance",
+            // "ConferenceSeries",
             "FieldOfStudy"
         ],
         edge_types: [
@@ -212,16 +212,16 @@ export default {
                 source: "Author",
                 relation: "AuthorOf"
             },
-            {
-                target: "ConferenceInstance",
-                source: "Paper",
-                relation: "PresentedAt"
-            },
-            {
-                target: "ConferenceInstance",
-                source: "ConferenceSeries",
-                relation: "InstanceOf"
-            },
+            // {
+            //     target: "ConferenceInstance",
+            //     source: "Paper",
+            //     relation: "PresentedAt"
+            // },
+            // {
+            //     target: "ConferenceInstance",
+            //     source: "ConferenceSeries",
+            //     relation: "InstanceOf"
+            // },
             {
                 target: "FieldOfStudy",
                 source: "Paper",
@@ -241,10 +241,10 @@ export default {
                 vertex: "JournalFixed",
                 field: "name"
             },
-            conference_display_name: {
-                vertex: "ConferenceInstance",
-                field: "name"
-            },
+            // conference_display_name: {
+            //     vertex: "ConferenceInstance",
+            //     field: "name"
+            // },
             authors_display_name: {
                 vertex: "Author",
                 field: "name"
@@ -253,10 +253,10 @@ export default {
                 vertex: "Paper",
                 field: "title"
             },
-            paper_abstract: {
-                vertex: "Paper",
-                field: "abstract"
-            }
+            // paper_abstract: {
+            //     vertex: "Paper",
+            //     field: "abstract"
+            // }
         },
         network_map: {
             citations: {
@@ -289,10 +289,10 @@ export default {
                 vertexType: "JournalFixed",
                 field: "journalIdFixed"
             },
-            conference_series_id: {
-                vertexType: "ConferenceSeries",
-                field: "conferenceSeriesId"
-            },
+            // conference_series_id: {
+            //     vertexType: "ConferenceSeries",
+            //     field: "conferenceSeriesId"
+            // },
             conference_instance_id: {
                 vertexType: "ConferenceInstance",
                 field: "conferenceInstanceId"
@@ -338,10 +338,10 @@ export default {
                 vertexType: "Paper",
                 field: "issue"
             },
-            paper_abstract: {
-                vertexType: "",
-                field: ""
-            },
+            // paper_abstract: {
+            //     vertexType: "",
+            //     field: ""
+            // },
             paper_first_page: {
                 vertexType: "Paper",
                 field: "firstPage"
@@ -362,10 +362,10 @@ export default {
                 vertexType: "Paper",
                 field: "estimatedCitation"
             },
-            conference_display_name: {
-                vertexType: "ConferenceSeries",
-                field: "displayname"
-            },
+            // conference_display_name: {
+            //     vertexType: "ConferenceSeries",
+            //     field: "displayname"
+            // },
             journal_display_name: {
                 vertexType: "JournalFixed",
                 field: "displayName"
