@@ -105,16 +105,20 @@ def archive_user_file():
             permissions = {"data_type": "", "other": []}
 
             query_file_checksum = utilities.calc_checksum(full_file_name)
+            filename = os.path.basename(full_file_name)
 
             query_result_q = """
                 SELECT id, data_type FROM query_result 
-                WHERE file_checksum LIKE %s AND created_by = %s
+                WHERE file_checksum LIKE %s AND created_by = %s AND efs_path LIKE %s
             """
-            cur.execute(query_result_q, (query_file_checksum,user_id))
+            cur.execute(query_result_q, (query_file_checksum,user_id, "%{}".format(filename)))
+            print(cur.mogrify(query_result_q, (query_file_checksum,user_id, "%{}".format(filename))))
+
             if cur.rowcount > 0:
                 query_result_info = cur.fetchone()
                 query_result_id = query_result_info[0]
                 data_type = query_result_info[1]
+                print(query_result_info)
 
                 permissions["data_type"] = data_type
                 
