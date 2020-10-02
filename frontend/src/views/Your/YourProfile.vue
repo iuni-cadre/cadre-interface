@@ -353,6 +353,23 @@
                 </div>
             </div>
         </section>
+    <modal
+        @close="success_message=''"
+        v-if="success_message"
+        modal-style="success"
+        close-button-label="OK"
+        >
+            <h5>{{success_message}}</h5>
+    </modal>
+    <modal
+        @close="error_message=''"
+        v-if="error_message"
+        modal-style="danger"
+        close-button-label="Close"
+        >
+            <h5>{{error_message}}</h5>
+    </modal>
+            
     </div>
 </template>
 
@@ -392,7 +409,8 @@ export default {
             agreement_signed: false,  
             completed_access_form:[],
 
-            
+            success_message: "",
+            error_message: "",
 
             //access_agreement_confirm: false,
             //set testing_page to true to use sample user profile
@@ -420,6 +438,7 @@ export default {
     },
     methods: {
         getProfile: function() {
+            this.$store.commit("loading/addKey", { key: "getProfile", message: "" });
             let prom = new Promise((resolve, reject) => {
                 if (this.testing_page === true){
                     let user_profile = sample_user_profile;
@@ -450,6 +469,9 @@ export default {
                             reject(error);
                         }
                     );
+                    axios_prom.finally(() => {
+                        this.$store.commit("loading/removeKey", {key: "getProfile"});
+                    })
                 }
             });
             return prom;
@@ -465,7 +487,6 @@ export default {
                 });
                 axios_prom.then(
                     response => {
-                        this.profile_exists = true
                         resolve(response)
                     },
                     error => {
@@ -478,6 +499,8 @@ export default {
         },
         //Element(s) in user profile section updated
         updateProfile: async function() {
+            this.$store.commit("loading/addKey", {key: "profileUpdate",
+            message: "Updating Profile"});
             let prom = new Promise(async (resolve, reject) => {
                 let axios_prom = this.$cadre.axios({
                     url: this.$cadreConfig.rac_api_prefix + "/profile/update-user-profile",
@@ -490,7 +513,7 @@ export default {
                 axios_prom.then(
                     async response => {
                         this.update_successful = true;
-                        
+                        this.success_message = "Profile was updated successfully."
                         await this.$store.dispatch("user/getProfile");
                         // let user_profile = this.$store.getters["user/profile"];
 
@@ -498,14 +521,20 @@ export default {
                     },
                     error => {
                         console.error(error);
+                        this.error_message= "Profile could not be updated."
                         reject(error)
                     }
                 );
+                axios_prom.finally(() => {
+                    this.$store.commit("loading/removeKey", {key: "profileUpdate"});
+                });
             });
             return prom;
         },
         //Access form fields submitted
         submitUserAgreement: function() {
+            this.$store.commit("loading/addKey", {key: "agreementUpdate",
+            message: "Updating Agreement"});
             let prom = new Promise((resolve, reject) => {
                 let access_form_fields = [{
                     first_name : this.first_name,
@@ -517,7 +546,7 @@ export default {
                     university_email_address: this.university_email_address,
                     agree_access_policy: this.agree_access_policy,
                     agree_not_share_data: this.agree_not_share_data,
-                    agree_not_share_username: this.agree_not_share_data,
+                    agree_not_share_username: this.agree_not_share_username,
                     agree_safeguard_username: this.agree_safeguard_username,
                     agree_unauthorized_responsibility: this.agree_unauthorized_responsibility,
                     agree_loss_control: this.agree_loss_control,
@@ -537,16 +566,21 @@ export default {
                 axios_prom.then(
                     response => {
                         this.agreement_signed = true
+                        this.success_message = "Agreement signed."
                         resolve(response)
                     },
                     error => {
                         console.error(error);
+                        this.error_message = "Agreement could not be updated."
                         reject(error)
                     }
                 );
+                axios_prom.finally(() => {
+                    this.$store.commit("loading/removeKey", {key: "agreementUpdate"});
+                });
             });
             return prom;
-        }
+        },
     },
     watch: {
         update_successful: function (after, before) {
@@ -560,7 +594,7 @@ export default {
     },
     mounted: function() {
         this.getProfile();
-        if (!this.current_user_profile.display_name || (this.trial_user & !this.current_user_profile.agreement_signed)) {
+        if (!this.new_display_name || (this.trial_user & !this.current_user_profile.agreement_signed)) {
             this.createProfile()
         }
     }
