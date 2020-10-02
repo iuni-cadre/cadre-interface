@@ -179,7 +179,7 @@ export default {
         // "citations"
     ],
     janus_map: {
-        main_vertext: "Paper",
+        main_vertex: "Paper",
         path_to_main: {
             "Paper": [],
             "JournalFixed": ["PublishedInFixed"],

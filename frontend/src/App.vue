@@ -320,7 +320,7 @@ export default {
                                 class="p-3 p-md-0 d-inline-block"
                                 :to="{name: 'jobs-list'}"
                                 target
-                            >Jobs</router-link>
+                            >Job Status</router-link>
                         </li>
                         <li class="nav-item">
                             <router-link
