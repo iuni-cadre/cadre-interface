@@ -290,6 +290,7 @@ export default {
                 </button>
 
                 <div
+                    v-if="token"
                     class="collapse navbar-collapse"
                     :class="{'show': display_menu}"
                     id="navbarSupportedContent"
@@ -432,7 +433,7 @@ export default {
                         <p>
                             Please note that even if your institutional/organizational
                             account is also a Google/G Suite/Gmail account,
-                            you still need to login through CILogon to access WoS.
+                            you still need to log in through CILogon to access WoS.
                         </p>
 
                         <a
