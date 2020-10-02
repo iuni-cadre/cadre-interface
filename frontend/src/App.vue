@@ -365,7 +365,7 @@ export default {
                             class="btn get-started-button"
                             @click="logout"
                         >
-                            <span class="p-3 p-md-0 d-inline-block">Logout</span>
+                            <span class="p-3 p-md-0 d-inline-block">Log Out</span>
                         </a>
                     </div>
                 </div>
