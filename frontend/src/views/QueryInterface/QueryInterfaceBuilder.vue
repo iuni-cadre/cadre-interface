@@ -317,8 +317,8 @@ export default {
             // let query_prom = Promise.reject(); //just for testing
 
             try{
-                result = await this.$store.dispatch("query/sendQuery", payload);
-                
+                let result = await this.$store.dispatch("query/sendQuery", payload);
+
                 console.debug(result);
                 if (!async) {
                     if (result.errors) {
