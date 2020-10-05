@@ -10,14 +10,28 @@ const TEST_USER = {
     roles: ["wos_gold"],
     token: "fake_token",
     user_id: 1000,
-    cognito_groups: ["wos_gold", "wos_trial"]
+    cognito_groups: ["wos_gold"]
 };
 
 // const mock_authorize_token_response = {"user_id": 86, "roles": ["wos_gold"], "cognito_groups": ["WOS", "MAG"]}
 // const mock_profile_response = {data: {"user_id": 86, "display_name": "TEST USER DISP", agreement_signed: true, date_agreement_signed: "2020-09-28T12:43:00", "access_form_fields":{}} }
 
-const mock_authorize_token_response = {"user_id": 86, "roles": ["wos_trial"], "cognito_groups": ["WOS", "MAG", "wos_trial"]}
-const mock_profile_response = {data: {"user_id": 86, "display_name": "TEST USER DISP", agreement_signed: false, date_agreement_signed: "2020-09-28T12:43:00", "access_form_fields":{}} }
+const mock_authorize_token_response = {
+    data: {
+        user_id: 86,
+        roles: ["wos_trial"],
+        cognito_groups: ["WOS", "MAG", "wos_trial"]
+    }
+};
+const mock_profile_response = {
+    data: {
+        user_id: 86,
+        display_name: "TEST USER DISP",
+        agreement_signed: false,
+        date_agreement_signed: "2020-09-28T12:43:00",
+        access_form_fields: {}
+    }
+};
 
 const HEARTBEAT_INTERVAL = 60000;
 
@@ -35,41 +49,41 @@ export default {
         user_id: null,
         cognito_groups: [],
         profile: {
-            "user_id": null,
-            "display_name": null,
-            "agreement_signed": null,
-            "date_agreement_signed": null,
-            "access_form_fields": null,
+            user_id: null,
+            display_name: null,
+            agreement_signed: null,
+            date_agreement_signed: null,
+            access_form_fields: null
         },
         agreement_signed: false
     },
     getters: {
-        tokenValid: function (state) {
+        tokenValid: function(state) {
             return state.token_is_valid;
         },
-        isLoggedIn: function (state) {
+        isLoggedIn: function(state) {
             return state.isLoggedIn;
         },
-        pending: function (state) {
+        pending: function(state) {
             return state.pending;
         },
 
-        authToken: function (state) {
+        authToken: function(state) {
             return state.auth_token;
         },
-        jToken: function (state) {
+        jToken: function(state) {
             return state.j_token;
         },
-        username: function (state) {
+        username: function(state) {
             return state.username;
         },
-        decodedUsername: function (state) {
+        decodedUsername: function(state) {
             return Globals.base32decode(state.username);
         },
-        roles: function (state) {
+        roles: function(state) {
             return state.roles;
         },
-        cognito_groups: function (state) {
+        cognito_groups: function(state) {
             return state.cognito_groups;
         },
         profile: function(state) {
@@ -78,22 +92,21 @@ export default {
         }
     },
     mutations: {
-        login: function (state) {
+        login: function(state) {
             state.pending = true;
         },
-        login_success: function (state, payload) {
+        login_success: function(state, payload) {
             state.isLoggedIn = true;
             state.pending = false;
             state.auth_token = payload.token;
             state.token_is_valid = true;
 
-
             localStorage.setItem("token", state.auth_token);
         },
-        login_failure: function (state, payload) {
+        login_failure: function(state, payload) {
             state.pending = false;
         },
-        logout: function (state) {
+        logout: function(state) {
             state.isLoggedIn = false;
             state.auth_token = null;
             state.username = null;
@@ -106,44 +119,44 @@ export default {
             localStorage.removeItem("user_id");
             localStorage.removeItem("cognito_groups");
         },
-        setToken: function (state, token) {
+        setToken: function(state, token) {
             state.auth_token = token;
             localStorage.removeItem("token");
             localStorage.setItem("token", token);
             // console.debug("tokenSet");
         },
 
-        setJToken: function (state, j_token) {
+        setJToken: function(state, j_token) {
             state.j_token = j_token;
             localStorage.removeItem("j_token");
             localStorage.setItem("j_token", j_token);
             // console.debug("tokenSet");
         },
-        setUsername: function (state, username) {
+        setUsername: function(state, username) {
             state.username = username;
             localStorage.removeItem("username");
             localStorage.setItem("username", username);
         },
-        setRoles: function (state, roles) {
+        setRoles: function(state, roles) {
             Vue.set(state, "roles", roles);
             localStorage.removeItem("roles");
             localStorage.setItem("roles", roles);
         },
-        setCognitoGroups: function (state, cognito_groups) {
+        setCognitoGroups: function(state, cognito_groups) {
             Vue.set(state, "cognito_groups", cognito_groups);
             localStorage.removeItem("cognito_groups");
             localStorage.setItem("cognito_groups", cognito_groups);
         },
-        initializeToken: function (state) {
+        initializeToken: function(state) {
             state.auth_token = localStorage.getItem("token");
             state.username = localStorage.getItem("username");
             state.roles = localStorage.getItem("roles");
             state.cognito_groups = localStorage.getItem("cognito_groups");
         },
-        invalidateToken: function (state) {
+        invalidateToken: function(state) {
             state.token_is_valid = false;
         },
-        setUserId: function (state, user_id) {
+        setUserId: function(state, user_id) {
             state.user_id = user_id;
             localStorage.removeItem("user_id");
             localStorage.setItem("user_id", user_id);
@@ -155,19 +168,19 @@ export default {
         }
     },
     actions: {
-        getProfile: async function({state, commit}){
+        getProfile: async function({ state, commit }) {
             try {
                 let response = null;
                 if (Vue.$cadreConfig.force_validation === false) {
-                    console.debug("Using mock profile response")
+                    console.debug("Using mock profile response");
                     response = mock_profile_response;
-                }
-                else
-                {
+                } else {
                     response = await Vue.$cadre.axios({
-                        url: Vue.$cadreConfig.rac_api_prefix + "/profile/get-user-profile",
+                        url:
+                            Vue.$cadreConfig.rac_api_prefix +
+                            "/profile/get-user-profile",
                         method: "GET",
-                        data:{
+                        data: {
                             user_id: state.user_id
                         }
                     });
@@ -176,14 +189,13 @@ export default {
                 let user_profile = response.data;
                 // console.debug()
                 commit("setProfile", user_profile);
-            }
-            catch(error){
+            } catch (error) {
                 console.warn(error);
             }
             // });
             // return prom;
         },
-        beatHeart: async function ({ state, dispatch, getters, commit }) {
+        beatHeart: async function({ state, dispatch, getters, commit }) {
             clearTimeout(state.heartbeat_timer);
             state.heartbeat_timer = setTimeout(async () => {
                 // console.debug("Beat");
@@ -192,11 +204,9 @@ export default {
                 try {
                     let response = null;
                     if (Vue.$cadreConfig.force_validation === false) {
-                        console.debug("Using mock token response")
+                        console.debug("Using mock token response");
                         response = mock_authorize_token_response;
-                    }
-                    else
-                    {
+                    } else {
                         response = await Globals.authAxios({
                             url: "/authenticate-token",
                             method: "POST",
@@ -208,26 +218,26 @@ export default {
 
                     dispatch("beatHeart");
                     if (response.data.roles) {
-                        commit("setRoles", response.data.roles)
+                        commit("setRoles", response.data.roles);
                     }
                     if (response.data.user_id) {
                         commit("setUserId", response.data.user_id);
                     }
                     if (response.data.cognito_groups) {
-                        commit("setCognitoGroups", response.data.cognito_groups);
-                    }
-                    else
-                    {
+                        commit(
+                            "setCognitoGroups",
+                            response.data.cognito_groups
+                        );
+                    } else {
                         throw new Error("Couldn't get cognito groups.");
                     }
-                }
-                catch(error) {
+                } catch (error) {
                     console.warn(error);
                     commit("logout");
                 }
             }, HEARTBEAT_INTERVAL);
         },
-        logout: function ({ getters, commit }, payload) {
+        logout: function({ getters, commit }, payload) {
             let username = getters.username;
             let token = getters.authToken;
             return new Promise((resolve, reject) => {
@@ -260,20 +270,28 @@ export default {
                 );
             });
         },
-        validateToken: function (context, payload) {
+        validateToken: function(context, payload) {
             //We must validate the token every time. If the token is not valid, it just gets removed.
-            let username = (payload && payload.username) || context.getters.username;
+            let username =
+                (payload && payload.username) || context.getters.username;
             let token = (payload && payload.token) || context.getters.authToken;
-            let j_token = (payload && payload.j_token) || context.getters.jToken;
-            return new Promise(function (resolve, reject) {
+            let j_token =
+                (payload && payload.j_token) || context.getters.jToken;
+            return new Promise(function(resolve, reject) {
                 // console.debug(context)
 
                 if (Vue.$cadreConfig.force_validation === false) {
                     context.commit("setToken", TEST_USER.token);
-                    context.commit("setUsername", Globals.base32encode(TEST_USER.username));
+                    context.commit(
+                        "setUsername",
+                        Globals.base32encode(TEST_USER.username)
+                    );
                     context.commit("setRoles", TEST_USER.roles);
                     context.commit("setUserId", TEST_USER.user_id);
-                    context.commit("setCognitoGroups", TEST_USER.cognito_groups);
+                    context.commit(
+                        "setCognitoGroups",
+                        TEST_USER.cognito_groups
+                    );
                     console.info("Fake user token is valid");
                     resolve({ msg: "Fake Validation" });
                 } else {
@@ -298,7 +316,10 @@ export default {
                             context.commit("setUsername", username);
                             context.commit("setRoles", result.data.roles);
                             context.commit("setUserId", result.data.user_id);
-                            context.commit("setCognitoGroups", result.data.cognito_groups)
+                            context.commit(
+                                "setCognitoGroups",
+                                result.data.cognito_groups
+                            );
                             console.info("Token is valid");
                             resolve(result);
                         },

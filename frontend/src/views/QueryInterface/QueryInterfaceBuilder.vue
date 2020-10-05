@@ -247,7 +247,7 @@ export default {
             this.queries.splice(index, 1);
             this.setStoreQuery();
         },
-        sendQuery: function(async) {
+        sendQuery: async function(async) {
             //async is false for preve, true for full query
             async = async || false;
             let query = [];
@@ -313,64 +313,65 @@ export default {
             //launch query
             this.result = null;
 
-            let query_prom = this.$store.dispatch("query/sendQuery", payload);
+            // let query_prom = this.$store.dispatch("query/sendQuery", payload);
             // let query_prom = Promise.reject(); //just for testing
 
-            query_prom.then(
-                result => {
-                    this.$store.commit("loading/removeKey", { key: "query" });
-                    console.debug(result);
-                    if (!async) {
-                        if (result.errors) {
-                            console.error("GraphQL Error: ", result.errors);
-                            this.error_message = "";
-                            for (let error of result.errors) {
-                                this.error_message += error.message + " ";
-                            }
-                            this.result = null;
-                        } else {
-                            this.result = result;
+            try{
+                result = await this.$store.dispatch("query/sendQuery", payload);
+                
+                console.debug(result);
+                if (!async) {
+                    if (result.errors) {
+                        console.error("GraphQL Error: ", result.errors);
+                        this.error_message = "";
+                        for (let error of result.errors) {
+                            this.error_message += error.message + " ";
                         }
+                        this.result = null;
                     } else {
-                        if (result[0] && result[1] === 200) {
-                            this.query_results.job_id = result[0].job_id;
-                            this.query_results.message_id =
-                                result[0].message_id;
-                            this.query_results.s3_location =
-                                result[0].s3_location;
-                            this.query_modal_open = true;
-                        }
+                        this.result = result;
                     }
-                },
-                error => {
-                    this.$store.commit("loading/removeKey", { key: "query" });
-                    // console.error(error);
-                    if (error.code === 1000) {
-                        if (async) {
-                            this.error_message =
-                                "Your query timed out.  Please try again in a moment.";
-                        } else {
-                            this.error_message =
-                                "Your preview query timed out.  Please try again in a moment.";
-                        }
-                    } else if (error.response) {
-                        // console.debug(error.response.data.error);
-                        if (error.response.status == 401) {
-                            this.error_message =
-                                "You do not have access to this dataset.";
-                        } else if (error.response.data.error) {
-                            this.error_message = error.response.data.error.toString();
-                        } else {
-                            // console.error(error)
-                            this.error_message =
-                                "Unknown error: " + error.response.status;
-                        }
-                    } else {
-                        console.debug(error);
-                        this.error_message = error.toString();
+                } else {
+                    if (result[0] && result[1] === 200) {
+                        this.query_results.job_id = result[0].job_id;
+                        this.query_results.message_id =
+                            result[0].message_id;
+                        this.query_results.s3_location =
+                            result[0].s3_location;
+                        this.query_modal_open = true;
                     }
                 }
-            );
+            }
+            catch(error)
+            {
+                // console.error(error);
+                if (error.code === 1000) {
+                    if (async) {
+                        this.error_message =
+                            "Your query timed out.  Please try again in a moment.";
+                    } else {
+                        this.error_message =
+                            "Your preview query timed out.  Please try again in a moment.";
+                    }
+                } else if (error.response) {
+                    // console.debug(error.response.data.error);
+                    if (error.response.status == 401) {
+                        this.error_message =
+                            "You do not have access to this dataset.";
+                    } else if (error.response.data.error) {
+                        this.error_message = error.response.data.error.toString();
+                    } else {
+                        // console.error(error)
+                        this.error_message =
+                            "Unknown error: " + error.response.status;
+                    }
+                } else {
+                    console.debug(error);
+                    this.error_message = error.toString();
+                }
+            }
+            this.$store.commit("loading/removeKey", { key: "query" });
+                
         }
     },
     props: {
