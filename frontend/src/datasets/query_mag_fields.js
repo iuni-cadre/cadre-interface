@@ -184,7 +184,7 @@ export default {
             "Paper": [],
             "JournalFixed": ["PublishedInFixed"],
             "Author": ["AuthorOf"],
-            // "ConferenceInstance": ["PresentedAt"],
+            "ConferenceInstance": ["PresentedAt"],
             // "ConferenceSeries": ["InstanceOf", "PresentedAt"],
             "FieldOfStudy": ["BelongsTo"]
         },
@@ -192,7 +192,7 @@ export default {
             "Paper",
             "JournalFixed",
             "Author",
-            // "ConferenceInstance",
+            "ConferenceInstance",
             // "ConferenceSeries",
             "FieldOfStudy"
         ],
@@ -212,11 +212,11 @@ export default {
                 source: "Author",
                 relation: "AuthorOf"
             },
-            // {
-            //     target: "ConferenceInstance",
-            //     source: "Paper",
-            //     relation: "PresentedAt"
-            // },
+            {
+                target: "ConferenceInstance",
+                source: "Paper",
+                relation: "PresentedAt"
+            },
             // {
             //     target: "ConferenceInstance",
             //     source: "ConferenceSeries",
@@ -241,10 +241,10 @@ export default {
                 vertex: "JournalFixed",
                 field: "name"
             },
-            // conference_display_name: {
-            //     vertex: "ConferenceInstance",
-            //     field: "name"
-            // },
+            conference_display_name: {
+                vertex: "ConferenceInstance",
+                field: "name"
+            },
             authors_display_name: {
                 vertex: "Author",
                 field: "name"

@@ -17,9 +17,11 @@ const TEST_USER = {
 // const mock_profile_response = {data: {"user_id": 86, "display_name": "TEST USER DISP", agreement_signed: true, date_agreement_signed: "2020-09-28T12:43:00", "access_form_fields":{}} }
 
 const mock_authorize_token_response = {
-    user_id: 86,
-    roles: ["wos_trial"],
-    cognito_groups: ["WOS", "MAG", "wos_trial"]
+    data: {
+        user_id: 86,
+        roles: ["wos_trial"],
+        cognito_groups: ["WOS", "MAG", "wos_trial"]
+    }
 };
 const mock_profile_response = {
     data: {
