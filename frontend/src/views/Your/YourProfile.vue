@@ -592,10 +592,16 @@ export default {
             console.debug("refresh")
         }
     },
-    mounted: function() {
-        this.getProfile();
-        if (!this.new_display_name || (this.trial_user & !this.current_user_profile.agreement_signed)) {
-            this.createProfile()
+    mounted: async function() {
+        try {
+            await this.getProfile();
+
+            if (!this.new_display_name || (this.trial_user & !this.current_user_profile.agreement_signed)) {
+                this.createProfile()
+            }
+        }
+        catch (error) {
+            console.warn(error);
         }
     }
 };
