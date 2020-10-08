@@ -64,9 +64,10 @@ export default {
     computed: {
         fields: function() {
             // return this.$store.getters["query/validFields"];
-            return this.$store.getters["query/outputFields"].filter((field)=>{
-                return field.type == "single";
-            });
+            let selectable_fields = this.$store.getters["query/outputFields"]
+                                    .filter(field=>field.type == "single");
+            selectable_fields = selectable_fields.sort((a,b)=>a.label == b.label?0:a.label > b.label?1:-1);
+            return selectable_fields
         },
     },
     methods: {

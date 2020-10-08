@@ -113,14 +113,14 @@ export default {
                 field_array.push({ value: field, label: fields[field] });
             }
             
-            const exclusive_fields = Datasets[this.$store.getters["query/selectedDataset"]].fields.exclusive_input_fields || [];
+            const exclusive_fields = Datasets[this.$store.getters["query/selectedDataset"]] && Datasets[this.$store.getters["query/selectedDataset"]].fields.exclusive_input_fields || [];
 
             let exclusive_selected = this.queries
                 .filter(item=>exclusive_fields.includes(item.field))
                 .map(item=>item.field)
                 
             return function(current_value){
-                console.debug(exclusive_selected, current_value)
+                // console.debug(exclusive_selected, current_value)
                 if(exclusive_selected.length > 0){
                     let filtered = field_array
                         .filter(item=>item.value == current_value || !exclusive_selected.includes(item.value))
