@@ -113,23 +113,18 @@ export default {
                 field_array.push({ value: field, label: fields[field] });
             }
             
-            const year_fields = [
-                "publicationYear"
-            ]
+            const exclusive_fields = Datasets[this.$store.getters["query/selectedDataset"]].fields.exclusive_input_fields || [];
 
-            let year_selected = !! this.queries.filter((item)=>{
-                return year_fields.includes(item.field)
-            }).length
-
+            let exclusive_selected = this.queries
+                .filter(item=>exclusive_fields.includes(item.field))
+                .map(item=>item.field)
+                
             return function(current_value){
-                if(!year_fields.includes(current_value))
-                {
-                    if(year_selected){
-                        let filtered = field_array.filter((item)=>{
-                            return !year_fields.includes(item.value);
-                        })
-                        return filtered;
-                    }
+                console.debug(exclusive_selected, current_value)
+                if(exclusive_selected.length > 0){
+                    let filtered = field_array
+                        .filter(item=>item.value == current_value || !exclusive_selected.includes(item.value))
+                    return filtered;
                 }
 
                 return field_array

@@ -253,6 +253,9 @@ export default {
         sourceTitle: "Journal Name",
         articleTitle: "Title"
     },
+    exclusive_input_fields: [
+        "publicationYear"
+    ],
     default: [
         "wosId",
         "publicationYear",
