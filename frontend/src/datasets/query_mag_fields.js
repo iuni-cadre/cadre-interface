@@ -169,6 +169,9 @@ export default {
         paper_title: "Paper Title",
         // paper_abstract: "Paper Abstract"
     },
+    exclusive_input_fields: [
+        "year"
+    ],
     default: [
         "paper_id",
         "year",

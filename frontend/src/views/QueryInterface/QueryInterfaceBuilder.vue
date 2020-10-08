@@ -112,7 +112,24 @@ export default {
             for (let field in fields) {
                 field_array.push({ value: field, label: fields[field] });
             }
-            return field_array;
+            
+            const exclusive_fields = Datasets[this.$store.getters["query/selectedDataset"]] && Datasets[this.$store.getters["query/selectedDataset"]].fields.exclusive_input_fields || [];
+
+            let exclusive_selected = this.queries
+                .filter(item=>exclusive_fields.includes(item.field))
+                .map(item=>item.field)
+                
+            return function(current_value){
+                // console.debug(exclusive_selected, current_value)
+                if(exclusive_selected.length > 0){
+                    let filtered = field_array
+                        .filter(item=>item.value == current_value || !exclusive_selected.includes(item.value))
+                    return filtered;
+                }
+
+                return field_array
+            }
+
         },
         selected_network_outputs: function() {
             let fields = this.network_fields;
@@ -451,7 +468,7 @@ export default {
                                                 :value="''"
                                             >Choose a search field</option>
                                             <option
-                                                v-for="field in field_options"
+                                                v-for="field in field_options(queries[index].field)"
                                                 :key="`${field.value}_${index}`"
                                                 :value="field.value"
                                                 v-text="field.label"
