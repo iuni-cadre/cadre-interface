@@ -312,10 +312,9 @@ export default {
         }
     },
     mounted: function() {
-        //start loading
-        if (this.racpackages.length === 0) {
-            this.getPackages();
-        }
+        //start loading 
+        //look for new packages and tools every time Marketplace is loaded. 
+        this.getPackages();
 
         this.getArchives();
     }
