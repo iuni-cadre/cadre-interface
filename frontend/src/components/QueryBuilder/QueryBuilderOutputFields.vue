@@ -1,31 +1,37 @@
 <template>
     <div>
-        <div class="d-flex">
-            <label class="btn btn-sm mr-3 d-flex align-items-center"
-                   :class="{
-                            'btn-outline-primary': fields_view != 'selected',
-                            'btn-primary': fields_view == 'selected'
-                        }"><input type="radio"
-                       v-model="fields_view"
-                       value="selected" class="mr-1" /> Show Selected Only</label>
-            <label class="btn btn-sm d-flex align-items-center"
-                   :class="{
-                            'btn-outline-primary': fields_view != 'all',
-                            'btn-primary': fields_view == 'all'
-                        }"><input type="radio"
-                       v-model="fields_view"
-                       value="all" class="mr-1" /> Show All Available Fields</label>
-            <label @click.stop.prevent="deselectAll"
-                   class="btn btn-outline-primary btn-sm d-flex align-items-center ml-auto">Deselect All</label>
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex">
+                <label class="btn btn-sm mr-3 mb-0  d-flex align-items-center"
+                    :class="{
+                                'btn-outline-primary': fields_view != 'selected',
+                                'btn-primary': fields_view == 'selected'
+                            }"><input type="radio"
+                        v-model="fields_view"
+                        value="selected" class="mr-1" /> Show Selected Only</label>
+                <label class="btn btn-sm  mb-0 d-flex align-items-center"
+                    :class="{
+                                'btn-outline-primary': fields_view != 'all',
+                                'btn-primary': fields_view == 'all'
+                            }"><input type="radio"
+                        v-model="fields_view"
+                        value="all" class="mr-1" /> Show All Available Fields</label>
+            </div>  
+            <div class="d-flex">
+                <button @click.stop.prevent="deselectAll"
+                    class="btn btn-outline-primary btn-sm d-flex align-items-center ml-3">Deselect All</button>
+                <button @click.stop.prevent="selectAll"
+                    class="btn btn-outline-primary btn-sm d-flex align-items-center ml-3">Select All</button>
+            </div>  
         </div>
         <hr />
         <div class="container">
             <div class="row ">
                 <template v-for="field in fields">
-                    <div class="col-3 d-flex align-items-center p-1"
+                    <div class="col-sm-6 col-lg-4 d-flex align-items-center"
                          :key="`${field.field}_field`"
                          v-if="fields_view=='all' || selected_fields.indexOf(field.field) >= 0">
-                        <label class="btn"
+                        <label class="btn d-flex align-items-center"
                                :class="{
                             'btn-outline-primary': selected_fields.indexOf(field.field) == -1,
                             'btn-primary': selected_fields.indexOf(field.field) >= 0,
@@ -75,6 +81,9 @@ export default {
         deselectAll: function() {
             this.selected_fields.splice(0, this.selected_fields.length);
         },
+        selectAll: function() {
+            this.$set(this, "selected_fields", this.fields.map(item=>item.field));
+        },
     },
     watch: {
         Value: function(o, n){
@@ -87,6 +96,10 @@ export default {
             if(o != n)
             {
                 this.$emit("input", this.selected_fields);
+            }
+            if(this.selected_fields == 0)
+            {
+                this.fields_view = 'all';
             }
         }
     }
