@@ -112,7 +112,29 @@ export default {
             for (let field in fields) {
                 field_array.push({ value: field, label: fields[field] });
             }
-            return field_array;
+            
+            const year_fields = [
+                "publicationYear"
+            ]
+
+            let year_selected = !! this.queries.filter((item)=>{
+                return year_fields.includes(item.field)
+            }).length
+
+            return function(current_value){
+                if(!year_fields.includes(current_value))
+                {
+                    if(year_selected){
+                        let filtered = field_array.filter((item)=>{
+                            return !year_fields.includes(item.value);
+                        })
+                        return filtered;
+                    }
+                }
+
+                return field_array
+            }
+
         },
         selected_network_outputs: function() {
             let fields = this.network_fields;
@@ -451,7 +473,7 @@ export default {
                                                 :value="''"
                                             >Choose a search field</option>
                                             <option
-                                                v-for="field in field_options"
+                                                v-for="field in field_options(queries[index].field)"
                                                 :key="`${field.value}_${index}`"
                                                 :value="field.value"
                                                 v-text="field.label"
