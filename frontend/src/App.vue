@@ -565,7 +565,7 @@ export default {
         </footer>
         <div class="feedback-link">
             <a
-                href="https://iuni.iu.edu/resources/cadre/user-stories"
+                href="/contact-us/feedback"
                 target="_blank"
                 class="btn btn-primary"
             >Send Feedback</a>
