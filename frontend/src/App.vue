@@ -559,6 +559,9 @@ export default {
                     </a>
                 </div>
                 <div
+                    class="mt-5 text-center "
+                ><a href="/gateway-privacy" target="_blank">Privacy Policy</a></div>
+                <div
                     class="mt-5 text-center small text-muted"
                 >CADRE Big Data Gateway Version {{version.number}}</div>
             </div>
