@@ -33,7 +33,7 @@
                         </div>
                     </div>
             </div>
-            <div class="card mb-3" v-if="trial_user">
+            <div class="card mb-3" v-if="trial_user & !agreement_signed">
                 <h3>CADRE Trial User Form</h3>
                     <hr />
                     <div class="row mb-5">
