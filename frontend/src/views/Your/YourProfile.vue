@@ -9,12 +9,13 @@
                     <hr />
                     <div class="row">
                         <div class="form-group col">
-                            <h5>Display Name</h5>
+                            <h5><label for="display_name">Display Name</label></h5>
                             <input
                                 class="form-control"
                                 type="text"
                                 placeholder="Display Name"
                                 v-model="new_display_name"
+                                id="display_name"
                             />
                         </div>
                         <div class="fill-height flex-fill align-center col-5 alert">
@@ -47,8 +48,9 @@
                                 <h4 class="mb-3">Personal Information</h4>
                                 <div class="form-row mb-3 d-flex flex-fill align-center">
                                     <div class="col">
-                                        <label>First Name</label>
+                                        <label for="trial_form_first_name">First Name</label>
                                         <input
+                                            id="trial_form_first_name"
                                             required
                                             class="form-control"
                                             type="text"
@@ -57,8 +59,9 @@
                                         />
                                     </div>
                                     <div class="col-sm-2">
-                                        <label>Middle Initial</label>
+                                        <label for="trial_form_middle_initial">Middle Initial</label>
                                         <input
+                                            id="trial_form_middle_initial"
                                             class="form-control"
                                             type="text"
                                             v-model="middle_initial"
@@ -66,8 +69,9 @@
                                         />
                                     </div>
                                     <div class="col">
-                                        <label>Last Name</label>
+                                        <label for="trial_form_last_name">Last Name</label>
                                         <input
+                                            id="trial_form_last_name"
                                             required
                                             class="form-control"
                                             type="text"
@@ -78,8 +82,9 @@
                                 </div>
                                 <div class="form-row mb-3">
                                     <div class="col">
-                                        <label>University</label>
+                                        <label for="trial_form_university">University</label>
                                         <select
+                                            id="trial_form_university"
                                             required
                                             class="form-control"
                                             type="text"
@@ -90,8 +95,9 @@
                                         </select>
                                     </div>
                                     <div class="col">
-                                        <label>Department/School</label>
+                                        <label for="trial_form_department">Department/School</label>
                                         <input
+                                            id="trial_form_department"
                                             required
                                             class="form-control"
                                             type="text"
@@ -102,8 +108,9 @@
                                 </div>
                                 <div class="form-row mb-3">
                                     <div class="col">
-                                        <label>Research Area</label>
+                                        <label for="trial_form_research_area">Research Area</label>
                                         <input
+                                            id="trial_form_research_area"
                                             required
                                             class="form-control"
                                             type="text"
@@ -112,8 +119,9 @@
                                         />
                                     </div>
                                     <div class="col">
-                                        <label>University Affiliated Email Address</label>
+                                        <label for="trial_form_university_email">University Affiliated Email Address</label>
                                         <input
+                                            id="trial_form_university_email"
                                             required
                                             class="form-control"
                                             type="text"
@@ -122,8 +130,9 @@
                                         />
                                     </div>
                                 </div>
-                                <!-- <label>Expected Research Period</label>
+                                <!-- <label for="trial_form">Expected Research Period</label>
                                 <input
+                                    id="trial_form"
                                     class="form-control mb-3"
                                     type="text"
                                     v-model=" research_period"
@@ -131,8 +140,9 @@
                                 />
                                 <div class="form-row mb-3">
                                     <div class="col">
-                                        <label>Start Date</label>
+                                        <label for="trial_form">Start Date</label>
                                         <input
+                                            id="trial_form"
                                             class="form-control"
                                             type="text"
                                             v-model=" start_date"
@@ -140,8 +150,9 @@
                                         />
                                     </div>
                                     <div class="col">
-                                        <label>End Date</label>
+                                        <label for="trial_form">End Date</label>
                                         <input
+                                            id="trial_form"
                                             class="form-control"
                                             type="text"
                                             v-model=" end_date"
@@ -149,8 +160,9 @@
                                         />
                                     </div>
                                 </div>
-                                <label> Would you like to be subscribed to CADRE's newsletter?</label>
-                                <div class="form-group col-5">
+                                <label> for="trial_form" Would you like to be subscribed to CADRE's newsletter?</label>
+                                <div class="form-group 
+                                    id="trial_form"col-5">
                                 <input
                                     class="mr-2 "
                                     type="radio"
