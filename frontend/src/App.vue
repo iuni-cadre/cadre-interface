@@ -361,12 +361,12 @@ export default {
                         >
                             <span v-text="display_name || decodedUsername" :title="decodedUsername"></span>
                         </router-link>&nbsp;
-                        <a
+                        <button
                             class="btn get-started-button"
                             @click="logout"
                         >
                             <span class="p-3 p-md-0 d-inline-block">Log Out</span>
-                        </a>
+                        </button>
                     </div>
                 </div>
             </nav>

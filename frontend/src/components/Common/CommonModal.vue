@@ -48,6 +48,7 @@
                             :class="'btn-' + (okButtonStyle || modalStyle)"
                             v-if="okButtonLabel && !okInFooter"
                             @click.stop.prevent="ok"
+                            :aria-label="`${okButtonLabel}`"
                         >
                             <fa
                                 v-if="modalType === 'delete'"
@@ -64,6 +65,7 @@
                             :class="'btn-' + (okButtonStyle || modalStyle)"
                             v-if="okButtonLabel && okInFooter"
                             @click.stop.prevent="ok"
+                            :aria-label="`${okButtonLabel}`"
                         >
                             <fa
                                 v-if="modalType === 'delete'"
@@ -78,6 +80,7 @@
                             class="btn"
                             :class="'btn-' + (closeButtonStyle || modalStyle)"
                             @click.stop.prevent="close"
+                            :aria-label="`${closeButtonLabel}`"
                         >{{closeButtonLabel}}</button>
                     </div>
                 </div>
