@@ -25,65 +25,98 @@ export default new Router({
         {
             path: "/",
             name: "home",
-            component: HomeDashboard
+            component: HomeDashboard,
+            meta: {
+                title: "Dashboard"
+            }
         },
         {
             path: "/dashboard",
             name: "dashboard",
-            component: HomeDashboard
+            component: HomeDashboard,
+            meta: {
+                title: "Dashboard"
+            }
         },
         {
             path: "/jupyter",
             name: "jupyter-hub",
-            component: JupyterHub
+            component: JupyterHub,
+            meta: {
+                title: "Jupyter Notebook"
+            }
         },
         {
             path: "/query-builder/choose-data-set",
             name: "query-builder",
-            component: QI_Home
+            component: QI_Home,
+            meta: {
+                title: "Query - Choose Data Set"
+            }
         },
         {
             path: "/query-builder/build-query",
             name: "query-builder-builder",
-            component: QI_Builder
+            component: QI_Builder,
+            meta: {
+                title: "Query - Builder"
+            }
         },
         {
             path: "/jobs",
             name: "jobs-list",
-            component: JobsList
+            component: JobsList,
+            meta: {
+                title: "Job List"
+            }
         },
         {
             path: "/jobs/:job_id",
             name: "jobs-list-id",
-            component: JobsList
+            component: JobsList,
+            meta: {
+                title: "Job List"
+            }
         },
         {
             path: "/rac",
             name: "rac-marketplace",
-            component: RAC_Marketplace
+            component: RAC_Marketplace,
+            meta: {
+                title: "Marketplace"
+            }
         },
         {
             path: "/rac/package/:package_id",
             name: "rac-single-package",
-            component: RAC_SinglePackage
+            component: RAC_SinglePackage,
+            meta: {
+                title: "Single Package"
+            }
         },
         {
             path: "/your",
             name: "your-home",
-            component: YourHome
+            component: YourHome,
+            meta: {
+                title: "Your Home"
+            }
         },
         {
             path: "/profile",
             name: "your-profile",
             component: YourProfile,
             meta: {
-                test: "TEST"
+                title: "Profile"
             }
         },
         {
             path: "/component_test",
             name: "component_test",
-            component: () => import(/* webpackChunkName: "Test" */ './views/Tests/ComponentTester.vue')
+            component: () => import(/* webpackChunkName: "Test" */ './views/Tests/ComponentTester.vue'),
+            meta: {
+                title: "Component Test"
+            }
         }
         // {
         //   path: '/about',
