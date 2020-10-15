@@ -216,7 +216,8 @@ export default {
                 this.$router.push({ name: "your-profile" });
             }
         },
-        updateTitle(){
+        updateTitle(name){
+            console.debug(name)
             if(!this.authToken)
             {
                 document.title=`Log In - ${TITLE}`;
@@ -224,7 +225,7 @@ export default {
             else
             {
                 let title = this.$route.meta && this.$route.meta.title;
-                document.title=`${title?title+ ' - ':''}${TITLE}`;
+                document.title=`${name?name+ ' - ':''}${title?title+ ' - ':''}${TITLE}`;
             }
         }
     },
@@ -420,6 +421,7 @@ export default {
             class
             @startLoading="startLoading"
             @stopLoading="stopLoading"
+            @update-page-title="updateTitle"
             :isLoading="is_loading"
         />
 
