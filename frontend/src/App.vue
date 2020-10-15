@@ -3,12 +3,14 @@
 import Spinner from "@/components/Common/CommonSpinner";
 import Modal from "@/components/Common/CommonModal";
 
+const TITLE = "CADRE Big Data Gateway";
+
 // import CryptoJS from "crypto-js";
 import Base32 from "hi-base32";
 
 import { mapGetters } from "vuex";
 export default {
-    data: function () {
+    data() {
         return {
             error_message: "",
             // loading_queue: {},
@@ -27,41 +29,41 @@ export default {
         display_name(){
             return this.profile.display_name;
         },
-        version: function () {
+        version() {
             return this.$version;
         },
         ...mapGetters("user", ["authToken", "decodedUsername", "roles", "profile"]),
-        token: function () {
+        token() {
             return this.authToken;
         },
-        login_url: function () {
+        login_url() {
             return this.$cadreConfig.login_url;
         },
-        logout_url: function () {
+        logout_url() {
             return this.$cadreConfig.logout_url;
         },
-        is_loading: function () {
+        is_loading() {
             return this.$store.getters["loading/is_loading"];
             // return Object.keys(this.loading_queue).length;
         },
-        loading_queue: function () {
+        loading_queue() {
             return this.$store.getters["loading/loading_queue"];
         },
-        is_under_construction: function () {
+        is_under_construction() {
             return this.$cadreConfig.under_construction;
         },
     },
     methods: {
-        toggleMenu: function () {
+        toggleMenu() {
             this.display_menu = !this.display_menu;
         },
-        startLoading: function ({ key, message }) {
+        startLoading({ key, message }) {
             this.addToLoadingQueue(key, message);
         },
-        stopLoading: function ({ key }) {
+        stopLoading({ key }) {
             this.removeFromLoadingQueue(key);
         },
-        addToLoadingQueue: function (key, message) {
+        addToLoadingQueue(key, message) {
             this.$store.commit("loading/addKey", { key, message });
             // if (!this.loading_queue[key]) {
             //     // this.loading_queue[key] = 0;
@@ -91,7 +93,7 @@ export default {
             // }
             // this.loading_queue[key].message = message || "";
         },
-        removeFromLoadingQueue: function (key) {
+        removeFromLoadingQueue(key) {
             this.$store.commit("loading/removeKey", { key });
             // if (this.loading_queue[key] !== undefined) {
             //     /*
@@ -123,7 +125,7 @@ export default {
             //     }, cooldown_time);
             // }
         },
-        validate: function () {
+        validate() {
             // setTimeout(() => {
             //     this.removeFromLoadingQueue("initialize");
             // }, 2);
@@ -165,7 +167,7 @@ export default {
             return validate_prom;
         },
 
-        logout: function () {
+        logout() {
             this.startLoading("logout");
 
             let logout_prom = this.$store.dispatch("user/logout");
@@ -184,14 +186,14 @@ export default {
             });
         },
 
-        getProfile: async function() {
+        async getProfile() {
             await this.$store.dispatch("user/getProfile");
             let user_profile = this.$store.getters["user/profile"];
             // this.display_name = user_profile.display_name;
             this.agreement_signed = user_profile.agreement_signed;
 
         },
-        firstLogin: function() {
+        firstLogin() {
             if(!this.ready) //wait until we've gotten the profile before we start checking for display name
             {
                 return;
@@ -208,14 +210,26 @@ export default {
                 this.welcome_message = "";
             }
         },
-        goToProfile: function() {
+        goToProfile() {
             this.welcome_message = ""
             if(this.$route.name != "your-profile"){
                 this.$router.push({ name: "your-profile" });
             }
+        },
+        updateTitle(name){
+            console.debug(name)
+            if(!this.authToken)
+            {
+                document.title=`Log In - ${TITLE}`;
+            }
+            else
+            {
+                let title = this.$route.meta && this.$route.meta.title;
+                document.title=`${name?name+ ' - ':''}${title?title+ ' - ':''}${TITLE}`;
+            }
         }
     },
-    mounted: async function () {
+    async mounted() {
         this.addToLoadingQueue({key: "initializing"})
         try {
             await this.validate();
@@ -228,6 +242,8 @@ export default {
             console.warn(e);
         }
         this.removeFromLoadingQueue({key: "initializing"})
+        
+        this.updateTitle();
 
     },
     components: {
@@ -235,9 +251,13 @@ export default {
         Modal
     },
     watch: {
-        "$route.name": function(){
-            console.debug("wa");
+        "$route.name"(){
             this.firstLogin();
+            this.updateTitle();
+            
+        },
+        "authToken"(){
+            this.updateTitle();
         }
     },
 };
@@ -361,12 +381,12 @@ export default {
                         >
                             <span v-text="display_name || decodedUsername" :title="decodedUsername"></span>
                         </router-link>&nbsp;
-                        <a
+                        <button
                             class="btn get-started-button"
                             @click="logout"
                         >
                             <span class="p-3 p-md-0 d-inline-block">Log Out</span>
-                        </a>
+                        </button>
                     </div>
                 </div>
             </nav>
@@ -401,6 +421,7 @@ export default {
             class
             @startLoading="startLoading"
             @stopLoading="stopLoading"
+            @update-page-title="updateTitle"
             :isLoading="is_loading"
         />
 
@@ -649,11 +670,11 @@ header#main-header .nav-item {
     position: fixed;
     right: 1rem;
     bottom: 1rem;
-    opacity: 0.5;
+    // opacity: 0.5;
 
-    &:hover {
-        opacity: 1;
-    }
+    // &:hover {
+    //     opacity: 1;
+    // }
 
     a {
         text-decoration: none;

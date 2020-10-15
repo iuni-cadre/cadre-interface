@@ -14,39 +14,41 @@ export default {
         };
     },
     methods: {
+        updatePageTitle(){
+            let name = this.racpackage && this.racpackage.name
+            console.debug(name);
+            this.$emit("update-page-title", `${name}`)
+        },
         startLoading({ key, message }) {
             this.$store.commit("loading/addKey", { key, message });
         },
         stopLoading({ key }) {
             this.$store.commit("loading/removeKey", { key });
         },
-        loadPackage() {
+        async loadPackage() {
             let url = `${this.$cadreConfig.rac_api_prefix}/packages/get-package/${this.package_id}`;
             // console.debug(url);
-            let prom = this.$cadre.axios({
-                url: url,
-                method: "GET",
-                responseType: "json",
-            });
+            try {
+                let response = await this.$cadre.axios({
+                    url: url,
+                    method: "GET",
+                    responseType: "json",
+                });
 
-            prom.then(
-                (response) => {
-                    this.racpackage = response.data;
-                    console.debug(this.racpackage)
-                },
-                (error) => {
-                    if (error.response && error.response.status == 404) {
-                        this.error_message =
-                            "Requested package could not be found.";
-                    } else if (error.response && error.response.data && error.response.data.error){
-                        this.error_message = error.response.data.error;
-                    }
-                    else {
-                        this.error_message = "An unknown error occurred.";
-                    }
+                this.racpackage = response.data;
+                console.debug(this.racpackage)
+
+            }catch(error) {
+                if (error.response && error.response.status == 404) {
+                    this.error_message =
+                        "Requested package could not be found.";
+                } else if (error.response && error.response.data && error.response.data.error){
+                    this.error_message = error.response.data.error;
                 }
-            );
-            return prom;
+                else {
+                    this.error_message = "An unknown error occurred.";
+                }
+            }
         },
     },
     computed: {
@@ -54,11 +56,16 @@ export default {
             return this.$route.params.package_id;
         },
     },
-    mounted() {
+    async mounted() {
         this.startLoading({ key: "loading-package" });
-        this.loadPackage().finally(() => {
-            this.stopLoading({ key: "loading-package" });
-        });
+        try {
+            await this.loadPackage();
+        }
+        catch(error){
+
+        }
+        this.stopLoading({ key: "loading-package" });
+        this.updatePageTitle();
     },
 };
 </script>

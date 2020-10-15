@@ -27,15 +27,18 @@
                     v-if="ractool.created_by == user_id && !ractool.tool_published"
                     class="float-left btn btn-primary"
                     @click="publish_tool_open = true;"
+                    :aria-label="`Publish Tool ${ractool.tool_name}`"
                 >Publish Tool</button>
                 <button
                     v-if="ractool.created_by == user_id && ractool.tool_published"
                     class="float-left btn btn-primary"
                     @click="unpublish_tool_open = true;"
+                    :aria-label="`Unpublish Tool ${ractool.tool_name}`"
                 >Unpublish Tool</button>
                 <button
                     class="float-right btn btn-primary"
                     @click="create_package_modal_open = true;"
+                    :aria-label="`Create Package from Tool ${ractool.tool_name}`"
                 >Create Package</button>
             </div>
             <div
@@ -49,6 +52,7 @@
                 <button
                     class="float-right btn-link btn text-danger"
                     @click="delete_tool_open = true;"
+                    :aria-label="`Delete Tool ${ractool.tool_name}`"
                 >Delete Tool</button>
             </div>
         </div>

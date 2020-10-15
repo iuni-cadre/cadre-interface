@@ -26,6 +26,7 @@
                 <button
                     class="float-right btn btn-primary"
                     @click="create_package_modal_open = true;"
+                    :aria-label="`Create Package from Archive ${archive.archive_name}`"
                 >Create Package</button>
             </div>
             <div
@@ -35,6 +36,7 @@
                 <button
                     class="float-right btn-link btn text-danger"
                     @click="delete_archive_open = true;"
+                    :aria-label="`Delete Archive ${archive.archive_name}`"
                 >Delete Archive</button>
             </div>
         </div>

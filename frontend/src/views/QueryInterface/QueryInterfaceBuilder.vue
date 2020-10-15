@@ -558,6 +558,7 @@ export default {
                                     'btn-outline-primary': selected_fields.indexOf(field.field) == -1,
                                     'btn-primary': selected_fields.indexOf(field.field) >= 0,
                                     }"
+                                :for="`${field.field}_field`"
                             >
                                 <input
                                     type="checkbox"
@@ -623,11 +624,12 @@ export default {
 
                     <div class="card mb-3">
                         <div class="form-group">
-                            <h4 class>Job Name <small class="text-muted">(Optional)</small></h4>
+                            <h4 class><label for="job_name">Job Name <small class="text-muted">(Optional)</small></label></h4>
                             
                             <p>To make it easier to identify the status of a specific query, you may enter an optional job name.<p>
                             <div class="form-group col">
                                 <input
+                                    id="job_name"
                                     class="form-control"
                                     type="text"
                                     v-model="job_name"

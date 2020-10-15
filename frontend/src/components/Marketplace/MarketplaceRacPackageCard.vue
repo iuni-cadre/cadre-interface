@@ -52,10 +52,12 @@
                 v-if="can_access_all_sets"
                 class="float-right btn-lg btn btn-primary"
                 @click="show_run_modal = true"
+                :aria-label="`Run Package ${racpackage.package_name}`"
             >Run</button>
             <button
                 v-else
                 class="float-right btn-lg btn btn-primary disabled"
+                :aria-label="`Run Package ${racpackage.package_name}`"
                 disabled
             >Run</button>
             <div v-if="!can_access_all_sets">
@@ -67,15 +69,18 @@
                     v-if="racpackage.created_by == user_id && !racpackage.published"
                     class="float-left btn btn-primary"
                     @click="publish_package_open = true;"
+                :aria-label="`Publish Package ${racpackage.package_name}`"
                 >Publish Package</button> 
                 <button
                     v-if="racpackage.created_by == user_id && racpackage.published"
                     class="float-left btn btn-primary"
                     @click="unpublish_package_open = true;"
+                :aria-label="`Unpublish Package ${racpackage.package_name}`"
                 >Unpublish Package</button> 
                 <button
                     class="float-right btn btn-primary"
                     @click="create_package_modal_open = true;"
+                :aria-label="`Clone Package ${racpackage.package_name}`"
                 >Clone Package</button>             
             </div>
             <div
@@ -89,6 +94,7 @@
                 <button
                     class="float-right btn-link btn text-danger"
                     @click="delete_package_open = true;"
+                :aria-label="`Delete Package ${racpackage.package_name}`"
                 >Delete Package</button>
             </div>
         </div>
@@ -121,6 +127,7 @@
                     <button
                         class="btn btn-lg btn-primary"
                         @click="runPackage"
+                        :aria-label="`Run Package ${racpackage.package_name}`"
                     >Run Package</button>
                     
                 <button
@@ -128,6 +135,7 @@
                     @click.stop.prevent="overloadDatabase(true)"
                     class="btn btn-danger btn-lg float-right"
                     type="button"
+                :aria-label="`Overload CADRE by running Package ${racpackage.package_name}`"
                 >&#x1F47F; Overload CADRE &#x1F47F;</button>
                 </div>
             </div>
@@ -147,6 +155,7 @@
                 <button
                     @click.prevent.stop="$router.push({name: 'jobs-list'})"
                     class="btn btn-primary"
+                    :aria-label="`Check Job Status`"
                 >Check Job Statuses</button>
             </div>
         </modal>
