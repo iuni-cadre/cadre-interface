@@ -649,11 +649,11 @@ header#main-header .nav-item {
     position: fixed;
     right: 1rem;
     bottom: 1rem;
-    opacity: 0.5;
+    // opacity: 0.5;
 
-    &:hover {
-        opacity: 1;
-    }
+    // &:hover {
+    //     opacity: 1;
+    // }
 
     a {
         text-decoration: none;

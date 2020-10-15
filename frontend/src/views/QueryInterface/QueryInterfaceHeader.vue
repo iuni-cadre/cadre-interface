@@ -34,6 +34,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+h2 {
+    margin: 0 0 1rem 0;
+}
+nav ul {
+    margin-bottom: 0;
+}
 nav li {
     padding: 0 2rem;
 }
