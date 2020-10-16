@@ -1,4 +1,229 @@
+
+
+<script>
+import Modal from "@/components/Common/CommonModal";
+
+
+export default {
+    data: function() {
+        return {
+            current_user_profile: [],
+            new_display_name: "",
+            update_successful:false,
+            first_name: "",
+            middle_initial: "",
+            last_name: "",
+            university: "",
+            department:"",
+            research_area: "",
+            university_email_address: "",
+            // research_period: "",
+            // start_date: "",
+            // end_date: "",
+            // subscribe_newsletter: false,
+            // research_projects: "",
+            // cadre_interest: "",
+            agree_access_policy: false,
+            agree_not_share_data: false,
+            agree_not_share_username: false,
+            agree_safeguard_username: false,
+            agree_unauthorized_responsibility: false,
+            agree_loss_control: false,
+            agree_publications_acknowledge: false,
+            agree_receive_emails: false,
+            agree_works_submitted: false,
+            agree_comply: false,
+            agreement_signed: false,  
+            completed_access_form:[],
+
+            success_message: "",
+            error_message: "",
+
+            //access_agreement_confirm: false,
+            //set testing_page to true to use sample user profile
+            testing_page: false
+        };
+    },
+    computed: {
+        user_id: function() {
+            return this.$store.state.user.user_id;
+        },
+        trial_user: function(){
+            if (this.$store.state.user.cognito_groups != null){
+                if (this.$store.state.user.cognito_groups.includes("wos_trial")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else{
+                return false;
+            } 
+        }
+    },
+    components: {
+        Modal
+    },
+    methods: {
+        async getProfile() {
+            this.$store.commit("loading/addKey", { key: "getProfile", message: "" });
+            try {
+                let response = await this.$store.dispatch("user/getProfile");
+                let user_profile = response.data;
+                this.$set(this, "current_user_profile", user_profile);
+                this.$set(this, "agreement_signed", user_profile.agreement_signed);
+                this.$set(this, "completed_access_form", user_profile.access_form_fields);
+                this.new_display_name = user_profile.display_name;
+            }catch(error){
+                throw error;
+            }finally{
+                this.$store.commit("loading/removeKey", {key: "getProfile"});
+            }
+        },
+        async createProfile(){
+            let response = undefined;
+            try {
+                response = await this.$cadre.axios({
+                    url: this.$cadreConfig.rac_api_prefix + "/profile/create-user-profile",
+                    method:"POST",
+                    data: {
+                        user_id: this.user_id
+                    }
+                });
+            } catch(error) {
+                throw error;
+            }
+            return response;
+        },
+        //Element(s) in user profile section updated
+        async updateProfile() {
+            this.$store.commit("loading/addKey", {key: "profileUpdate",
+            message: "Updating Profile"});
+            let prom = new Promise(async (resolve, reject) => {
+                let axios_prom = this.$cadre.axios({
+                    url: this.$cadreConfig.rac_api_prefix + "/profile/update-user-profile",
+                    method:"POST",
+                    data: {
+                        user_id: this.user_id,
+                        new_display_name: this.new_display_name,
+                    }
+                });
+                axios_prom.then(
+                    async response => {
+                        this.update_successful = true;
+                        this.success_message = "Profile was updated successfully."
+                        await this.getProfile()//this.$store.dispatch("user/getProfile");
+                        // let user_profile = this.$store.getters["user/profile"];
+
+                        resolve(response)
+                    },
+                    error => {
+                        console.error(error);
+                        this.error_message= "Profile could not be updated."
+                        reject(error)
+                    }
+                );
+                axios_prom.finally(() => {
+                    this.$store.commit("loading/removeKey", {key: "profileUpdate"});
+                });
+            });
+            return prom;
+        },
+        //Access form fields submitted
+        submitUserAgreement: function() {
+            this.$store.commit("loading/addKey", {key: "agreementUpdate",
+            message: "Updating Agreement"});
+            let prom = new Promise((resolve, reject) => {
+                let access_form_fields = [{
+                    first_name : this.first_name,
+                    middle_initial: this.middle_initial,
+                    last_name: this.last_name,
+                    university: this.university,
+                    department: this.department,
+                    research_area: this.research_area,
+                    university_email_address: this.university_email_address,
+                    agree_access_policy: this.agree_access_policy,
+                    agree_not_share_data: this.agree_not_share_data,
+                    agree_not_share_username: this.agree_not_share_username,
+                    agree_safeguard_username: this.agree_safeguard_username,
+                    agree_unauthorized_responsibility: this.agree_unauthorized_responsibility,
+                    agree_loss_control: this.agree_loss_control,
+                    agree_publications_acknowledge: this.agree_publications_acknowledge,
+                    agree_receive_emails: this.agree_receive_emails,
+                    agree_works_submitted: this.agree_works_submitted,
+                    agree_comply: this.agree_comply
+                }];
+                let axios_prom = this.$cadre.axios({
+                    url: this.$cadreConfig.rac_api_prefix + "/profile/update-user-agreement",
+                    method:"POST",
+                    data: {
+                        user_id: this.user_id,
+                        access_form_fields: access_form_fields
+                    }
+                });
+                axios_prom.then(
+                    response => {
+                        this.agreement_signed = true
+                        this.success_message = "Agreement signed."
+                        resolve(response)
+                    },
+                    error => {
+                        console.error(error);
+                        this.error_message = "Agreement could not be updated."
+                        reject(error)
+                    }
+                );
+                axios_prom.finally(() => {
+                    this.$store.commit("loading/removeKey", {key: "agreementUpdate"});
+                });
+            });
+            return prom;
+        },
+    },
+    watch: {
+        update_successful: function (after, before) {
+            this.getProfile()
+            console.debug("refresh")
+        },
+        agreement_signed: function (after, before) {
+            this.getProfile()
+            console.debug("refresh")
+        }
+    },
+    async mounted() {
+        try {
+            await this.getProfile();
+            console.debug(this.current_user_profile)
+            if (!this.new_display_name || (this.trial_user & !this.current_user_profile.agreement_signed)) {
+                try {
+                    await this.createProfile();
+                }catch(error){
+                    console.warn(error);
+                }
+            }
+        }
+        catch (error) {
+            console.warn(error);
+        }
+    }
+};
+const sample_user_profile = {
+    user_id: 1000,
+    display_name: "Test User",
+    agreement_signed: true,
+    date_agreement_signed: "2020-02-07T21:10:46.773823+00:00"
+}
+</script>
+
+
 <template>
+<!-- 
+######## ######## ##     ## ########  ##          ###    ######## ######## 
+   ##    ##       ###   ### ##     ## ##         ## ##      ##    ##       
+   ##    ##       #### #### ##     ## ##        ##   ##     ##    ##       
+   ##    ######   ## ### ## ########  ##       ##     ##    ##    ######   
+   ##    ##       ##     ## ##        ##       #########    ##    ##       
+   ##    ##       ##     ## ##        ##       ##     ##    ##    ##       
+   ##    ######## ##     ## ##        ######## ##     ##    ##    ########  -->
     <div>
         <section>
             <div class="container">
@@ -34,7 +259,8 @@
                         </div>
                     </div>
             </div>
-            <div class="card mb-3" v-if="trial_user && !agreement_signed">
+
+            <div class="card mb-3" v-if="trial_user && !current_user_profile.agreement_signed">
                 <h3>CADRE Trial User Form</h3>
                     <hr />
                     <div class="row mb-5">
@@ -384,250 +610,6 @@
             
     </div>
 </template>
-
-<script>
-import Modal from "@/components/Common/CommonModal";
-
-
-export default {
-    data: function() {
-        return {
-            current_user_profile: [],
-            new_display_name: "",
-            update_successful:false,
-            first_name: "",
-            middle_initial: "",
-            last_name: "",
-            university: "",
-            department:"",
-            research_area: "",
-            university_email_address: "",
-            // research_period: "",
-            // start_date: "",
-            // end_date: "",
-            // subscribe_newsletter: false,
-            // research_projects: "",
-            // cadre_interest: "",
-            agree_access_policy: false,
-            agree_not_share_data: false,
-            agree_not_share_username: false,
-            agree_safeguard_username: false,
-            agree_unauthorized_responsibility: false,
-            agree_loss_control: false,
-            agree_publications_acknowledge: false,
-            agree_receive_emails: false,
-            agree_works_submitted: false,
-            agree_comply: false,
-            agreement_signed: false,  
-            completed_access_form:[],
-
-            success_message: "",
-            error_message: "",
-
-            //access_agreement_confirm: false,
-            //set testing_page to true to use sample user profile
-            testing_page: false
-        };
-    },
-    computed: {
-        user_id: function() {
-            return this.$store.state.user.user_id;
-        },
-        trial_user: function(){
-            if (this.$store.state.user.cognito_groups != null){
-                if (this.$store.state.user.cognito_groups.includes("wos_trial")) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else{
-                return false;
-            } 
-        }
-    },
-    components: {
-        Modal
-    },
-    methods: {
-        getProfile: function() {
-            this.$store.commit("loading/addKey", { key: "getProfile", message: "" });
-            let prom = new Promise((resolve, reject) => {
-                if (this.testing_page === true){
-                    let user_profile = sample_user_profile;
-                    this.$set(this, "current_user_profile", user_profile);
-                    this.$set(this, "agreement_signed", user_profile.agreement_signed);
-                    return true
-                } 
-                else {
-                    let axios_prom = this.$cadre.axios({
-                        url: this.$cadreConfig.rac_api_prefix + "/profile/get-user-profile",
-                        method: "GET",
-                        data:{
-                            user_id: this.user_id
-
-                        }
-                    });
-                    axios_prom.then(
-                        response => {
-                            let user_profile = response.data;
-                            this.$set(this, "current_user_profile", user_profile);
-                            this.$set(this, "agreement_signed", user_profile.agreement_signed);
-                            this.$set(this, "completed_access_form", user_profile.access_form_fields);
-                            this.new_display_name = user_profile.display_name;
-                            resolve(response);
-                        },
-                        error => {
-                            console.error(error);
-                            reject(error);
-                        }
-                    );
-                    axios_prom.finally(() => {
-                        this.$store.commit("loading/removeKey", {key: "getProfile"});
-                    })
-                }
-            });
-            return prom;
-        },
-        createProfile: function(){
-            let prom = new Promise((resolve, reject) => {
-                let axios_prom = this.$cadre.axios({
-                    url: this.$cadreConfig.rac_api_prefix + "/profile/create-user-profile",
-                    method:"POST",
-                    data: {
-                        user_id: this.user_id
-                    }
-                });
-                axios_prom.then(
-                    response => {
-                        resolve(response)
-                    },
-                    error => {
-                        console.error(error);
-                        reject(error)
-                    }
-                );
-            });
-            return prom;
-        },
-        //Element(s) in user profile section updated
-        updateProfile: async function() {
-            this.$store.commit("loading/addKey", {key: "profileUpdate",
-            message: "Updating Profile"});
-            let prom = new Promise(async (resolve, reject) => {
-                let axios_prom = this.$cadre.axios({
-                    url: this.$cadreConfig.rac_api_prefix + "/profile/update-user-profile",
-                    method:"POST",
-                    data: {
-                        user_id: this.user_id,
-                        new_display_name: this.new_display_name,
-                    }
-                });
-                axios_prom.then(
-                    async response => {
-                        this.update_successful = true;
-                        this.success_message = "Profile was updated successfully."
-                        await this.$store.dispatch("user/getProfile");
-                        // let user_profile = this.$store.getters["user/profile"];
-
-                        resolve(response)
-                    },
-                    error => {
-                        console.error(error);
-                        this.error_message= "Profile could not be updated."
-                        reject(error)
-                    }
-                );
-                axios_prom.finally(() => {
-                    this.$store.commit("loading/removeKey", {key: "profileUpdate"});
-                });
-            });
-            return prom;
-        },
-        //Access form fields submitted
-        submitUserAgreement: function() {
-            this.$store.commit("loading/addKey", {key: "agreementUpdate",
-            message: "Updating Agreement"});
-            let prom = new Promise((resolve, reject) => {
-                let access_form_fields = [{
-                    first_name : this.first_name,
-                    middle_initial: this.middle_initial,
-                    last_name: this.last_name,
-                    university: this.university,
-                    department: this.department,
-                    research_area: this.research_area,
-                    university_email_address: this.university_email_address,
-                    agree_access_policy: this.agree_access_policy,
-                    agree_not_share_data: this.agree_not_share_data,
-                    agree_not_share_username: this.agree_not_share_username,
-                    agree_safeguard_username: this.agree_safeguard_username,
-                    agree_unauthorized_responsibility: this.agree_unauthorized_responsibility,
-                    agree_loss_control: this.agree_loss_control,
-                    agree_publications_acknowledge: this.agree_publications_acknowledge,
-                    agree_receive_emails: this.agree_receive_emails,
-                    agree_works_submitted: this.agree_works_submitted,
-                    agree_comply: this.agree_comply
-                }];
-                let axios_prom = this.$cadre.axios({
-                    url: this.$cadreConfig.rac_api_prefix + "/profile/update-user-agreement",
-                    method:"POST",
-                    data: {
-                        user_id: this.user_id,
-                        access_form_fields: access_form_fields
-                    }
-                });
-                axios_prom.then(
-                    response => {
-                        this.agreement_signed = true
-                        this.success_message = "Agreement signed."
-                        resolve(response)
-                    },
-                    error => {
-                        console.error(error);
-                        this.error_message = "Agreement could not be updated."
-                        reject(error)
-                    }
-                );
-                axios_prom.finally(() => {
-                    this.$store.commit("loading/removeKey", {key: "agreementUpdate"});
-                });
-            });
-            return prom;
-        },
-    },
-    watch: {
-        update_successful: function (after, before) {
-            this.getProfile()
-            console.debug("refresh")
-        },
-        agreement_signed: function (after, before) {
-            this.getProfile()
-            console.debug("refresh")
-        }
-    },
-    mounted: async function() {
-        try {
-            await this.getProfile();
-
-            if (!this.new_display_name || (this.trial_user & !this.current_user_profile.agreement_signed)) {
-                this.createProfile()
-            }
-        }
-        catch (error) {
-            console.warn(error);
-        }
-    }
-};
-
-
-
-const sample_user_profile = {
-    user_id: 1000,
-    display_name: "Test User",
-    agreement_signed: true,
-    date_agreement_signed: "2020-02-07T21:10:46.773823+00:00"
-}
-</script>
-
 <style lang="scss">
 $border: solid gray 1px;
 
