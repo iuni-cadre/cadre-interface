@@ -546,16 +546,11 @@ const sample_user_profile = {
                                         Please reach out to CADRE or your
                                         university’s CADRE representative to
                                         confirm the exact date the institution’s
-                                        trial began.
-                                    </p>
-                                    <p>
-                                        We cannot guarantee that your data or
-                                        code will be retained on the platform
-                                        after your trial period ends. However,
-                                        you will be sent an email reminder two
-                                        weeks before the end of your trial
-                                        period to ensure you have enough time to
-                                        remove your data and code, if necessary.
+                                        trial began. You will be sent an email
+                                        reminder two weeks before the end of
+                                        your trial period to ensure you have
+                                        enough time to remove your data and
+                                        code, if necessary.
                                     </p>
                                 </div>
                             </div>
@@ -566,51 +561,29 @@ const sample_user_profile = {
                                 <div class="form-group col">
                                     <p>
                                         As part of our trial, you will receive
-                                        access to
-                                        <a
-                                            href="https://cadre.iu.edu/about-cadre"
-                                            target="_blank"
-                                            >all of the available CADRE features
-                                            and datasets</a
-                                        >
-                                        that our paying members receive access
-                                        to, including
-                                        <a
-                                            href="https://cadre.iu.edu/about-cadre/available-datasets"
-                                            target="_blank"
-                                            >Web of Science data</a
-                                        >
-                                        through your institution’s license. Open
-                                        access dataset
-                                        <a
-                                            href="https://cadre.iu.edu/about-cadre/available-datasets"
-                                            target="_blank"
-                                            >Microsoft Academic Graph</a
-                                        >
-                                        is also included in CADRE.
+                                        access to all of the available CADRE
+                                        features and datasets that our paying
+                                        members receive access to, including Web
+                                        of Science data through your
+                                        institution’s license. Open access
+                                        dataset Microsoft Academic Graph is also
+                                        included in CADRE.
                                     </p>
                                     <p>
                                         Any questions you have about the
                                         platform should be asked in the
                                         #cadre-users Slack channel. Email
-                                        <a href="mailto:smcgavin@iu.edu"
-                                            >Stephanie Hernandez McGavin</a
-                                        >
-                                        with a request to join CADRE’s Slack
-                                        workspace. To report bugs about the
-                                        platform, fill out CADRE’s
-                                        <a
-                                            href="https://cadre.iu.edu/contact-us"
-                                            target="_blank"
-                                            >contact form</a
-                                        >
-                                        with your message.
+                                        <a href="mailto:smcgavin@iu.edu">Stephanie Hernandez McGavin</a> with a
+                                        request to join CADRE’s Slack workspace.
+                                        To report bugs about the platform, fill
+                                        out CADRE’s <a href="/contact-us">contact form</a> with your
+                                        message.
                                     </p>
                                 </div>
                             </div>
                             <div class="form-group col mb-5">
                                 <h4 class="mb-3">
-                                    Expectations for Trial and Technical Support
+                                    Data Access Use and Conditions
                                 </h4>
                                 <div class="form-group col">
                                     <p>
