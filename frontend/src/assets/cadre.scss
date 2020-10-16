@@ -1,6 +1,8 @@
 
 
-
+*:focus{
+    box-shadow:0 0 0 .15rem white,  0 0 0 .3rem $dark_blue  !important;   
+}
 
 #branding-bar {
     position: relative !important;

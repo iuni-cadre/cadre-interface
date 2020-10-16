@@ -7,7 +7,7 @@
             aria-labelledby="modalLabel"
             :class="{'modal-show': true}"
             @click.stop="close"
-            
+            :id="modal_id"
         >
             <div
                 class="modal-dialog d-flex align-items-center justify-content-center"
@@ -146,6 +146,7 @@ export default {
     data: function() {
         return {
             // visible: true
+            modal_id: `modal_${(Math.random())}`.replace('.', '')
         };
     },
     methods: {
@@ -156,6 +157,11 @@ export default {
             this.$emit("ok");
         },
         stop: function() {}
+    },
+    mounted(){
+        this.$nextTick(()=>{
+            document.querySelector(`#${this.modal_id} button`).focus();
+        })
     }
 };
 </script>
