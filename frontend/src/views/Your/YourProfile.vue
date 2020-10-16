@@ -261,8 +261,17 @@ const sample_user_profile = {
             </div>
 
             <div class="card mb-3" v-if="trial_user && !current_user_profile.agreement_signed">
+                <div class="alert alert-info">
+                    <p>Hey there,</p>
+                    <p>You may have already filled out this form or worked on the platform, but 
+                        <a href="/news-and-events/news/cadre-executes-beta-launch-invites-institutions-to-trial-platform" target="_blank">our Beta Launch</a> has changed things up, 
+                        and we are asking trial users to resubmit their forms through our new system. Thank you in advance for your understanding! </p>
+                    <p>If you want to stay in the loop on updates like this, <a href="/news-and-events" target="_blank">subscribe to our newsletter</a>.</p>
+                </div>
+
                 <h3>CADRE Trial User Form</h3>
                     <hr />
+                    
                     <div class="row mb-5">
                         <div class="form-group col mb-5"
                         v-text="`Agreement signed on ${new Date(current_user_profile.date_agreement_signed).toUTCString()}`"
@@ -270,7 +279,10 @@ const sample_user_profile = {
                         </div> 
                         <form @submit.stop.prevent="submitUserAgreement()">
                             <div class="form-group col mb-5">
-                                <p>The following form must be completed by anyone using <a href="https://cadre.iu.edu/" target="_blank">Collaborative Archive & Data Research Environment</a> (CADRE) as part of their affiliated institution’s trial period with CADRE.</p>
+                                <p>
+                                    The following form must be completed by anyone using 
+                                    <a href="https://cadre.iu.edu/" target="_blank">Collaborative Archive &amp; Data Research Environment</a> 
+                                    (CADRE) as part of their affiliated institution's trial period with CADRE.</p>
                                 <h4 class="mb-3">Personal Information</h4>
                                 <div class="form-row mb-3 d-flex flex-fill align-center">
                                     <div class="col">
