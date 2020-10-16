@@ -7,10 +7,10 @@ import CryptoJS from "crypto-js";
 const TEST_USER = {
     username: "test-user",
     roles: [""],
-    roles: ["wos_gold"],
+    roles: ["wos_trial"],
     token: "fake_token",
     user_id: 1000,
-    cognito_groups: ["wos_gold"]
+    cognito_groups: ["wos_trial"]
 };
 
 // const mock_authorize_token_response = {"user_id": 86, "roles": ["wos_gold"], "cognito_groups": ["WOS", "MAG"]}
@@ -28,7 +28,7 @@ const mock_profile_response = {
         user_id: 86,
         display_name: "TEST USER DISP",
         agreement_signed: false,
-        date_agreement_signed: "2020-09-28T12:43:00",
+        date_agreement_signed: null, //new Date().toISOString(),
         access_form_fields: {}
     }
 };
@@ -169,8 +169,8 @@ export default {
     },
     actions: {
         getProfile: async function({ state, commit }) {
+            let response = null;
             try {
-                let response = null;
                 if (Vue.$cadreConfig.force_validation === false) {
                     console.debug("Using mock profile response");
                     response = mock_profile_response;
@@ -192,6 +192,7 @@ export default {
             } catch (error) {
                 console.warn(error);
             }
+            return response;
             // });
             // return prom;
         },
