@@ -351,7 +351,7 @@ def get_packages_user():
 
                 
 @blueprint.route('/rac-api/packages/featured', methods=['GET'])
-def get_packages_user():
+def get_featured_packages():
     """
     This is a method which returns the details of all the packages
 
@@ -446,14 +446,13 @@ def get_packages_user():
                     JOIN archive ON (package.archive_id = archive.archive_id) 
                     JOIN tool ON (package.tool_id = tool.tool_id) 
                     LEFT JOIN user_profile ON (package.created_by = user_profile.user_id)
-                WHERE package.to_be_deleted IS NOT TRUE 
-                    AND package.featured = TRUE
+                WHERE package.featured IS TRUE
                 GROUP BY package.package_id 
                 ORDER BY {} 
                 LIMIT %s 
                 OFFSET %s """.format(actual_order_by)
-        # print(str(cur.mogrify(query, (user_id, limit, offset))))
-        cur.execute(query, (user_id, limit, offset))
+        # print(str(cur.mogrify(query, (limit, offset))))
+        cur.execute(query, (limit, offset))
         if cur.rowcount == 0:
             return jsonify([]), 200
         elif cur.rowcount > 0:
