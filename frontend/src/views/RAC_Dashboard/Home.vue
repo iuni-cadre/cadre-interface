@@ -36,28 +36,31 @@
             </div>
             <hr />
             <div class="d-flex justify-content-between align-items-baseline">
-                <h3>Top Packages</h3>&nbsp;&nbsp;
+                <h3>Featured Packages</h3>&nbsp;&nbsp;
                 <router-link
                     :to="{name: 'rac-marketplace'}"
                     target
                     class
                 >Visit Marketplace</router-link>
             </div>
-            <div class="row flex-wrap d-flex mb-3">
-                <div
-                    v-for="(racpackage, index) in racpackages"
-                    :key="`racpackage_card_${index}`"
-                    class="col-md-4 flex-fill d-flex"
-                >
-                    <rac-package-card
-                        @startLoading="startLoading"
-                        @stopLoading="stopLoading"
-                        :rac-package="racpackage"
-                    ></rac-package-card>
+            <div class="">
+                <div class="row col" v-if="!racpackages || racpackages.length == 0">
+                    Could not find any featured packages.
                 </div>
-                <div class="col" v-if="racpackages.length == 0">
-                    Could not find any packages.
+                <div v-else class="row flex-wrap d-flex mb-3">
+                    <div
+                        v-for="(racpackage, index) in racpackages"
+                        :key="`racpackage_card_${index}`"
+                        class="col-md-4 flex-fill d-flex"
+                    >
+                        <rac-package-card
+                            @startLoading="startLoading"
+                            @stopLoading="stopLoading"
+                            :rac-package="racpackage"
+                        ></rac-package-card>
+                    </div>
                 </div>
+                
             </div>
             <!-- <span class="ml-3 d-inline-block">
                 <span v-text="racpackages_total_count"></span> Total Packages
@@ -119,6 +122,7 @@ const RAC_PACKAGES_TO_SHOW = 3;
 export default {
     data: function() {
         return {
+            racpackages: []
         };
     },
     computed: {
@@ -138,12 +142,12 @@ export default {
             return this.$store.getters["user/username"];
         },
 
-        racpackages: function () {
-            return this.$store.getters["racpackage/packages"].slice(
-                0,
-                RAC_PACKAGES_TO_SHOW
-            );
-        },
+        // racpackages: function () {
+        //     return this.$store.getters["racpackage/packages"].slice(
+        //         0,
+        //         RAC_PACKAGES_TO_SHOW
+        //     );
+        // },
         racpackages_total_count: function () {
             return this.$store.getters["racpackage/packages"].length;
         },
@@ -163,6 +167,22 @@ export default {
         stopLoading({ key }) {
             this.$store.commit("loading/removeKey", { key });
         },
+        async getFeaturedPackages(){
+            this.startLoading({key: "featured"})
+            try {
+                let response = await this.$cadre.axios({
+                    url: `${this.$cadreConfig.rac_api_prefix}/packages/featured`,
+                    method: "GET",
+                })
+                console.debug(response.data)
+                this.racpackages = response.data;
+            } catch (error) {
+                throw error;
+            }
+            finally {
+                this.stopLoading({key: "featured"});
+            }
+        }
         
     },
     components: {
@@ -178,6 +198,7 @@ export default {
             let get_packages_prom = this.$store.dispatch(
                 "racpackage/getPackages"
             );
+            await this.getFeaturedPackages();
             let get_tools_prom = this.$store.dispatch("racpackage/getTools");
             Promise.all([get_packages_prom, get_tools_prom]).finally(() => {
                 //stop loading
