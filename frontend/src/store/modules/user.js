@@ -190,7 +190,8 @@ export default {
                 // console.debug()
                 commit("setProfile", user_profile);
             } catch (error) {
-                console.warn(error);
+                // console.warn(error);
+                throw error;
             }
             return response;
             // });
@@ -233,7 +234,7 @@ export default {
                         throw new Error("Couldn't get cognito groups.");
                     }
                 } catch (error) {
-                    console.warn(error);
+                    // console.warn(error);
                     commit("logout");
                 }
             }, HEARTBEAT_INTERVAL);

@@ -161,7 +161,7 @@ export default {
                 (error) => {
                     // this.removeFromLoadingQueue("initialize");
                     this.error_message = "Unauthorized";
-                    console.error("Could not validate token.", error);
+                    console.warn("Could not validate token.", error);
                 }
             );
             return validate_prom;
@@ -187,7 +187,12 @@ export default {
         },
 
         async getProfile() {
-            await this.$store.dispatch("user/getProfile");
+            try {
+                await this.$store.dispatch("user/getProfile");
+            }
+            catch(error) {
+                console.warn(error);
+            }
             let user_profile = this.$store.getters["user/profile"];
             // this.display_name = user_profile.display_name;
             this.agreement_signed = user_profile.agreement_signed;
@@ -234,13 +239,15 @@ export default {
         try {
             await this.validate();
             await this.getProfile();
-            this.ready = true;
-            this.$nextTick(()=>{
-                this.firstLogin();
-            })
-        }catch(e){
+        } catch(e) {
             console.warn(e);
         }
+
+        this.ready = true;
+        this.$nextTick(()=>{
+            this.firstLogin();
+        });
+
         this.removeFromLoadingQueue({key: "initializing"})
         
         this.updateTitle();
@@ -422,6 +429,7 @@ export default {
             @startLoading="startLoading"
             @stopLoading="stopLoading"
             @update-page-title="updateTitle"
+            @update-profile="getProfile"
             :isLoading="is_loading"
         />
 

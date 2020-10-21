@@ -86,7 +86,18 @@ export default {
                 );
                 this.new_display_name = user_profile.display_name;
             } catch (error) {
-                throw error;
+                try {
+                    if(error.response.status == 404){
+                        let r = await this.createProfile();
+                    }
+                    else
+                    {
+                        throw error;
+                    }
+                }
+                catch(e) {
+                    throw e;
+                }
             } finally {
                 this.$store.commit("loading/removeKey", { key: "getProfile" });
             }
@@ -103,7 +114,10 @@ export default {
                         user_id: this.user_id,
                     },
                 });
+                await this.getProfile();
+                return response.data;
             } catch (error) {
+                console.warn("Create Failed");
                 throw error;
             }
             return response;
@@ -132,7 +146,7 @@ export default {
                             "Profile was updated successfully.";
                         await this.getProfile(); //this.$store.dispatch("user/getProfile");
                         // let user_profile = this.$store.getters["user/profile"];
-
+                        this.$emit("update-profile");
                         resolve(response);
                     },
                     (error) => {
@@ -193,6 +207,8 @@ export default {
                     (response) => {
                         this.agreement_signed = true;
                         this.success_message = "Agreement signed.";
+                        
+                        this.$emit("update-profile");
                         resolve(response);
                     },
                     (error) => {
@@ -224,16 +240,16 @@ export default {
         try {
             await this.getProfile();
             console.debug(this.current_user_profile);
-            if (
-                !this.new_display_name ||
-                this.trial_user & !this.current_user_profile.agreement_signed
-            ) {
-                try {
-                    await this.createProfile();
-                } catch (error) {
-                    console.warn(error);
-                }
-            }
+            // if (
+            //     !this.new_display_name ||
+            //     (this.trial_user && !this.current_user_profile.agreement_signed)
+            // ) {
+            //     try {
+            //         await this.createProfile();
+            //     } catch (error) {
+            //         console.warn("Create Profile Failed.", error);
+            //     }
+            // }
         } catch (error) {
             console.warn(error);
         }
