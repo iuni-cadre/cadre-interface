@@ -144,7 +144,7 @@ export default {
                 axios_prom.then(
                     response => {
                         let packages = response.data;
-                        console.debug(response);
+                        // console.debug(response);
                         commit("setPackages", packages);
                         resolve(response);
                     },

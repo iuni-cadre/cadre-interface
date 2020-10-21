@@ -239,7 +239,7 @@ export default {
     async mounted() {
         try {
             await this.getProfile();
-            console.debug(this.current_user_profile);
+            // console.debug(this.current_user_profile);
             // if (
             //     !this.new_display_name ||
             //     (this.trial_user && !this.current_user_profile.agreement_signed)

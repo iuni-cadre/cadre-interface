@@ -222,7 +222,7 @@ export default {
             }
         },
         updateTitle(name){
-            console.debug(name)
+            // console.debug(name)
             if(!this.authToken)
             {
                 document.title=`Log In - ${TITLE}`;
