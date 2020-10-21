@@ -174,10 +174,11 @@ export default {
                     url: `${this.$cadreConfig.rac_api_prefix}/packages/featured`,
                     method: "GET",
                 })
-                console.debug(response.data)
+                // console.debug(response.data)
                 this.racpackages = response.data;
             } catch (error) {
-                throw error;
+                // throw error;
+                console.warn(error);
             }
             finally {
                 this.stopLoading({key: "featured"});
@@ -198,7 +199,7 @@ export default {
             let get_packages_prom = this.$store.dispatch(
                 "racpackage/getPackages"
             );
-            await this.getFeaturedPackages();
+            this.getFeaturedPackages();
             let get_tools_prom = this.$store.dispatch("racpackage/getTools");
             Promise.all([get_packages_prom, get_tools_prom]).finally(() => {
                 //stop loading
