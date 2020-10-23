@@ -206,10 +206,10 @@ export default {
         getArchives: function() {
             let prom = new Promise((resolve, reject) => {
                 //FOR TESTING
-                console.debug(TEST_RAC_ARCHIVES);
-                this.$set(this, "available_archives", TEST_RAC_ARCHIVES)
-                resolve({ status: 200, data: { message: "Test Tools" } });
-                return true;
+                // console.debug(TEST_RAC_ARCHIVES);
+                // this.$set(this, "available_archives", TEST_RAC_ARCHIVES)
+                // resolve({ status: 200, data: { message: "Test Tools" } });
+                // return true;
 
                 if (this.existingTools && this.existingTools.length > 0) {
                     this.$set(
