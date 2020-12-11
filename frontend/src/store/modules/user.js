@@ -7,10 +7,10 @@ import CryptoJS from "crypto-js";
 const TEST_USER = {
     username: "test-user",
     roles: [""],
-    roles: ["wos_gold"],
+    roles: ["wos_trial"],
     token: "fake_token",
     user_id: 1000,
-    cognito_groups: ["wos_gold"]
+    cognito_groups: ["wos_trial"]
 };
 
 // const mock_authorize_token_response = {"user_id": 86, "roles": ["wos_gold"], "cognito_groups": ["WOS", "MAG"]}
@@ -19,8 +19,8 @@ const TEST_USER = {
 const mock_authorize_token_response = {
     data: {
         user_id: 86,
-        roles: ["wos_gold"],
-        cognito_groups: ["WOS", "MAG", "wos_gold"]
+        roles: ["wos_trial"],
+        cognito_groups: ["MAG", "wos_trial"]
     }
 };
 const mock_profile_response = {

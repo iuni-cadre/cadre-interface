@@ -418,7 +418,15 @@ const sample_user_profile = {
                                         <label for="trial_form_university"
                                             >University</label
                                         >
-                                        <select
+                                        <input
+                                            id="trial_form_university"
+                                            required
+                                            class="form-control"
+                                            type="text"
+                                            v-model="university"
+                                            :placeholder="university"
+                                        />
+                                        <!-- <select
                                             id="trial_form_university"
                                             required
                                             class="form-control"
@@ -431,7 +439,7 @@ const sample_user_profile = {
                                             <option>
                                                 University of Toronto
                                             </option>
-                                        </select>
+                                        </select> -->
                                     </div>
                                     <div class="col">
                                         <label for="trial_form_department"
