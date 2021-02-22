@@ -204,7 +204,36 @@ export function convertQueryDataToJanus({
             }
             // graph.network = vertex;
         } else if (type == "single") {
-            csv_output.push(output_map[field]);
+
+            let output_field = output_map[field];
+            if( ! output_field) {
+                continue;
+            }
+            csv_output.push(output_field);
+
+            //if we're requesting an output field that is from a node that
+            //   has not yet been requested, add the vertex and the path to it.
+            let vertex = output_field.vertexType;
+            let node = graph.nodes.find(node=>{
+                return node.vertexType == vertex;
+            })
+            console.log(node)
+            if(!node)
+            {
+                graph.nodes.push({
+                    vertexType: vertex,
+                    filters: []
+                });
+
+                const the_course = path_to_main[vertex];
+                for(const relation of the_course)
+                {
+                    const edge_to_add = edge_types.find((edge)=>{ return edge.relation == relation});
+                    graph.edges.push(edge_to_add);
+                }
+            }
+
+
         }
     }
 

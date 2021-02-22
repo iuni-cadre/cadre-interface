@@ -88,11 +88,11 @@ describe("ConvertQueryDataToJanus", () => {
                     }
                 ],
                 edges: [
-                    {
-                        source: "Paper",
-                        target: "Paper",
-                        relation: "References"
-                    }
+                    // {
+                    //     source: "Paper",
+                    //     target: "Paper",
+                    //     relation: "References"
+                    // }
                 ],
             },
             csv_output: [
@@ -220,6 +220,10 @@ const sampleJSON = {
         },
         {
             field: "journal_display_name",
+            type: "single"
+        },
+        {
+            field: "affiliation_display_name",
             type: "single"
         },
         {

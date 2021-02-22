@@ -240,11 +240,11 @@ export default {
             type: "single",
             label: "eISSN"
         },
-        {
-            field: "affiliation_address",
-            type: "single",
-            label: "affiliation_address"
-        },
+        // {
+        //     field: "affiliation_address",
+        //     type: "single",
+        //     label: "affiliation_address"
+        // },
 
         {
             field: "citations",
@@ -683,10 +683,10 @@ export default {
                 vertexType: "Paper",
                 field: "fundingText"
             },
-            affiliation_address: {
-                vertexType: "Paper",
-                field: "address"
-            },
+            // affiliation_address: {
+            //     vertexType: "Paper",
+            //     field: "address"
+            // },
 
 
         }

@@ -195,7 +195,7 @@ export default {
             "ConferenceInstance": ["PresentedAt"],
             // "ConferenceSeries": ["InstanceOf", "PresentedAt"],
             "FieldOfStudy": ["BelongsTo"],
-            "Affiliations": ["AffiliatedWith", "AuthorOf"]
+            "Affiliation": ["AuthorOf", "AffiliatedWith"]
         },
         vertex_types: [
             "Paper",
@@ -204,7 +204,7 @@ export default {
             "ConferenceInstance",
             // "ConferenceSeries",
             "FieldOfStudy",
-            "Affiliations"
+            "Affiliation"
         ],
         edge_types: [
             {
