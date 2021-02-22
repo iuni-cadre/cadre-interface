@@ -145,6 +145,11 @@ export default {
             type: "single",
             label: "journal_publisher"
         },
+        {
+            field: "affiliation_display_name",
+            type: "single",
+            label: "affiliation_display_name"
+        },
         // {
         //     field: "paper_title_tsv",
         //     type: "single",
@@ -189,7 +194,8 @@ export default {
             "Author": ["AuthorOf"],
             "ConferenceInstance": ["PresentedAt"],
             // "ConferenceSeries": ["InstanceOf", "PresentedAt"],
-            "FieldOfStudy": ["BelongsTo"]
+            "FieldOfStudy": ["BelongsTo"],
+            "Affiliations": ["AffiliatedWith", "AuthorOf"]
         },
         vertex_types: [
             "Paper",
@@ -197,7 +203,8 @@ export default {
             "Author",
             "ConferenceInstance",
             // "ConferenceSeries",
-            "FieldOfStudy"
+            "FieldOfStudy",
+            "Affiliations"
         ],
         edge_types: [
             {
@@ -214,6 +221,11 @@ export default {
                 target: "Paper",
                 source: "Author",
                 relation: "AuthorOf"
+            },
+            {
+                target: "Affiliation",
+                source: "Author",
+                relation: "AffiliatedWith"
             },
             {
                 target: "ConferenceInstance",
@@ -380,6 +392,10 @@ export default {
             journal_publisher: {
                 vertexType: "JournalFixed",
                 field: "publisher"
+            },
+            affiliation_display_name: {
+                vertexType: "Affiliation",
+                field: "displayName"
             }
         }
     }
