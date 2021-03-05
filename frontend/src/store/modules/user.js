@@ -27,8 +27,8 @@ const mock_profile_response = {
     data: {
         user_id: 86,
         display_name: "TEST USER DISP",
-        agreement_signed: false,
-        date_agreement_signed: null, //new Date().toISOString(),
+        agreement_signed: true,
+        date_agreement_signed: new Date().toISOString(),
         access_form_fields: {}
     }
 };

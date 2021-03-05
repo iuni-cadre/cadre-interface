@@ -24,6 +24,7 @@ export default {
                 // "journalName"
             ],
             network_field_degrees: {},
+            network_field_selected: false,
 
             queries: [
                 {
@@ -389,6 +390,27 @@ export default {
             }
             this.$store.commit("loading/removeKey", { key: "query" });
                 
+        },
+        clickNetworkField(field_name) {
+            for( let field in this.network_fields)
+            {
+                let index = this.selected_fields.indexOf(field);
+                console.log(index)
+                if(index > -1)
+                {
+                    this.selected_fields.splice(index, 1);
+                }
+            }
+
+            if(this.network_field_selected == field_name)
+            {
+                this.network_field_selected = null;
+            }
+            else
+            {
+                this.network_field_selected = field_name;
+                this.selected_fields.push(field_name)
+            }
         }
     },
     props: {
@@ -540,32 +562,40 @@ export default {
                             <output-fields v-model="selected_fields"></output-fields>
                         </div>
                     </div>
-
                     <div
                         v-if="Object.keys(network_fields).length > 0"
                         class="card mb-3"
                     >
                         <h4>Network Queries</h4>
                         <!-- <div>Help Text</div> -->
+                        <div>
+                            <p>CADRE supports the generation of citations and references graphs.  The user specifies a set of filtering criteria to generate a list of query papers that fit the criteria.  A citations graph consists of the query papers and any papers the query papers cite, with edges representing citations by the query papers.  A references graph consists of the query papers and any papers referencing the query papers, with edges representing references made to the query papers.
+                            </p>
+                            <p>
+                            When requesting a citations or references graph, the user should pose narrow queries so as not to exceed processing capacity. To constrain the graph generation within processing capacity, a limit of 10000 papers has been placed on the number of papers that the graph generation supports.  Any generated citations or references graph with 10000 or more papers included should be considered an incomplete graph and it is recommended that the user should resubmit their query more narrow search criteria.
+                            </p>
+                        </div>
                         <div
                             v-for="(field, field_name) in network_fields"
                             class="d-flex justify-content-start align-items-center"
                             :key="`network_field_${field_name}`"
                         >
                             <label
-                                class="btn mb-0"
+                                class="btn mb-3"
                                 :class="{
-                                    'btn-outline-primary': selected_fields.indexOf(field.field) == -1,
-                                    'btn-primary': selected_fields.indexOf(field.field) >= 0,
+                                    'btn-outline-primary': network_field_selected != field.field,
+                                    'btn-primary': network_field_selected == field.field,
                                     }"
                                 :for="`${field.field}_field`"
                             >
                                 <input
-                                    type="checkbox"
+                                    type="radio"
                                     class="mr-2"
                                     :id="`${field.field}_field`"
-                                    v-model="selected_fields"
+                                    :checked="network_field_selected==field.field"
                                     :value="field.field"
+                                    @click="clickNetworkField(field.field)"
+                                    name="network_field"
                                 />
                                 Include
                                 <strong

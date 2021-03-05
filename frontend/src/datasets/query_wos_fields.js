@@ -249,7 +249,12 @@ export default {
         {
             field: "citations",
             type: "network",
-            label: "First Degree Citation Network"
+            label: "Citation Network Graph"
+        },
+        {
+            field: "references",
+            type: "network",
+            label: "References Network Graph"
         }
     ],
     input: {
@@ -280,10 +285,19 @@ export default {
                 target: "Paper",
                 source: "Paper",
                 relation: "References"
+            },
+            {
+                target: "Paper",
+                source: "Paper",
+                relation: "Citations"
             }
         ],
         network_map: {
             citations: {
+                vertex: "Paper",
+                relation: "Citations"
+            },
+            references: {
                 vertex: "Paper",
                 relation: "References"
             }
