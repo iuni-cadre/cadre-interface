@@ -1,6 +1,7 @@
 
 import WoS_Fields from "./query_wos_fields";
 import MAG_Fields from "./query_mag_fields";
+import PTO_Fields from "./query_pto_fields";
 
 export default{
     "wos": {
@@ -14,6 +15,13 @@ export default{
         name: "Microsoft Academic Graph",
         fields: MAG_Fields,
         description: "Metadata for scholarly papers and their authors",
+        allowed_roles: [],
+        database_type: "janus"
+    },
+    "uspto": {
+        name: "US Patent and Trademark Office",
+        fields: PTO_Fields,
+        description: "US Patent metadata",
         allowed_roles: [],
         database_type: "janus"
     }
