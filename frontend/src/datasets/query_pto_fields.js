@@ -158,7 +158,7 @@ export default {
     input: {
         patent_type: "Patent Type",
         patent_number: "Patent Number",
-        patent_date: "Patent Date Range",
+        patent_date: { label: "Patent Date Range", type: "range" },
         patent_abstract: "Patent Abstract",
         patent_title: "Patent Title",
         inventor_name_first: "Inventor First Name",
