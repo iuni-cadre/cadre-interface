@@ -3,6 +3,7 @@
 import QueryBuilderHeader from "./QueryInterfaceHeader";
 import OutputFields from "@/components/QueryBuilder/QueryBuilderOutputFields";
 import Datasets from "../../datasets";
+import QueryBuilderFilter from "../../components/QueryBuilder/QueryBuilderFilter";
 
 // let operator_types = [
 //     "AND",
@@ -411,14 +412,28 @@ export default {
                 this.network_field_selected = field_name;
                 this.selected_fields.push(field_name)
             }
+        },
+        filterFieldChanged({index, field}){
+            // console.debug(index, field);
+            this.queries[index].field = field;
+        },
+        filterValueChanged({index, value}){
+            // console.debug(index, value);
+            this.queries[index].value = value;
+        },
+        filterRemoveClickHandler({index}){
+            // console.debug(index);
+            this.removeQueryClause(index);
         }
+
     },
     props: {
         isLoading: Boolean
     },
     components: {
         QueryBuilderHeader,
-        OutputFields
+        OutputFields,
+        QueryBuilderFilter
     },
     watch: {
         default_fields: function(o, n) {
@@ -474,76 +489,17 @@ export default {
                         <h4>Filters</h4>
                         <template v-for="(clause, index) in queries">
                             <div :key="`clause_${index}`">
-                                <div
-                                    class="alert d-flex justify-content-between align-items-end"
-                                    :class="{'alert-danger': query_errors[index]}"
-                                >
-                                    <div class="form-group">
-                                        <label :for="`field_${index}`">Field</label>
-                                        <select :id="`field_${index}`"
-                                            class="form-control"
-                                            v-model="queries[index].field"
-                                        >
-                                            <option
-                                                disabled
-                                                selected
-                                                :value="''"
-                                            >Choose a search field</option>
-                                            <option
-                                                v-for="field in field_options(queries[index].field)"
-                                                :key="`${field.value}_${index}`"
-                                                :value="field.value"
-                                                v-text="field.label"
-                                            ></option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group col">
-                                        <label :for="`value_${index}`">Value</label>
-                                        <input :id="`value_${index}`"
-                                            class="form-control"
-                                            type="text"
-                                            v-model="queries[index].value"
-                                        />
-                                    </div>
-                                    <div class="form-group">
-                                        <button
-                                            class="btn btn-outline-danger"
-                                            type="button"
-                                            @click.stop.prevent="removeQueryClause(index)"
-                                        >
-                                            <fa icon="trash-alt" class="mr-1" /> Remove Filter
-                                        </button>
-                                    </div>
-                                </div>
+                                <query-builder-filter
+                                    :index="index"
+                                    :query_errors="query_errors"
+                                    :queries="queries"
+                                    :operator_types="operator_types"
+                                    :value="queries[index]"
 
-                                <div v-if="index != queries.length - 1">
-                                    <div v-if="operator_types.length > 1" class="form-group">
-                                        <!-- <label>Operator</label> -->
-                                        <select
-                                            class="form-control"
-                                            style="width: auto"
-                                            v-model="queries[index].operator"
-                                        >
-                                            <option
-                                                disabled
-                                                selected
-                                                :value="''"
-                                            >Choose an operand</option>
-                                            <option
-                                                v-for="operator in operator_types"
-                                                :key="`${operator}_${index}`"
-                                                :value="operator"
-                                                v-text="operator"
-                                            ></option>
-                                        </select>
-                                    </div>
-                                    <div v-else>
-                                        <!-- <input type="hidden" 
-                                        :value="operator_types[0]" 
-                                        v-model="queries[index].operator" /> -->
-                                        {{operator_types[0]}}
-                                    </div>
-                                </div>
+                                    @fieldChanged="filterFieldChanged"
+                                    @valueChanged="filterValueChanged"
+                                    @removeFilter="filterRemoveClickHandler"
+                                />
                             </div>
                         </template>
                         <div class="alert">
