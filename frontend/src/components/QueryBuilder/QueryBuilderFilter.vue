@@ -168,8 +168,9 @@ export default {
                     <input
                         :id="`value_${index}_b`"
                         class="form-control"
-                        type="date"
+                        type="date2"
                         v-model="range.begin"
+                        placeholder="YYYY-MM-DD"
                     />
                     <label :for="`value_${index}_e`" class="mx-3 my-0">
                         To:
@@ -177,10 +178,12 @@ export default {
                     <input
                         :id="`value_${index}_e`"
                         class="form-control"
-                        type="date"
+                        type="date2"
                         v-model="range.end"
+                        placeholder="YYYY-MM-DD"
                     />
                 </div>
+                <input v-else class="form-control disabled" disabled placeholder="Choose a field"/>
             </div>
 
             <div class="form-group">
