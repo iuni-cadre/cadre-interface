@@ -168,7 +168,7 @@ export default {
                     <input
                         :id="`value_${index}_b`"
                         class="form-control"
-                        type="date2"
+                        type="date"
                         v-model="range.begin"
                         placeholder="YYYY-MM-DD"
                     />
@@ -178,7 +178,7 @@ export default {
                     <input
                         :id="`value_${index}_e`"
                         class="form-control"
-                        type="date2"
+                        type="date"
                         v-model="range.end"
                         placeholder="YYYY-MM-DD"
                     />
