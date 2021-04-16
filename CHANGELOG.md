@@ -1,3 +1,7 @@
+# 1.1.1-beta
+
+- Fixes small bug in safari
+
 # 1.1.0-beta
 
 - Adds PTO Data set
