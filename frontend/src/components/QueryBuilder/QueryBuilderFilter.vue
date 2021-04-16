@@ -11,6 +11,7 @@ export default {
                 begin: null,
                 end: null,
             },
+            debounce_timer: 0,
         };
     },
     props: {
@@ -71,7 +72,7 @@ export default {
         },
         // filter_type() {
         //     console.debug("change range");
-            
+
         // },
         filter_value() {
             this.$emit("valueChanged", {
@@ -97,23 +98,38 @@ export default {
         range: {
             deep: true,
             handler() {
-                try {
-                    const b = new Date(this.range.begin + "T00:00:00");
-                    const e = new Date(this.range.end + "T00:00:00");
-                    const value =
-                        b.toISOString().split(".")[0] +
-                        "/" +
-                        e.toISOString().split(".")[0];
-                    this.filter_value = value;
-                } catch (e) {
-                    console.debug("Ignore this error", e);
+                const b = new Date(this.range.begin + "T00:00:00");
+                const e = new Date(this.range.end + "T00:00:00");
+                // console.debug(b, e)
+                if (
+                    isNaN(b.getTime()) ||
+                    isNaN(e.getTime()) ||
+                    b.getTime() >= e.getTime()
+                ) {
+                    console.debug("Invalid Date Range");
+                    // this.filter_value = null;  //Using this will cause the whole filter to blank out if one field is invalid
+                    return;
                 }
+
+                const value =
+                    b.toISOString().split(".")[0] +
+                    "/" +
+                    e.toISOString().split(".")[0];
+
+                this.filter_value = value;
             },
         },
     },
     methods: {
         removeFilter() {
             this.$emit("removeFilter", { index: this.index });
+        },
+        debounceRange(callback) {
+            clearTimeout(this.debounce_timer);
+            this.debounce_timer = 0;
+            this.debounce_timer = setTimeout(() => {
+                callback();
+            }, 1000);
         },
     },
     mounted() {
@@ -148,7 +164,6 @@ export default {
                     ></option>
                 </select>
             </div>
-
             <div class="form-group col">
                 <label :for="`value_${index}`">Value</label>
                 <input
@@ -169,7 +184,19 @@ export default {
                         :id="`value_${index}_b`"
                         class="form-control"
                         type="date"
-                        v-model="range.begin"
+                        :value="range.begin"
+                        @blur="
+                            (e) => {
+                                range.begin = e.target.value;
+                            }
+                        "
+                        @input="
+                            (e) => {
+                                debounceRange(() => {
+                                    range.begin = e.target.value;
+                                });
+                            }
+                        "
                         placeholder="YYYY-MM-DD"
                     />
                     <label :for="`value_${index}_e`" class="mx-3 my-0">
@@ -179,11 +206,29 @@ export default {
                         :id="`value_${index}_e`"
                         class="form-control"
                         type="date"
-                        v-model="range.end"
+                        :value="range.end"
+                        @blur="
+                            (e) => {
+                                range.end = e.target.value;
+                            }
+                        "
+                        @input="
+                            (e) => {
+                                debounceRange(() => {
+                                    range.end = e.target.value;
+                                });
+                            }
+                        "
                         placeholder="YYYY-MM-DD"
                     />
+
                 </div>
-                <input v-else class="form-control disabled" disabled placeholder="Choose a field"/>
+                <input
+                    v-else
+                    class="form-control disabled"
+                    disabled
+                    placeholder="Choose a field"
+                />
             </div>
 
             <div class="form-group">
@@ -195,7 +240,9 @@ export default {
                     <fa icon="trash-alt" class="mr-1" /> Remove Filter
                 </button>
             </div>
+            
         </div>
+            <!-- {{filter_value}} -->
 
         <div v-if="index != queries.length - 1">
             <!-- <div v-if="operator_types.length > 1" class="form-group">
