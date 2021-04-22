@@ -252,6 +252,8 @@ export function convertQueryDataToJanus({
             graph.edges.push(edge_to_add);
         }
     }
+    //filter out nulls and undefined edges
+    graph.edges = graph.edges.filter((item)=>{ return item !== null && item !== undefined; });
 
     // console.debug(graph);
     result.csv_output = csv_output;

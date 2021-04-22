@@ -61,9 +61,9 @@ export default {
             label: "Inventor State FIPS"
         },
         {
-            field: "inventor_location_country_fip",
+            field: "inventor_location_county_fips",
             type: "single",
-            label: "Inventor State"
+            label: "Inventor County FIPS"
         },
         {
             field: "inventor_location_longitude",
@@ -98,9 +98,9 @@ export default {
             label: "Assignee State FIPS"
         },
         {
-            field: "assignee_location_country_fip",
+            field: "assignee_location_county_fips",
             type: "single",
-            label: "Assignee State"
+            label: "Assignee County FIPS"
         },
         {
             field: "assignee_location_longitude",
@@ -166,11 +166,11 @@ export default {
         inventor_location_city: "Inventor City",
         inventor_location_country: "Inventor Country",
         inventor_location_state_fips: "Inventor State FIPS",
-        inventor_location_country_fips: "Inventor Country FIPS",
+        inventor_location_county_fips: "Inventor County FIPS",
         assignee_location_city: "Assignee City",
         assignee_location_country: "Assignee Country",
         assignee_location_state_fips: "Assignee State FIPS",
-        assignee_location_country_fips: "Assignee Country FIPS",
+        assignee_location_county_fips: "Assignee County FIPS",
         assignee_organization: "Assignee Organization",
         cpc_level: "CPC Level",
         cpc_category_label: "CPC Category Label"
@@ -256,8 +256,8 @@ export default {
                 field: "state_fips",
                 vertex: "InventorLocation"
             },
-            inventor_location_country_fips: {
-                field: "country_fips",
+            inventor_location_county_fips: {
+                field: "county_fips",
                 vertex: "InventorLocation"
             },
             assignee_location_city: {
@@ -272,8 +272,8 @@ export default {
                 field: "state_fips",
                 vertex: "AssigneeLocation"
             },
-            assignee_location_country_fips: {
-                field: "country_fips",
+            assignee_location_county_fips: {
+                field: "county_fips",
                 vertex: "AssigneeLocation"
             },
             assignee_organization: {
@@ -348,8 +348,8 @@ export default {
                 field: "state_fips",
                 vertexType: "InventorLocation"
             },
-            inventor_location_country_fip: {
-                field: "country_fip",
+            inventor_location_county_fips: {
+                field: "county_fips",
                 vertexType: "InventorLocation"
             },
             inventor_location_longitude: {
@@ -376,8 +376,8 @@ export default {
                 field: "state_fips",
                 vertexType: "AssigneeLocation"
             },
-            assignee_location_country_fip: {
-                field: "country_fip",
+            assignee_location_county_fips: {
+                field: "county_fips",
                 vertexType: "AssigneeLocation"
             },
             assignee_location_longitude: {

@@ -1,3 +1,7 @@
+# 1.1.2-beta
+
+- Bug fix in query builder
+
 # 1.1.1-beta
 
 - Fixes small bug in safari

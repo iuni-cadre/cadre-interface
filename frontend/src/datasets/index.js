@@ -12,7 +12,7 @@ export default{
         database_type: "janus"
     },
     "uspto": {
-        name: "US Patent and Trademark Office",
+        name: "US Patent and Trademark Office patent",
         fields: PTO_Fields,
         description: "US Patent metadata",
         allowed_roles: [],
