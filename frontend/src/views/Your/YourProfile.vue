@@ -13,6 +13,7 @@ export default {
             middle_initial: "",
             last_name: "",
             university: "",
+            campus: "",
             department: "",
             research_area: "",
             university_email_address: "",
@@ -73,7 +74,11 @@ export default {
             try {
                 let response = await this.$store.dispatch("user/getProfile");
                 let user_profile = response.data;
-                this.$set(this, "current_user_profile", user_profile);
+                this.$set(
+                    this, 
+                    "current_user_profile", 
+                    user_profile
+                );
                 this.$set(
                     this,
                     "agreement_signed",
@@ -96,6 +101,9 @@ export default {
                     }
                 }
                 catch(e) {
+                    //if it tries to run createProfile and there's an error, it
+                    //  will throw that error.  Else it will just throw the original
+                    //  error that got us into this block in the first place
                     throw e;
                 }
             } finally {
@@ -128,8 +136,8 @@ export default {
                 key: "profileUpdate",
                 message: "Updating Profile",
             });
-            let prom = new Promise(async (resolve, reject) => {
-                let axios_prom = this.$cadre.axios({
+            try {
+                let response = await this.$cadre.axios({
                     url:
                         this.$cadreConfig.rac_api_prefix +
                         "/profile/update-user-profile",
@@ -137,63 +145,66 @@ export default {
                     data: {
                         user_id: this.user_id,
                         new_display_name: this.new_display_name,
+                        university: this.university,
+                        campus: this.campus,
+                        department: this.department,
+                        research_area: this.research_area,
                     },
                 });
-                axios_prom.then(
-                    async (response) => {
-                        this.update_successful = true;
-                        this.success_message =
-                            "Profile was updated successfully.";
-                        await this.getProfile(); //this.$store.dispatch("user/getProfile");
-                        // let user_profile = this.$store.getters["user/profile"];
-                        this.$emit("update-profile");
-                        resolve(response);
-                    },
-                    (error) => {
-                        console.error(error);
-                        this.error_message = "Profile could not be updated.";
-                        reject(error);
-                    }
-                );
-                axios_prom.finally(() => {
-                    this.$store.commit("loading/removeKey", {
-                        key: "profileUpdate",
-                    });
+                this.update_successful = true;
+                this.success_message =
+                    "Profile was updated successfully.";
+                await this.getProfile(); //this.$store.dispatch("user/getProfile");
+                // let user_profile = this.$store.getters["user/profile"];
+                this.$emit("update-profile");
+                return response;
+            }
+            catch(error)
+            {
+                console.error(error);
+                this.error_message = "Profile could not be updated.";
+                throw (error);
+            }
+            finally {
+                this.$store.commit("loading/removeKey", {
+                    key: "profileUpdate",
                 });
-            });
-            return prom;
+            }
         },
         //Access form fields submitted
-        submitUserAgreement: function () {
+        async submitUserAgreement() {
             this.$store.commit("loading/addKey", {
                 key: "agreementUpdate",
                 message: "Updating Agreement",
             });
-            let prom = new Promise((resolve, reject) => {
-                let access_form_fields = [
-                    {
-                        first_name: this.first_name,
-                        middle_initial: this.middle_initial,
-                        last_name: this.last_name,
-                        university: this.university,
-                        department: this.department,
-                        research_area: this.research_area,
-                        university_email_address: this.university_email_address,
-                        agree_access_policy: this.agree_access_policy,
-                        agree_not_share_data: this.agree_not_share_data,
-                        agree_not_share_username: this.agree_not_share_username,
-                        agree_safeguard_username: this.agree_safeguard_username,
-                        agree_unauthorized_responsibility: this
-                            .agree_unauthorized_responsibility,
-                        agree_loss_control: this.agree_loss_control,
-                        agree_publications_acknowledge: this
-                            .agree_publications_acknowledge,
-                        agree_receive_emails: this.agree_receive_emails,
-                        agree_works_submitted: this.agree_works_submitted,
-                        agree_comply: this.agree_comply,
-                    },
-                ];
-                let axios_prom = this.$cadre.axios({
+
+            let access_form_fields = [
+                {
+                    first_name: this.first_name,
+                    middle_initial: this.middle_initial,
+                    last_name: this.last_name,
+                    university: this.university,
+                    campus: this.campus,
+                    department: this.department,
+                    research_area: this.research_area,
+                    university_email_address: this.university_email_address,
+                    agree_access_policy: this.agree_access_policy,
+                    agree_not_share_data: this.agree_not_share_data,
+                    agree_not_share_username: this.agree_not_share_username,
+                    agree_safeguard_username: this.agree_safeguard_username,
+                    agree_unauthorized_responsibility: this
+                        .agree_unauthorized_responsibility,
+                    agree_loss_control: this.agree_loss_control,
+                    agree_publications_acknowledge: this
+                        .agree_publications_acknowledge,
+                    agree_receive_emails: this.agree_receive_emails,
+                    agree_works_submitted: this.agree_works_submitted,
+                    agree_comply: this.agree_comply,
+                },
+            ];
+
+            try {
+                let response = await this.$cadre.axios({
                     url:
                         this.$cadreConfig.rac_api_prefix +
                         "/profile/update-user-agreement",
@@ -203,27 +214,24 @@ export default {
                         access_form_fields: access_form_fields,
                     },
                 });
-                axios_prom.then(
-                    (response) => {
-                        this.agreement_signed = true;
-                        this.success_message = "Agreement signed.";
-                        
-                        this.$emit("update-profile");
-                        resolve(response);
-                    },
-                    (error) => {
-                        console.error(error);
-                        this.error_message = "Agreement could not be updated.";
-                        reject(error);
-                    }
-                );
-                axios_prom.finally(() => {
-                    this.$store.commit("loading/removeKey", {
-                        key: "agreementUpdate",
-                    });
+
+                this.agreement_signed = true;
+                this.success_message = "Agreement signed.";
+                this.$emit("update-profile");
+                return response;
+            }
+            catch(error) 
+            {
+                console.error(error);
+                this.error_message = "Agreement could not be updated.";
+                throw error;
+            }
+            finally
+            {
+                this.$store.commit("loading/removeKey", {
+                    key: "agreementUpdate",
                 });
-            });
-            return prom;
+            }
         },
     },
     watch: {
@@ -303,6 +311,95 @@ const sample_user_profile = {
                             </p>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="form-group col">
+                            <h5>
+                                <label for="university">University</label>
+                            </h5>
+                            <input
+                                class="form-control"
+                                type="text"
+                                placeholder="University Name"
+                                v-model="university"
+                                id="university"
+                            />
+                        </div>
+                        <div
+                            class="fill-height flex-fill align-center col-5 alert"
+                        >
+                            <!-- <p>
+                                Your Display Name will be shown when you publish
+                                a Package or Tool to the Marketplace.
+                            </p> -->
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col">
+                            <h5>
+                                <label for="campus">Campus</label>
+                            </h5>
+                            <input
+                                class="form-control"
+                                type="text"
+                                placeholder="Campus Name"
+                                v-model="campus"
+                                id="campus"
+                            />
+                        </div>
+                        <div
+                            class="fill-height flex-fill align-center col-5 alert"
+                        >
+                            <!-- <p>
+                                Your Display Name will be shown when you publish
+                                a Package or Tool to the Marketplace.
+                            </p> -->
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col">
+                            <h5>
+                                <label for="department">Department/School</label>
+                            </h5>
+                            <input
+                                class="form-control"
+                                type="text"
+                                placeholder="Department or School"
+                                v-model="department"
+                                id="department"
+                            />
+                        </div>
+                        <div
+                            class="fill-height flex-fill align-center col-5 alert"
+                        >
+                            <!-- <p>
+                                Your Display Name will be shown when you publish
+                                a Package or Tool to the Marketplace.
+                            </p> -->
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col">
+                            <h5>
+                                <label for="research_area">Research Area</label>
+                            </h5>
+                            <input
+                                class="form-control"
+                                type="text"
+                                placeholder="Research Area"
+                                v-model="research_area"
+                                id="research_area"
+                            />
+                        </div>
+                        <div
+                            class="fill-height flex-fill align-center col-5 alert"
+                        >
+                            <!-- <p>
+                                Your Display Name will be shown when you publish
+                                a Package or Tool to the Marketplace.
+                            </p> -->
+                        </div>
+                    </div>
+                    
                     <div class="form-group text-left">
                         <div class="mt-3">
                             <button
