@@ -67,11 +67,15 @@ def get_user_profile():
     try:
         query = (
             'SELECT '
-            '   user_id as user_id, '
-            '   display_name as display_name, '
-            '   agreement_signed as agreement_signed, '
-            '   date_agreement_signed as date_agreement_signed, '
-            '   access_form_fields as access_form_fields '
+                'user_id as user_id, '
+                'display_name as display_name, '
+                'agreement_signed as agreement_signed, '
+                'date_agreement_signed as date_agreement_signed, '
+                'access_form_fields as access_form_fields, '
+                'university, '
+                'campus, '
+                'department, '
+                'research_area '
             'FROM user_profile '
             'WHERE user_id=%s '
         )
@@ -88,6 +92,10 @@ def get_user_profile():
             "agreement_signed": user_profile[2],
             "date_agreement_signed": user_profile[3],
             "access_form_fields": user_profile[4],
+            "university": user_profile[5],
+            "campus": user_profile[6],
+            "department": user_profile[7],
+            "research_area": user_profile[8]
         }
         return jsonify(response)
     except Exception as err:

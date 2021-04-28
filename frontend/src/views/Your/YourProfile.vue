@@ -90,8 +90,13 @@ export default {
                     user_profile.access_form_fields
                 );
                 this.new_display_name = user_profile.display_name;
+                this.university = user_profile.university;
+                this.campus = user_profile.campus;
+                this.department = user_profile.department;
+                this.research_area = user_profile.research_area;
             } catch (error) {
                 try {
+                    //if this profile doesn't already exist, create it.
                     if(error.response.status == 404){
                         let r = await this.createProfile();
                     }
