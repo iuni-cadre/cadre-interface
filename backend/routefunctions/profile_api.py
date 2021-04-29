@@ -223,7 +223,7 @@ def update_user_profile():
                 "university = %s, "
                 "campus = %s, "
                 "department = %s, "
-                "research_area = %s"
+                "research_area = %s "
             "WHERE user_id = %s"
             )
         cur.execute(update_query, (new_display_name, university, campus, department, research_area, user_id,))
