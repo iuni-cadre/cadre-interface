@@ -67,11 +67,15 @@ def get_user_profile():
     try:
         query = (
             'SELECT '
-            '   user_id as user_id, '
-            '   display_name as display_name, '
-            '   agreement_signed as agreement_signed, '
-            '   date_agreement_signed as date_agreement_signed, '
-            '   access_form_fields as access_form_fields '
+                'user_id as user_id, '
+                'display_name as display_name, '
+                'agreement_signed as agreement_signed, '
+                'date_agreement_signed as date_agreement_signed, '
+                'access_form_fields as access_form_fields, '
+                'university, '
+                'campus, '
+                'department, '
+                'research_area '
             'FROM user_profile '
             'WHERE user_id=%s '
         )
@@ -88,6 +92,10 @@ def get_user_profile():
             "agreement_signed": user_profile[2],
             "date_agreement_signed": user_profile[3],
             "access_form_fields": user_profile[4],
+            "university": user_profile[5],
+            "campus": user_profile[6],
+            "department": user_profile[7],
+            "research_area": user_profile[8]
         }
         return jsonify(response)
     except Exception as err:
@@ -161,6 +169,10 @@ def update_user_profile():
     Args:
         user_id
         new_display_name
+        university
+        campus
+        department
+        research_area
     Returns:
     """
     auth_token = request.headers.get('auth-token')
@@ -185,10 +197,16 @@ def update_user_profile():
         return jsonify({"error": "Invalid user"}), 401
 
     #If None, don't update
-    new_display_name = request.get_json().get("new_display_name", None)
+    response_json = request.get_json()
+    new_display_name = response_json.get("new_display_name", None)
 
     if not new_display_name:
         return jsonify({"error": "Invalid request"}), 400
+
+    university = response_json.get("university", "")
+    campus = response_json.get("campus", "")
+    department = response_json.get("department", "")
+    research_area = response_json.get("research_area", "")
 
     # This is where we are actually connecting to the database and getting the details of the tools
     conn = psycopg2.connect(dbname=meta_db_config["database-name"], user=meta_db_config["database-username"],
@@ -198,8 +216,17 @@ def update_user_profile():
     cur = conn.cursor()
     # Creating/updating new record and changing display_name 
     try:
-        update_query = ("UPDATE user_profile SET display_name = %s WHERE user_id = %s")
-        cur.execute(update_query, (new_display_name, user_id,))
+        update_query = (
+            "UPDATE user_profile "
+            "SET "
+                "display_name = %s, "
+                "university = %s, "
+                "campus = %s, "
+                "department = %s, "
+                "research_area = %s"
+            "WHERE user_id = %s"
+            )
+        cur.execute(update_query, (new_display_name, university, campus, department, research_area, user_id,))
         return jsonify({'Update': 'Successful'}), 200
     except Exception as err:
         print(str(err))
