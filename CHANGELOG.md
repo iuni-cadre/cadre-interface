@@ -1,6 +1,7 @@
 # 1.1.3-beta
 
-Add University, Campus, Department, and Research Area to user profiles.
+- Add University, Campus, Department, and Research Area to user profiles.
+- Saves query to database
 
 # 1.1.2-beta
 
