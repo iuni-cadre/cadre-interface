@@ -1,3 +1,7 @@
+# 1.1.3-beta
+
+- Saves query to database
+
 # 1.1.2-beta
 
 - Bug fix in query builder
