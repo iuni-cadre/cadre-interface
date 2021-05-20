@@ -1,3 +1,7 @@
+# 1.1.4-beta
+
+- Bug fix in query builder.
+
 # 1.1.3-beta
 
 - Add University, Campus, Department, and Research Area to user profiles.

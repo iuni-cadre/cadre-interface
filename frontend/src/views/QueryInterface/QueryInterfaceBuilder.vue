@@ -105,7 +105,7 @@ export default {
             return fields_obj;
         },
         default_fields: function () {
-            return this.$store.getters["query/defaultFields"];
+            return this.$cadre.cloneObject(this.$store.getters["query/defaultFields"]);
         },
         field_options: function () {
             // return field_options;
@@ -395,7 +395,7 @@ export default {
         clickNetworkField(field_name) {
             for (let field in this.network_fields) {
                 let index = this.selected_fields.indexOf(field);
-                console.log(index);
+                // console.log(index);
                 if (index > -1) {
                     this.selected_fields.splice(index, 1);
                 }
