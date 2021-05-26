@@ -13,10 +13,12 @@ export default {
             filter_type: null,
             // filter_value: null,
             operator: null,
-            range: [{
-                begin: null,
-                end: null,
-            }],
+            range: [
+                {
+                    begin: null,
+                    end: null,
+                },
+            ],
             debounce_timer: 0,
         };
     },
@@ -80,32 +82,59 @@ export default {
         //     console.debug("change range");
 
         // },
-        filter_value() {
-            this.$emit("valueChanged", {
-                index: this.index,
-                value: this.filter_value,
-            });
+        // filter_value() {
+        //     this.$emit("valueChanged", {
+        //         index: this.index,
+        //         value: this.filter_value,
+        //     });
 
-            if (this.filter_type == "range") {
-                try {
-                    const [b, e] = this.filter_value.split("/");
-                    this.range.begin = b.split("T")[0];
-                    this.range.end = e.split("T")[0];
-                } catch (e) {
-                    console.debug("Ignore this", e);
+        //     if (this.filter_type == "range") {
+        //         try {
+        //             const [b, e] = this.filter_value.split("/");
+        //             this.range.begin = b.split("T")[0];
+        //             this.range.end = e.split("T")[0];
+        //         } catch (e) {
+        //             console.debug("Ignore this", e);
+        //         }
+        //     }
+        // },
+        filter_values: {
+            deep: true,
+            handler() {
+                this.$emit("valueChanged", {
+                    index: this.index,
+                    value: this.filter_values,
+                });
+
+                if (this.filter_type == "range") {
+                    for (let i in this.filter_values)
+                        try {
+                            const [b, e] = this.filter_value[i].split("/");
+                            this.range[i].begin = b.split("T")[0];
+                            this.range[i].end = e.split("T")[0];
+                        } catch (e) {
+                            console.debug("Ignore this", e);
+                        }
                 }
-            }
+            },
         },
-        value(o, n) {
-            this.field_value = this.value.field;
-            this.filter_value = this.value.value;
-            this.operator = this.value.operator;
+        value: {
+            deep: true,
+            handler(o, n) {
+                this.field_value = this.value.field;
+                this.$set(this, "filter_values", this.value.value);
+            },
         },
         range: {
             deep: true,
-            handler() {
-                const b = new Date(this.range.begin + "T00:00:00");
-                const e = new Date(this.range.end + "T00:00:00");
+            handler(o, n) {
+                let index = this.findChangedIndex(o, n);
+                if (index < 0) {
+                    return;
+                }
+
+                const b = new Date(this.range[index].begin + "T00:00:00");
+                const e = new Date(this.range[index].end + "T00:00:00");
                 // console.debug(b, e)
                 if (
                     isNaN(b.getTime()) ||
@@ -122,7 +151,7 @@ export default {
                     "/" +
                     e.toISOString().split(".")[0];
 
-                this.filter_value = value;
+                this.filter_values[index] = value;
             },
         },
     },
@@ -149,8 +178,17 @@ export default {
             });
             this.filter_values[0].operator = "";
             this.range.push({
-                begin: null, end: null
-            })
+                begin: null,
+                end: null,
+            });
+        },
+        findChangedIndex(o, n) {
+            for (let i = 0; i < o.length; i++) {
+                if (o[i].begin != n[i].begin || o[i].end != n[i].end) {
+                    return i;
+                }
+            }
+            return -1;
         },
     },
     mounted() {

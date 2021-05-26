@@ -29,11 +29,10 @@ export default {
 
             queries: [
                 {
-                    node: "",
-                    fields: {
-                        value: "",
-                        operator: ""
-                    }
+                    field: "",
+                    value: [
+
+                    ]
                 },
             ],
             preview_result: null,
@@ -241,7 +240,12 @@ export default {
                 this.$set(this, "queries", [
                     {
                         field: "",
-                        value: "",
+                        value: [
+                            {
+                                value: "",
+                                operator: ""
+                            }
+                        ],
                         operator: "",
                     },
                 ]);
@@ -261,7 +265,12 @@ export default {
 
             this.queries.push({
                 field: "",
-                value: "",
+                value: [
+                    {
+                        value: "",
+                        operator: ""
+                    }
+                ],
                 operator: "",
             });
 
