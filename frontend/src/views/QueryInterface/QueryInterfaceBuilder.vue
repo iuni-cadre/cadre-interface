@@ -29,9 +29,11 @@ export default {
 
             queries: [
                 {
-                    field: "",
-                    value: "",
-                    operator: "",
+                    node: "",
+                    fields: {
+                        value: "",
+                        operator: ""
+                    }
                 },
             ],
             preview_result: null,
@@ -44,6 +46,7 @@ export default {
             },
             query_modal_open: false,
             query_errors: {},
+
         };
     },
     computed: {
@@ -481,6 +484,7 @@ export default {
                 <form @submit.stop.prevent="sendQuery()">
                     <div class="card container mb-3">
                         <h4>Filters</h4>
+
                         <template v-for="(clause, index) in queries">
                             <div :key="`clause_${index}`">
                                 <query-builder-filter
@@ -495,6 +499,8 @@ export default {
                                 />
                             </div>
                         </template>
+
+
                         <div class="alert">
                             <button
                                 class="btn btn-outline-primary"

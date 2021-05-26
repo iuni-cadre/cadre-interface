@@ -4,13 +4,19 @@ export default {
     data() {
         return {
             field_value: "",
+            filter_values: [
+                {
+                    value: "",
+                    operator: null,
+                },
+            ],
             filter_type: null,
-            filter_value: null,
+            // filter_value: null,
             operator: null,
-            range: {
+            range: [{
                 begin: null,
                 end: null,
-            },
+            }],
             debounce_timer: 0,
         };
     },
@@ -124,12 +130,27 @@ export default {
         removeFilter() {
             this.$emit("removeFilter", { index: this.index });
         },
+        removeFilterValue(index) {
+            this.filter_values.splice(index, 1);
+            this.range.splice(index, 1);
+            this.filter_values[0].operator = "";
+        },
         debounceRange(callback) {
             clearTimeout(this.debounce_timer);
             this.debounce_timer = 0;
             this.debounce_timer = setTimeout(() => {
                 callback();
             }, 1000);
+        },
+        addAnotherFilterValue() {
+            this.filter_values.push({
+                operator: "AND",
+                value: "",
+            });
+            this.filter_values[0].operator = "";
+            this.range.push({
+                begin: null, end: null
+            })
         },
     },
     mounted() {
@@ -141,9 +162,9 @@ export default {
 </script>
 
 <template>
-    <div>
+    <div class="filter_box mb-3">
         <div
-            class="alert d-flex justify-content-between align-items-end"
+            class="alert d-flex justify-content-between align-items-start"
             :class="{ 'alert-danger': query_errors[index] }"
         >
             <div class="form-group">
@@ -164,85 +185,126 @@ export default {
                     ></option>
                 </select>
             </div>
+
             <div class="form-group col">
-                <label :for="`value_${index}`">Value</label>
-                <input
-                    v-if="filter_type == 'text'"
-                    :id="`value_${index}`"
-                    class="form-control"
-                    type="text"
-                    v-model="filter_value"
-                />
+                <label :for="`value_${index}`">Values</label>
                 <div
-                    class="d-flex align-items-center"
-                    v-else-if="filter_type == 'range'"
+                    class=""
+                    v-for="(value, value_index) in filter_values"
+                    :key="`value_field_${index}_${value_index}`"
                 >
-                    <label :for="`value_${index}_b`" class="mx-3 my-0">
-                        From:
-                    </label>
-                    <input
-                        :id="`value_${index}_b`"
-                        class="form-control"
-                        type="date"
-                        :value="range.begin"
-                        @blur="
-                            (e) => {
-                                range.begin = e.target.value;
-                            }
-                        "
-                        @input="
-                            (e) => {
-                                debounceRange(() => {
-                                    range.begin = e.target.value;
-                                });
-                            }
-                        "
-                        placeholder="YYYY-MM-DD"
-                    />
-                    <label :for="`value_${index}_e`" class="mx-3 my-0">
-                        To:
-                    </label>
-                    <input
-                        :id="`value_${index}_e`"
-                        class="form-control"
-                        type="date"
-                        :value="range.end"
-                        @blur="
-                            (e) => {
-                                range.end = e.target.value;
-                            }
-                        "
-                        @input="
-                            (e) => {
-                                debounceRange(() => {
-                                    range.end = e.target.value;
-                                });
-                            }
-                        "
-                        placeholder="YYYY-MM-DD"
-                    />
-
+                    <span class="">
+                        <select
+                            v-if="value_index > 0"
+                            v-model="filter_values[value_index].operator"
+                            class="form-control w-auto"
+                        >
+                            <option>AND</option>
+                            <option>OR</option>
+                        </select>
+                        <input
+                            type="hidden"
+                            value=""
+                            v-else
+                            v-model="filter_values[value_index].operator"
+                        />
+                    </span>
+                    <div class="d-flex">
+                        <input
+                            v-if="filter_type == 'text'"
+                            :id="`value_${index}_${value_index}`"
+                            class="form-control"
+                            type="text"
+                            v-model="filter_values[value_index].value"
+                        />
+                        <div
+                            class="d-flex align-items-center"
+                            v-else-if="filter_type == 'range'"
+                        >
+                            <label :for="`value_${index}_b`" class="mx-3 my-0">
+                                From:
+                            </label>
+                            <input
+                                :id="`value_${index}_b`"
+                                class="form-control"
+                                type="date"
+                                :value="range.begin"
+                                @blur="
+                                    (e) => {
+                                        range.begin = e.target.value;
+                                    }
+                                "
+                                @input="
+                                    (e) => {
+                                        debounceRange(() => {
+                                            range.begin = e.target.value;
+                                        });
+                                    }
+                                "
+                                placeholder="YYYY-MM-DD"
+                            />
+                            <label :for="`value_${index}_e`" class="mx-3 my-0">
+                                To:
+                            </label>
+                            <input
+                                :id="`value_${index}_e`"
+                                class="form-control"
+                                type="date"
+                                :value="range.end"
+                                @blur="
+                                    (e) => {
+                                        range.end = e.target.value;
+                                    }
+                                "
+                                @input="
+                                    (e) => {
+                                        debounceRange(() => {
+                                            range.end = e.target.value;
+                                        });
+                                    }
+                                "
+                                placeholder="YYYY-MM-DD"
+                            />
+                        </div>
+                        <input
+                            v-else
+                            class="form-control disabled"
+                            disabled
+                            placeholder="Choose a field"
+                        />
+                        <button
+                            v-if="filter_values.length > 1"
+                            style="white-space: nowrap"
+                            class="btn btn-outline-danger"
+                            type="button"
+                            @click.stop.prevent="removeFilterValue(value_index)"
+                        >
+                            <fa icon="trash-alt" class="mr-1" /> Remove Value
+                        </button>
+                    </div>
                 </div>
-                <input
-                    v-else
-                    class="form-control disabled"
-                    disabled
-                    placeholder="Choose a field"
-                />
-            </div>
 
-            <div class="form-group">
-                <button
-                    class="btn btn-outline-danger"
-                    type="button"
-                    @click.stop.prevent="removeFilter"
-                >
-                    <fa icon="trash-alt" class="mr-1" /> Remove Filter
-                </button>
+                <div class="mt-3">
+                    <button
+                        @click.stop.prevent="addAnotherFilterValue"
+                        class="btn btn-outline-primary"
+                    >
+                        Add Another Filter Value
+                    </button>
+                </div>
             </div>
-            
         </div>
-            <!-- {{filter_value}} -->
+        <!-- {{filter_value}} -->
+
+        <div class="d-flex justify-content-end p-3">
+            <button
+                class="btn btn-outline-danger"
+                type="button"
+                @click.stop.prevent="removeFilter"
+            >
+                <fa icon="trash-alt" class="mr-1" /> Remove Filter
+            </button>
+        </div>
 
         <div v-if="index != queries.length - 1">
             <!-- <div v-if="operator_types.length > 1" class="form-group">
@@ -274,4 +336,8 @@ export default {
 </template>
 
 <style>
+.filter_box {
+    border: solid black 1px;
+    border-radius: 1rem;
+}
 </style>
