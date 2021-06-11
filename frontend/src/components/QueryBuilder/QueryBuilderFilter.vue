@@ -162,7 +162,7 @@ export default {
         removeFilterValue(index) {
             this.filter_values.splice(index, 1);
             this.range.splice(index, 1);
-            this.filter_values[0].operator = "";
+            this.filter_values[this.filter_values.length - 1].operator = "";
         },
         debounceRange(callback) {
             clearTimeout(this.debounce_timer);
@@ -172,11 +172,18 @@ export default {
             }, 1000);
         },
         addAnotherFilterValue() {
+            if (this.filter_values.length >= 5) {
+                console.debug("Cannot have more than 5 values");
+                return;
+            }
+
+            let current_index = this.filter_values.length - 1;
             this.filter_values.push({
-                operator: "AND",
+                operator: "",
                 value: "",
             });
-            this.filter_values[0].operator = "";
+
+            this.filter_values[current_index].operator = "OR";
             this.range.push({
                 begin: null,
                 end: null,
@@ -200,182 +207,239 @@ export default {
 </script>
 
 <template>
-    <div class="filter_box mb-3">
-        <div
-            class="alert d-flex justify-content-between align-items-start"
-            :class="{ 'alert-danger': query_errors[index] }"
-        >
-            <div class="form-group">
-                <label :for="`field_${index}`">Field</label>
-                <select
-                    :id="`field_${index}`"
-                    class="form-control"
-                    v-model="field_value"
-                >
-                    <option disabled selected :value="''">
-                        Choose a search field
-                    </option>
-                    <option
-                        v-for="field in field_options(queries[index].field)"
-                        :key="`${field.value}_${index}`"
-                        :value="field.value"
-                        v-text="field.label.label || field.label"
-                    ></option>
-                </select>
-            </div>
+    <div>
+        <div class="filter_box mb-3">
+            <div
+                class="alert d-flex justify-content-between align-items-start"
+                :class="{ 'alert-danger': query_errors[index] }"
+            >
+                <div class="form-group">
+                    <label :for="`field_${index}`">Field</label>
+                    <select
+                        :id="`field_${index}`"
+                        class="form-control"
+                        v-model="field_value"
+                    >
+                        <option disabled selected :value="''">
+                            Choose a search field
+                        </option>
+                        <option
+                            v-for="field in field_options(queries[index].field)"
+                            :key="`${field.value}_${index}`"
+                            :value="field.value"
+                            v-text="field.label.label || field.label"
+                        ></option>
+                    </select>
+                </div>
 
-            <div class="form-group col">
-                <label :for="`value_${index}`">Values</label>
-                <div
-                    class=""
-                    v-for="(value, value_index) in filter_values"
-                    :key="`value_field_${index}_${value_index}`"
-                >
-                    <span class="">
-                        <select
-                            v-if="value_index > 0"
-                            v-model="filter_values[value_index].operator"
-                            class="form-control w-auto"
-                        >
-                            <option>AND</option>
-                            <option>OR</option>
-                        </select>
-                        <input
-                            type="hidden"
-                            value=""
-                            v-else
-                            v-model="filter_values[value_index].operator"
-                        />
-                    </span>
-                    <div class="d-flex">
-                        <input
-                            v-if="filter_type == 'text'"
-                            :id="`value_${index}_${value_index}`"
-                            class="form-control"
-                            type="text"
-                            v-model="filter_values[value_index].value"
-                        />
-                        <div
-                            class="d-flex align-items-center"
-                            v-else-if="filter_type == 'range'"
-                        >
-                            <label :for="`value_${index}_b`" class="mx-3 my-0">
-                                From:
-                            </label>
+                <div class="form-group col">
+                    <label :for="`value_${index}`">Values</label>
+                    <div
+                        class=""
+                        v-for="(value, value_index) in filter_values"
+                        :key="`value_field_${index}_${value_index}`"
+                    >
+                        <div class="d-flex">
                             <input
-                                :id="`value_${index}_b`"
+                                v-if="filter_type == 'text'"
+                                :id="`value_${index}_${value_index}`"
                                 class="form-control"
-                                type="date"
-                                :value="range.begin"
-                                @blur="
-                                    (e) => {
-                                        range.begin = e.target.value;
-                                    }
-                                "
-                                @input="
-                                    (e) => {
-                                        debounceRange(() => {
-                                            range.begin = e.target.value;
-                                        });
-                                    }
-                                "
-                                placeholder="YYYY-MM-DD"
+                                type="text"
+                                v-model="filter_values[value_index].value"
                             />
-                            <label :for="`value_${index}_e`" class="mx-3 my-0">
-                                To:
-                            </label>
-                            <input
-                                :id="`value_${index}_e`"
-                                class="form-control"
-                                type="date"
-                                :value="range.end"
-                                @blur="
-                                    (e) => {
-                                        range.end = e.target.value;
-                                    }
-                                "
-                                @input="
-                                    (e) => {
-                                        debounceRange(() => {
+                            <div
+                                class="d-flex align-items-center"
+                                v-else-if="filter_type == 'range'"
+                            >
+                                <label
+                                    :for="`value_${index}_b`"
+                                    class="mx-3 my-0"
+                                >
+                                    From:
+                                </label>
+                                <input
+                                    :id="`value_${index}_b`"
+                                    class="form-control"
+                                    type="date"
+                                    :value="range.begin"
+                                    @blur="
+                                        (e) => {
+                                            range.begin = e.target.value;
+                                        }
+                                    "
+                                    @input="
+                                        (e) => {
+                                            debounceRange(() => {
+                                                range.begin = e.target.value;
+                                            });
+                                        }
+                                    "
+                                    placeholder="YYYY-MM-DD"
+                                />
+                                <label
+                                    :for="`value_${index}_e`"
+                                    class="mx-3 my-0"
+                                >
+                                    To:
+                                </label>
+                                <input
+                                    :id="`value_${index}_e`"
+                                    class="form-control"
+                                    type="date"
+                                    :value="range.end"
+                                    @blur="
+                                        (e) => {
                                             range.end = e.target.value;
-                                        });
-                                    }
+                                        }
+                                    "
+                                    @input="
+                                        (e) => {
+                                            debounceRange(() => {
+                                                range.end = e.target.value;
+                                            });
+                                        }
+                                    "
+                                    placeholder="YYYY-MM-DD"
+                                />
+                            </div>
+                            <input
+                                v-else
+                                class="form-control disabled"
+                                disabled
+                                placeholder="Choose a field"
+                            />
+                            <button
+                                v-if="filter_values.length > 1"
+                                style="white-space: nowrap"
+                                class="btn btn-outline-danger"
+                                type="button"
+                                @click.stop.prevent="
+                                    removeFilterValue(value_index)
                                 "
-                                placeholder="YYYY-MM-DD"
+                            >
+                                <fa icon="trash-alt" class="mr-1" /> Remove
+                                Value
+                            </button>
+                        </div>
+
+                        <div
+                            class="
+                                operator_field
+                                d-flex
+                                justify-content-between
+                                align-items-center
+                            "
+                            v-if="value_index < filter_values.length - 1"
+                        >
+                            <hr
+                                v-if="
+                                    filter_values[value_index].operator == 'AND'
+                                "
+                            />
+                            <select
+                                v-if="value_index < filter_values.length - 1"
+                                v-model="filter_values[value_index].operator"
+                                class="form-control w-auto"
+                            >
+                                <option
+                                    v-for="operator in fields[field_value]
+                                        .operators || ['AND']"
+                                    :key="`operator${index}_${value_index}_${operator}`"
+                                    v-text="operator"
+                                    :value="operator"
+                                    :selected="operator == 'OR'"
+                                ></option>
+                            </select>
+                            <input
+                                type="hidden"
+                                value=""
+                                v-else
+                                v-model="filter_values[value_index].operator"
+                            />
+                            <hr
+                                v-if="
+                                    filter_values[value_index].operator == 'AND'
+                                "
                             />
                         </div>
-                        <input
-                            v-else
-                            class="form-control disabled"
-                            disabled
-                            placeholder="Choose a field"
-                        />
-                        <button
-                            v-if="filter_values.length > 1"
-                            style="white-space: nowrap"
-                            class="btn btn-outline-danger"
-                            type="button"
-                            @click.stop.prevent="removeFilterValue(value_index)"
-                        >
-                            <fa icon="trash-alt" class="mr-1" /> Remove Value
-                        </button>
+                    </div>
+
+                    <div class="mt-3">
+                        <div v-if="filter_values.length < 5">
+                            <button
+                                @click.stop.prevent="addAnotherFilterValue"
+                                class="btn btn-outline-primary"
+                            >
+                                Add Another Filter Value
+                            </button>
+                        </div>
+                        <div v-else>
+                            <button
+                                disabled
+                                @click.stop.prevent
+                                class="btn btn-outline-primary disabled"
+                            >
+                                Add Another Filter Value
+                            </button>
+                            <span
+                                >There is a limit of <strong>5</strong> filter
+                                values per filter</span
+                            >
+                        </div>
                     </div>
                 </div>
+            </div>
+            <!-- {{filter_value}} -->
 
-                <div class="mt-3">
-                    <button
-                        @click.stop.prevent="addAnotherFilterValue"
-                        class="btn btn-outline-primary"
-                    >
-                        Add Another Filter Value
-                    </button>
-                </div>
+            <div class="d-flex justify-content-end p-3">
+                <button
+                    class="btn btn-outline-danger"
+                    type="button"
+                    @click.stop.prevent="removeFilter"
+                >
+                    <fa icon="trash-alt" class="mr-1" /> Remove Entire Filter
+                </button>
             </div>
         </div>
-        <!-- {{filter_value}} -->
-
-        <div class="d-flex justify-content-end p-3">
-            <button
-                class="btn btn-outline-danger"
-                type="button"
-                @click.stop.prevent="removeFilter"
-            >
-                <fa icon="trash-alt" class="mr-1" /> Remove Filter
-            </button>
-        </div>
-
         <div v-if="index != queries.length - 1">
-            <!-- <div v-if="operator_types.length > 1" class="form-group">
-                <label>Operator</label>
-                <select
-                    class="form-control"
-                    style="width: auto"
-                    v-model="queries[index].operator"
-                >
-                    <option disabled selected :value="''">
-                        Choose an operand
-                    </option>
-                    <option
-                        v-for="operator in operator_types"
-                        :key="`${operator}_${index}`"
-                        :value="operator"
-                        v-text="operator"
-                    ></option>
-                </select>
-            </div> -->
-            <div>
-                <!-- <input type="hidden" 
-                                        :value="operator_types[0]" 
-                                        v-model="queries[index].operator" /> -->
+            <div class="between_filter_operator">
                 {{ operator_types[0] }}
             </div>
         </div>
     </div>
 </template>
 
-<style>
+<style lang="scss">
+.between_filter_operator {
+    padding: 1.5rem 0;
+    font-size: 1.125rem;
+    font-weight: bold;
+}
+
 .filter_box {
     border: solid black 1px;
     border-radius: 1rem;
+}
+
+.operator_field {
+    text-align: center;
+    /* margin: auto; */
+
+    & select {
+        margin: 1rem auto;
+        z-index: 20;
+    }
+    hr {
+        z-index: 10;
+        display: block;
+        // background: green;
+        // padding: 2px;
+        width: 100%;
+        border: solid black 1px;
+        margin: 0 -1rem 0 1rem;
+    }
+    hr:first-child {
+        margin: 0 1rem 0 -1rem;
+    }
 }
 </style>

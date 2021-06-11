@@ -258,10 +258,10 @@ export default {
         }
     ],
     input: {
-        publicationYear: "Year",
-        authorFullNames: "Author",
-        sourceTitle: "Journal Name",
-        articleTitle: "Title"
+        publicationYear: {label: "Year", operators: ["OR"]},
+        authorFullNames: {label: "Author", operators: ["AND", "OR"]},
+        sourceTitle: {label: "Journal Name", operators: ["AND", "OR"]},
+        articleTitle: {label: "Title", operators: ["AND", "OR"]}
     },
     exclusive_input_fields: [
         "publicationYear"

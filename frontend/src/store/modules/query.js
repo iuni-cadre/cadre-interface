@@ -47,7 +47,7 @@ export default {
         },
         setQuery: function(state, query_clauses) {
             Vue.set(state, "query", query_clauses);
-            state.query[state.query.length - 1].operator = "";
+            // state.query[state.query.length - 1].operator = "";
         },
         emptyQuery: function(state) {
             Vue.set(state, "query", []);
@@ -156,12 +156,22 @@ export function convertQueryDataToJanus({
         if (!types_with_filters[vertex]) {
             types_with_filters[vertex] = [];
         }
-        types_with_filters[vertex].push({
-            field: new_field,
-            filterType: "is",
-            value: value,
-            operator: operation
-        });
+        for(let v of value)
+        {
+            //if AND operator needs to be blank.  ANDs are implicit
+            let a = v.operator;
+            if(a == "AND")
+            {
+                a = "";
+            }
+            types_with_filters[vertex].push({
+                field: new_field,
+                filterType: "is",
+                value: v.value,
+                operator: a
+            });
+        }
+
     }
 
     //build the actual graph

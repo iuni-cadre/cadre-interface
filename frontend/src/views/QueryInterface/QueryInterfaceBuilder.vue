@@ -259,9 +259,9 @@ export default {
             let len = this.queries.length;
 
             //when adding a new clause, set the operator of the previous clause
-            if (len) {
-                this.queries[len - 1].operator = this.operator_types[0];
-            }
+            // if (len) {
+            //     this.queries[len - 1].operator = this.operator_types[0];
+            // }
 
             this.queries.push({
                 field: "",
@@ -293,7 +293,7 @@ export default {
                 if (!this.queries[index].field || !this.queries[index].value) {
                     this.query_errors[index] = "Filter is empty";
                 }
-                this.queries[index].value = this.queries[index].value + "";
+                // this.queries[index].value = this.queries[index].value + "";
             }
 
             //error message and exit if errors
