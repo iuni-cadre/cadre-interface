@@ -171,12 +171,12 @@ export default {
         // authors_full_name: "Author",
         // journals_name: "Journal Name",
         // title: "Title"
-        year: "Year",
-        doi: "DOI",
-        journal_display_name: "Journal Name",
-        conference_display_name: "Conference Name",
-        authors_display_name: "Author Names",
-        paper_title: "Paper Title",
+        year: {"label": "Year", "operators": ["OR"]},
+        doi: {"label": "DOI", "operators": ["OR"]},
+        journal_display_name: {"label": "Journal Name", "operators": [ "OR"]},
+        conference_display_name: {"label": "Conference Name", "operators": [ "OR"]},
+        authors_display_name: {"label": "Author Names", "operators": ["OR"]},
+        paper_title: {"label": "Paper Title", "operators": ["AND", "OR"]},
         // paper_abstract: "Paper Abstract"
     },
     exclusive_input_fields: [
