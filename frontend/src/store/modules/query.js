@@ -164,6 +164,7 @@ export function convertQueryDataToJanus({
             {
                 a = "";
             }
+            a = a || "";
             types_with_filters[vertex].push({
                 field: new_field,
                 filterType: "is",
