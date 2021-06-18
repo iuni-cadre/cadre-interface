@@ -125,35 +125,46 @@ export default {
                 this.$set(this, "filter_values", this.value.value);
             },
         },
-        range: {
-            deep: true,
-            handler(o, n) {
-                let index = this.findChangedIndex(o, n);
-                if (index < 0) {
-                    return;
-                }
+        // range: {
+        //     deep: true,
+        //     handler(o, n) {
+        //         console.debug(JSON.stringify(o), JSON.stringify(n));
+        //         // console.debug(o, n);
+        //         // let index = this.findChangedIndex(o, n);
+        //         let index = 0;
+        //         for (let i = 0; i < o.length; i++) {
+        //             console.debug(JSON.stringify(o[i]), JSON.stringify(n[i]));
+        //             if (o[i].begin != n[i].begin || o[i].end != n[i].end) {
+        //                 index = i;
+        //             }
+        //         }
+        //         index = -1;
 
-                const b = new Date(this.range[index].begin + "T00:00:00");
-                const e = new Date(this.range[index].end + "T00:00:00");
-                // console.debug(b, e)
-                if (
-                    isNaN(b.getTime()) ||
-                    isNaN(e.getTime()) ||
-                    b.getTime() >= e.getTime()
-                ) {
-                    console.debug("Invalid Date Range");
-                    // this.filter_value = null;  //Using this will cause the whole filter to blank out if one field is invalid
-                    return;
-                }
+        //         console.debug(index);
+        //         if (index < 0) {
+        //             return;
+        //         }
+        //         const b = new Date(this.range[index].begin + "T00:00:00");
+        //         const e = new Date(this.range[index].end + "T00:00:00");
+        //         // console.debug(b, e)
+        //         if (
+        //             isNaN(b.getTime()) ||
+        //             isNaN(e.getTime()) ||
+        //             b.getTime() >= e.getTime()
+        //         ) {
+        //             console.debug("Invalid Date Range");
+        //             // this.filter_value = null;  //Using this will cause the whole filter to blank out if one field is invalid
+        //             return;
+        //         }
 
-                const value =
-                    b.toISOString().split(".")[0] +
-                    "/" +
-                    e.toISOString().split(".")[0];
+        //         const value =
+        //             b.toISOString().split(".")[0] +
+        //             "/" +
+        //             e.toISOString().split(".")[0];
 
-                this.filter_values[index] = value;
-            },
-        },
+        //         this.filter_values[index] = value;
+        //     },
+        // },
     },
     methods: {
         removeFilter() {
@@ -191,12 +202,43 @@ export default {
         },
         findChangedIndex(o, n) {
             for (let i = 0; i < o.length; i++) {
+                console.debug(JSON.stringify(o[i]), JSON.stringify(n[i]));
                 if (o[i].begin != n[i].begin || o[i].end != n[i].end) {
                     return i;
                 }
             }
             return -1;
         },
+        updateRangeBegin(index, value) {
+            this.range[index].begin = value;
+            this.updateRangeValue(index);
+        },
+        updateRangeEnd(index, value) {
+            this.range[index].end = value;
+            this.updateRangeValue(index);
+        },
+        updateRangeValue(index){
+            const b = new Date(this.range[index].begin + "T00:00:00");
+            const e = new Date(this.range[index].end + "T00:00:00");
+            // console.debug(b, e)
+            if (
+                isNaN(b.getTime()) ||
+                isNaN(e.getTime()) ||
+                b.getTime() >= e.getTime()
+            ) {
+                console.debug("Invalid Date Range");
+                // this.filter_value = null;  //Using this will cause the whole filter to blank out if one field is invalid
+                return;
+            }
+
+            const value =
+                b.toISOString().split(".")[0] +
+                "/" +
+                e.toISOString().split(".")[0];
+
+            this.filter_values[index] = value;
+            // console.debug(value);
+        }
     },
     mounted() {
         this.field_value = this.value.field;
@@ -261,16 +303,18 @@ export default {
                                     :id="`value_${index}_b`"
                                     class="form-control"
                                     type="date"
-                                    :value="range.begin"
+                                    :value="range[value_index].begin"
                                     @blur="
                                         (e) => {
-                                            range.begin = e.target.value;
+                                            debounceRange(() => {
+                                                updateRangeBegin(value_index, e.target.value)
+                                            });
                                         }
                                     "
                                     @input="
                                         (e) => {
                                             debounceRange(() => {
-                                                range.begin = e.target.value;
+                                                updateRangeBegin(value_index, e.target.value)
                                             });
                                         }
                                     "
@@ -286,16 +330,19 @@ export default {
                                     :id="`value_${index}_e`"
                                     class="form-control"
                                     type="date"
-                                    :value="range.end"
+                                    :value="range[value_index].end"
                                     @blur="
                                         (e) => {
-                                            range.end = e.target.value;
+                                            debounceRange(() => {
+                                                updateRangeEnd(value_index, e.target.value)
+                                            });
                                         }
                                     "
                                     @input="
+                                        
                                         (e) => {
                                             debounceRange(() => {
-                                                range.end = e.target.value;
+                                                updateRangeEnd(value_index, e.target.value)
                                             });
                                         }
                                     "
