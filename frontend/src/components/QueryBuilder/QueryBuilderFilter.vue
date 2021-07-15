@@ -109,11 +109,11 @@ export default {
                 if (this.filter_type == "range") {
                     for (let i in this.filter_values)
                         try {
-                            const [b, e] = this.filter_value[i].split("/");
+                            const [b, e] = this.filter_value[i].value.split("/");
                             this.range[i].begin = b.split("T")[0];
                             this.range[i].end = e.split("T")[0];
                         } catch (e) {
-                            console.debug("Ignore this", e);
+                            // console.debug("Ignore this", e);
                         }
                 }
             },
@@ -236,7 +236,7 @@ export default {
                 "/" +
                 e.toISOString().split(".")[0];
 
-            this.filter_values[index] = value;
+            this.filter_values[index].value = value;
             // console.debug(value);
         }
     },
