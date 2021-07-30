@@ -13,6 +13,18 @@ auth_config = readconfig.auth
 
 blueprint = Blueprint('qi_api', __name__)
 
+@blueprint.route('/qi-api/start_cluster', methods=["POST"])
+def start_cluster():
+    cluster_to_start = ""
+    request_json = request.get_json()
+    dataset = ""
+    try:
+        dataset = request_json["dataset"]
+    except:
+        return jsonify({"error": "Must supply a dataset"}), 400
+
+    return jsonify({"cluster_to_start": dataset})
+
 @blueprint.route('/qi-api/user-jobs')
 def user_jobs():
     auth_token = request.headers.get('auth-token')
