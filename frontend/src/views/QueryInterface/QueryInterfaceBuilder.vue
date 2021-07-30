@@ -30,9 +30,7 @@ export default {
             queries: [
                 {
                     field: "",
-                    value: [
-
-                    ]
+                    value: [],
                 },
             ],
             preview_result: null,
@@ -45,7 +43,6 @@ export default {
             },
             query_modal_open: false,
             query_errors: {},
-
         };
     },
     computed: {
@@ -107,7 +104,9 @@ export default {
             return fields_obj;
         },
         default_fields: function () {
-            return this.$cadre.cloneObject(this.$store.getters["query/defaultFields"]);
+            return this.$cadre.cloneObject(
+                this.$store.getters["query/defaultFields"]
+            );
         },
         field_options: function () {
             // return field_options;
@@ -243,8 +242,8 @@ export default {
                         value: [
                             {
                                 value: "",
-                                operator: ""
-                            }
+                                operator: "",
+                            },
                         ],
                         operator: "",
                     },
@@ -268,8 +267,8 @@ export default {
                 value: [
                     {
                         value: "",
-                        operator: ""
-                    }
+                        operator: "",
+                    },
                 ],
                 operator: "",
             });
@@ -391,7 +390,8 @@ export default {
                         this.error_message =
                             "You do not have access to this dataset.";
                     } else if (error.response.data.error) {
-                        this.error_message = error.response.data.error.toString();
+                        this.error_message =
+                            error.response.data.error.toString();
                     } else {
                         // console.error(error)
                         this.error_message =
@@ -460,11 +460,32 @@ export default {
             }
         },
     },
-    mounted: function () {
+    mounted: async function () {
         if (!this.$store.getters["query/selectedDataset"]) {
             this.$router.push({ name: "query-builder" });
             return false;
         } else {
+            try {
+                this.$cadre
+                    .axios({
+                        url: `${this.$cadreConfig.query_builder_api_prefix}/start_cluster`,
+                        method: "POST",
+                        data: { dataset: this.dataset_name },
+                    })
+                    .then(
+                        (resp) => {
+                            console.info(
+                                "Start cluster signal sent successfully."
+                            );
+                        },
+                        (err) => {
+                            console.error("Couldn't start cluster: ", err);
+                        }
+                    );
+            } catch (e) {
+                console.error("Couldn't start cluster: ", e);
+            }
+
             this.$set(this, "selected_fields", this.default_fields);
             this.getStoreQuery();
         }
@@ -509,7 +530,6 @@ export default {
                             </div>
                         </template>
 
-
                         <div class="alert">
                             <button
                                 class="btn btn-outline-primary"
@@ -541,12 +561,13 @@ export default {
                                 CADRE supports the generation of citations and
                                 references graphs. The user specifies a set of
                                 filtering criteria to generate a list of query
-                                papers or patents that fit the criteria. A citations graph
-                                consists of the query results and any papers or patents the
-                                query results cite, with edges representing
-                                citations by the query result. A references
-                                graph consists of the query results and any
-                                papers or patents referencing the query results, with edges
+                                papers or patents that fit the criteria. A
+                                citations graph consists of the query results
+                                and any papers or patents the query results
+                                cite, with edges representing citations by the
+                                query result. A references graph consists of the
+                                query results and any papers or patents
+                                referencing the query results, with edges
                                 representing references made to the query
                                 results.
                             </p>
@@ -555,18 +576,23 @@ export default {
                                 the user should pose narrow queries so as not to
                                 exceed processing capacity. To constrain the
                                 graph generation within processing capacity, a
-                                limit of 10000 papers or patents has been placed on the
-                                number of query results that the graph generation
-                                supports. Any generated citations or references
-                                graph with 10000 or more items included should
-                                be considered an incomplete graph and it is
-                                recommended that the user should resubmit their
-                                query more narrow search criteria.
+                                limit of 10000 papers or patents has been placed
+                                on the number of query results that the graph
+                                generation supports. Any generated citations or
+                                references graph with 10000 or more items
+                                included should be considered an incomplete
+                                graph and it is recommended that the user should
+                                resubmit their query more narrow search
+                                criteria.
                             </p>
                         </div>
                         <div
                             v-for="(field, field_name) in network_fields"
-                            class="d-flex justify-content-start align-items-center"
+                            class="
+                                d-flex
+                                justify-content-start
+                                align-items-center
+                            "
                             :key="`network_field_${field_name}`"
                         >
                             <label
@@ -860,8 +886,7 @@ export default {
                                                 $router.push({
                                                     name: 'jobs-list-id',
                                                     params: {
-                                                        job_id:
-                                                            query_results.job_id,
+                                                        job_id: query_results.job_id,
                                                     },
                                                 })
                                             "

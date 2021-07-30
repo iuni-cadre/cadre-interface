@@ -6,8 +6,7 @@ import CryptoJS from "crypto-js";
 
 const TEST_USER = {
     username: "test-user",
-    roles: [""],
-    roles: ["wos_trial"],
+    roles: null,
     token: "fake_token",
     user_id: 1000,
     cognito_groups: ["wos_trial"]
@@ -17,11 +16,7 @@ const TEST_USER = {
 // const mock_profile_response = {data: {"user_id": 86, "display_name": "TEST USER DISP", agreement_signed: true, date_agreement_signed: "2020-09-28T12:43:00", "access_form_fields":{}} }
 
 const mock_authorize_token_response = {
-    data: {
-        user_id: 86,
-        roles: ["wos_trial"],
-        cognito_groups: ["MAG", "wos_trial"]
-    }
+    data: {"user_id": 209, "roles": null, "cognito_groups": ["PAID_TIER", "MAG", "us-east-1_WvxzypHQP_cilogon", "WOS"]}
 };
 const mock_profile_response = {
     data: {
@@ -138,6 +133,7 @@ export default {
             localStorage.setItem("username", username);
         },
         setRoles: function(state, roles) {
+            roles = roles || [];
             Vue.set(state, "roles", roles);
             localStorage.removeItem("roles");
             localStorage.setItem("roles", roles);
@@ -220,7 +216,7 @@ export default {
 
                     dispatch("beatHeart");
                     if (response.data.roles) {
-                        commit("setRoles", response.data.roles);
+                        commit("setRoles", response.data.roles || []);
                     }
                     if (response.data.user_id) {
                         commit("setUserId", response.data.user_id);
