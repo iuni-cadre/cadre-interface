@@ -30,6 +30,7 @@ class MockPsycopgCursor:
     def __init__(self, raise_exception = False, rows = [], **kwargs):
         self.rows = rows
         self.raise_exception = raise_exception
+        self.rowcount = len(self.rows)
     def close(self):
         return True
     def execute(self, query, variables):
@@ -42,6 +43,8 @@ class MockPsycopgCursor:
         self.rows = rows
     def set_exception(self, raise_exception):
         self.raise_exception = raise_exception
+    # def rowcount(self):
+    #     return 0
 
 class MockPsycopgConnection:
     def __init__(self, raise_exception = False, rows = [], **kwargs):
@@ -62,20 +65,55 @@ def client():
     yield client
     return client
 
+fake_headers = {
+        'auth-token': "Some Token",
+        'auth-username': "Some Username"
+    }
 
-def test_user_jobs_ep_exists(client):
-    """
-    If there is an error and the status code is 404 and the error message is "Unknown endpoint."
-    then the endpoint is unknown, so fail.
-    """
 
-    rv = client.get('/qi-api/user-jobs')
-    json = rv.get_json()
-    unknown_endpoint = False
-    if json["error"] and rv.status_code == 404 and json["error"] == "Unknown endpoint.":
-        unknown_endpoint = True
+def test_start_cluster_endpoint(client, mocker):
+    rv = client.post('/qi-api/start_cluster', headers=fake_headers)
+    pprint(rv.status_code)
+    assert rv.status_code != 404
+    assert rv.status_code != 405
 
-    assert not unknown_endpoint
+def test_start_cluster_endpoint_doesnt_fail(client, mocker):
+    rv = client.post('/qi-api/start_cluster', headers=fake_headers)
+    assert rv.status_code != 500
+
+def test_start_cluster_endpoint_gets_post_params(client, mocker):
+
+    json_to_send = {
+        "dataset": "mag"
+    }
+    rv = client.post('/qi-api/start_cluster', headers=fake_headers,
+        content_type='application/json', 
+        data=json.dumps(json_to_send))
+        
+    pprint(rv.get_json())
+
+
+    
+    assert rv.get_json()["cluster_to_start"] == "mag"
+
+
+
+
+
+
+# def test_user_jobs_ep_exists(client):
+#     """
+#     If there is an error and the status code is 404 and the error message is "Unknown endpoint."
+#     then the endpoint is unknown, so fail.
+#     """
+
+#     rv = client.get('/qi-api/user-jobs')
+#     json = rv.get_json()
+#     unknown_endpoint = False
+#     if json["error"] and rv.status_code == 404 and json["error"] == "Unknown endpoint.":
+#         unknown_endpoint = True
+
+#     assert not unknown_endpoint
 
 
 # def test_user_jobs_ep_fails_without_proper_headers(client):
@@ -103,17 +141,26 @@ def test_user_jobs_ep_exists(client):
 #     assert json["error"] and json["error"] == "auth headers are missing"
 
     
-def test_user_jobs_ep_accepts_proper_headers(client):
-    """
-    end point gets past the missing header check with both headers
-    """
+# def test_user_jobs_ep_accepts_proper_headers(client, mocker):
+#     """
+#     end point gets past the missing header check with both headers
+#     """
 
-    rv = client.get('/qi-api/user-jobs', headers={
-        'auth-token': "Some Token",
-        'auth-username': "Some Username"
-    })
 
-    assert rv.status_code != 400
+#     mock_response = MockResponse()
+#     mock_response.set_status_code(200)
+#     mock_response.set_json({
+#         "roles": "some_roles",
+#         "user_id": "12345"
+#     })
+#     mocker.patch("requests.post", return_value=mock_response)
+
+#     rv = client.get('/qi-api/user-jobs', headers={
+#         'auth-token': "Some Token",
+#         'auth-username': "Some Username"
+#     })
+
+#     assert rv.status_code != 400
 
 
 
@@ -173,26 +220,26 @@ def test_user_jobs_ep_does_not_fail_with_successful_query(client, mocker):
     
     assert rv.status_code == 200
 
-def test_user_jobs_ep_accepts_params(client):
+def test_user_jobs_ep_accepts_params(client, mocker):
     """
     End point doesn't accepts params
     """
 
-    # mock_response = MockResponse()
-    # mock_response.set_status_code(200)
-    # mock_response.set_json({
-    #     "roles": "some_roles",
-    #     "user_id": "12345"
-    # })
-    # mocker.patch("requests.post", return_value=mock_response)
-    # mock_connection = MockPsycopgConnection()
-    # mocker.patch("psycopg2.connect", return_value=mock_connection)
+    mock_response = MockResponse()
+    mock_response.set_status_code(200)
+    mock_response.set_json({
+        "roles": "some_roles",
+        "user_id": "12345"
+    })
+    mocker.patch("requests.post", return_value=mock_response)
+    mock_connection = MockPsycopgConnection()
+    mocker.patch("psycopg2.connect", return_value=mock_connection)
 
     rv = client.get('/rac-api/get-tools?limit=50&page=1&order=status', headers={
         'auth-token': "Some Token",
         'auth-username': "Some Username"
     })
-
+    pprint(rv.get_json())
     assert rv.status_code != 500
     
 def test_user_jobs_ep_fails_on_db_exception(client, mocker):
