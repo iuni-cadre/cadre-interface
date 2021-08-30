@@ -10,9 +10,9 @@ import configparser
 import requests
 import psycopg2
 
-from .routefunctions import rac_api, qi_api, tools_api, archive_api, users_api, notebooks_api, packages_api, data_api, profile_api
+from routefunctions import rac_api, qi_api, tools_api, archive_api, users_api, notebooks_api, packages_api, data_api, profile_api
 
-from .library import readconfig
+from library import readconfig
 
 from flask import Flask, render_template, request, json, jsonify, Blueprint
 from flask_cors import CORS
