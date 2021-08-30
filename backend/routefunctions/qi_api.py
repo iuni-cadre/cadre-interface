@@ -1,6 +1,7 @@
 
 import requests
 import psycopg2
+import boto3
 from flask import Flask, render_template, request, json, jsonify, Blueprint
 
 from library import readconfig
@@ -9,6 +10,7 @@ config = readconfig.config
 jupyter_config = readconfig.jupyter
 meta_db_config = readconfig.meta_db
 auth_config = readconfig.auth
+aws_config = readconfig.aws
 
 
 blueprint = Blueprint('qi_api', __name__)
@@ -23,7 +25,36 @@ def start_cluster():
     except:
         return jsonify({"error": "Must supply a dataset"}), 400
 
-    return jsonify({"cluster_to_start": dataset})
+    try:
+        sqs_client = boto3.client('sqs',
+                aws_access_key_id=aws_config["aws_access_key_id"],
+                aws_secret_access_key=aws_config["aws_secret_access_key"],
+                region_name=aws_config["region_name"])
+
+        cluster_start_queue_url = aws_config["cluster_start_queue_url"]
+        message_body = json.dumps({
+            "dataset": dataset
+        })
+        sqs_response = sqs_client.send_message(
+            QueueUrl=cluster_start_queue_url,
+            MessageBody=message_body
+            #, MessageGroupId='cadre'
+        )
+
+        print("sqs response")
+        print(sqs_response)
+        
+        if 'MessageId' in sqs_response:
+            message_id = sqs_response['MessageId']
+            print(message_id)
+            
+            return jsonify({'message_id': message_id,
+                            'dataset': dataset}, 200)
+        else:
+            print("Error while publishing to sqs")
+            return jsonify({'error': 'error while publishing to SQS'}), 500
+    except Exception as err:
+        return jsonify({'error': str(err)}), 500
 
 @blueprint.route('/qi-api/user-jobs')
 def user_jobs():
