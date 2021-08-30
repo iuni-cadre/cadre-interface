@@ -171,12 +171,34 @@ export default {
         // authors_full_name: "Author",
         // journals_name: "Journal Name",
         // title: "Title"
-        year: {"label": "Year", "operators": ["OR"]},
-        doi: {"label": "DOI", "operators": ["OR"]},
-        journal_display_name: {"label": "Journal Name", "operators": [ "OR"]},
-        conference_display_name: {"label": "Conference Name", "operators": [ "OR"]},
-        authors_display_name: {"label": "Author Names", "operators": ["OR"]},
-        paper_title: {"label": "Paper Title", "operators": ["AND", "OR"]},
+        // year: {"label": "Year", "operators": ["OR"]},
+        // doi: {"label": "DOI", "operators": ["OR"]},
+        // journal_display_name: {"label": "Journal Name", "operators": [ "OR"]},
+        // conference_display_name: {"label": "Conference Name", "operators": [ "OR"]},
+        // authors_display_name: {"label": "Author Names", "operators": ["OR"]},
+        // paper_title: {"label": "Paper Title", "operators": ["AND", "OR"]},
+
+        year: {"label": "Paper Year",  "operators": ["OR"] },
+        doi: {"label": "Paper DOI",  "operators": ["OR"] },
+        paper_title: {"label": "Paper Title",  "operators": ["OR", "AND"] },
+        paper_id: {"label": "Paper ID",  "operators": ["OR"] },
+        paper_date: {"label": "Paper Date Range",  type: "range", "operators": ["OR"] },
+        
+        journal_display_name: {"label": "Journal Name",  "operators": ["OR"] },
+        journal_id: {"label": "Journal ID",  "operators": ["OR"] },
+        journal_issn: {"label": "Journal ISSN",  "operators": ["OR"] },
+        
+        affilation_id: {"label": "Affiliate ID",  "operators": ["OR"] },
+        affiliation_name: {"label": "Affiliate Name",  "operators": ["OR"] },
+        
+        authors_display_name: {"label": "Author Name",  "operators": ["OR"] },
+        author_id: {"label": "Author ID",  "operators": ["OR"] },
+        
+        field_of_study_display_name: {"label": "Field of Study Name",  "operators": ["OR"] },
+        field_of_study_id: {"label": "Field Of Study ID",  "operators": ["OR"] },
+
+
+
         // paper_abstract: "Paper Abstract"
     },
     exclusive_input_fields: [
@@ -195,7 +217,7 @@ export default {
         main_vertex: "Paper",
         path_to_main: {
             "Paper": [],
-            "JournalFixed": ["PublishedInFixed"],
+            "Journal": ["PublishedIn"],
             "Author": ["AuthorOf"],
             "ConferenceInstance": ["PresentedAt"],
             // "ConferenceSeries": ["InstanceOf", "PresentedAt"],
@@ -204,7 +226,7 @@ export default {
         },
         vertex_types: [
             "Paper",
-            "JournalFixed",
+            "Journal",
             "Author",
             "ConferenceInstance",
             // "ConferenceSeries",
@@ -223,9 +245,9 @@ export default {
                 relation: "Citations"
             },
             {
-                target: "JournalFixed",
+                target: "Journal",
                 source: "Paper",
-                relation: "PublishedInFixed"
+                relation: "PublishedIn"
             },
             {
                 target: "Paper",
@@ -262,26 +284,75 @@ export default {
                 vertex: "Paper",
                 field: "doi"
             },
-            journal_display_name: {
-                vertex: "JournalFixed",
-                field: "name"
-            },
-            conference_display_name: {
-                vertex: "ConferenceInstance",
-                field: "name"
-            },
-            authors_display_name: {
-                vertex: "Author",
-                field: "name"
-            },
             paper_title: {
                 vertex: "Paper",
-                field: "title"
+                field: "paperTitle"
             },
+            paper_id: {
+                vertex: "Paper",
+                field: "paperId"
+            },
+            paper_date: {
+                vertex: "Paper",
+                field: "date"
+            },
+
+            journal_display_name: {
+                vertex: "Journal",
+                field: "normalizedName"
+            },
+            journal_id: {
+                vertex: "Journal",
+                field: "journalId"
+            },
+            journal_issn: {
+                vertex: "Journal",
+                field: "issn"
+            },
+            
+            // conference_display_name: {
+            //     vertex: "ConferenceInstance",
+            //     field: "name"
+            // },
+            affilation_id: {
+                vertex: "Affiliation",
+                field: "affiliationId"
+            },
+            affiliation_name: {
+                vertex: "Affiliation",
+                field: "normalizedName"
+            },
+            
+            authors_display_name: {
+                vertex: "Author",
+                field: "normalizedName"
+            },
+            author_id: {
+                vertex: "Author",
+                field: "authorId"
+            },
+
+            field_of_study_display_name: {
+                vertex: "FieldOfStudy",
+                field: "normalizedName"
+            },
+            field_of_study_id: {
+                vertex: "FieldOfStudy",
+                field: "fieldOfStudyId"
+            },
+
+
+
+
+
             // paper_abstract: {
             //     vertex: "Paper",
             //     field: "abstract"
             // }
+
+
+
+
         },
         network_map: {
             citations: {
@@ -308,15 +379,15 @@ export default {
             },
             authors_display_name: {
                 vertexType: "Author",
-                field: "displayName"
+                field: "normalizedName"
             },
             authors_last_known_affiliation_id: {
                 vertexType: "Author",
                 field: "lastKnownAffiliationId"
             },
             journal_id: {
-                vertexType: "JournalFixed",
-                field: "journalIdFixed"
+                vertexType: "Journal",
+                field: "journalId"
             },
             // conference_series_id: {
             //     vertexType: "ConferenceSeries",
@@ -396,20 +467,20 @@ export default {
             //     field: "displayname"
             // },
             journal_display_name: {
-                vertexType: "JournalFixed",
-                field: "displayName"
+                vertexType: "Journal",
+                field: "normalizedName"
             },
             journal_issn: {
-                vertexType: "JournalFixed",
+                vertexType: "Journal",
                 field: "issn"
             },
             journal_publisher: {
-                vertexType: "JournalFixed",
+                vertexType: "Journal",
                 field: "publisher"
             },
             affiliation_display_name: {
                 vertexType: "Affiliation",
-                field: "displayName"
+                field: "normalizedName"
             }
         }
     }

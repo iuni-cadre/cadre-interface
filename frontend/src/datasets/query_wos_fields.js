@@ -258,10 +258,17 @@ export default {
         }
     ],
     input: {
+        doi: {label: "DOI", operators: ["OR"]},
+        issn: {label: "ISSN", operators: ["OR"]},
         publicationYear: {label: "Year", operators: ["OR"]},
-        authorFullNames: {label: "Author", operators: ["AND", "OR"]},
-        sourceTitle: {label: "Journal Name", operators: ["AND", "OR"]},
-        articleTitle: {label: "Title", operators: ["AND", "OR"]}
+        lc_standard_names: {label: "Author", operators: ["AND", "OR"]},
+        journaltitle: {label: "Journal Name", operators: ["OR"]},
+        jounaliso: {label: "Journal ISO", operators: ["OR"]},
+        conferencetitle: {label: "Conference Title", operators: ["OR"]},
+        papertitle: {label: "Paper Title", operators: ["AND", "OR"]},
+
+
+
     },
     exclusive_input_fields: [
         "publicationYear"
