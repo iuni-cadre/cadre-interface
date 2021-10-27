@@ -86,14 +86,14 @@ export default {
     input: {
         doi: { label: "DOI", operators: ["OR"] },
         issn: { label: "ISSN", operators: ["OR"] },
-        publicationYear: { label: "Year", operators: ["OR"] },
+        publicationyear: { label: "Year", operators: ["OR"] },
         lc_standard_names: { label: "Author", operators: ["AND", "OR"] },
         journaltitle: { label: "Journal Name", operators: ["OR"] },
         jounaliso: { label: "Journal ISO", operators: ["OR"] },
         conferencetitle: { label: "Conference Title", operators: ["OR"] },
         papertitle: { label: "Paper Title", operators: ["AND", "OR"] }
     },
-    exclusive_input_fields: ["publicationYear"],
+    exclusive_input_fields: ["publicationyear"],
     default: [
         "wosid",
         "publicationyear",
@@ -132,7 +132,7 @@ export default {
         input_field_map: {
             doi: { vertex: "Paper", field: "doi" },
             issn: { vertex: "Paper", field: "issn" },
-            publicationYear: { vertex: "Paper", field: "publicationYear" },
+            publicationyear: { vertex: "Paper", field: "publicationyear" },
             lc_standard_names: { vertex: "Paper", field: "lc_standard_names" },
             journaltitle: { vertex: "Paper", field: "journaltitle" },
             jounaliso: { vertex: "Paper", field: "jounaliso" },
