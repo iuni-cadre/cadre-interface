@@ -7,7 +7,7 @@
 - [About](#About)
 - [Getting Started](#getting-started)
 - [Usage](#usage)
-- [Contributing]()
+- [Contributing](#contributing-if-applicable)
 - [Authors](#authors)
 - [Acknowledgements](#acknowledgements)
 
