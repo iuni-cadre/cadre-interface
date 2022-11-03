@@ -5,11 +5,11 @@
 ## **Table of Contents**
 
 - [About](#About)
-- [Getting Started](https://www.notion.so/Standard-2f295cc2fb864c57a80b0b8fbd061f56)
-- [Usage](https://www.notion.so/Standard-2f295cc2fb864c57a80b0b8fbd061f56)
-- [Contributing](https://www.notion.so/Standard-2f295cc2fb864c57a80b0b8fbd061f56)
-- [Authors](https://www.notion.so/Standard-2f295cc2fb864c57a80b0b8fbd061f56)
-- [Acknowledgements](https://www.notion.so/Standard-2f295cc2fb864c57a80b0b8fbd061f56)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+- [Contributing]()
+- [Authors](#authors)
+- [Acknowledgements](#acknowledgements)
 
 ## **About**
 
