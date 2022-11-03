@@ -11,6 +11,8 @@
 - View Query Results
 - Using Jupyter Notebook
 
+[Another Doc](some_subdir/another_doc.md)
+
 ## About
 
 The CADRE platform provides users with tools that facilitate the creation of datasets from user-generated queries as well as an interface (using Jupyter Notebooks) for displaying, processing, and even analyzing created datasets.
