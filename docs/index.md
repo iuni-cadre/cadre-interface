@@ -11,7 +11,7 @@
 - View Query Results
 - Using Jupyter Notebook
 
-[Another Doc](some_subdir/another_doc.md)
+[Sub-Doc Test](some_subdir/another_doc.md)
 
 ## About
 
