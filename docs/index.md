@@ -7,11 +7,11 @@
 ### Getting Started
 
 ### Usage
-- Using Query Builder inside the CADRE platform
-- View Query Results
-- Using Jupyter Notebook
+- [Using Query Builder inside the CADRE platform](#using-query-builder-inside-the-cadre-platform)
+- [View Query Results](#view-query-results)
+- [Using Jupyter Notebook](#using-jupyter-notebook)
 
-[Sub-Doc Test](some_subdir/Standard_docs_template.md)
+[Technical Doc Template](some_subdir/Standard_docs_template.md)
 
 ## About
 
