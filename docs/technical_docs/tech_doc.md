@@ -55,6 +55,7 @@ Write about 1-2 paragraphs describing how use the documentation.
 - WoS - Web of Science (data set)
 - MAG - Microsoft Academic Graph (data set)
 - PTO - Patent and Trademark Office (data set)
+
 ### Terms
 - Research Assets Commons - Marketplace where users can store and consume existing piplines of data and algorithms
 - Notebook - method by which users can run custom code against CADRE data sets
@@ -68,6 +69,9 @@ Write about 1-2 paragraphs describing how use the documentation.
 - Cadre Auth Token - an authentication token created by the FLS used to authenticate a user across the CADRE Network Servers
 
 ## **CADRE Architecture**
+
+![Architecture](technical_docs/cadre_architecture.png)
+
 The CADRE VPC consists of 2 subnets:  A public subnet that contains user interfaces, a private subnet that contains compute resources and databases, and the Kubernetes machines.
 
 Users enter through a login page.  The login page is hosted on an EC2 instance as a flask app.  Upon logging in for the first time, a user record is generated and inserted into the **Meta Database**.  Logging in generates a token that can be used by other components to validate a user's permissions.
@@ -78,7 +82,7 @@ A **graphical query interface** is provided for non-technical users to query dat
 
 Each data set will be held in its own JanusGraph cluster. One for WOS and one for MAG. Each Janus cluster consists of 3 Cassandra nodes and 2 Elastic search nodes. VM that hosts JanusServer has a listener that listens to the job queue(SQS FIFO). When a user submits a job, the listener will fetch the job and submit it to the correct cluster according to the dataset user selects. Janus server VM has a mount point to the AWS EFS. Listener will run the query and saved the results in each user's query-results directory which they can access through notebooks.
 
-![](https://github.com/iuni-cadre/cadre-wiki/blob/master/cadre_architecture.png)
+
 
 ## **CADRE backend components**
 
