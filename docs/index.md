@@ -56,9 +56,28 @@ There are 4 sections to complete before submitting a query.
 
 **Filters**
 
-- These are rules or parameters that established what data is returned from the search. Common filter fields include: year, author, journal. If you want to query specific scholarly papers, then filter fields like ‘DOI’ and ‘paper title’ are useful.
-    - The selection of filters and query criteria are determine by the user needs and research design.
-    - The more precision used in field selections and search criteria reduces the time it takes for CADRE to return results from the query.
+- These are searchable fields that determine what data is returned from the query. Selecting the appropriate fields and filter criteria is critical to returning the data you want. The more precision used in field selections and search criteria reduces the time it takes for CADRE to return results from the query.
+- The searchable filter fields for **WoS** are: DOI, ISSN, Year, Author, Journal Name, Journal ISO, Conference Title, Paper Title. 
+    - Exact string matches are performed against DOI, ISSN, JournalISO, and Year.
+    - Fuzzy matches are performed against Journal Name, Conference Title, and Paper Title.
+    - The Author Names are searched for as a regular expression.
+        - Enter the author names as “last name, first name” or “last name, first initial middle initial”, or however the initials are given. The resulting regular expression will be “.*last, first.*” or “.*last, fm.*” for last followed by first and middle initials; the comma is matched and must be included by the user in the query. Also, the author’s names are converted to lower-case and compared against a lower-case field of author names. If an author’s name is given in a variety of ways in different publications, then the OR operator will need to be applied for that author.
+        - For example:
+            - If you are searching for papers from two authors: John James Smith and Robert Brian Doe. Entering “Smith, J” will find all papers with author last name Smith and first letter of the first name J, so it will find papers with authors like: Clinesmith, Jack or Smith, J where only the J is given in the paper name. In other words, you may get extraneous papers with author names that happened to meet the regular expression.
+            - Filter 1:
+                Author: smith, jj
+                    OR
+                Author: smith, john j
+                    OR
+                Author: smith, john james
+                    AND
+            - Filter 2:
+                Author: doe, rb
+                    OR
+                Author: doe, robert b
+                    OR
+                Author: doe, robert brian
+
 - Select a search **Field** from the pulldown and type the field value into the **Values** column next to the selected field.
     - Click “**Add Another Filter Value**” to add multiple **Values** associated with a selected filter
         - Select whether the additional Value should be “AND” or “OR” using the pulldown option.
