@@ -70,7 +70,7 @@ Write about 1-2 paragraphs describing how use the documentation.
 
 ## **CADRE Architecture**
 
-![Architecture](technical_docs/cadre_architecture.png)
+![Architecture](figures/cadre_architecture.png)
 
 The CADRE VPC consists of 2 subnets:  A public subnet that contains user interfaces, a private subnet that contains compute resources and databases, and the Kubernetes machines.
 
