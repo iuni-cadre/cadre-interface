@@ -1,5 +1,7 @@
 # CADRE User Guide
 
+[Technical Documentation](technical_docs/tech_doc.md)
+
 ## Table of Contents
 
 ### About
@@ -10,8 +12,6 @@
 - [Using Query Builder inside the CADRE platform](#using-query-builder-inside-the-cadre-platform)
 - [View Query Results](#view-query-results)
 - [Using Jupyter Notebook](#using-jupyter-notebook)
-
-[Technical Doc Template](some_subdir/Standard_docs_template.md)
 
 ## About
 
