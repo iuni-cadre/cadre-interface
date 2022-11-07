@@ -155,20 +155,20 @@ Each data set will be held in its own JanusGraph cluster. One for WOS and one fo
 - Job Listeners
     - Job listeners are vastly different in production and dev versions
     - Production
-    - Listeners running on jupyter hub driver instance
-    - Login : SSH to production bastion
-    - Run `ssh_to_jupyter`
-    - Github [link](https://github.com/iuni-cadre/cadre-job-listener/tree/kub_run_packages) (Not from master)
-    - Job queue [link](https://sqs.us-east-1.amazonaws.com/799597216943/cadre-job-listner-vp
-    ceast1.fifo)
-    - 16 job listeners are running via supervisor
-    - All the logs are stored in: `/home/ubuntu/cadre-job-listener/cadre_tool_listener.log`
-    - If you do changes to the python code, you need to restart supervisor
-    processes
-    - Make sure database connections are successful before starting the
-    processes
-    - EFS needs to be mounted
-    - Job results are in: `/home/ubuntu/efs/home/cadre-query-results/{username in base32}/query-results`
+        - Listeners running on jupyter hub driver instance
+        - Login : SSH to production bastion
+        - Run `ssh_to_jupyter`
+        - Github [link](https://github.com/iuni-cadre/cadre-job-listener/tree/kub_run_packages) (Not from master)
+        - Job queue [link](https://sqs.us-east-1.amazonaws.com/799597216943/cadre-job-listner-vp
+        ceast1.fifo)
+        - 16 job listeners are running via supervisor
+        - All the logs are stored in: `/home/ubuntu/cadre-job-listener/cadre_tool_listener.log`
+        - If you do changes to the python code, you need to restart supervisor
+        processes
+        - Make sure database connections are successful before starting the
+        processes
+        - EFS needs to be mounted
+        - Job results are in: `/home/ubuntu/efs/home/cadre-query-results/{username in base32}/query-results`
     - Dev
         - WOS
             - Deployed from master, in jupyter driver ec2
@@ -289,23 +289,23 @@ configured.
 
 
 ### Wiki to other components
-    - [API Endpoints](https://github.com/iuni-cadre/cadre-wiki/wiki/API-Endpoints)
-    - [Create new VPC for Cadre](https://github.com/iuni-cadre/cadre-wiki/wiki/Create-new-VPC-for-Cadre)
-    - [Data Consistency and Data Pipeline Issues](https://github.com/iuni-cadre/cadre-wiki/wiki/Data-Consistency-and-Data-Pipeline-Issues)
-    - [Database Fields That Need To Be Indexed For Rome](https://github.com/iuni-cadre/cadre-wiki/wiki/Database-Fields-That-Need-To-Be-Indexed-For-Rome)
-    - [Development VM Shut Down Policy](https://github.com/iuni-cadre/cadre-wiki/wiki/Development-VM-Shut-Down-Policy)
-    - [Docker](https://github.com/iuni-cadre/cadre-wiki/wiki/Docker)
-    - [Keys](https://github.com/iuni-cadre/cadre-wiki/wiki/Keys)
-    - [Lambda Functions](https://github.com/iuni-cadre/cadre-wiki/wiki/Lambda-Functions)
-    - [LogStash and ElasticSearch for Logging Administration Guide](https://github.com/iuni-cadre/cadre-wiki/wiki/LogStash-and-ElasticSearch-for-Logging-Administration-Guide)
-    - [Notebooks and Data Assets](https://github.com/iuni-cadre/cadre-wiki/wiki/Notebooks-and-Data-Assets)
-    - [Packages](https://github.com/iuni-cadre/cadre-wiki/wiki/Packages)
-    - [Policies and Permissions](https://github.com/iuni-cadre/cadre-wiki/wiki/Policies-and-Permissions)
-    - [Postgresql Copy command](https://github.com/iuni-cadre/cadre-wiki/wiki/Postgresql-Copy-command)
-    - [Resource Description Framework(RDF)](https://github.com/iuni-cadre/cadre-wiki/wiki/Resource-Description-Framework(RDF))
-    - [SNS Topics](https://github.com/iuni-cadre/cadre-wiki/wiki/SNS-Topics)
-    - [URLs](https://github.com/iuni-cadre/cadre-wiki/wiki/URLs)
-    - [Web of Science data schema](https://github.com/iuni-cadre/cadre-wiki/wiki/Web-of-Science-data-schema)
+- [API Endpoints](https://github.com/iuni-cadre/cadre-wiki/wiki/API-Endpoints)
+- [Create new VPC for Cadre](https://github.com/iuni-cadre/cadre-wiki/wiki/Create-new-VPC-for-Cadre)
+- [Data Consistency and Data Pipeline Issues](https://github.com/iuni-cadre/cadre-wiki/wiki/Data-Consistency-and-Data-Pipeline-Issues)
+- [Database Fields That Need To Be Indexed For Rome](https://github.com/iuni-cadre/cadre-wiki/wiki/Database-Fields-That-Need-To-Be-Indexed-For-Rome)
+- [Development VM Shut Down Policy](https://github.com/iuni-cadre/cadre-wiki/wiki/Development-VM-Shut-Down-Policy)
+- [Docker](https://github.com/iuni-cadre/cadre-wiki/wiki/Docker)
+- [Keys](https://github.com/iuni-cadre/cadre-wiki/wiki/Keys)
+- [Lambda Functions](https://github.com/iuni-cadre/cadre-wiki/wiki/Lambda-Functions)
+- [LogStash and ElasticSearch for Logging Administration Guide](https://github.com/iuni-cadre/cadre-wiki/wiki/LogStash-and-ElasticSearch-for-Logging-Administration-Guide)
+- [Notebooks and Data Assets](https://github.com/iuni-cadre/cadre-wiki/wiki/Notebooks-and-Data-Assets)
+- [Packages](https://github.com/iuni-cadre/cadre-wiki/wiki/Packages)
+- [Policies and Permissions](https://github.com/iuni-cadre/cadre-wiki/wiki/Policies-and-Permissions)
+- [Postgresql Copy command](https://github.com/iuni-cadre/cadre-wiki/wiki/Postgresql-Copy-command)
+- [Resource Description Framework(RDF)](https://github.com/iuni-cadre/cadre-wiki/wiki/Resource-Description-Framework(RDF))
+- [SNS Topics](https://github.com/iuni-cadre/cadre-wiki/wiki/SNS-Topics)
+- [URLs](https://github.com/iuni-cadre/cadre-wiki/wiki/URLs)
+- [Web of Science data schema](https://github.com/iuni-cadre/cadre-wiki/wiki/Web-of-Science-data-schema)
 
 
 ## Contributors
