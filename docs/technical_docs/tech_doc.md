@@ -2,8 +2,7 @@
 
 ## **Table of Contents**
 
-- [About](#About)
-- [CADRE Architecture](#cadre-architecture)
+- [CADRE Architecture Overview](#cadre-architecture-overview)
 - [CADRE Glossary](#cadre-glossary)
 - [CADRE backend components](#cadre-backend-components)
     - [Dev VPC and Production VPC](#dev-vpc-and-production-vpc)
@@ -18,12 +17,10 @@
     - [Janus Graph](#janus-graph)
     - [CADRE Datasets](#cadre-datasets)
     - [AWS operations and services](#aws-operations-and-services)
+- [Architecture Maintenance](#architecture-maintenance)
 - [Wiki to other components](#wiki-to-other-components)
 - [Contributors](#contributors)
 
-
-## **About**
-Write about 1-2 paragraphs describing how use the documentation.
 
 ## **CADRE Glossary**
 ### Abbreviations
@@ -46,9 +43,9 @@ Write about 1-2 paragraphs describing how use the documentation.
 - Server - Computer that is used to host microservices or databases. Can be actual nodes or VMs in a cloud solution
 - Cadre Auth Token - an authentication token created by the FLS used to authenticate a user across the CADRE Network Servers
 
-## **CADRE Architecture**
+## **CADRE Gateway Overview**
 
-![Architecture](figures/cadre_architecture.png)
+![Gatewate Architecture](figures/cadre_architecture.png)
 
 The CADRE VPC consists of 2 subnets:  A **public subnet** that contains user interfaces, a **private subnet** that contains computing resources and databases, and the Kubernetes machines.
 
@@ -171,49 +168,6 @@ See [Production Subnet documention](https://github.com/iuni-cadre/cadre-wiki/wik
             - token-endpoint=https://login-1.cadre.iu.edu/oauth2/token
             - userinfo-endpoint=https://login-1.cadre.iu.edu/oauth2/userInfo
 
-### Cadre-data-api
-- Github [link](https://github.com/iuni-cadre/cadre-data)
-- Both production and dev versions deployed from master
-- Service restart
-    - Managed by supervisor process
-    - Make sure data api ec2 instance can create connections to database machines
-    (mag postgres + neo4j, wos postgres + neo4j)
-    - Logs : `/home/ubuntu/cadre-data/cadre_data.log`
-    - Config : `/home/ubuntu/cadre-data/conf/cadre.config`
-    - For the dev version, we use two aws sqs queues for now. One for janus graph
-    and one for WOS
-    - Important configs :
-        - [WOS_DATABASE_INFO]
-        database-host=10.0.1.134
-        database-port=5432
-        database-name=wos
-        database-username=
-        database-password=
-        - [CADRE_META_DATABASE_INFO]
-        database-host=10.0.1.192
-        database-port=5432
-        database-name=
-        database-username=
-        database-password=
-        - [MAG_DATABASE_INFO]
-        database-host=10.0.1.197
-        database-port=5432
-        database-name=mag
-        database-username=
-        database-password=
-        - [MAG_GRAPH_DB_INFO]
-        database-url=bolt://10.0.1.176:7687
-        database-username=
-        database-password=
-        - [CADRE]
-        This is token endpoint from cadre-login repository
-        token-api=https://cadre.iu.edu/api/auth/authenticate-token
-        - [AWS]
-        aws_access_key_id=
-        aws_secret_access_key=
-        region_name=us-east-1
-        queue_url=https://sqs.us-east-1.amazonaws.com/799597216943/cadre-job-listne
-        r-vpceast1.fifo
 
 ### Cadre meta database
 - Github repo: [cadre-metadatabase](https://github.com/iuni-cadre/cadre-metadatabase)
@@ -391,7 +345,10 @@ configured.
         - Path to idle checker: `/home/ubuntu/cloud-admin/aws/idle_checker/idle_checker.py`
         - Path to (???): `/aws/ec2 januscluster start python script`
 
-### Wiki to other components
+## Architecture Maintenance
+Because of the large amount of data, we need to use some of the larger VMs available, which can cost upwards of $20,000 in total, per month. To bring this cost down to around $5,000 - $7,000 per month, we temporarily suspend these VMs unless a dataset is being actively queried, so the cost is dependent on usage. Adding more datasets, or version of datasets, would require another 5-node cluster for each dataset supported.
+
+## Wiki to other components
 - [API Endpoints](https://github.com/iuni-cadre/cadre-wiki/wiki/API-Endpoints)
 - [Create new VPC for Cadre](https://github.com/iuni-cadre/cadre-wiki/wiki/Create-new-VPC-for-Cadre)
 - [Data Consistency and Data Pipeline Issues](https://github.com/iuni-cadre/cadre-wiki/wiki/Data-Consistency-and-Data-Pipeline-Issues)
