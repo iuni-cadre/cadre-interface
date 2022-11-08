@@ -2,7 +2,7 @@
 
 ## **Table of Contents**
 
-- [CADRE Architecture Overview](#cadre-architecture-overview)
+- [CADRE Architecture Overview](#cadre-gateway-overview)
 - [CADRE Glossary](#cadre-glossary)
 - [CADRE backend components](#cadre-backend-components)
     - [Dev VPC and Production VPC](#dev-vpc-and-production-vpc)
@@ -47,16 +47,25 @@
 
 ![Gatewate Architecture](figures/cadre_architecture.png)
 
-The CADRE VPC consists of 2 subnets:  A **public subnet** that contains user interfaces, a **private subnet** that contains computing resources and databases, and the Kubernetes machines.
+The CADRE Gateway is a web-based interface that allows users to query large science of science data sets. A complex system of Amazon Web Services (AWS) services is used to allow the Gateway to function.
 
-Users enter through a login page.  The login page is hosted on an EC2 instance as a flask app.  Upon logging in for the first time, a user record is generated and inserted into the **Meta Database**.  Logging in generates a token that can be used by other components to validate a user's permissions.
+The entirety of the gateway is hosted on AWS and uses various services. We use a Virtual Private Cloud with two subnets to separate public facing code from the databases, AWS services, and system level code. The private subnet is only accessible through an SSH bastion or an Apache web server found in the public subnet.
 
-Users are first presented with the **Marketplace**.  The Marketplace is hosted on AWS Elastic Beanstalk and served through a Web Gateway.  The **Web Gateway** uses a reverse proxy to serve the interface allowing EBS to handle load balancing.  Using this web gateway allows us to use one public IP address and one SSL certificate for the whole system.
+The user interface uses an AWS service called Elastic Beanstalk that allows code to be run without having to manage a web server manually. The interface uses a frontend primarily written using Vue.js and a backend that uses Python to connect to databases and expose API endpoints.
 
-A **graphical query interface** is provided for non-technical users to query data sets.  The Query Interface is built into the Marketplace codebase. The query interface will send requests through the web gateway to the RAC API and will put tasks onto the AWS SQS queue.  
+Users log into the system using a third-party service called CILogon. CILogon is a federated login system that allows users to log in using their university account (or Gmail). Upon logging in, the user’s data (name, email, institution, etc.) is sent to the CADRE servers so that the Gateway can generate all required metadata, permissions, and folders in the system. We also create entries in AWS Cognito, to further handle permissions and login duties. Cognito is an AWS service that handles user pools and makes it easier to manage user permissions within the AWS ecosystem.
 
-Each data set will be held in its own JanusGraph cluster. One for WOS and one for MAG. Each Janus cluster consists of 3 Cassandra nodes and 2 Elastic search nodes. VM that hosts JanusServer has a listener that listens to the job queue(SQS FIFO). When a user submits a job, the listener will fetch the job and submit it to the correct cluster according to the dataset user selects. Janus server VM has a mount point to the AWS EFS. Listener will run the query and saved the results in each user's query-results directory which they can access through notebooks.
+To reduce the cost of the VMs, we temporarily suspend these VMs unless a dataset is being actively queried, so the cost is dependent on usage. Adding more datasets, or version of datasets, would require another 5-node cluster for each dataset supported.
 
+When a query is submitted from the Gateway interface, a message is added to a queue running on AWS’s Simple Queue Service (SQS). A “listener” EC2 VM watches this queue, and when it sees that a user has submitted a query, it will start the cluster and run the query against the chosen JanusGraph database. Once completed, the results will be saved to a user’s personal space on the AWS Elastic File System (EFS). Users can then use a Jupyter notebook to open these files and do postprocessing on the data.
+
+Like the datasets’ EC2 VMs, a user’s Jupyter notebook is not always running to save on cost. We use another cluster of EC2 VMs managed by Kubernetes to create new Jupyter notebook servers on demand. When a user requests to open a notebook, Kubernetes will create a containerized Jupyter server and mount that user’s personal EFS space where they can access query results and personal scripts.
+
+The Marketplace features use a similar Kubernetes/SQS system. To create a package that can automatically run tools and reproduce results, users need to archive datasets and register tools with the system. When a user archives a dataset (query results), the .csv result files will be zipped and stored on AWS’s Simple Storage Service (S3). When a package is run, this archived dataset will be downloaded to the running user’s EFS storage space so that a tool can be run against it.
+
+Creating a tool is a little more complex. A user will create a python script in their Jupyter notebook. After choosing to create a tool, the user can choose one or more python files to include in the tool. A message will be sent to an SQS queue including the user and the files. A listener within the Kubernetes cluster will generate a Docker file and bundle the python scripts and docker file.
+
+Creating a package is a matter of choosing an available tool and an available data archive. The information is saved to a database and made available to users through the marketplace. When a user runs a package, a message is again put on an SQS queue. A listener will watch for a message and download the tool and dataset to a user’s EFS space. A docker container is created and automatically run, using the tool scripts and the given archive. The resulting output is saved to the user’s EFS space and is viewable through the Jupyter notebook, just like query results.
 
 
 ## **CADRE backend components**
@@ -126,14 +135,13 @@ See [Production Subnet documention](https://github.com/iuni-cadre/cadre-wiki/wik
         - Cadre-job-listener path: /home/ubuntu/cadre-job-listener
     - Beanstalk
         - CadreInterface-env
-        - URL: ??
-        - IP: `___`
-            - (issue?) ssh_to_interface not working and uses different IP than above (10.0.1.178)?
+        - Note: Elastic beanstalk tears down and spins up a new EC2 instance each time the interface is updated, so it's unlikely that the internal IP address will be the same every time.
 
 ### Cadre-federated-login system (FLS)
 - Github [link](https://github.com/iuni-cadre/cadre-login)
 - Both production and dev versions are deployed from master
-- Use AWS cognito for federation
+- Use AWS cognito further handle permissions and login duties
+    - AWS Cognito is an AWS service that handles user pools and makes it easier to manage user permissions within the AWS ecosystem.
     - Identity providers : CiLogon, Google
     - Client ids can be found in cognito console when select correct region
     - CILogon is added as third party OIDC
@@ -181,7 +189,6 @@ See [Production Subnet documention](https://github.com/iuni-cadre/cadre-wiki/wik
         - Database user: cadre
         - Location to Repo
             - `/home/ubuntu/cadre-metadatabase`
-- [Cadre-data-api](nested_pages/subpage_cadredataapi.md)
 
 ### Cadre listeners
 - Job Listeners
