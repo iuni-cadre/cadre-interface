@@ -6,18 +6,18 @@
 - [CADRE Architecture](#cadre-architecture)
 - [CADRE Glossary](#cadre-glossary)
 - [CADRE backend components](#cadre-backend-components)
-    - CADRE-federated-login system
-    - CADRE-data-api
-    - CADRE meta database
-    - CADRE listeners
+    - [Dev VPC and Production VPC](#dev-vpc-and-production-vpc)
+    - [CADRE-federated-login system](#cadre-federated-login-system-fls)
+    - [CADRE meta database](#cadre-meta-database)
+    - [CADRE listeners](#cadre-listeners)
         - Job Listeners
         - Tool creation Listener
         - Package run Listener
-    - Notebooks
-    - Kubernetes cluster
-    - Janus Graph
-    - CADRE Datasets
-    - AWS operations
+    - [Notebooks](#notebooks)
+    - [Kubernetes cluster](#kubernetes-cluster)
+    - [Janus Graph](#janus-graph)
+    - [CADRE Datasets](#cadre-datasets)
+    - [AWS operations and services](#aws-operations-and-services)
 - [Wiki to other components](#wiki-to-other-components)
 - [Contributors](#contributors)
 
@@ -50,7 +50,7 @@ Write about 1-2 paragraphs describing how use the documentation.
 
 ![Architecture](figures/cadre_architecture.png)
 
-The CADRE VPC consists of 2 subnets:  A public subnet that contains user interfaces, a private subnet that contains compute resources and databases, and the Kubernetes machines.
+The CADRE VPC consists of 2 subnets:  A **public subnet** that contains user interfaces, a **private subnet** that contains computing resources and databases, and the Kubernetes machines.
 
 Users enter through a login page.  The login page is hosted on an EC2 instance as a flask app.  Upon logging in for the first time, a user record is generated and inserted into the **Meta Database**.  Logging in generates a token that can be used by other components to validate a user's permissions.
 
@@ -64,9 +64,78 @@ Each data set will be held in its own JanusGraph cluster. One for WOS and one fo
 
 ## **CADRE backend components**
 
-### Cadre-federated-login system
+### Dev VPC and Production VPC
+Dev/Prod VPC:
+- Server geographic locations
+- Prod: Ohio
+- Dev: N. Virginia
+- Note: Dev is not a Perfect replica of Prod (some resources in Prod are not in Dev)
+- (**Add Machine Software Paths**)
+
+### Public Subnet and Private Subnet
+See [Production Subnet documention](https://github.com/iuni-cadre/cadre-wiki/wiki/Production-Subnet-Documentation) for full details (names, IP addresses, locations) on the resources for the public subset and private subnet.
+- Public Subnet
+    - Bastion:
+        - Name: cadre-vpc-ohio-bastion
+        - IP Public: `___`
+        - IP Private: `___`
+        - EBS Volume Name: cadre-vpc-ohio-bastion
+            - Location: `/dev/xvda`
+        - Desc: for SSH to hosts in Private subnet
+            - Locations for SSH at: `/home/ec2-user`
+    - Web Gateway:
+        - Name: cadre-web-gateway
+        - IP: `___`
+        - EBS Volume Name: cadre-web-gateway
+            - Location: `/dev/sda1`
+        - Desc: Public access to website
+- Private Subnet EC2 Machines:
+    - Website:
+        - Name: cadre-website
+        - IP: `___`
+        - EBS Volume Name: cadre-website
+            - Location: `/dev/sda1`
+        - Desc: the contents of the website
+    - [Login Server](#cadre-federated-login-system-fls):
+        - Name: cadre-login
+        - IP: `___`
+        - EBS Volume Name: cadre-login
+            - Location: `/dev/sda1`
+        - Cognito?
+        - Desc: The Server handing logins
+        - Path to cadre-login Repo
+            - `/home/ubuntu/cadre-login`
+    - [Meta Database](#cadre-meta-database):
+        - Name: cadre-metadatabase
+        - IP: `___`
+        - EBS Volume Name: cadre-metadatabase
+            - Location: `/dev/sda1`
+        - Database Name: cadre_meta
+        - Database user: cadre
+        - Location to Repo
+            - `/home/ubuntu/cadre-metadatabase`
+    - [Graph Databases](#janus-graph):
+        - Datasets: WoS, MAG, USPTO
+        - Resources per Dataset:
+            - 1 Janus Server
+            - 1 Elastic Search Server
+            - 3 Cassandra Nodes (1 seed and 2 nodes)
+            - 1 Volume per resource above
+    - [Kub/Jupyter](#kubernetes-cluster)
+        - Name: jupyter-driver-1
+        - IP: `___`
+        - EBS Volume Name: jupyter-driver-1
+            - Location: `/dev/sda1`
+        - Cadre-job-listener path: /home/ubuntu/cadre-job-listener
+    - Beanstalk
+        - CadreInterface-env
+        - URL: ??
+        - IP: `___`
+            - (issue?) ssh_to_interface not working and uses different IP than above (10.0.1.178)?
+
+### Cadre-federated-login system (FLS)
 - Github [link](https://github.com/iuni-cadre/cadre-login)
-- Both production and dev versions deployed from master
+- Both production and dev versions are deployed from master
 - Use AWS cognito for federation
     - Identity providers : CiLogon, Google
     - Client ids can be found in cognito console when select correct region
@@ -149,14 +218,23 @@ Each data set will be held in its own JanusGraph cluster. One for WOS and one fo
 ### Cadre meta database
 - Github repo: [cadre-metadatabase](https://github.com/iuni-cadre/cadre-metadatabase)
     - [Meta database schema](https://github.com/iuni-cadre/cadre-metadatabase/blob/master/cadre-metadatabase.sql)
-- Need to run only once, if you create a new ec2 instance for meta database
+    - Need to run only once, if you create a new ec2 instance for meta database
+- Name: cadre-metadatabase
+        - IP: (found [here](https://github.com/iuni-cadre/cadre-wiki/wiki/Production-Subnet-Documentation))
+        - EBS Volume Name: cadre-metadatabase
+            - Location: `/dev/sda1`
+        - Database Name: cadre_meta
+        - Database user: cadre
+        - Location to Repo
+            - `/home/ubuntu/cadre-metadatabase`
+- [Cadre-data-api](nested_pages/subpage_cadredataapi.md)
 
 ### Cadre listeners
 - Job Listeners
     - Job listeners are vastly different in production and dev versions
     - Production
         - Listeners running on jupyter hub driver instance
-        - Login : SSH to production bastion
+        - Login: SSH to production bastion
         - Run `ssh_to_jupyter`
         - Github [link](https://github.com/iuni-cadre/cadre-job-listener/tree/kub_run_packages) (Not from master)
         - Job queue [link](https://sqs.us-east-1.amazonaws.com/799597216943/cadre-job-listner-vp
@@ -170,9 +248,9 @@ Each data set will be held in its own JanusGraph cluster. One for WOS and one fo
         - EFS needs to be mounted
         - Job results are in: `/home/ubuntu/efs/home/cadre-query-results/{username in base32}/query-results`
     - Dev
-        - WOS
+        - WoS
             - Deployed from master, in jupyter driver ec2
-            - Login : ssh to dev bastion and run ssh_to_jupyter
+            - Login: ssh to dev bastion and run `ssh_to_jupyter`
             - Github [link](https://github.com/iuni-cadre/cadre-job-listener/tree/master)
     - MAG Janus
         - Github [link](https://github.com/iuni-cadre/janus-job-listener/tree/mag-janus)
@@ -253,25 +331,35 @@ configured.
 `ssh_to_jupyter` from bastion)
 - `kops` commands use to update the cluster, node configurations etc.
 - [Run packages with Kubernetes](https://github.com/iuni-cadre/cadre-wiki/wiki/Run-packages-with-Kubernetes)
+- Kub/Jupyter
+    - Name: jupyter-driver-1
+    - IP: (found [here](https://github.com/iuni-cadre/cadre-wiki/wiki/Production-Subnet-Documentation))
+    - EBS Volume Name: jupyter-driver-1
+        - Location: `/dev/sda1`
+    - Cadre-job-listener path: /home/ubuntu/cadre-job-listener
 
 ### Janus Graph
 - Janus cluster only available in ohio vpc
+- Datasets: WoS, MAG, USPTO
 - Running cluster includes
-    - 1 jansu server
+    - 1 Janus Server
     - 1 elastic search server
     - 3 cassandra nodes (1 seed + 2 nodes)
+    - 1 Volume per resource above
 - Start janus server
-    - Ssh to janus server instance
+    - ssh to janus server instance
     - Kill the running nohup process
     - `cd janusgraph, run nohup bin/gremlin-server.sh`
     - `conf/gremlin-server/socket-http-gremlin-server.yaml > janus.out &`
+- Data pipeline and provenance for CADRE
+    - Github [link](https://github.com/iuni-cadre/DataPipelineAndProvenanceForCADRE) to the official public repo for the data pipeline and provenance for CADRE
 
 ### Cadre Datasets
-- Separate EC2 instances for MAG and WOS
+- Separate EC2 instances for MAG and WoS
 - Each ec2 instance contains postgres DB and neo4j DB
 - Each should have EFS mounted
 
-### AWS operations
+### AWS operations and services
 - VPCs
     - [Design](https://github.com/iuni-cadre/cadre-wiki/wiki/Create-new-VPC-for-Cadre)
     - 2 VPCs
@@ -283,10 +371,25 @@ configured.
     - `cadre-backend-sg` - for private ec2 instances
     - Always try to use one of the above security groups if you want to add new ec2
     instances
-- [Amazon Elastic File System](https://github.com/iuni-cadre/cadre-wiki/wiki/Amazon-Elastic-File-System)
+- SQS (Simple Queue Service)
+    - Cadre-janus-queue.fifo
+    - Cadre-job-queue.fifo
+    - Cadre-package.fifo
+    - Cadre-startstop
+    - Cadre-tool-queue.fifo
+- [Amazon Elastic File System](https://github.com/iuni-cadre/cadre-wiki/wiki/Amazon-Elastic-File-System) (File Storage)
+    - EFS-Ohio
+    - Size: 115.83GiB
 - [Amazon S3](https://github.com/iuni-cadre/cadre-wiki/wiki/Amazon-S3)
 - [AWS Services For Creating Docker Images](https://github.com/iuni-cadre/cadre-wiki/wiki/AWS-Services-For-Creating-Docker-Images)
-
+- Cognito
+    - Cannot find resource/service
+- AWS Managing Instances script on ssh_to_janus_server_uspto_2021
+    - Sudo supervisorctl to see status of cadre-start-jg-listener
+    - Crontab -e to view the automation and path to script
+        - Path to python environment: `/home/ubuntu/cloud-admin/venv/bin/activate`
+        - Path to idle checker: `/home/ubuntu/cloud-admin/aws/idle_checker/idle_checker.py`
+        - Path to (???): `/aws/ec2 januscluster start python script`
 
 ### Wiki to other components
 - [API Endpoints](https://github.com/iuni-cadre/cadre-wiki/wiki/API-Endpoints)
