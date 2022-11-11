@@ -6,7 +6,7 @@ description: Documentation pages
 # --- Logo --- #
 ################
 
-logo: "index/favicon-194x194.png" # path of site logo, e.g. "/assets/images/logo.png"
+logo: "assets/favicon-194x194.png" # path of site logo, e.g. "/assets/images/logo.png"
 
 ## Image to show in the navigation bar - works best with a square image
 ## Remove this parameter if you don't want an image in the navbar
