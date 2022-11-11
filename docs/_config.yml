@@ -1,19 +1,7 @@
 theme: jekyll-theme-minimal
-title: IUNI
-description: Documentation pages
+title: Indiana University Network Science Institute
+description: Project Documentation
 
-################
-# --- Logo --- #
-################
-
+## IUNI Logo
 logo: "index/favicon-194x194.png" # path of site logo, e.g. "/assets/images/logo.png"
 
-## Image to show in the navigation bar - works best with a square image
-## Remove this parameter if you don't want an image in the navbar
-# avatar: /docs/index/favicon-194x194.png
-## By default, the image is cut into a circle. You can disable this behaviour by setting 'round-avatar: false'
-# round-avatar: false
-
-# If you want to have an image logo in the top-left corner instead of having the title of the website,
-# then specify the following parameter
-#title-img: /docs/index/favicon-194x194.png
