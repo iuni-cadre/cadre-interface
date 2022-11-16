@@ -1,6 +1,6 @@
 # CADRE User Guide
 
-[Technical Documentation](technical_docs/tech_doc.md)
+<!-- [Technical Documentation](technical_docs/tech_doc.md) -->
 
 ## Table of Contents
 
@@ -21,6 +21,7 @@ The CADRE platform provides users with tools that facilitate the creation of dat
 
 - Go to the [CADRE gateway](https://cadre.iu.edu/gateway/jupyter) and login using your institutions credentials
     - Note: If your institution is not subscribed to CADRE, you will only have access to a subset of features.
+    - Note 2: **If your institution uses Google or Gmail and you typically log into a Google account, you must still use CILogon and choose your appropriate institution to access all features granted to your institution.**
     
     ![Untitled](index/Untitled.png)
     
@@ -65,18 +66,18 @@ There are 4 sections to complete before submitting a query.
         - For example:
             - If you are searching for papers from two authors: John James Smith and Robert Brian Doe. Entering “Smith, J” will find all papers with author last name Smith and first letter of the first name J, so it will find papers with authors like: Clinesmith, Jack or Smith, J where only the J is given in the paper name. In other words, you may get extraneous papers with author names that happened to meet the regular expression.
             - Filter 1:
-                Author: smith, jj
-                    OR
-                Author: smith, john j
-                    OR
-                Author: smith, john james
-                    AND
+                >                Author: smith, jj
+                >                    OR
+                >                Author: smith, john j
+                >                    OR
+                >                Author: smith, john james
+                >                    AND
             - Filter 2:
-                Author: doe, rb
-                    OR
-                Author: doe, robert b
-                    OR
-                Author: doe, robert brian
+                >                Author: doe, rb
+                >                    OR
+                >                Author: doe, robert b
+                >                    OR
+                >                Author: doe, robert brian
 
 - Select a search **Field** from the pulldown and type the field value into the **Values** column next to the selected field.
     - Click “**Add Another Filter Value**” to add multiple **Values** associated with a selected filter
@@ -104,7 +105,7 @@ There are 4 sections to complete before submitting a query.
 
 **Network Queries**
 
-- In addition to returning an output table with selected fields, you can also select whether you want to the query to return a citation or reference graph (edgelist). This relational output captures links between scholarly works (e.g., papers, patents/trademarks) based on their citations of other works.
+- In addition to returning an output table with selected fields, you can also select whether you want the query to return a citation or reference graph (edgelist). This relational output captures links between scholarly works (e.g., papers, patents/trademarks) based on their citations of other works.
 - Click **Include Citation Network Graph** to return a network edgelist based on the *citations* of the query results (papers/patents).
     - A citations graph consists of the query results and any papers or patents the query results cite, with edges representing citations by the query result.
 - Click **Include Reference Network Graph** to return a network edgelist based on *references* that cite the query results (papers/patents).
