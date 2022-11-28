@@ -15,6 +15,8 @@ Install Vue CLI:  https://cli.vuejs.org/guide/installation.html
 
 Use Python Virtual Environments:  https://docs.python.org/3/library/venv.html
 
+[User Guide Documentation](https://iuni-cadre.github.io/cadre-interface/)
+
 ## Setup and Deployment
 
 ### Hosting
