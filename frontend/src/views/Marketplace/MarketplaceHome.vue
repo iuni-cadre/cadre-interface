@@ -121,7 +121,6 @@
 <script>
 import Modal from "@/components/Common/CommonModal";
 import RacPackageCard from "@/components/Marketplace/MarketplaceRacPackageCard";
-import RacToolCard from "@/components/Marketplace/MarketplaceRacToolCard";
 import CreatePackageModal from "@/components/Marketplace/MarketplaceCreateRacPackageModal";
 import NewArchiveForm from "@/components/Marketplace/MarketplaceNewArchiveForm";
 
@@ -159,7 +158,6 @@ export default {
     components: {
         Modal,
         RacPackageCard,
-        RacToolCard,
         CreatePackageModal,
         NewArchiveForm
     },

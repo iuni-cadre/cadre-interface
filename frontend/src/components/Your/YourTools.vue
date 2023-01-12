@@ -10,26 +10,6 @@
                     >Create New Tool</button>
                 </div>
             </div>
-            <div class="row flex-wrap">
-                <div
-                    v-for="(ractool, index) in your_tools"
-                    :key="`ractool_card_${index}`"
-                    class="col-md-4 d-flex"
-                >
-                    <rac-tool-card
-                        @startLoading="startLoading"
-                        @stopLoading="stopLoading"
-                        @toolDeleted="fetchYourTools()"
-                        @toolPublished="fetchYourTools()"
-                        @toolUnpublished="fetchYourTools()"
-                        :rac-tool="ractool"
-                    ></rac-tool-card>
-                </div>
-                <div
-                    class="col"
-                    v-if="your_tools.length == 0"
-                >Could not find any tools created by you.</div>
-            </div>
             <modal
                 @ok="show_create_tool_modal = false; confirm_tool_create_modal_close = false;"
                 @close="confirm_tool_create_modal_close = false"
@@ -50,7 +30,6 @@
 
 <script>
 import Modal from "@/components/Common/CommonModal";
-import RacToolCard from "@/components/Marketplace/MarketplaceRacToolCard";
 
 const GET_TOOLS_ENDPOINT = "/get-tools/user";
 
@@ -67,7 +46,6 @@ export default {
     },
     components: {
         Modal,
-        RacToolCard,
     },
     methods: {
         startLoading({key, message}){
