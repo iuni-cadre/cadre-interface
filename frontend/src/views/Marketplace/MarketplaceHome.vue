@@ -24,14 +24,6 @@
                             :key="`racpackage_card_${index}`"
                             class="col-md-4 d-flex"
                         >
-                            <rac-package-card
-                                @startLoading="(data)=>{ $emit('startLoading', data); }"
-                                @stopLoading="(data)=>{ $emit('stopLoading', data); }"
-                                :rac-package="racpackage"
-                                @packageDeleted="getPackages()"
-                                @packagePublished="getPackages()"
-                                @packageUnpublished="getPackages()"
-                            ></rac-package-card>
                         </div>
                     </div>
                 </div>
@@ -120,7 +112,6 @@
 
 <script>
 import Modal from "@/components/Common/CommonModal";
-import RacPackageCard from "@/components/Marketplace/MarketplaceRacPackageCard";
 import CreatePackageModal from "@/components/Marketplace/MarketplaceCreateRacPackageModal";
 import NewArchiveForm from "@/components/Marketplace/MarketplaceNewArchiveForm";
 
@@ -157,7 +148,6 @@ export default {
     },
     components: {
         Modal,
-        RacPackageCard,
         CreatePackageModal,
         NewArchiveForm
     },

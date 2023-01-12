@@ -1,10 +1,8 @@
 <script>
-import RacPackageCard from "@/components/Marketplace/MarketplaceRacPackageCard";
 import Modal from "@/components/Common/CommonModal";
 export default {
     name: "single-package",
     components: {
-        RacPackageCard,
         Modal,
     },
     data() {
@@ -85,13 +83,6 @@ export default {
             <div v-text="error_message"></div>
         </modal>
 
-        <rac-package-card
-            v-if="racpackage"
-            show-description="true"
-            @startLoading="startLoading"
-            @stopLoading="stopLoading"
-            :rac-package="racpackage"
-        ></rac-package-card>
     </div>
 </template>
 

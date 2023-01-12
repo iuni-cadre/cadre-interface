@@ -53,14 +53,9 @@
                         :key="`racpackage_card_${index}`"
                         class="col-md-4 flex-fill d-flex"
                     >
-                        <rac-package-card
-                            @startLoading="startLoading"
-                            @stopLoading="stopLoading"
-                            :rac-package="racpackage"
-                        ></rac-package-card>
                     </div>
                 </div>
-                
+
             </div>
             <!-- <span class="ml-3 d-inline-block">
                 <span v-text="racpackages_total_count"></span> Total Packages
@@ -90,7 +85,7 @@
             modal-style="info"
             hide-footer=true
             >
-            
+
             <div class="form-group">
                 {{welcome_message}}
                 <hr />
@@ -101,8 +96,8 @@
                 class="col d-flex"
                 >
                     <h3 class="btn btn-primary">Go to your User Profile</h3>
-                
-                
+
+
                 </router-link>
                 </div>
             </div>
@@ -112,7 +107,6 @@
 </template>
 <script>
 import Modal from "@/components/Common/CommonModal";
-import RacPackageCard from "@/components/Marketplace/MarketplaceRacPackageCard";
 import YourTools from "@/components/Your/YourTools";
 import YourArchives from "@/components/Your/YourArchives";
 import YourPackages from "@/components/Your/YourPackages";
@@ -184,11 +178,10 @@ export default {
                 this.stopLoading({key: "featured"});
             }
         }
-        
+
     },
     components: {
         Modal,
-        RacPackageCard,
         YourTools,
         YourArchives,
         YourPackages,
