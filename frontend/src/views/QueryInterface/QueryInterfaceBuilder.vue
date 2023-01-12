@@ -576,10 +576,10 @@ export default {
                                 the user should pose narrow queries so as not to
                                 exceed processing capacity. To constrain the
                                 graph generation within processing capacity, a
-                                limit of 10000 papers or patents has been placed
+                                limit of 100000 papers or patents has been placed
                                 on the number of query results that the graph
                                 generation supports. Any generated citations or
-                                references graph with 10000 or more items
+                                references graph with 100000 or more items
                                 included should be considered an incomplete
                                 graph and it is recommended that the user should
                                 resubmit their query more narrow search
