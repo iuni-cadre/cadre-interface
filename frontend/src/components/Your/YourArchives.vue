@@ -10,41 +10,6 @@
                     >Create New Archive</button>
                 </div>
             </div>
-            <div class="row flex-wrap">
-                <div
-                    v-for="(archive, index) in your_archives"
-                    :key="`archive_card_${index}`"
-                    class="col-md-4 d-flex"
-                >
-                    <archive-card
-                        @startLoading="startLoading"
-                        @stopLoading="stopLoading"
-                        @archiveDeleted="fetchYourArchives()"
-                        :rac-archive="archive"
-                    ></archive-card>
-                </div>
-                <div
-                    class="col"
-                    v-if="your_archives.length == 0"
-                >Could not find any archives created by you.</div>
-            </div>
-            <modal
-                @close="confirm_archive_create_modal_close = true"
-                close-button-label="Cancel"
-                v-if="show_create_archive_modal"
-                modal-width="60%"
-                modal-title="Create New Archive"
-            >
-                <new-archive-form @archiveCreated="show_create_archive_modal = false; fetchYourArchives();"></new-archive-form>
-            </modal>
-            <modal
-                @ok="show_create_archive_modal = false; confirm_archive_create_modal_close = false;"
-                @close="confirm_archive_create_modal_close = false"
-                close-button-label="No"
-                ok-button-label="Yes"
-                :ok-in-footer="true"
-                v-if="confirm_archive_create_modal_close"
-            >Are you sure you want to close this window?</modal>
         </div>
 
         <modal
@@ -57,9 +22,6 @@
 
 <script>
 import Modal from "@/components/Common/CommonModal";
-// import RacPackageCard from "@/components/Marketplace/MarketplaceRacPackageCard";
-// import CreatePackageModal from "@/components/Marketplace/MarketplaceCreateRacPackageModal";
-import ArchiveCard from "@/components/Marketplace/MarketplaceArchiveCard";
 import NewArchiveForm from "@/components/Marketplace/MarketplaceNewArchiveForm";
 
 const GET_TOOLS_ENDPOINT = "/get-archives/user";
@@ -85,9 +47,6 @@ export default {
     },
     components: {
         Modal,
-        // RacPackageCard,
-        ArchiveCard,
-        // CreatePackageModal,
         NewArchiveForm
     },
     methods: {

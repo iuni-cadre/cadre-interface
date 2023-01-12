@@ -3,13 +3,13 @@
         <section>
             <div class="container">
                 <h2>Marketplace</h2>
-                <!-- 
-########     ###     ######  ##    ##    ###     ######   ########  ######  
-##     ##   ## ##   ##    ## ##   ##    ## ##   ##    ##  ##       ##    ## 
-##     ##  ##   ##  ##       ##  ##    ##   ##  ##        ##       ##       
-########  ##     ## ##       #####    ##     ## ##   #### ######    ######  
-##        ######### ##       ##  ##   ######### ##    ##  ##             ## 
-##        ##     ## ##    ## ##   ##  ##     ## ##    ##  ##       ##    ## 
+                <!--
+########     ###     ######  ##    ##    ###     ######   ########  ######
+##     ##   ## ##   ##    ## ##   ##    ## ##   ##    ##  ##       ##    ##
+##     ##  ##   ##  ##       ##  ##    ##   ##  ##        ##       ##
+########  ##     ## ##       #####    ##     ## ##   #### ######    ######
+##        ######### ##       ##  ##   ######### ##    ##  ##             ##
+##        ##     ## ##    ## ##   ##  ##     ## ##    ##  ##       ##    ##
 ##        ##     ##  ######  ##    ## ##     ##  ######   ########  ######
                 -->
 
@@ -35,13 +35,13 @@
                         </div>
                     </div>
                 </div>
-                <!-- 
-########  #######   #######  ##        ######  
-   ##    ##     ## ##     ## ##       ##    ## 
-   ##    ##     ## ##     ## ##       ##       
-   ##    ##     ## ##     ## ##        ######  
-   ##    ##     ## ##     ## ##             ## 
-   ##    ##     ## ##     ## ##       ##    ## 
+                <!--
+########  #######   #######  ##        ######
+   ##    ##     ## ##     ## ##       ##    ##
+   ##    ##     ## ##     ## ##       ##
+   ##    ##     ## ##     ## ##        ######
+   ##    ##     ## ##     ## ##             ##
+   ##    ##     ## ##     ## ##       ##    ##
    ##     #######   #######  ########  ######
                 -->
 
@@ -89,14 +89,14 @@
                     v-if="confirm_tool_create_modal_close"
                 >Are you sure you want to close this window?</modal>
 
-                <!-- 
-   ###    ########   ######  ##     ## #### ##     ## ########  ######  
-  ## ##   ##     ## ##    ## ##     ##  ##  ##     ## ##       ##    ## 
- ##   ##  ##     ## ##       ##     ##  ##  ##     ## ##       ##       
-##     ## ########  ##       #########  ##  ##     ## ######    ######  
-######### ##   ##   ##       ##     ##  ##   ##   ##  ##             ## 
-##     ## ##    ##  ##    ## ##     ##  ##    ## ##   ##       ##    ## 
-##     ## ##     ##  ######  ##     ## ####    ###    ########  ######  
+                <!--
+   ###    ########   ######  ##     ## #### ##     ## ########  ######
+  ## ##   ##     ## ##    ## ##     ##  ##  ##     ## ##       ##    ##
+ ##   ##  ##     ## ##       ##     ##  ##  ##     ## ##       ##
+##     ## ########  ##       #########  ##  ##     ## ######    ######
+######### ##   ##   ##       ##     ##  ##   ##   ##  ##             ##
+##     ## ##    ##  ##    ## ##     ##  ##    ## ##   ##       ##    ##
+##     ## ##     ##  ######  ##     ## ####    ###    ########  ######
                 -->
                 <hr />
 
@@ -116,32 +116,9 @@
                             :key="`racarchive_card_${index}`"
                             class="col-md-4 d-flex"
                         >
-                            <archive-card
-                                @startLoading="(data)=>{ $emit('startLoading', data); }"
-                                @stopLoading="(data)=>{ $emit('stopLoading', data); }"
-                                :rac-archive="racarchive"
-                                @archiveDeleted="getArchives()"
-                            ></archive-card>
                         </div>
                     </div>
                 </div>
-                <modal
-                    @close="confirm_archive_create_modal_close = true"
-                    close-button-label="Cancel"
-                    v-if="show_create_archive_modal"
-                    modal-width="60%"
-                    modal-title="Create New archive"
-                >
-                    <new-archive-form @archiveCreated="show_create_archive_modal = false; getArchives();"></new-archive-form>
-                </modal>
-                <modal
-                    @ok="show_create_archive_modal = false; confirm_archive_create_modal_close = false;"
-                    @close="confirm_archive_create_modal_close = false"
-                    close-button-label="No"
-                    ok-button-label="Yes"
-                    :ok-in-footer="true"
-                    v-if="confirm_archive_create_modal_close"
-                >Are you sure you want to close this window?</modal>
 
                 <!-- <create-package-modal :show-modal="show_create_modal"
                 @close="show_create_modal = false"></create-package-modal>-->
@@ -154,7 +131,6 @@
 import Modal from "@/components/Common/CommonModal";
 import RacPackageCard from "@/components/Marketplace/MarketplaceRacPackageCard";
 import RacToolCard from "@/components/Marketplace/MarketplaceRacToolCard";
-import ArchiveCard from "@/components/Marketplace/MarketplaceArchiveCard";
 import CreatePackageModal from "@/components/Marketplace/MarketplaceCreateRacPackageModal";
 import NewToolForm from "@/components/Marketplace/MarketplaceNewToolForm";
 import NewArchiveForm from "@/components/Marketplace/MarketplaceNewArchiveForm";
@@ -196,7 +172,6 @@ export default {
         RacToolCard,
         CreatePackageModal,
         NewToolForm,
-        ArchiveCard,
         NewArchiveForm
     },
     methods: {
@@ -269,26 +244,6 @@ export default {
             });
             return prom;
         },
-        getArchivesAndTools: function() {
-            this.$store.commit("loading/addKey", {key: "getPackageOptions"});
-            let proms = [];
-            proms.push(this.getArchives());
-            proms.push(this.getTools());
-
-            let prom = Promise.all(proms);
-            prom.then(
-                responses => {
-                    console.debug(responses);
-                },
-                errors => {
-                    console.error(errors);
-                }
-            );
-            prom.finally(() => {
-                this.$store.commit("loading/removeKey", {key: "getPackageOptions"});
-            });
-            return prom;
-        },
         getPackages: function() {
             this.$store.commit("loading/addKey", { key: "get_packages", message: "" });
             let get_packages_prom = this.$store.dispatch(
@@ -312,11 +267,10 @@ export default {
         }
     },
     mounted: function() {
-        //start loading 
-        //look for new packages and tools every time Marketplace is loaded. 
+        //start loading
+        //look for new packages and tools every time Marketplace is loaded.
         this.getPackages();
 
-        this.getArchives();
     }
 };
 
