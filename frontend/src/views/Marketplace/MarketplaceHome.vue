@@ -72,15 +72,6 @@
                     </div>
                 </div>
                 <modal
-                    @close="confirm_tool_create_modal_close = true"
-                    close-button-label="Cancel"
-                    v-if="show_create_tool_modal"
-                    modal-width="60%"
-                    modal-title="Create New Tool"
-                >
-                    <new-tool-form @toolCreated="show_create_tool_modal = false;"></new-tool-form>
-                </modal>
-                <modal
                     @ok="show_create_tool_modal = false; confirm_tool_create_modal_close = false;"
                     @close="confirm_tool_create_modal_close = false"
                     close-button-label="No"
@@ -132,7 +123,6 @@ import Modal from "@/components/Common/CommonModal";
 import RacPackageCard from "@/components/Marketplace/MarketplaceRacPackageCard";
 import RacToolCard from "@/components/Marketplace/MarketplaceRacToolCard";
 import CreatePackageModal from "@/components/Marketplace/MarketplaceCreateRacPackageModal";
-import NewToolForm from "@/components/Marketplace/MarketplaceNewToolForm";
 import NewArchiveForm from "@/components/Marketplace/MarketplaceNewArchiveForm";
 
 export default {
@@ -171,7 +161,6 @@ export default {
         RacPackageCard,
         RacToolCard,
         CreatePackageModal,
-        NewToolForm,
         NewArchiveForm
     },
     methods: {

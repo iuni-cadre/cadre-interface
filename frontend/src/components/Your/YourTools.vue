@@ -31,15 +31,6 @@
                 >Could not find any tools created by you.</div>
             </div>
             <modal
-                @close="confirm_tool_create_modal_close = true"
-                close-button-label="Cancel"
-                v-if="show_create_tool_modal"
-                modal-width="60%"
-                modal-title="Create New Tool"
-            >
-                <new-tool-form @toolCreated="show_create_tool_modal = false;"></new-tool-form>
-            </modal>
-            <modal
                 @ok="show_create_tool_modal = false; confirm_tool_create_modal_close = false;"
                 @close="confirm_tool_create_modal_close = false"
                 close-button-label="No"
@@ -59,10 +50,7 @@
 
 <script>
 import Modal from "@/components/Common/CommonModal";
-// import RacPackageCard from "@/components/Marketplace/MarketplaceRacPackageCard";
-// import CreatePackageModal from "@/components/Marketplace/MarketplaceCreateRacPackageModal";
 import RacToolCard from "@/components/Marketplace/MarketplaceRacToolCard";
-import NewToolForm from "@/components/Marketplace/MarketplaceNewToolForm";
 
 const GET_TOOLS_ENDPOINT = "/get-tools/user";
 
@@ -77,20 +65,9 @@ export default {
             error_message: ""
         };
     },
-    computed: {
-        // racpackages: function() {
-        //     return this.$store.getters["racpackage/packages"];
-        // },
-        // ractools: function() {
-        //     return this.$store.getters["racpackage/tools"];
-        // }
-    },
     components: {
         Modal,
-        // RacPackageCard,
         RacToolCard,
-        // CreatePackageModal,
-        NewToolForm
     },
     methods: {
         startLoading({key, message}){
@@ -99,9 +76,6 @@ export default {
         stopLoading({key}){
             this.$store.commit("loading/removeKey", {key});
         },
-        // openCreateToolModal: function(){
-        //     this.show_create_tool_modal = true;
-        // }
         fetchYourTools: function() {
             this.startLoading({ key: "get_your_tools", message: "" });
 
