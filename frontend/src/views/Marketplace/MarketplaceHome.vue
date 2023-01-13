@@ -63,48 +63,7 @@
                         </div>
                     </div>
                 </div>
-                <modal
-                    @ok="show_create_tool_modal = false; confirm_tool_create_modal_close = false;"
-                    @close="confirm_tool_create_modal_close = false"
-                    close-button-label="No"
-                    ok-button-label="Yes"
-                    :ok-in-footer="true"
-                    v-if="confirm_tool_create_modal_close"
-                >Are you sure you want to close this window?</modal>
 
-                <!--
-   ###    ########   ######  ##     ## #### ##     ## ########  ######
-  ## ##   ##     ## ##    ## ##     ##  ##  ##     ## ##       ##    ##
- ##   ##  ##     ## ##       ##     ##  ##  ##     ## ##       ##
-##     ## ########  ##       #########  ##  ##     ## ######    ######
-######### ##   ##   ##       ##     ##  ##   ##   ##  ##             ##
-##     ## ##    ##  ##    ## ##     ##  ##    ## ##   ##       ##    ##
-##     ## ##     ##  ######  ##     ## ####    ###    ########  ######
-                -->
-                <hr />
-
-                <div class="archives-container">
-                    <h3>Data Archives</h3>
-                    <div class="row">
-                        <div class="col mb-3">
-                            <button
-                                class="btn btn-primary"
-                                @click="show_create_archive_modal = true"
-                            >Create New Data Archive</button>
-                        </div>
-                    </div>
-                    <div class="row flex-wrap">
-                        <div
-                            v-for="(racarchive, index) in available_archives"
-                            :key="`racarchive_card_${index}`"
-                            class="col-md-4 d-flex"
-                        >
-                        </div>
-                    </div>
-                </div>
-
-                <!-- <create-package-modal :show-modal="show_create_modal"
-                @close="show_create_modal = false"></create-package-modal>-->
             </div>
         </section>
     </div>
@@ -112,8 +71,6 @@
 
 <script>
 import Modal from "@/components/Common/CommonModal";
-import CreatePackageModal from "@/components/Marketplace/MarketplaceCreateRacPackageModal";
-import NewArchiveForm from "@/components/Marketplace/MarketplaceNewArchiveForm";
 
 export default {
     data: function() {
@@ -147,9 +104,7 @@ export default {
         }
     },
     components: {
-        Modal,
-        CreatePackageModal,
-        NewArchiveForm
+        Modal
     },
     methods: {
         // openCreateToolModal: function(){

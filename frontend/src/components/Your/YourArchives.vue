@@ -22,7 +22,6 @@
 
 <script>
 import Modal from "@/components/Common/CommonModal";
-import NewArchiveForm from "@/components/Marketplace/MarketplaceNewArchiveForm";
 
 const GET_TOOLS_ENDPOINT = "/get-archives/user";
 
@@ -46,8 +45,7 @@ export default {
         // }
     },
     components: {
-        Modal,
-        NewArchiveForm
+        Modal
     },
     methods: {
         startLoading({key, message}){

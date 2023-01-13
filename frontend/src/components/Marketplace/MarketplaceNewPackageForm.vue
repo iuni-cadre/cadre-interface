@@ -131,19 +131,7 @@
                         <p>Your package has been created.</p>
                     </div>
                 </modal>
-
-                <modal
-                    @close="confirm_archive_create_modal_close = true"
-                    close-button-label="Cancel"
-                    v-if="show_create_archive_modal"
-                    modal-width="60%"
-                    modal-title="Create New Archive"
-                >
-                    <new-archive-form
-                        :default-name="new_archive_name"
-                        @archiveCreated="archiveCreatedCallback"
-                    ></new-archive-form>
-                </modal>
+                
                 <modal
                     @ok="show_create_archive_modal = false; confirm_archive_create_modal_close = false;"
                     @close="confirm_archive_create_modal_close = false"
@@ -168,7 +156,6 @@
 <script>
 import FileBrowser from "../../components/Filebrowser/FilebrowserMain";
 import Modal from "../../components/Common/CommonModal";
-import NewArchiveForm from "@/components/Marketplace/MarketplaceNewArchiveForm";
 
 export default {
     data: function() {
@@ -222,8 +209,7 @@ export default {
         } //of objects
     },
     components: {
-        Modal,
-        NewArchiveForm
+        Modal
     },
     methods: {
         archiveCreatedCallback: function(archive_id) {
