@@ -12,8 +12,6 @@
 <script>
 import TestComponent from "../../components/Filebrowser/FilebrowserMain";
 // import TestComponent from "../../views/Jobs/JobsList";
-// import NewArchiveForm from "../../components/Marketplace/MarketplaceNewArchiveForm";
-// import TestComponent from "../../components/Marketplace/MarketplaceNewPackageForm";
 
 const TOOLS = [
     {
@@ -53,7 +51,6 @@ const ARCHIVES = [
 ];
 export default {
     components: {
-        // NewArchiveForm
         TestComponent
     },
     computed: {
