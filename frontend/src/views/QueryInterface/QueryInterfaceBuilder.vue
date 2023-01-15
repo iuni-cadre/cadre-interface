@@ -1,4 +1,3 @@
-
 <script>
 import QueryBuilderHeader from "./QueryInterfaceHeader";
 import OutputFields from "@/components/QueryBuilder/QueryBuilderOutputFields";
@@ -113,7 +112,7 @@ export default {
             let field_array = [];
             let fields = this.$store.getters["query/inputFields"];
             for (let field in fields) {
-                field_array.push({ value: field, label: fields[field] });
+                field_array.push({value: field, label: fields[field]});
             }
 
             const exclusive_fields =
@@ -280,6 +279,8 @@ export default {
             this.setStoreQuery();
         },
         sendQuery: async function (async) {
+
+            await this.startCluster();
             //async is false for preve, true for full query
             async = async || false;
             let query = [];
@@ -305,6 +306,7 @@ export default {
                 console.error("Empty Query", this.queries);
                 return false;
             }
+
 
             //save the query
             this.setStoreQuery();
@@ -402,7 +404,29 @@ export default {
                     this.error_message = error.toString();
                 }
             }
-            this.$store.commit("loading/removeKey", { key: "query" });
+            this.$store.commit("loading/removeKey", {key: "query"});
+        },
+        async startCluster() {
+            try {
+                this.$cadre
+                    .axios({
+                        url: `${this.$cadreConfig.query_builder_api_prefix}/start_cluster`,
+                        method: "POST",
+                        data: {dataset: this.dataset_name},
+                    })
+                    .then(
+                        (resp) => {
+                            console.info(
+                                "Start cluster signal sent successfully."
+                            );
+                        },
+                        (err) => {
+                            console.error("Couldn't start cluster: ", err);
+                        }
+                    );
+            } catch (e) {
+                console.error("Couldn't start cluster: ", e);
+            }
         },
         clickNetworkField(field_name) {
             for (let field in this.network_fields) {
@@ -420,15 +444,15 @@ export default {
                 this.selected_fields.push(field_name);
             }
         },
-        filterFieldChanged({ index, field }) {
+        filterFieldChanged({index, field}) {
             // console.debug(index, field);
             this.queries[index].field = field;
         },
-        filterValueChanged({ index, value }) {
+        filterValueChanged({index, value}) {
             // console.debug(index, value);
             this.queries[index].value = value;
         },
-        filterRemoveClickHandler({ index }) {
+        filterRemoveClickHandler({index}) {
             // console.debug(index);
             this.removeQueryClause(index);
         },
@@ -462,7 +486,7 @@ export default {
     },
     mounted: async function () {
         if (!this.$store.getters["query/selectedDataset"]) {
-            this.$router.push({ name: "query-builder" });
+            this.$router.push({name: "query-builder"});
             return false;
         } else {
             try {
@@ -470,7 +494,7 @@ export default {
                     .axios({
                         url: `${this.$cadreConfig.query_builder_api_prefix}/start_cluster`,
                         method: "POST",
-                        data: { dataset: this.dataset_name },
+                        data: {dataset: this.dataset_name},
                     })
                     .then(
                         (resp) => {
@@ -494,17 +518,17 @@ export default {
 </script>
 
 <template>
-    <!-- 
-######## ######## ##     ## ########  ##          ###    ######## ######## 
-   ##    ##       ###   ### ##     ## ##         ## ##      ##    ##       
-   ##    ##       #### #### ##     ## ##        ##   ##     ##    ##       
-   ##    ######   ## ### ## ########  ##       ##     ##    ##    ######   
-   ##    ##       ##     ## ##        ##       #########    ##    ##       
-   ##    ##       ##     ## ##        ##       ##     ##    ##    ##       
-   ##    ######## ##     ## ##        ######## ##     ##    ##    ######## 
+    <!--
+######## ######## ##     ## ########  ##          ###    ######## ########
+   ##    ##       ###   ### ##     ## ##         ## ##      ##    ##
+   ##    ##       #### #### ##     ## ##        ##   ##     ##    ##
+   ##    ######   ## ### ## ########  ##       ##     ##    ##    ######
+   ##    ##       ##     ## ##        ##       #########    ##    ##
+   ##    ##       ##     ## ##        ##       ##     ##    ##    ##
+   ##    ######## ##     ## ##        ######## ##     ##    ##    ########
     -->
     <div>
-        <query-builder-header />
+        <query-builder-header/>
         <section>
             <div class="container">
                 <h3 class>
@@ -675,9 +699,9 @@ export default {
                         <div class="form-group">
                             <h4 class>
                                 <label for="job_name"
-                                    >Job Name
+                                >Job Name
                                     <small class="text-muted"
-                                        >(Optional)</small
+                                    >(Optional)</small
                                     ></label
                                 >
                             </h4>
@@ -819,7 +843,7 @@ export default {
                                             aria-label="Close"
                                         >
                                             <span aria-hidden="true"
-                                                >&times;</span
+                                            >&times;</span
                                             >
                                         </button>
                                     </div>
@@ -866,7 +890,7 @@ export default {
                                             aria-label="Close"
                                         >
                                             <span aria-hidden="true"
-                                                >&times;</span
+                                            >&times;</span
                                             >
                                         </button>
                                     </div>
