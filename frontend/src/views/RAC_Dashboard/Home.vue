@@ -69,9 +69,7 @@
 </template>
 <script>
 import Modal from "@/components/Common/CommonModal";
-import YourTools from "@/components/Your/YourTools";
-import YourArchives from "@/components/Your/YourArchives";
-import YourPackages from "@/components/Your/YourPackages";
+// import YourTools from "@/components/Your/YourTools";
 
 const RAC_PACKAGES_TO_SHOW = 3;
 
@@ -116,10 +114,7 @@ export default {
 
     },
     components: {
-        Modal,
-        YourTools,
-        YourArchives,
-        YourPackages,
+        Modal
     },
     mounted: async function () {
     }
