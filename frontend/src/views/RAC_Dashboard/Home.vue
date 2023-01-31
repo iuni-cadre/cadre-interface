@@ -6,7 +6,7 @@
             <hr />
 
             <h3>Quick Start</h3>
-            <div class="py-3 row quick-start">
+            <div class="py-3 row quick-start" style="margin-bottom: 200px">
                 <!-- <button @click="goToQueryInterface()" class="btn btn-primary">Query Interface</button>
             &nbsp;&nbsp;
                 <button @click="goToNotebook()" class="btn btn-primary">Jupyter Notebook</button>-->
@@ -34,34 +34,6 @@
                     </div>
                 </router-link>
             </div>
-            <hr />
-            <div class="d-flex justify-content-between align-items-baseline">
-                <h3>Featured Packages</h3>&nbsp;&nbsp;
-                <router-link
-                    :to="{name: 'rac-marketplace'}"
-                    target
-                    class
-                >Visit Marketplace</router-link>
-            </div>
-            <div class="">
-                <div class="row col" v-if="!racpackages || racpackages.length == 0">
-                    Could not find any featured packages.
-                </div>
-                <div v-else class="row flex-wrap d-flex mb-3">
-                    <div
-                        v-for="(racpackage, index) in racpackages"
-                        :key="`racpackage_card_${index}`"
-                        class="col-md-4 flex-fill d-flex"
-                    >
-                        <rac-package-card
-                            @startLoading="startLoading"
-                            @stopLoading="stopLoading"
-                            :rac-package="racpackage"
-                        ></rac-package-card>
-                    </div>
-                </div>
-                
-            </div>
             <!-- <span class="ml-3 d-inline-block">
                 <span v-text="racpackages_total_count"></span> Total Packages
             </span> -->
@@ -69,28 +41,13 @@
             {{jupyter_full_url}}
             </div>-->
             <hr />
-
-            <your-packages
-                @startLoading="startLoading"
-                @stopLoading="stopLoading"
-            ></your-packages>
-            <hr />
-            <your-tools
-                @startLoading="startLoading"
-                @stopLoading="stopLoading"
-            ></your-tools>
-            <hr />
-            <your-archives
-                @startLoading="startLoading"
-                @stopLoading="stopLoading"
-            ></your-archives>
             <!-- <modal
             @close="welcome_message = ''"
             v-if="welcome_message"
             modal-style="info"
             hide-footer=true
             >
-            
+
             <div class="form-group">
                 {{welcome_message}}
                 <hr />
@@ -101,8 +58,8 @@
                 class="col d-flex"
                 >
                     <h3 class="btn btn-primary">Go to your User Profile</h3>
-                
-                
+
+
                 </router-link>
                 </div>
             </div>
@@ -112,17 +69,13 @@
 </template>
 <script>
 import Modal from "@/components/Common/CommonModal";
-import RacPackageCard from "@/components/Marketplace/MarketplaceRacPackageCard";
-import YourTools from "@/components/Your/YourTools";
-import YourArchives from "@/components/Your/YourArchives";
-import YourPackages from "@/components/Your/YourPackages";
+// import YourTools from "@/components/Your/YourTools";
 
 const RAC_PACKAGES_TO_SHOW = 3;
 
 export default {
     data: function() {
         return {
-            racpackages: []
         };
     },
     computed: {
@@ -142,15 +95,6 @@ export default {
             return this.$store.getters["user/username"];
         },
 
-        // racpackages: function () {
-        //     return this.$store.getters["racpackage/packages"].slice(
-        //         0,
-        //         RAC_PACKAGES_TO_SHOW
-        //     );
-        // },
-        racpackages_total_count: function () {
-            return this.$store.getters["racpackage/packages"].length;
-        },
     },
     methods: {
         goToQueryInterface: function () {
@@ -167,45 +111,12 @@ export default {
         stopLoading({ key }) {
             this.$store.commit("loading/removeKey", { key });
         },
-        async getFeaturedPackages(){
-            this.startLoading({key: "featured"})
-            try {
-                let response = await this.$cadre.axios({
-                    url: `${this.$cadreConfig.rac_api_prefix}/packages/featured`,
-                    method: "GET",
-                })
-                // console.debug(response.data)
-                this.racpackages = response.data;
-            } catch (error) {
-                // throw error;
-                console.warn(error);
-            }
-            finally {
-                this.stopLoading({key: "featured"});
-            }
-        }
-        
+
     },
     components: {
-        Modal,
-        RacPackageCard,
-        YourTools,
-        YourArchives,
-        YourPackages,
+        Modal
     },
     mounted: async function () {
-        if (this.racpackages.length === 0) {
-            this.startLoading({ key: "get_packages", message: "" });
-            let get_packages_prom = this.$store.dispatch(
-                "racpackage/getPackages"
-            );
-            this.getFeaturedPackages();
-            let get_tools_prom = this.$store.dispatch("racpackage/getTools");
-            Promise.all([get_packages_prom, get_tools_prom]).finally(() => {
-                //stop loading
-                this.stopLoading({ key: "get_packages" });
-            });
-        }
     }
 };
 

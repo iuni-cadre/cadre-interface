@@ -1,3 +1,8 @@
+# 1.1.6-beta
+
+- Adds endpoint to notify backend to restart clusters when user clicks on a data set.
+
+
 # 1.1.4-beta
 
 - Bug fix in query builder.
