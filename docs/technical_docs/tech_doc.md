@@ -32,7 +32,7 @@
 - PTO - Patent and Trademark Office (data set)
 
 ### Terms
-- Research Assets Commons - Marketplace where users can store and consume existing piplines of data and algorithms
+- Research Assets Commons - Marketplace where users can store and consume existing piplines of data and algorithms.  **Note: The Research Assets Commons/Marketplace and its associated functionality were removed from the interface, though some remnants may appear in the code and system architecture.**
 - Notebook - method by which users can run custom code against CADRE data sets
 - Query Interface - main interface where users can query CADRE data sets. Includes query builder and notebooks.
 - Cadre Data Sets or just Data Sets - the main datasets (WoS, MAG, PTO) in all their database forms
