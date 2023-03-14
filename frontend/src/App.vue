@@ -249,7 +249,7 @@ export default {
         });
 
         this.removeFromLoadingQueue({key: "initializing"})
-        
+
         this.updateTitle();
 
     },
@@ -261,7 +261,7 @@ export default {
         "$route.name"(){
             this.firstLogin();
             this.updateTitle();
-            
+
         },
         "authToken"(){
             this.updateTitle();
@@ -357,11 +357,6 @@ export default {
                                 target
                             >Notebook</router-link>
                         </li>
-                        <!-- <li class="nav-item">
-                            <router-link class="p-3 p-md-0 d-inline-block"
-                                         :to="{name: 'your-home'}"
-                                         target="">Your CADRE</router-link>
-                        </li>-->
                     </ul>
 
                     <div v-if="!token">
@@ -391,6 +386,9 @@ export default {
                 </div>
             </nav>
         </header>
+        <div class="row-text">
+            <p class="running-text">CADRE will be sunset on June 30, 2023. Click <a href="https://iuni-cadre.github.io/cadre-interface/" target="_blank">Here</a> for more info</p>
+        </div>
 
         <section
             v-if="version.warning"
@@ -493,13 +491,13 @@ export default {
                 </p>
             </div>-->
         </template>
-        <!-- 
- ######  ########  #### ##    ## ##    ## ######## ########  
-##    ## ##     ##  ##  ###   ## ###   ## ##       ##     ## 
-##       ##     ##  ##  ####  ## ####  ## ##       ##     ## 
- ######  ########   ##  ## ## ## ## ## ## ######   ########  
-      ## ##         ##  ##  #### ##  #### ##       ##   ##   
-##    ## ##         ##  ##   ### ##   ### ##       ##    ##  
+        <!--
+ ######  ########  #### ##    ## ##    ## ######## ########
+##    ## ##     ##  ##  ###   ## ###   ## ##       ##     ##
+##       ##     ##  ##  ####  ## ####  ## ##       ##     ##
+ ######  ########   ##  ## ## ## ## ## ## ######   ########
+      ## ##         ##  ##  #### ##  #### ##       ##   ##
+##    ## ##         ##  ##   ### ##   ### ##       ##    ##
  ######  ##        #### ##    ## ##    ## ######## ##     ##
         -->
 
@@ -522,13 +520,13 @@ export default {
             </div>
         </div>
 
-        <!-- 
-########  #######   #######  ######## ######## ########  
-##       ##     ## ##     ##    ##    ##       ##     ## 
-##       ##     ## ##     ##    ##    ##       ##     ## 
-######   ##     ## ##     ##    ##    ######   ########  
-##       ##     ## ##     ##    ##    ##       ##   ##   
-##       ##     ## ##     ##    ##    ##       ##    ##  
+        <!--
+########  #######   #######  ######## ######## ########
+##       ##     ## ##     ##    ##    ##       ##     ##
+##       ##     ## ##     ##    ##    ##       ##     ##
+######   ##     ## ##     ##    ##    ######   ########
+##       ##     ## ##     ##    ##    ##       ##   ##
+##       ##     ## ##     ##    ##    ##       ##    ##
 ##        #######   #######     ##    ######## ##     ##
         -->
 
@@ -679,6 +677,26 @@ header#main-header .nav-item {
 
     a {
         text-decoration: none;
+    }
+}
+
+.row-text{
+    background-color: yellow;
+    height: 30px;
+}
+.running-text {
+    white-space: nowrap;
+    overflow: hidden;
+    animation: running-text 60s linear infinite;
+    padding-top: 5px;
+}
+
+@keyframes running-text {
+    0% {
+        transform: translateX(100%);
+    }
+    100% {
+        transform: translateX(-100%);
     }
 }
 </style>
